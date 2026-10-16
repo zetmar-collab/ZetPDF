@@ -1,0 +1,46 @@
+<Window x:Class="ZetPDF.App.Dialogs.AboutWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="clr-namespace:ZetPDF.Core.Localization;assembly=ZetPDF.Core"
+        Title="{loc:Loc Cmd.Help.About}" Width="640" Height="600" MinWidth="520" MinHeight="460"
+        ShowInTaskbar="False" WindowStartupLocation="CenterOwner"
+        AutomationProperties.AutomationId="Shell.AboutWindow">
+    <DockPanel>
+        <Border DockPanel.Dock="Bottom" Padding="16,12" Background="{DynamicResource Brush.Surface.Alt}">
+            <DockPanel>
+                <Button x:Name="LicensesButton" DockPanel.Dock="Left" Content="{loc:Loc Cmd.Help.Licenses}" />
+                <Button Content="{loc:Loc Core.Button.Close}" IsDefault="True" IsCancel="True" MinWidth="88" HorizontalAlignment="Right" />
+            </DockPanel>
+        </Border>
+
+        <StackPanel DockPanel.Dock="Top" Margin="24,22,24,0">
+            <StackPanel Orientation="Horizontal">
+                <Image Source="pack://application:,,,/ZetPDF;component/Assets/ZetPDF-256.png" Width="64" Height="64" Margin="0,0,18,0"
+                       RenderOptions.BitmapScalingMode="HighQuality" />
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="{loc:Loc Shell.AppTitle}" FontSize="28" FontWeight="SemiBold" />
+                    <TextBlock x:Name="VersionText" Style="{StaticResource Shell.Text.Secondary}" />
+                </StackPanel>
+            </StackPanel>
+            <TextBlock Text="{loc:Loc Shell.About.Description}" TextWrapping="Wrap" Margin="0,16,0,0" />
+            <Border Margin="0,14,0,0" Padding="12,10" CornerRadius="6" Background="{DynamicResource Brush.Surface.Alt}">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Left" Text="&#xE72E;" Style="{StaticResource Shell.IconText}" Margin="0,0,10,0"
+                               VerticalAlignment="Top" Foreground="{DynamicResource Brush.Status.Success}" />
+                    <TextBlock Text="{loc:Loc Shell.About.Privacy}" TextWrapping="Wrap" />
+                </DockPanel>
+            </Border>
+            <TextBlock x:Name="EnvironmentText" Style="{StaticResource Shell.Text.Secondary}" Margin="0,10,0,0" FontSize="12" />
+            <TextBlock Text="{loc:Loc Shell.About.Libraries}" Style="{StaticResource Shell.Text.Heading}" Margin="0,16,0,8" />
+        </StackPanel>
+
+        <DataGrid x:Name="LibrariesGrid" Margin="24,0,24,16" IsReadOnly="True" SelectionMode="Single"
+                  AutomationProperties.AutomationId="Shell.About.Libraries">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="{loc:Loc Shell.About.Column.Name}" Binding="{Binding Name}" Width="2*" />
+                <DataGridTextColumn Header="{loc:Loc Shell.About.Column.Version}" Binding="{Binding Version}" Width="*" />
+                <DataGridTextColumn Header="{loc:Loc Shell.About.Column.License}" Binding="{Binding License}" Width="*" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </DockPanel>
+</Window>

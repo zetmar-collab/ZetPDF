@@ -1,0 +1,118 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Style elementów powłoki ZetPDF (karty dokumentów, pasek paneli, pasek stanu). Tylko klucze motywu. Własność: ui-shell. -->
+
+    <!-- ===================================================================== karty dokumentów -->
+    <Style x:Key="Shell.DocumentStrip" TargetType="ListBox">
+        <Setter Property="Background" Value="{DynamicResource Brush.Surface}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}" />
+        <Setter Property="BorderThickness" Value="0,0,0,1" />
+        <Setter Property="Padding" Value="4,4,4,0" />
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
+        <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Disabled" />
+        <Setter Property="ScrollViewer.CanContentScroll" Value="False" />
+        <Setter Property="KeyboardNavigation.DirectionalNavigation" Value="Cycle" />
+        <Setter Property="ItemsPanel">
+            <Setter.Value>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListBox">
+                    <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                        <ScrollViewer Padding="{TemplateBinding Padding}" Focusable="False">
+                            <ItemsPresenter />
+                        </ScrollViewer>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="Shell.DocumentTab" TargetType="ListBoxItem">
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
+        <Setter Property="Padding" Value="12,6,6,6" />
+        <Setter Property="Margin" Value="0,0,2,0" />
+        <Setter Property="MinWidth" Value="120" />
+        <Setter Property="MaxWidth" Value="260" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListBoxItem">
+                    <Grid>
+                        <Border x:Name="Bd" CornerRadius="6,6,0,0" Background="Transparent" Padding="{TemplateBinding Padding}"
+                                BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1,1,1,0">
+                            <ContentPresenter VerticalAlignment="Center" />
+                        </Border>
+                        <Border x:Name="Marker" Height="3" VerticalAlignment="Top" CornerRadius="6,6,0,0"
+                                Background="{DynamicResource Brush.Accent}" Visibility="Hidden" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.Control.Background.Hover}" />
+                            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.Surface.Raised}" />
+                            <Setter TargetName="Marker" Property="Visibility" Value="Visible" />
+                            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Brush.Focus}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ===================================================================== pasek paneli bocznych -->
+    <Style x:Key="Shell.RailButton" TargetType="ToggleButton" BasedOn="{StaticResource Shell.Button.Subtle}">
+        <Setter Property="Width" Value="40" />
+        <Setter Property="Height" Value="40" />
+        <Setter Property="Margin" Value="2,2,2,0" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Grid Background="Transparent">
+                        <Border x:Name="Bd" CornerRadius="4" Background="Transparent" />
+                        <Border x:Name="Marker" Width="3" HorizontalAlignment="Left" Margin="0,8" CornerRadius="1.5"
+                                Background="{DynamicResource Brush.Accent}" Visibility="Hidden" />
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.Control.Background.Hover}" />
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Marker" Property="Visibility" Value="Visible" />
+                            <Setter Property="Foreground" Value="{DynamicResource Brush.Accent}" />
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.Control.Background.Hover}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ===================================================================== pasek stanu -->
+    <Style x:Key="Shell.StatusButton" TargetType="ButtonBase" BasedOn="{StaticResource Shell.Button.Subtle}">
+        <Setter Property="Foreground" Value="{DynamicResource Brush.StatusBar.Text}" />
+        <Setter Property="MinWidth" Value="26" />
+        <Setter Property="MinHeight" Value="24" />
+        <Setter Property="Padding" Value="4,2" />
+        <Setter Property="FontSize" Value="13" />
+    </Style>
+
+    <Style x:Key="Shell.StatusSeparator" TargetType="Rectangle">
+        <Setter Property="Width" Value="1" />
+        <Setter Property="Margin" Value="8,6" />
+        <Setter Property="Fill" Value="{DynamicResource Brush.Border}" />
+    </Style>
+</ResourceDictionary>

@@ -2,13 +2,15 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              ShutdownMode="OnMainWindowClose">
-    <!-- Brak StartupUri: start w App.xaml.cs (kontener DI, moduły). Słowniki motywu przełącza ThemeService. -->
+    <!-- Brak StartupUri: start w App.xaml.cs (kontener DI, moduły). Słownik Light/Dark podmienia ThemeService
+         (indeks 1); motyw Fluent.Ribbon generowany z akcentu ZetPDF. Kolejność: Fluent → motyw → style. -->
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/Fluent;component/Themes/Generic.xaml" />
                 <ResourceDictionary Source="Themes/Light.xaml" />
                 <ResourceDictionary Source="Themes/Styles.xaml" />
+                <ResourceDictionary Source="Themes/Shell.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

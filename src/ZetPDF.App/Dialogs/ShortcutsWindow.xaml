@@ -1,0 +1,27 @@
+<Window x:Class="ZetPDF.App.Dialogs.ShortcutsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="clr-namespace:ZetPDF.Core.Localization;assembly=ZetPDF.Core"
+        Title="{loc:Loc Cmd.Help.Shortcuts}" Width="680" Height="620" MinWidth="460" MinHeight="360"
+        ShowInTaskbar="False" WindowStartupLocation="CenterOwner"
+        AutomationProperties.AutomationId="Shell.ShortcutsWindow">
+    <DockPanel>
+        <Border DockPanel.Dock="Bottom" Padding="16,12" Background="{DynamicResource Brush.Surface.Alt}">
+            <DockPanel>
+                <TextBlock x:Name="SingleKeyState" VerticalAlignment="Center" Style="{StaticResource Shell.Text.Secondary}" Margin="0,0,16,0" />
+                <Button Content="{loc:Loc Core.Button.Close}" IsDefault="True" IsCancel="True" MinWidth="88" HorizontalAlignment="Right" />
+            </DockPanel>
+        </Border>
+        <DockPanel DockPanel.Dock="Top" Margin="16,14,16,10">
+            <TextBlock DockPanel.Dock="Left" Text="&#xE721;" Style="{StaticResource Shell.IconText}" Margin="0,0,8,0" />
+            <TextBox x:Name="FilterBox" AutomationProperties.Name="{loc:Loc Shell.Shortcuts.Filter}" />
+        </DockPanel>
+        <DataGrid x:Name="ShortcutGrid" Margin="16,0,16,16" IsReadOnly="True" AutomationProperties.AutomationId="Shell.Shortcuts.Grid">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="{loc:Loc Shell.Shortcuts.Command}" Binding="{Binding Label}" Width="2*" />
+                <DataGridTextColumn Header="{loc:Loc Shell.Shortcuts.Keys}" Binding="{Binding Keys}" Width="*" />
+                <DataGridTextColumn Header="{loc:Loc Shell.Shortcuts.SingleKey}" Binding="{Binding SingleKey}" Width="Auto" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </DockPanel>
+</Window>

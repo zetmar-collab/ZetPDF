@@ -1,49 +1,51 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <!-- Motyw jasny ZetPDF (własność: ui-shell). Musi definiować KAŻDY klucz z ZetPDF.Core.Theming.ThemeKeys. -->
-    <SolidColorBrush x:Key="Brush.Window.Background" Color="#FFF3F3F3" />
-    <SolidColorBrush x:Key="Brush.Surface" Color="#FFFAFAFA" />
-    <SolidColorBrush x:Key="Brush.Surface.Alt" Color="#FFEDEDED" />
+    <!-- Motyw jasny ZetPDF (własność: ui-shell). Musi definiować KAŻDY klucz z ZetPDF.Core.Theming.ThemeKeys.
+         To (obok Dark.xaml) JEDYNE miejsce z kolorami interfejsu. Akcent: morski (teal) – własna paleta ZetPDF.
+         Kontrast tekstu ≥ 4.5:1 sprawdza test ThemeContrastTests. -->
+    <SolidColorBrush x:Key="Brush.Window.Background" Color="#FFF1F3F4" />
+    <SolidColorBrush x:Key="Brush.Surface" Color="#FFF8F9FA" />
+    <SolidColorBrush x:Key="Brush.Surface.Alt" Color="#FFE9EDEF" />
     <SolidColorBrush x:Key="Brush.Surface.Raised" Color="#FFFFFFFF" />
-    <SolidColorBrush x:Key="Brush.Text.Primary" Color="#FF1B1B1B" />
-    <SolidColorBrush x:Key="Brush.Text.Secondary" Color="#FF545454" />
-    <SolidColorBrush x:Key="Brush.Text.Disabled" Color="#FF8A8A8A" />
+    <SolidColorBrush x:Key="Brush.Text.Primary" Color="#FF1A1F23" />
+    <SolidColorBrush x:Key="Brush.Text.Secondary" Color="#FF4D5860" />
+    <SolidColorBrush x:Key="Brush.Text.Disabled" Color="#FF8C969C" />
     <SolidColorBrush x:Key="Brush.Text.OnAccent" Color="#FFFFFFFF" />
-    <SolidColorBrush x:Key="Brush.Text.Link" Color="#FF0B5CAD" />
-    <SolidColorBrush x:Key="Brush.Border" Color="#FFD1D1D1" />
-    <SolidColorBrush x:Key="Brush.Border.Strong" Color="#FF8A8A8A" />
-    <SolidColorBrush x:Key="Brush.Focus" Color="#FF0B5CAD" />
-    <SolidColorBrush x:Key="Brush.Accent" Color="#FF0B5CAD" />
-    <SolidColorBrush x:Key="Brush.Accent.Hover" Color="#FF0A4F96" />
-    <SolidColorBrush x:Key="Brush.Accent.Pressed" Color="#FF083F78" />
+    <SolidColorBrush x:Key="Brush.Text.Link" Color="#FF075E82" />
+    <SolidColorBrush x:Key="Brush.Border" Color="#FFD3D9DD" />
+    <SolidColorBrush x:Key="Brush.Border.Strong" Color="#FF7D8A92" />
+    <SolidColorBrush x:Key="Brush.Focus" Color="#FF0D6E6A" />
+    <SolidColorBrush x:Key="Brush.Accent" Color="#FF0D6E6A" />
+    <SolidColorBrush x:Key="Brush.Accent.Hover" Color="#FF0A5E5A" />
+    <SolidColorBrush x:Key="Brush.Accent.Pressed" Color="#FF084C49" />
     <SolidColorBrush x:Key="Brush.Control.Background" Color="#FFFFFFFF" />
-    <SolidColorBrush x:Key="Brush.Control.Background.Hover" Color="#FFEAEAEA" />
-    <SolidColorBrush x:Key="Brush.Control.Background.Pressed" Color="#FFDCDCDC" />
-    <SolidColorBrush x:Key="Brush.Control.Border" Color="#FFB5B5B5" />
+    <SolidColorBrush x:Key="Brush.Control.Background.Hover" Color="#FFE6EEEE" />
+    <SolidColorBrush x:Key="Brush.Control.Background.Pressed" Color="#FFD4E3E2" />
+    <SolidColorBrush x:Key="Brush.Control.Border" Color="#FFB4BEC4" />
     <SolidColorBrush x:Key="Brush.Input.Background" Color="#FFFFFFFF" />
-    <SolidColorBrush x:Key="Brush.Input.Border" Color="#FF8A8A8A" />
-    <SolidColorBrush x:Key="Brush.Selection.Background" Color="#FFCCE0F5" />
-    <SolidColorBrush x:Key="Brush.Selection.Text" Color="#FF1B1B1B" />
-    <SolidColorBrush x:Key="Brush.Scrollbar.Thumb" Color="#FFA0A0A0" />
-    <SolidColorBrush x:Key="Brush.Scrollbar.Track" Color="#FFF0F0F0" />
+    <SolidColorBrush x:Key="Brush.Input.Border" Color="#FF7D8A92" />
+    <SolidColorBrush x:Key="Brush.Selection.Background" Color="#FFCDE7E5" />
+    <SolidColorBrush x:Key="Brush.Selection.Text" Color="#FF1A1F23" />
+    <SolidColorBrush x:Key="Brush.Scrollbar.Thumb" Color="#FF9AA5AB" />
+    <SolidColorBrush x:Key="Brush.Scrollbar.Track" Color="#FFEEF1F2" />
     <SolidColorBrush x:Key="Brush.Tooltip.Background" Color="#FFFFFFFF" />
-    <SolidColorBrush x:Key="Brush.Tooltip.Text" Color="#FF1B1B1B" />
-    <SolidColorBrush x:Key="Brush.StatusBar.Background" Color="#FFE8E8E8" />
-    <SolidColorBrush x:Key="Brush.StatusBar.Text" Color="#FF1B1B1B" />
-    <SolidColorBrush x:Key="Brush.Viewer.Background" Color="#FFC9CDD2" />
-    <SolidColorBrush x:Key="Brush.Viewer.PageBorder" Color="#FFA0A0A0" />
+    <SolidColorBrush x:Key="Brush.Tooltip.Text" Color="#FF1A1F23" />
+    <SolidColorBrush x:Key="Brush.StatusBar.Background" Color="#FFE3E8EA" />
+    <SolidColorBrush x:Key="Brush.StatusBar.Text" Color="#FF1A1F23" />
+    <SolidColorBrush x:Key="Brush.Viewer.Background" Color="#FFD0D6D9" />
+    <SolidColorBrush x:Key="Brush.Viewer.PageBorder" Color="#FF9AA5AB" />
     <SolidColorBrush x:Key="Brush.Viewer.PageShadow" Color="#40000000" />
     <SolidColorBrush x:Key="Brush.Viewer.SearchHit" Color="#66FFD400" />
     <SolidColorBrush x:Key="Brush.Viewer.SearchHit.Current" Color="#99FF8C00" />
     <SolidColorBrush x:Key="Brush.Viewer.TextSelection" Color="#553399FF" />
-    <SolidColorBrush x:Key="Brush.Viewer.Overlay.Outline" Color="#FF0B5CAD" />
+    <SolidColorBrush x:Key="Brush.Viewer.Overlay.Outline" Color="#FF0D6E6A" />
     <SolidColorBrush x:Key="Brush.Viewer.Overlay.Handle" Color="#FFFFFFFF" />
     <SolidColorBrush x:Key="Brush.Viewer.FormField.Highlight" Color="#33498FE0" />
     <SolidColorBrush x:Key="Brush.Viewer.RedactionMark" Color="#66D13438" />
     <SolidColorBrush x:Key="Brush.Status.Error" Color="#FFB3261E" />
-    <SolidColorBrush x:Key="Brush.Status.Warning" Color="#FF8A5A00" />
+    <SolidColorBrush x:Key="Brush.Status.Warning" Color="#FF865600" />
     <SolidColorBrush x:Key="Brush.Status.Success" Color="#FF1E7B34" />
-    <SolidColorBrush x:Key="Brush.Status.Info" Color="#FF0B5CAD" />
+    <SolidColorBrush x:Key="Brush.Status.Info" Color="#FF075E82" />
     <SolidColorBrush x:Key="Brush.Diff.Inserted" Color="#5530A14E" />
     <SolidColorBrush x:Key="Brush.Diff.Deleted" Color="#55D13438" />
     <SolidColorBrush x:Key="Brush.Diff.Changed" Color="#55E0A800" />
