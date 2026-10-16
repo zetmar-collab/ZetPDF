@@ -4,5 +4,100 @@
   <resheader name="version"><value>2.0</value></resheader>
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Viewer.Bar.FirstPage" xml:space="preserve"><value>Pierwsza strona (Ctrl+Home)</value></data>
+  <data name="Viewer.Bar.FitPage" xml:space="preserve"><value>Dopasuj stronę (Ctrl+0)</value></data>
+  <data name="Viewer.Bar.FitWidth" xml:space="preserve"><value>Dopasuj szerokość (Ctrl+2)</value></data>
+  <data name="Viewer.Bar.LastPage" xml:space="preserve"><value>Ostatnia strona (Ctrl+End)</value></data>
+  <data name="Viewer.Bar.NextPage" xml:space="preserve"><value>Następna strona (Ctrl+Page Down)</value></data>
+  <data name="Viewer.Bar.Of" xml:space="preserve"><value>z {0}</value></data>
+  <data name="Viewer.Bar.PageNumber" xml:space="preserve"><value>Numer strony</value></data>
+  <data name="Viewer.Bar.PreviousPage" xml:space="preserve"><value>Poprzednia strona (Ctrl+Page Up)</value></data>
+  <data name="Viewer.Bar.Zoom" xml:space="preserve"><value>Powiększenie</value></data>
+  <data name="Viewer.Bar.ZoomIn" xml:space="preserve"><value>Powiększ (Ctrl++)</value></data>
+  <data name="Viewer.Bar.ZoomOut" xml:space="preserve"><value>Pomniejsz (Ctrl+-)</value></data>
+  <data name="Viewer.Bookmarks.Add" xml:space="preserve"><value>Dodaj zakładkę do bieżącej strony (Ctrl+B)</value></data>
+  <data name="Viewer.Bookmarks.AddChild" xml:space="preserve"><value>Dodaj zakładkę podrzędną</value></data>
+  <data name="Viewer.Bookmarks.CollapseAll" xml:space="preserve"><value>Zwiń wszystkie</value></data>
+  <data name="Viewer.Bookmarks.DefaultTitle" xml:space="preserve"><value>Strona {0}</value></data>
+  <data name="Viewer.Bookmarks.Delete" xml:space="preserve"><value>Usuń</value></data>
+  <data name="Viewer.Bookmarks.Empty" xml:space="preserve"><value>Dokument nie ma zakładek. Naciśnij Ctrl+B, aby dodać zakładkę.</value></data>
+  <data name="Viewer.Bookmarks.ExpandAll" xml:space="preserve"><value>Rozwiń wszystkie</value></data>
+  <data name="Viewer.Bookmarks.Go" xml:space="preserve"><value>Przejdź do zakładki</value></data>
+  <data name="Viewer.Bookmarks.Rename" xml:space="preserve"><value>Zmień nazwę</value></data>
+  <data name="Viewer.Bookmarks.SetTarget" xml:space="preserve"><value>Ustaw cel na bieżącą stronę</value></data>
+  <data name="Viewer.Dialog.Cancel" xml:space="preserve"><value>Anuluj</value></data>
+  <data name="Viewer.Dialog.Ok" xml:space="preserve"><value>OK</value></data>
+  <data name="Viewer.Find.Close" xml:space="preserve"><value>Zamknij (Esc)</value></data>
+  <data name="Viewer.Find.Count" xml:space="preserve"><value>{0} z {1}</value></data>
+  <data name="Viewer.Find.MatchCase" xml:space="preserve"><value>Uwzględniaj wielkość liter</value></data>
+  <data name="Viewer.Find.Next" xml:space="preserve"><value>Następny wynik (F3)</value></data>
+  <data name="Viewer.Find.NoResults" xml:space="preserve"><value>Brak wyników</value></data>
+  <data name="Viewer.Find.Placeholder" xml:space="preserve"><value>Znajdź w dokumencie</value></data>
+  <data name="Viewer.Find.Previous" xml:space="preserve"><value>Poprzedni wynik (Shift+F3)</value></data>
+  <data name="Viewer.Find.Searching" xml:space="preserve"><value>Wyszukiwanie…</value></data>
+  <data name="Viewer.Find.WholeWord" xml:space="preserve"><value>Tylko całe słowa</value></data>
+  <data name="Viewer.GoTo.Invalid" xml:space="preserve"><value>Wpisz liczbę od 1 do {0}.</value></data>
+  <data name="Viewer.GoTo.Prompt" xml:space="preserve"><value>Numer strony (1–{0}):</value></data>
+  <data name="Viewer.GoTo.Title" xml:space="preserve"><value>Przejdź do strony</value></data>
+  <data name="Viewer.Link.OpenConfirm" xml:space="preserve"><value>Dokument chce otworzyć adres w przeglądarce internetowej:
+{0}
+
+Czy otworzyć?</value></data>
+  <data name="Viewer.Link.OpenTitle" xml:space="preserve"><value>Otwórz łącze</value></data>
+  <data name="Viewer.LoadError" xml:space="preserve"><value>Nie można wyświetlić dokumentu: {0}</value></data>
+  <data name="Viewer.Loading" xml:space="preserve"><value>Wczytywanie dokumentu…</value></data>
+  <data name="Viewer.Menu.AddBookmark" xml:space="preserve"><value>Dodaj zakładkę</value></data>
+  <data name="Viewer.Menu.Copy" xml:space="preserve"><value>Kopiuj</value></data>
+  <data name="Viewer.Menu.Find" xml:space="preserve"><value>Znajdź…</value></data>
+  <data name="Viewer.Menu.Hand" xml:space="preserve"><value>Ręka</value></data>
+  <data name="Viewer.Menu.Print" xml:space="preserve"><value>Drukuj…</value></data>
+  <data name="Viewer.Menu.SelectAll" xml:space="preserve"><value>Zaznacz wszystko</value></data>
+  <data name="Viewer.Menu.SelectText" xml:space="preserve"><value>Zaznacz tekst</value></data>
+  <data name="Viewer.Menu.Snapshot" xml:space="preserve"><value>Migawka</value></data>
   <data name="Viewer.ModuleName" xml:space="preserve"><value>Widok dokumentu</value></data>
+  <data name="Viewer.Panel.Bookmarks" xml:space="preserve"><value>Zakładki</value></data>
+  <data name="Viewer.Panel.NoDocument" xml:space="preserve"><value>Brak otwartego dokumentu.</value></data>
+  <data name="Viewer.Panel.Thumbnails" xml:space="preserve"><value>Miniatury stron</value></data>
+  <data name="Viewer.Print.Annotations" xml:space="preserve"><value>Drukuj komentarze i pola formularzy</value></data>
+  <data name="Viewer.Print.AutoOrientation" xml:space="preserve"><value>Automatycznie obracaj strony do papieru</value></data>
+  <data name="Viewer.Print.Collate" xml:space="preserve"><value>Sortuj kopie</value></data>
+  <data name="Viewer.Print.Copies" xml:space="preserve"><value>Liczba kopii</value></data>
+  <data name="Viewer.Print.Grayscale" xml:space="preserve"><value>Drukuj w odcieniach szarości</value></data>
+  <data name="Viewer.Print.InvalidCopies" xml:space="preserve"><value>Wpisz liczbę kopii od 1 do 999.</value></data>
+  <data name="Viewer.Print.InvalidRange" xml:space="preserve"><value>Nieprawidłowy zakres stron. Użyj numerów od 1 do {0}, np. 1-3,5.</value></data>
+  <data name="Viewer.Print.InvalidScale" xml:space="preserve"><value>Wpisz skalę od 1% do 1000%.</value></data>
+  <data name="Viewer.Print.NoPrinters" xml:space="preserve"><value>Brak zainstalowanych drukarek.</value></data>
+  <data name="Viewer.Print.Ok" xml:space="preserve"><value>Drukuj</value></data>
+  <data name="Viewer.Print.Options" xml:space="preserve"><value>Opcje</value></data>
+  <data name="Viewer.Print.PagesPerSheet" xml:space="preserve"><value>Stron na arkuszu</value></data>
+  <data name="Viewer.Print.Preview" xml:space="preserve"><value>Podgląd (pierwszy arkusz)</value></data>
+  <data name="Viewer.Print.Printer" xml:space="preserve"><value>Drukarka</value></data>
+  <data name="Viewer.Print.Progress" xml:space="preserve"><value>Drukowanie: {0}</value></data>
+  <data name="Viewer.Print.Range" xml:space="preserve"><value>Strony do wydrukowania</value></data>
+  <data name="Viewer.Print.RangeAll" xml:space="preserve"><value>Wszystkie</value></data>
+  <data name="Viewer.Print.RangeCurrent" xml:space="preserve"><value>Bieżąca strona</value></data>
+  <data name="Viewer.Print.RangeHint" xml:space="preserve"><value>Na przykład 1-3,5,8-</value></data>
+  <data name="Viewer.Print.RangePages" xml:space="preserve"><value>Strony:</value></data>
+  <data name="Viewer.Print.ScaleActual" xml:space="preserve"><value>Rzeczywisty rozmiar</value></data>
+  <data name="Viewer.Print.ScaleCustom" xml:space="preserve"><value>Własna skala:</value></data>
+  <data name="Viewer.Print.ScaleFit" xml:space="preserve"><value>Dopasuj do obszaru wydruku</value></data>
+  <data name="Viewer.Print.Scaling" xml:space="preserve"><value>Rozmiar strony</value></data>
+  <data name="Viewer.Print.SheetCount" xml:space="preserve"><value>Arkuszy: {0}</value></data>
+  <data name="Viewer.Print.Title" xml:space="preserve"><value>Drukuj</value></data>
+  <data name="Viewer.Snapshot.Copied" xml:space="preserve"><value>Migawka skopiowana do schowka ({0} × {1} px).</value></data>
+  <data name="Viewer.Snapshot.Error" xml:space="preserve"><value>Nie można utworzyć migawki.</value></data>
+  <data name="Viewer.Thumbs.Delete" xml:space="preserve"><value>Usuń strony</value></data>
+  <data name="Viewer.Thumbs.Duplicate" xml:space="preserve"><value>Duplikuj</value></data>
+  <data name="Viewer.Thumbs.Extract" xml:space="preserve"><value>Wyodrębnij…</value></data>
+  <data name="Viewer.Thumbs.InsertBlank" xml:space="preserve"><value>Wstaw pustą stronę</value></data>
+  <data name="Viewer.Thumbs.RotateLeft" xml:space="preserve"><value>Obróć w lewo</value></data>
+  <data name="Viewer.Thumbs.RotateRight" xml:space="preserve"><value>Obróć w prawo</value></data>
+  <data name="Viewer.Undo.AddBookmark" xml:space="preserve"><value>Dodanie zakładki</value></data>
+  <data name="Viewer.Undo.DeleteBookmark" xml:space="preserve"><value>Usunięcie zakładki</value></data>
+  <data name="Viewer.Undo.MoveBookmark" xml:space="preserve"><value>Przeniesienie zakładki</value></data>
+  <data name="Viewer.Undo.MovePages" xml:space="preserve"><value>Przeniesienie stron</value></data>
+  <data name="Viewer.Undo.RenameBookmark" xml:space="preserve"><value>Zmiana zakładki</value></data>
+  <data name="Viewer.ZoomTo.Invalid" xml:space="preserve"><value>Wpisz wartość procentową od 5 do 6400.</value></data>
+  <data name="Viewer.ZoomTo.Prompt" xml:space="preserve"><value>Powiększenie (%):</value></data>
+  <data name="Viewer.ZoomTo.Title" xml:space="preserve"><value>Powiększ do</value></data>
 </root>
