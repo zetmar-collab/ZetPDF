@@ -8,7 +8,16 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <!-- Publikacja: patrz docs/ARCHITEKTURA.md, sekcja "Publikacja" (self-contained, single-file, win-x64). -->
     <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <!-- Własna ikona (generowana skryptem Assets\generate_icon.ps1). -->
+    <ApplicationIcon>Assets\ZetPDF.ico</ApplicationIcon>
   </PropertyGroup>
+  <ItemGroup>
+    <Resource Include="Assets\ZetPDF.ico" />
+    <Resource Include="Assets\ZetPDF-256.png" />
+    <None Include="Assets\generate_icon.ps1" />
+    <!-- Teksty licencji bibliotek (okna "O programie" i "Licencje bibliotek"). -->
+    <EmbeddedResource Include="Licenses\*.txt" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ZetPDF.Core\ZetPDF.Core.csproj" />
     <ProjectReference Include="..\ZetPDF.Rendering\ZetPDF.Rendering.csproj" />

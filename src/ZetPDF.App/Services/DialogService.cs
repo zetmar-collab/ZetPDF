@@ -1,0 +1,222 @@
+using System.Windows;
+using System.Windows.Controls;
+using Microsoft.Extensions.Logging;
+using Microsoft.Win32;
+using ZetPDF.App.Dialogs;
+using ZetPDF.Core.Contracts;
+
+namespace ZetPDF.App.Services;
+
+/// <summary>
+/// Okna dialogowe w motywie ZetPDF. Komunikaty – własne okno <see cref="MessageWindow"/> (systemowy MessageBox
+/// nie obsługuje motywu ciemnego). Okna wyboru plików/folderów – systemowe (język i motyw wg Windows).
+/// </summary>
+public sealed class DialogService : IDialogService
+{
+    private readonly ILocalizationService _loc;
+    private readonly IAppPaths _paths;
+    private readonly ILogger<DialogService> _log;
+
+    public DialogService(ILocalizationService loc, IAppPaths paths, ILogger<DialogService> log)
+    {
+        _loc = loc;
+        _paths = paths;
+        _log = log;
+    }
+
+    /// <summary>Okno-właściciel: aktywne okno aplikacji (np. otwarte Ustawienia) lub okno główne.</summary>
+    internal static Window? Owner
+    {
+        get
+        {
+            var app = Application.Current;
+            if (app is null) return null;
+            var active = app.Windows.OfType<Window>().FirstOrDefault(w => w.IsActive && w.IsVisible);
+            if (active is not null) return active;
+            return app.MainWindow is { IsLoaded: true, IsVisible: true } m ? m : null;
+        }
+    }
+
+    private static string ToFilter(IReadOnlyList<FileFilter> filters) =>
+        string.Join("|", filters.Select(f => $"{f.Description} ({string.Join(";", f.Patterns)})|{string.Join(";", f.Patterns)}"));
+
+    public IReadOnlyList<string>? OpenFiles(string title, IReadOnlyList<FileFilter> filters, bool multiselect = false, string? initialDirectory = null)
+    {
+        var d = new OpenFileDialog { Title = title, Filter = ToFilter(filters), Multiselect = multiselect, InitialDirectory = initialDirectory ?? string.Empty };
+        return d.ShowDialog(Owner) == true ? d.FileNames : null;
+    }
+
+    public string? SaveFile(string title, IReadOnlyList<FileFilter> filters, string? defaultFileName = null, string? initialDirectory = null)
+    {
+        var d = new SaveFileDialog { Title = title, Filter = ToFilter(filters), FileName = defaultFileName ?? string.Empty, InitialDirectory = initialDirectory ?? string.Empty, OverwritePrompt = true, AddExtension = true };
+        if (filters.Count > 0 && filters[0].Patterns.Length > 0 && filters[0].Patterns[0].StartsWith("*.", StringComparison.Ordinal))
+            d.DefaultExt = filters[0].Patterns[0][1..];
+        return d.ShowDialog(Owner) == true ? d.FileName : null;
+    }
+
+    public string? SelectFolder(string title, string? initialDirectory = null)
+    {
+        var d = new OpenFolderDialog { Title = title, InitialDirectory = initialDirectory ?? string.Empty };
+        return d.ShowDialog(Owner) == true ? d.FolderName : null;
+    }
+
+    public void ShowMessage(string text, string? title = null, MessageSeverity severity = MessageSeverity.Info) =>
+        Show(title ?? _loc["Shell.AppTitle"], text, severity, false,
+            new[] { new MessageWindow.ButtonSpec(_loc["Core.Button.Ok"], 1, IsDefault: true, IsCancel: true) }, 1);
+
+    public bool Confirm(string text, string? title = null, MessageSeverity severity = MessageSeverity.Warning) =>
+        Show(title ?? _loc["Shell.AppTitle"], text, severity, severity == MessageSeverity.Info,
+            new[]
+            {
+                new MessageWindow.ButtonSpec(_loc["Core.Button.Yes"], 1, IsDefault: true),
+                new MessageWindow.ButtonSpec(_loc["Core.Button.No"], 0, IsCancel: true),
+            }, 0) == 1;
+
+    public YesNoCancel AskYesNoCancel(string text, string? title = null) =>
+        (YesNoCancel)Show(title ?? _loc["Shell.AppTitle"], text, null, true,
+            new[]
+            {
+                new MessageWindow.ButtonSpec(_loc["Core.Button.Yes"], (int)YesNoCancel.Yes, IsDefault: true),
+                new MessageWindow.ButtonSpec(_loc["Core.Button.No"], (int)YesNoCancel.No),
+                new MessageWindow.ButtonSpec(_loc["Core.Button.Cancel"], (int)YesNoCancel.Cancel, IsCancel: true),
+            }, (int)YesNoCancel.Cancel);
+
+    /// <summary>Pytanie o zapis zmian przed zamknięciem: Zapisz / Nie zapisuj / Anuluj.</summary>
+    public YesNoCancel AskSaveChanges(string documentName) =>
+        (YesNoCancel)Show(_loc["Shell.AppTitle"], _loc.Format("Shell.Close.SavePrompt", documentName), null, true,
+            new[]
+            {
+                new MessageWindow.ButtonSpec(_loc["Core.Button.Save"], (int)YesNoCancel.Yes, IsDefault: true),
+                new MessageWindow.ButtonSpec(_loc["Shell.Close.DontSave"], (int)YesNoCancel.No),
+                new MessageWindow.ButtonSpec(_loc["Core.Button.Cancel"], (int)YesNoCancel.Cancel, IsCancel: true),
+            }, (int)YesNoCancel.Cancel);
+
+    private static int Show(string title, string text, MessageSeverity? severity, bool question, IReadOnlyList<MessageWindow.ButtonSpec> buttons, int cancelResult, string? details = null, string? detailsHeader = null)
+    {
+        var owner = Owner;
+        var w = new MessageWindow(title, text, severity, question, buttons, cancelResult, details, detailsHeader)
+        {
+            Owner = owner,
+            WindowStartupLocation = owner is null ? WindowStartupLocation.CenterScreen : WindowStartupLocation.CenterOwner,
+        };
+        WindowThemer.Prepare(w);
+        w.ShowDialog();
+        return w.Result;
+    }
+
+    public string? AskPassword(string documentName, bool isRetry)
+    {
+        var box = new PasswordBox { Margin = new Thickness(0, 10, 0, 0), MinWidth = 300 };
+        var ok = new Button { Content = _loc["Core.Button.Ok"], IsDefault = true, MinWidth = 88, Margin = new Thickness(8, 0, 0, 0) };
+        var cancel = new Button { Content = _loc["Core.Button.Cancel"], IsCancel = true, MinWidth = 88, Margin = new Thickness(8, 0, 0, 0) };
+        var prompt = new TextBlock
+        {
+            Text = isRetry ? _loc["Core.Password.Retry"] : _loc.Format("Core.Password.Prompt", documentName),
+            TextWrapping = TextWrapping.Wrap,
+            MaxWidth = 380,
+        };
+        if (isRetry) prompt.SetResourceReference(TextBlock.ForegroundProperty, Core.Theming.ThemeKeys.StatusError);
+        var name = new TextBlock { Text = documentName, FontWeight = FontWeights.SemiBold, TextTrimming = TextTrimming.CharacterEllipsis, MaxWidth = 380, Margin = new Thickness(0, 0, 0, 6) };
+        var buttons = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, Children = { ok, cancel } };
+        var footer = new Border { Padding = new Thickness(20, 12, 20, 12), Child = buttons };
+        footer.SetResourceReference(Border.BackgroundProperty, Core.Theming.ThemeKeys.SurfaceAlt);
+        var root = new DockPanel();
+        DockPanel.SetDock(footer, Dock.Bottom);
+        root.Children.Add(footer);
+        root.Children.Add(new StackPanel { Margin = new Thickness(20, 18, 20, 18), Children = { name, prompt, box } });
+        var owner = Owner;
+        var window = new Window
+        {
+            Title = _loc["Core.Password.Title"],
+            SizeToContent = SizeToContent.WidthAndHeight,
+            ResizeMode = ResizeMode.NoResize,
+            WindowStartupLocation = owner is null ? WindowStartupLocation.CenterScreen : WindowStartupLocation.CenterOwner,
+            Owner = owner,
+            ShowInTaskbar = owner is null,
+            Content = root,
+        };
+        WindowThemer.Prepare(window);
+        ok.Click += (_, _) => window.DialogResult = true;
+        window.Loaded += (_, _) => box.Focus();
+        return window.ShowDialog() == true ? box.Password : null;
+    }
+
+    public async Task<bool> RunWithProgressAsync(string title, Func<IProgress<OperationProgress>, CancellationToken, Task> work, bool cancellable = true)
+    {
+        using var cts = new CancellationTokenSource();
+        var owner = Owner;
+        var window = new ProgressWindow(title, _loc["Core.Progress.Working"], cancellable ? _loc["Core.Button.Cancel"] : null, cancellable ? cts.Cancel : null)
+        {
+            Owner = owner,
+            WindowStartupLocation = owner is null ? WindowStartupLocation.CenterScreen : WindowStartupLocation.CenterOwner,
+        };
+        WindowThemer.Prepare(window);
+        // Progress<T> utworzony na wątku UI – raporty wracają na wątek UI.
+        var progress = new Progress<OperationProgress>(window.Report);
+        var task = Task.Run(() => work(progress, cts.Token), CancellationToken.None);
+
+        // Krótkie operacje kończą się bez migania okna.
+        if (await Task.WhenAny(task, Task.Delay(350)) != task)
+        {
+            _ = task.ContinueWith(_ => window.CloseFromCode(), CancellationToken.None, TaskContinuationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
+            if (!window.IsCompleted) window.ShowDialog();
+        }
+
+        try
+        {
+            await task;
+            return true;
+        }
+        catch (OperationCanceledException)
+        {
+            return false;
+        }
+    }
+
+    public bool? ShowDialog(Window dialog)
+    {
+        var owner = Owner;
+        if (dialog.Owner is null && owner is not null && !ReferenceEquals(owner, dialog)) dialog.Owner = owner;
+        if (dialog.WindowStartupLocation == WindowStartupLocation.Manual && double.IsNaN(dialog.Left) && double.IsNaN(dialog.Top))
+            dialog.WindowStartupLocation = dialog.Owner is null ? WindowStartupLocation.CenterScreen : WindowStartupLocation.CenterOwner;
+        if (dialog.Owner is not null) dialog.ShowInTaskbar = false;
+        WindowThemer.Prepare(dialog);
+        return dialog.ShowDialog();
+    }
+
+    public void ShowError(Exception exception, string? contextText = null)
+    {
+        _log.LogError(exception, "Error shown to user: {Context}", contextText);
+        var known = true;
+        var text = exception switch
+        {
+            PdfCorruptException => _loc.Format("Core.Error.Corrupt", contextText ?? string.Empty),
+            PdfInvalidPasswordException => _loc["Core.Error.InvalidPassword"],
+            PdfPasswordRequiredException => _loc["Core.Error.PasswordRequired"],
+            DocumentPermissionException => _loc["Core.Error.PermissionDenied"],
+            NotImplementedException => _loc["Core.Error.NotImplemented"],
+            FileNotFoundException => _loc.Format("Core.Error.FileAccess", contextText ?? string.Empty, exception.Message),
+            IOException io => _loc.Format("Core.Error.FileAccess", contextText ?? string.Empty, io.Message),
+            UnauthorizedAccessException ua => _loc.Format("Core.Error.FileAccess", contextText ?? string.Empty, ua.Message),
+            _ => Unknown(),
+        };
+        string Unknown()
+        {
+            known = false;
+            return _loc.Format("Core.Error.Generic", exception.Message);
+        }
+        var details = known ? null : exception.GetType().FullName + ": " + exception.Message + Environment.NewLine + Environment.NewLine
+                                     + _loc.Format("Shell.Error.LogHint", _paths.LogDirectory);
+        Show(_loc["Core.Error.Title"], text, MessageSeverity.Error, false,
+            new[] { new MessageWindow.ButtonSpec(_loc["Core.Button.Ok"], 1, IsDefault: true, IsCancel: true) }, 1,
+            details, _loc["Shell.Error.Details"]);
+    }
+
+    /// <summary>Błąd nieobsłużony (globalny handler) – z informacją o pliku dziennika.</summary>
+    internal void ShowUnhandled(Exception exception)
+    {
+        Show(_loc["Core.Error.Title"], _loc.Format("Shell.Error.Unhandled", _paths.LogDirectory), MessageSeverity.Error, false,
+            new[] { new MessageWindow.ButtonSpec(_loc["Core.Button.Ok"], 1, IsDefault: true, IsCancel: true) }, 1,
+            exception.GetType().FullName + ": " + exception.Message, _loc["Shell.Error.Details"]);
+    }
+}

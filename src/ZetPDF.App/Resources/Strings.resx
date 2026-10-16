@@ -243,4 +243,122 @@
   <data name="Cmd.Help.OpenLogFolder" xml:space="preserve"><value>Log Folder</value></data>
   <data name="Cmd.Help.About" xml:space="preserve"><value>About</value></data>
   <data name="Shell.Close.Unsaved" xml:space="preserve"><value>The document "{0}" has unsaved changes. Close it anyway?</value></data>
+  <data name="Shell.Title.WithDocument" xml:space="preserve"><value>{0} – {1}</value></data>
+  <data name="Shell.Start.Tagline" xml:space="preserve"><value>PDF document editor</value></data>
+  <data name="Shell.Start.Open" xml:space="preserve"><value>Open file…</value></data>
+  <data name="Shell.Backstage.Recent" xml:space="preserve"><value>Recent files</value></data>
+  <data name="Shell.Recent.Browse" xml:space="preserve"><value>Open another file…</value></data>
+  <data name="Shell.Recent.Clear" xml:space="preserve"><value>Clear list</value></data>
+  <data name="Shell.Recent.Empty" xml:space="preserve"><value>No recently opened files.</value></data>
+  <data name="Shell.Recent.Missing" xml:space="preserve"><value>File not found:
+{0}
+
+Remove it from the recent files list?</value></data>
+  <data name="Shell.Recent.Remove" xml:space="preserve"><value>Remove from list</value></data>
+  <data name="Shell.Recent.ShowInFolder" xml:space="preserve"><value>Show in folder</value></data>
+  <data name="Shell.Open.NotFound" xml:space="preserve"><value>File not found:
+{0}</value></data>
+  <data name="Shell.Revert.Confirm" xml:space="preserve"><value>Revert “{0}” to the last saved version? Unsaved changes will be lost.</value></data>
+  <data name="Shell.Close.SavePrompt" xml:space="preserve"><value>Save changes to “{0}” before closing?</value></data>
+  <data name="Shell.Close.DontSave" xml:space="preserve"><value>Don't save</value></data>
+  <data name="Shell.Error.Details" xml:space="preserve"><value>Details</value></data>
+  <data name="Shell.Error.LogHint" xml:space="preserve"><value>Details were written to the log in:
+{0}</value></data>
+  <data name="Shell.Drop.Hint" xml:space="preserve"><value>Drop PDF files to open them</value></data>
+  <data name="Shell.Drop.NotPdf" xml:space="preserve"><value>ZetPDF opens PDF files only.</value></data>
+  <data name="Shell.Panel.Empty" xml:space="preserve"><value>Panels (thumbnails, bookmarks, comments, attachments) will appear here when modules provide them.</value></data>
+  <data name="Shell.Panel.Hide" xml:space="preserve"><value>Hide panel (F4)</value></data>
+  <data name="Shell.Tab.Modified" xml:space="preserve"><value>Unsaved changes</value></data>
+  <data name="Shell.Tab.CloseOthers" xml:space="preserve"><value>Close others</value></data>
+  <data name="Shell.Tab.CopyPath" xml:space="preserve"><value>Copy full path</value></data>
+  <data name="Shell.Search.Placeholder" xml:space="preserve"><value>Search commands (Alt+Q)</value></data>
+  <data name="Shell.Search.NoResults" xml:space="preserve"><value>No commands found.</value></data>
+  <data name="Shell.Tip.Shortcut" xml:space="preserve"><value>Shortcut: {0}</value></data>
+  <data name="Shell.Tip.SingleKey" xml:space="preserve"><value>Key: {0} (when enabled in Settings)</value></data>
+  <data name="Shell.Tip.Unavailable" xml:space="preserve"><value>This command is not available right now (e.g. no open document or insufficient permissions).</value></data>
+  <data name="Shell.Tip.NotImplemented" xml:space="preserve"><value>This feature is not available in this version yet.</value></data>
+  <data name="Shell.Status.Opening" xml:space="preserve"><value>Opening: {0}…</value></data>
+  <data name="Shell.Status.Saving" xml:space="preserve"><value>Saving: {0}…</value></data>
+  <data name="Shell.Status.Saved" xml:space="preserve"><value>Saved: {0}</value></data>
+  <data name="Shell.Status.PageCount" xml:space="preserve"><value>/ {0}</value></data>
+  <data name="Shell.Status.Zoom" xml:space="preserve"><value>Zoom</value></data>
+  <data name="Shell.About.Version" xml:space="preserve"><value>Version {0}</value></data>
+  <data name="Shell.About.Description" xml:space="preserve"><value>ZetPDF – a PDF document editor for Windows: viewing, commenting, editing, page organization, forms, OCR, protection and signatures. Test version.</value></data>
+  <data name="Shell.About.Privacy" xml:space="preserve"><value>Privacy: ZetPDF does not collect or send any data – no telemetry, no update checks, no network connections. The only exception is a signature timestamp (TSA) from the address you enter in Settings, used only on your request.</value></data>
+  <data name="Shell.About.Environment" xml:space="preserve"><value>Environment: {0}, {1}, {2}</value></data>
+  <data name="Shell.About.Libraries" xml:space="preserve"><value>Open source libraries</value></data>
+  <data name="Shell.About.Column.Name" xml:space="preserve"><value>Library</value></data>
+  <data name="Shell.About.Column.Version" xml:space="preserve"><value>Version</value></data>
+  <data name="Shell.About.Column.License" xml:space="preserve"><value>License</value></data>
+  <data name="Shell.Licenses.Intro" xml:space="preserve"><value>ZetPDF uses the following open source libraries. License texts are given in their original (English) wording.</value></data>
+  <data name="Shell.Licenses.Copy" xml:space="preserve"><value>Copy all licenses</value></data>
+  <data name="Shell.Properties.Tab.Description" xml:space="preserve"><value>Description</value></data>
+  <data name="Shell.Properties.Tab.Info" xml:space="preserve"><value>Information</value></data>
+  <data name="Shell.Properties.Title" xml:space="preserve"><value>Title</value></data>
+  <data name="Shell.Properties.Author" xml:space="preserve"><value>Author</value></data>
+  <data name="Shell.Properties.Subject" xml:space="preserve"><value>Subject</value></data>
+  <data name="Shell.Properties.Keywords" xml:space="preserve"><value>Keywords</value></data>
+  <data name="Shell.Properties.ReadOnly" xml:space="preserve"><value>The document permissions do not allow changing the description.</value></data>
+  <data name="Shell.Properties.UndoHint" xml:space="preserve"><value>Description changes can be undone (Ctrl+Z). They are written to the file when you save the document.</value></data>
+  <data name="Shell.Properties.FileName" xml:space="preserve"><value>File</value></data>
+  <data name="Shell.Properties.Location" xml:space="preserve"><value>Location</value></data>
+  <data name="Shell.Properties.NotSaved" xml:space="preserve"><value>(unsaved document)</value></data>
+  <data name="Shell.Properties.FileSize" xml:space="preserve"><value>Size</value></data>
+  <data name="Shell.Properties.Pages" xml:space="preserve"><value>Pages</value></data>
+  <data name="Shell.Properties.PdfVersion" xml:space="preserve"><value>PDF version</value></data>
+  <data name="Shell.Properties.Created" xml:space="preserve"><value>Created</value></data>
+  <data name="Shell.Properties.Modified" xml:space="preserve"><value>Modified</value></data>
+  <data name="Shell.Properties.Creator" xml:space="preserve"><value>Application</value></data>
+  <data name="Shell.Properties.Producer" xml:space="preserve"><value>PDF producer</value></data>
+  <data name="Shell.Properties.Security" xml:space="preserve"><value>Security</value></data>
+  <data name="Shell.Properties.Security.None" xml:space="preserve"><value>Not encrypted</value></data>
+  <data name="Shell.Properties.Security.Owner" xml:space="preserve"><value>{0} encryption, opened with the owner password</value></data>
+  <data name="Shell.Properties.Security.User" xml:space="preserve"><value>{0} encryption, opened with the user password</value></data>
+  <data name="Shell.Properties.Permissions" xml:space="preserve"><value>Permissions</value></data>
+  <data name="Shell.Properties.Permissions.All" xml:space="preserve"><value>All</value></data>
+  <data name="Shell.Properties.Permissions.None" xml:space="preserve"><value>Read only</value></data>
+  <data name="Shell.Properties.Permission.Print" xml:space="preserve"><value>printing</value></data>
+  <data name="Shell.Properties.Permission.Modify" xml:space="preserve"><value>changing content</value></data>
+  <data name="Shell.Properties.Permission.Copy" xml:space="preserve"><value>copying</value></data>
+  <data name="Shell.Properties.Permission.Annotate" xml:space="preserve"><value>commenting</value></data>
+  <data name="Shell.Properties.Permission.FillForms" xml:space="preserve"><value>filling forms</value></data>
+  <data name="Shell.Properties.Permission.Assemble" xml:space="preserve"><value>page assembly</value></data>
+  <data name="Shell.Settings.Tab.General" xml:space="preserve"><value>General</value></data>
+  <data name="Shell.Settings.Tab.Identity" xml:space="preserve"><value>Identity</value></data>
+  <data name="Shell.Settings.Tab.Documents" xml:space="preserve"><value>Documents</value></data>
+  <data name="Shell.Settings.Tab.Keyboard" xml:space="preserve"><value>Keyboard</value></data>
+  <data name="Shell.Settings.Tab.Advanced" xml:space="preserve"><value>Advanced</value></data>
+  <data name="Shell.Settings.Language" xml:space="preserve"><value>Interface language</value></data>
+  <data name="Shell.Settings.Language.System" xml:space="preserve"><value>Same as Windows</value></data>
+  <data name="Shell.Settings.Language.Hint" xml:space="preserve"><value>The change applies immediately to all windows, without restarting.</value></data>
+  <data name="Shell.Settings.Theme" xml:space="preserve"><value>Theme</value></data>
+  <data name="Shell.Settings.Theme.Hint" xml:space="preserve"><value>“Same as system” follows the light/dark mode setting in Windows.</value></data>
+  <data name="Shell.Settings.Identity.Hint" xml:space="preserve"><value>Author details used in comments and signatures. Stored only on this computer.</value></data>
+  <data name="Shell.Settings.Identity.Name" xml:space="preserve"><value>Name</value></data>
+  <data name="Shell.Settings.Identity.Organization" xml:space="preserve"><value>Organization</value></data>
+  <data name="Shell.Settings.Identity.Email" xml:space="preserve"><value>E-mail</value></data>
+  <data name="Shell.Settings.DefaultZoom" xml:space="preserve"><value>Default zoom</value></data>
+  <data name="Shell.Settings.Zoom.Custom" xml:space="preserve"><value>Custom (%)</value></data>
+  <data name="Shell.Settings.DefaultLayout" xml:space="preserve"><value>Default page layout</value></data>
+  <data name="Shell.Settings.ViewHint" xml:space="preserve"><value>Applied when documents are opened.</value></data>
+  <data name="Shell.Settings.UndoLevels" xml:space="preserve"><value>Undo levels</value></data>
+  <data name="Shell.Settings.MaxRecent" xml:space="preserve"><value>Number of recent files</value></data>
+  <data name="Shell.Settings.SingleKey" xml:space="preserve"><value>Use single-key shortcuts (e.g. H – Hand, V – Select Text)</value></data>
+  <data name="Shell.Settings.SingleKey.Hint" xml:space="preserve"><value>They work only when the cursor is not in a text field.</value></data>
+  <data name="Shell.Settings.Tsa" xml:space="preserve"><value>Timestamp server (TSA)</value></data>
+  <data name="Shell.Settings.Tsa.Hint" xml:space="preserve"><value>RFC 3161 address (http/https), e.g. from your certificate authority. Empty = disabled. ZetPDF connects to it only when you sign or timestamp a document.</value></data>
+  <data name="Shell.Settings.TempFolder" xml:space="preserve"><value>Temporary files folder</value></data>
+  <data name="Shell.Settings.TempFolder.Hint" xml:space="preserve"><value>Empty = %TEMP%\ZetPDF. The change takes effect after restarting the program.</value></data>
+  <data name="Shell.Settings.LogFolder" xml:space="preserve"><value>Log folder</value></data>
+  <data name="Shell.Settings.Open" xml:space="preserve"><value>Open</value></data>
+  <data name="Shell.Settings.Error.Email" xml:space="preserve"><value>Invalid e-mail address.</value></data>
+  <data name="Shell.Settings.Error.Tsa" xml:space="preserve"><value>Enter a full http:// or https:// address or leave the field empty.</value></data>
+  <data name="Shell.Settings.Error.Folder" xml:space="preserve"><value>Enter a full folder path (e.g. C:\Temp) or leave the field empty.</value></data>
+  <data name="Shell.Settings.Error.Range" xml:space="preserve"><value>Enter a number from {0} to {1}.</value></data>
+  <data name="Shell.Shortcuts.Filter" xml:space="preserve"><value>Filter commands</value></data>
+  <data name="Shell.Shortcuts.Command" xml:space="preserve"><value>Command</value></data>
+  <data name="Shell.Shortcuts.Keys" xml:space="preserve"><value>Shortcut</value></data>
+  <data name="Shell.Shortcuts.SingleKey" xml:space="preserve"><value>Key</value></data>
+  <data name="Shell.Shortcuts.SingleKeyOn" xml:space="preserve"><value>Single-key shortcuts: on</value></data>
+  <data name="Shell.Shortcuts.SingleKeyOff" xml:space="preserve"><value>Single-key shortcuts: off (Settings &gt; Keyboard)</value></data>
 </root>

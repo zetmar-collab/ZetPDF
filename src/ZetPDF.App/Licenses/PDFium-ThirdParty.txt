@@ -1,0 +1,46 @@
+PDFium – third-party components bundled in the PDFium binary (bblanchon/pdfium-binaries)
+=====================================================================================
+
+The PDFium library (BSD 3-Clause, "Copyright 2014 The PDFium Authors",
+original code copyright 2014 Foxit Software Inc.) is statically linked with
+the following third-party components. Their notices are reproduced below.
+The complete license texts of all components are distributed in the LICENSE
+file of the pdfium-binaries project (https://github.com/bblanchon/pdfium-binaries)
+and in the PDFium source tree (https://pdfium.googlesource.com/pdfium/, folder third_party).
+
+FreeType – FreeType Project License (FTL)
+  Portions of this software are copyright (C) The FreeType Project
+  (www.freetype.org). All rights reserved.
+
+libjpeg-turbo – IJG License, BSD 3-Clause License, zlib License
+  This software is based in part on the work of the Independent JPEG Group.
+  Copyright (C) libjpeg-turbo Project; Copyright (C) Thomas G. Lane,
+  Guido Vollbeding.
+
+OpenJPEG – BSD 2-Clause License
+  Copyright (c) 2002-2014, Universite catholique de Louvain (UCL), Belgium;
+  Copyright (c) 2002-2014, Professor Benoit Macq; and other contributors.
+
+Little CMS (lcms2) – MIT License
+  Copyright (c) Marti Maria Saguer.
+
+zlib – zlib License
+  Copyright (C) Jean-loup Gailly and Mark Adler.
+
+libpng – PNG Reference Library License version 2
+  Copyright (c) The PNG Reference Library Authors; Copyright (c) Glenn
+  Randers-Pehrson; Copyright (c) Andreas Dilger; Copyright (c) Guy Eric
+  Schalnat, Group 42, Inc.
+
+Abseil – Apache License 2.0
+  Copyright The Abseil Authors.
+
+ICU – Unicode License (ICU License)
+  Copyright (C) Unicode, Inc. and others.
+
+AGG (Anti-Grain Geometry) 2.3 – permissive license
+  Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com).
+  Permission to copy, use, modify, sell and distribute this software is
+  granted provided this copyright notice appears in all copies. This software
+  is provided "as is" without express or implied warranty, and with no claim
+  as to its suitability for any purpose.
