@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Hasła, podpisy, weryfikacja, TSA, porównanie, Kreator działań. Własność: security-signatures. -->
+  <PropertyGroup>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>ZetPDF.Security</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ZetPDF.Core\ZetPDF.Core.csproj" />
+    <PackageReference Include="PdfPig" Version="$(PdfPigVersion)" />
+    <PackageReference Include="BouncyCastle.Cryptography" Version="2.6.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="ZetPDF.Security.Tests" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Generator przykładowych PDF używany przez wszystkie projekty testowe. Własność: tester
+       (agenci modułów NIE edytują – własne specjalne próbki generują we własnych projektach testowych). -->
+  <PropertyGroup>
+    <UseWPF>true</UseWPF>
+    <IsTestProject>false</IsTestProject>
+    <RootNamespace>ZetPDF.TestData</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ZetPDF.Core\ZetPDF.Core.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Silnik OCR (Tesseract 5.2.0). Własność: edit-convert-ocr.
+       Natywne DLL Tesseract (x64) i dane tessdata (pol, eng – tessdata_fast, Apache 2.0) są osadzone
+       jako zasoby i rozpakowywane przy pierwszym użyciu do %LOCALAPPDATA%\ZetPDF\ocr\<wersja>\
+       (TesseractEnviornment.CustomSearchPath) – działa także w publikacji single-file (zweryfikowane). -->
+  <PropertyGroup>
+    <UseWPF>false</UseWPF>
+    <RootNamespace>ZetPDF.Ocr</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ZetPDF.Core\ZetPDF.Core.csproj" />
+    <PackageReference Include="Tesseract" Version="$(TesseractVersion)" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="tessdata\pol.traineddata" LogicalName="ZetPDF.Ocr.tessdata.pol.traineddata" />
+    <EmbeddedResource Include="tessdata\eng.traineddata" LogicalName="ZetPDF.Ocr.tessdata.eng.traineddata" />
+    <EmbeddedResource Include="$(NuGetPackageRoot)tesseract\$(TesseractVersion)\x64\tesseract50.dll" LogicalName="ZetPDF.Ocr.native.x64.tesseract50.dll" Visible="false" />
+    <EmbeddedResource Include="$(NuGetPackageRoot)tesseract\$(TesseractVersion)\x64\leptonica-1.82.0.dll" LogicalName="ZetPDF.Ocr.native.x64.leptonica-1.82.0.dll" Visible="false" />
+    <!-- Kopia do katalogu wyjściowego (wygodne przy budowie/testach; w publikacji single-file nieużywana). -->
+    <None Include="tessdata\*.traineddata" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="Never" LinkBase="tessdata" />
+    <None Include="tessdata\LICENSE" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="Never" LinkBase="tessdata" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="ZetPDF.Editing.Tests" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Testy. Własność: edit-convert-ocr. xUnit i test SDK dodaje tests/Directory.Build.props. -->
+  <PropertyGroup>
+    <UseWPF>true</UseWPF>
+    <IsTestProject>true</IsTestProject>
+    <RootNamespace>ZetPDF.Editing.Tests</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ZetPDF.TestData\ZetPDF.TestData.csproj" />
+    <ProjectReference Include="..\..\src\ZetPDF.Core\ZetPDF.Core.csproj" />
+    <ProjectReference Include="..\..\src\ZetPDF.Editing\ZetPDF.Editing.csproj" />
+    <ProjectReference Include="..\..\src\ZetPDF.Ocr\ZetPDF.Ocr.csproj" />
+  </ItemGroup>
+</Project>

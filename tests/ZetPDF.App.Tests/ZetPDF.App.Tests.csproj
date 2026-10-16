@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Testy. Własność: ui-shell. xUnit i test SDK dodaje tests/Directory.Build.props. -->
+  <PropertyGroup>
+    <UseWPF>true</UseWPF>
+    <IsTestProject>true</IsTestProject>
+    <RootNamespace>ZetPDF.App.Tests</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ZetPDF.TestData\ZetPDF.TestData.csproj" />
+    <ProjectReference Include="..\..\src\ZetPDF.Core\ZetPDF.Core.csproj" />
+    <ProjectReference Include="..\..\src\ZetPDF.App\ZetPDF.App.csproj" />
+  </ItemGroup>
+</Project>

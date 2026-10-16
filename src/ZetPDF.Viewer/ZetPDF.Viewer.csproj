@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Widok dokumentu, miniatury, zakładki, wyszukiwanie, druk. Własność: renderer-viewer. -->
+  <PropertyGroup>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>ZetPDF.Viewer</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ZetPDF.Core\ZetPDF.Core.csproj" />
+    <PackageReference Include="PdfPig" Version="$(PdfPigVersion)" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="ZetPDF.Viewer.Tests" />
+  </ItemGroup>
+</Project>

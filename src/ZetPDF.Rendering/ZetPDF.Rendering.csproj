@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Opakowanie PDFium (IPdfRenderer). Własność: renderer-viewer. -->
+  <PropertyGroup>
+    <UseWPF>false</UseWPF>
+    <RootNamespace>ZetPDF.Rendering</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ZetPDF.Core\ZetPDF.Core.csproj" />
+    <PackageReference Include="PDFiumCore" Version="$(PdfiumCoreVersion)" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="ZetPDF.Viewer.Tests" />
+  </ItemGroup>
+</Project>

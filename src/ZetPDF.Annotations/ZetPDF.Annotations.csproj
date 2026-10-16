@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Komentarze, stemple, formularze, Wypełnij i podpisz, XFDF/FDF, załączniki. Własność: annotations-forms. -->
+  <PropertyGroup>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>ZetPDF.Annotations</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ZetPDF.Core\ZetPDF.Core.csproj" />
+    <PackageReference Include="PdfPig" Version="$(PdfPigVersion)" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="ZetPDF.Annotations.Tests" />
+  </ItemGroup>
+</Project>

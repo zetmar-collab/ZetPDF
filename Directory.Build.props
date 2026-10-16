@@ -1,0 +1,39 @@
+<Project>
+  <!-- Wspólne ustawienia wszystkich projektów ZetPDF (własność: architekt/koordynator). -->
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <LangVersion>12.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <PlatformTarget>x64</PlatformTarget>
+    <Deterministic>true</Deterministic>
+    <Product>ZetPDF</Product>
+    <Company>ZetPDF</Company>
+    <Copyright>© 2026 ZetPDF</Copyright>
+    <Version>0.1.0</Version>
+    <InformationalVersion>0.1.0-test</InformationalVersion>
+    <AssemblyVersion>0.1.0.0</AssemblyVersion>
+    <FileVersion>0.1.0.0</FileVersion>
+    <NeutralLanguage>en</NeutralLanguage>
+    <!-- Tylko polskie zasoby satelickie (Fluent.Ribbon i inne niosą wiele języków). -->
+    <SatelliteResourceLanguages>pl</SatelliteResourceLanguages>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+    <!-- NU1903/NU1902 pilnujemy jawnie (patrz docs/LICENCJE.md); nie maskujemy ostrzeżeń. -->
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
+  </PropertyGroup>
+
+  <!-- Wersje pakietów współdzielonych (jedno miejsce). Moduły dodające WŁASNE pakiety
+       wpisują wersję wprost w swoim csproj (bez Central Package Management). -->
+  <PropertyGroup>
+    <PdfSharpVersion>6.2.4</PdfSharpVersion>
+    <PdfPigVersion>0.1.16</PdfPigVersion>
+    <PdfiumCoreVersion>157.0.8100</PdfiumCoreVersion>
+    <TesseractVersion>5.2.0</TesseractVersion>
+    <FluentRibbonVersion>11.0.2</FluentRibbonVersion>
+    <MvvmToolkitVersion>8.4.2</MvvmToolkitVersion>
+    <MsExtensionsVersion>8.0.1</MsExtensionsVersion>
+    <PkcsVersion>8.0.2</PkcsVersion>
+  </PropertyGroup>
+</Project>

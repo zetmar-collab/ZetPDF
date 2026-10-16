@@ -1,0 +1,7 @@
+<Project>
+  <!-- Microsoft.NET.Sdk.WindowsDesktop usuwa System.IO z ImplicitUsings (konflikt Path z System.Windows.Shapes).
+       Przywracamy go globalnie; w XAML/kodzie WPF używaj System.IO.Path jawnie, gdy jest niejednoznaczność. -->
+  <ItemGroup Condition="'$(ImplicitUsings)' == 'enable'">
+    <Using Include="System.IO" />
+  </ItemGroup>
+</Project>

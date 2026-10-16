@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Powłoka WPF (okno, wstążka, panele, motywy, ustawienia). Własność: ui-shell. -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>ZetPDF.App</RootNamespace>
+    <AssemblyName>ZetPDF</AssemblyName>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- Publikacja: patrz docs/ARCHITEKTURA.md, sekcja "Publikacja" (self-contained, single-file, win-x64). -->
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ZetPDF.Core\ZetPDF.Core.csproj" />
+    <ProjectReference Include="..\ZetPDF.Rendering\ZetPDF.Rendering.csproj" />
+    <ProjectReference Include="..\ZetPDF.Viewer\ZetPDF.Viewer.csproj" />
+    <ProjectReference Include="..\ZetPDF.Pages\ZetPDF.Pages.csproj" />
+    <ProjectReference Include="..\ZetPDF.Annotations\ZetPDF.Annotations.csproj" />
+    <ProjectReference Include="..\ZetPDF.Editing\ZetPDF.Editing.csproj" />
+    <ProjectReference Include="..\ZetPDF.Ocr\ZetPDF.Ocr.csproj" />
+    <ProjectReference Include="..\ZetPDF.Security\ZetPDF.Security.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Fluent.Ribbon" Version="$(FluentRibbonVersion)" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="$(MsExtensionsVersion)" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="ZetPDF.App.Tests" />
+    <InternalsVisibleTo Include="ZetPDF.IntegrationTests" />
+  </ItemGroup>
+</Project>

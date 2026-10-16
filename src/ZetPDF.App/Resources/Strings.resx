@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Shell.AppTitle" xml:space="preserve"><value>ZetPDF</value></data>
+  <data name="Shell.NoDocument" xml:space="preserve"><value>Open a PDF document (Ctrl+O) or drop a file here.</value></data>
+  <data name="Shell.Status.Ready" xml:space="preserve"><value>Ready</value></data>
+  <data name="Shell.Error.Unhandled" xml:space="preserve"><value>An unexpected error occurred. Details were written to the log file:
+{0}</value></data>
+  <data name="Ribbon.Tab.Home" xml:space="preserve"><value>Home</value></data>
+  <data name="Ribbon.Group.Home.Tools" xml:space="preserve"><value>Tools</value></data>
+  <data name="Ribbon.Group.Home.Zoom" xml:space="preserve"><value>Zoom</value></data>
+  <data name="Ribbon.Group.Home.View" xml:space="preserve"><value>View</value></data>
+  <data name="Ribbon.Group.Home.Edit" xml:space="preserve"><value>Edit</value></data>
+  <data name="Ribbon.Group.Home.Pages" xml:space="preserve"><value>Pages</value></data>
+  <data name="Ribbon.Group.Home.Recognize" xml:space="preserve"><value>Recognition</value></data>
+  <data name="Ribbon.Group.Home.Sign" xml:space="preserve"><value>Sign</value></data>
+  <data name="Ribbon.Tab.Convert" xml:space="preserve"><value>Convert</value></data>
+  <data name="Ribbon.Group.Convert.Create" xml:space="preserve"><value>Create</value></data>
+  <data name="Ribbon.Group.Convert.Export" xml:space="preserve"><value>Export</value></data>
+  <data name="Ribbon.Group.Convert.Ocr" xml:space="preserve"><value>OCR</value></data>
+  <data name="Ribbon.Group.Convert.Color" xml:space="preserve"><value>Color</value></data>
+  <data name="Ribbon.Tab.Edit" xml:space="preserve"><value>Edit</value></data>
+  <data name="Ribbon.Group.Edit.Content" xml:space="preserve"><value>Content Editing</value></data>
+  <data name="Ribbon.Group.Edit.Links" xml:space="preserve"><value>Links &amp; Navigation</value></data>
+  <data name="Ribbon.Group.Edit.Attachments" xml:space="preserve"><value>Attachments</value></data>
+  <data name="Ribbon.Tab.Organize" xml:space="preserve"><value>Organize</value></data>
+  <data name="Ribbon.Group.Organize.Pages" xml:space="preserve"><value>Pages</value></data>
+  <data name="Ribbon.Group.Organize.Transform" xml:space="preserve"><value>Split &amp; Transform</value></data>
+  <data name="Ribbon.Group.Organize.Marks" xml:space="preserve"><value>Page Marks</value></data>
+  <data name="Ribbon.Tab.Comment" xml:space="preserve"><value>Comment</value></data>
+  <data name="Ribbon.Group.Comment.Markup" xml:space="preserve"><value>Text Markup</value></data>
+  <data name="Ribbon.Group.Comment.Text" xml:space="preserve"><value>Notes &amp; Text</value></data>
+  <data name="Ribbon.Group.Comment.Drawing" xml:space="preserve"><value>Drawing</value></data>
+  <data name="Ribbon.Group.Comment.Stamps" xml:space="preserve"><value>Stamps</value></data>
+  <data name="Ribbon.Group.Comment.Manage" xml:space="preserve"><value>Manage</value></data>
+  <data name="Ribbon.Tab.View" xml:space="preserve"><value>View</value></data>
+  <data name="Ribbon.Group.View.Layout" xml:space="preserve"><value>Page Layout</value></data>
+  <data name="Ribbon.Group.View.Mode" xml:space="preserve"><value>Mode</value></data>
+  <data name="Ribbon.Group.View.Navigation" xml:space="preserve"><value>Navigation</value></data>
+  <data name="Ribbon.Group.View.Find" xml:space="preserve"><value>Find</value></data>
+  <data name="Ribbon.Group.View.Compare" xml:space="preserve"><value>Compare</value></data>
+  <data name="Ribbon.Group.View.Panels" xml:space="preserve"><value>Panels</value></data>
+  <data name="Ribbon.Tab.Form" xml:space="preserve"><value>Form</value></data>
+  <data name="Ribbon.Group.Form.Fields" xml:space="preserve"><value>Form Fields</value></data>
+  <data name="Ribbon.Group.Form.Design" xml:space="preserve"><value>Design</value></data>
+  <data name="Ribbon.Group.Form.Data" xml:space="preserve"><value>Data</value></data>
+  <data name="Ribbon.Tab.Protect" xml:space="preserve"><value>Protect</value></data>
+  <data name="Ribbon.Group.Protect.Security" xml:space="preserve"><value>Security</value></data>
+  <data name="Ribbon.Group.Protect.Redaction" xml:space="preserve"><value>Redaction</value></data>
+  <data name="Ribbon.Group.Protect.HiddenData" xml:space="preserve"><value>Hidden Data</value></data>
+  <data name="Ribbon.Group.Protect.Signatures" xml:space="preserve"><value>Signatures</value></data>
+  <data name="Ribbon.Tab.Help" xml:space="preserve"><value>Help</value></data>
+  <data name="Ribbon.Group.Help.Main" xml:space="preserve"><value>Help</value></data>
+  <data name="Ribbon.Tab.FillSign" xml:space="preserve"><value>Fill &amp; Sign</value></data>
+  <data name="Ribbon.Group.FillSign.Tools" xml:space="preserve"><value>Tools</value></data>
+  <data name="Ribbon.Group.FillSign.Signatures" xml:space="preserve"><value>Signatures</value></data>
+  <data name="Ribbon.Group.FillSign.CloseGroup" xml:space="preserve"><value>Close</value></data>
+  <data name="Ribbon.Tab.CompareResults" xml:space="preserve"><value>Compare Results</value></data>
+  <data name="Ribbon.Group.CompareResults.Navigate" xml:space="preserve"><value>Changes</value></data>
+  <data name="Ribbon.Group.CompareResults.Report" xml:space="preserve"><value>Report</value></data>
+  <data name="Ribbon.Tab.File" xml:space="preserve"><value>File</value></data>
+  <data name="Cmd.File.Open" xml:space="preserve"><value>Open</value></data>
+  <data name="Cmd.File.Save" xml:space="preserve"><value>Save</value></data>
+  <data name="Cmd.File.SaveAs" xml:space="preserve"><value>Save As</value></data>
+  <data name="Cmd.File.Revert" xml:space="preserve"><value>Revert</value></data>
+  <data name="Cmd.File.Close" xml:space="preserve"><value>Close</value></data>
+  <data name="Cmd.File.CloseAll" xml:space="preserve"><value>Close All</value></data>
+  <data name="Cmd.File.Properties" xml:space="preserve"><value>Document Properties</value></data>
+  <data name="Cmd.File.Settings" xml:space="preserve"><value>Settings</value></data>
+  <data name="Cmd.File.Exit" xml:space="preserve"><value>Exit</value></data>
+  <data name="Cmd.File.Print" xml:space="preserve"><value>Print</value></data>
+  <data name="Cmd.File.CreateFromFile" xml:space="preserve"><value>From File</value></data>
+  <data name="Cmd.File.CombineFiles" xml:space="preserve"><value>Combine Files</value></data>
+  <data name="Cmd.File.CreateBlank" xml:space="preserve"><value>Blank Document</value></data>
+  <data name="Cmd.File.CreateFromClipboard" xml:space="preserve"><value>From Clipboard</value></data>
+  <data name="Cmd.File.ActionWizard" xml:space="preserve"><value>Action Wizard</value></data>
+  <data name="Cmd.File.OptimizeReduceSize" xml:space="preserve"><value>Reduce File Size</value></data>
+  <data name="Cmd.File.OptimizeAdvanced" xml:space="preserve"><value>Advanced Optimization</value></data>
+  <data name="Cmd.Edit.Undo" xml:space="preserve"><value>Undo</value></data>
+  <data name="Cmd.Edit.Redo" xml:space="preserve"><value>Redo</value></data>
+  <data name="Cmd.Edit.Copy" xml:space="preserve"><value>Copy</value></data>
+  <data name="Cmd.Edit.SelectAll" xml:space="preserve"><value>Select All</value></data>
+  <data name="Cmd.Shell.CommandSearch" xml:space="preserve"><value>Search Commands</value></data>
+  <data name="Cmd.Shell.NextDocument" xml:space="preserve"><value>Next Document</value></data>
+  <data name="Cmd.Shell.PreviousDocument" xml:space="preserve"><value>Previous Document</value></data>
+  <data name="Cmd.Tool.Hand" xml:space="preserve"><value>Hand</value></data>
+  <data name="Cmd.Tool.SelectText" xml:space="preserve"><value>Select Text</value></data>
+  <data name="Cmd.Tool.Snapshot" xml:space="preserve"><value>Snapshot</value></data>
+  <data name="Cmd.Tool.SelectAnnotation" xml:space="preserve"><value>Select Annotation</value></data>
+  <data name="Cmd.View.ZoomIn" xml:space="preserve"><value>Zoom In</value></data>
+  <data name="Cmd.View.ZoomOut" xml:space="preserve"><value>Zoom Out</value></data>
+  <data name="Cmd.View.ZoomTo" xml:space="preserve"><value>Zoom To…</value></data>
+  <data name="Cmd.View.ActualSize" xml:space="preserve"><value>Actual Size</value></data>
+  <data name="Cmd.View.FitPage" xml:space="preserve"><value>Fit Page</value></data>
+  <data name="Cmd.View.FitWidth" xml:space="preserve"><value>Fit Width</value></data>
+  <data name="Cmd.View.FitVisible" xml:space="preserve"><value>Fit Visible</value></data>
+  <data name="Cmd.View.RotateLeft" xml:space="preserve"><value>Rotate View Left</value></data>
+  <data name="Cmd.View.RotateRight" xml:space="preserve"><value>Rotate View Right</value></data>
+  <data name="Cmd.View.SinglePage" xml:space="preserve"><value>Single Page</value></data>
+  <data name="Cmd.View.Continuous" xml:space="preserve"><value>Continuous</value></data>
+  <data name="Cmd.View.TwoPages" xml:space="preserve"><value>Two Pages</value></data>
+  <data name="Cmd.View.TwoPagesContinuous" xml:space="preserve"><value>Two Pages Continuous</value></data>
+  <data name="Cmd.View.ReadingMode" xml:space="preserve"><value>Reading Mode</value></data>
+  <data name="Cmd.View.FullScreen" xml:space="preserve"><value>Full Screen</value></data>
+  <data name="Cmd.View.TogglePanel" xml:space="preserve"><value>Side Panel</value></data>
+  <data name="Cmd.View.ToggleRibbon" xml:space="preserve"><value>Collapse Ribbon</value></data>
+  <data name="Cmd.View.PanelThumbnails" xml:space="preserve"><value>Thumbnails</value></data>
+  <data name="Cmd.View.PanelBookmarks" xml:space="preserve"><value>Bookmarks</value></data>
+  <data name="Cmd.View.PanelComments" xml:space="preserve"><value>Comments</value></data>
+  <data name="Cmd.View.PanelAttachments" xml:space="preserve"><value>Attachments</value></data>
+  <data name="Cmd.View.PanelSignatures" xml:space="preserve"><value>Signatures</value></data>
+  <data name="Cmd.Nav.GoToPage" xml:space="preserve"><value>Go to Page</value></data>
+  <data name="Cmd.Nav.FirstPage" xml:space="preserve"><value>First Page</value></data>
+  <data name="Cmd.Nav.PreviousPage" xml:space="preserve"><value>Previous Page</value></data>
+  <data name="Cmd.Nav.NextPage" xml:space="preserve"><value>Next Page</value></data>
+  <data name="Cmd.Nav.LastPage" xml:space="preserve"><value>Last Page</value></data>
+  <data name="Cmd.Nav.Find" xml:space="preserve"><value>Find</value></data>
+  <data name="Cmd.Nav.FindNext" xml:space="preserve"><value>Find Next</value></data>
+  <data name="Cmd.Nav.FindPrevious" xml:space="preserve"><value>Find Previous</value></data>
+  <data name="Cmd.Nav.AddBookmark" xml:space="preserve"><value>Add Bookmark</value></data>
+  <data name="Cmd.Convert.ToImages" xml:space="preserve"><value>To Images</value></data>
+  <data name="Cmd.Convert.ToText" xml:space="preserve"><value>To Text (TXT)</value></data>
+  <data name="Cmd.Convert.ToDocx" xml:space="preserve"><value>To Word (DOCX)</value></data>
+  <data name="Cmd.Convert.Grayscale" xml:space="preserve"><value>Grayscale</value></data>
+  <data name="Cmd.Ocr.RecognizeDocument" xml:space="preserve"><value>Recognize Text (OCR)</value></data>
+  <data name="Cmd.Ocr.RecognizeRegion" xml:space="preserve"><value>OCR Selected Area</value></data>
+  <data name="Cmd.Ocr.QuickRecognize" xml:space="preserve"><value>Quick Recognition</value></data>
+  <data name="Cmd.Ocr.SuspectResults" xml:space="preserve"><value>Suspect Results</value></data>
+  <data name="Cmd.Edit.EditText" xml:space="preserve"><value>Edit Text</value></data>
+  <data name="Cmd.Edit.EditObject" xml:space="preserve"><value>Edit Object</value></data>
+  <data name="Cmd.Edit.AddText" xml:space="preserve"><value>Add Text</value></data>
+  <data name="Cmd.Edit.AddImage" xml:space="preserve"><value>Add Image</value></data>
+  <data name="Cmd.Edit.AddShape" xml:space="preserve"><value>Add Shape</value></data>
+  <data name="Cmd.Edit.FindReplace" xml:space="preserve"><value>Find and Replace</value></data>
+  <data name="Cmd.Edit.Link" xml:space="preserve"><value>Link</value></data>
+  <data name="Cmd.Edit.CreateLinksFromUrls" xml:space="preserve"><value>Create Links from URLs</value></data>
+  <data name="Cmd.Edit.RemoveAllLinks" xml:space="preserve"><value>Remove All Links</value></data>
+  <data name="Cmd.Edit.BookmarksFromHeadings" xml:space="preserve"><value>Bookmarks from Headings</value></data>
+  <data name="Cmd.Pages.InsertFromFile" xml:space="preserve"><value>Insert from File</value></data>
+  <data name="Cmd.Pages.InsertBlank" xml:space="preserve"><value>Blank Page</value></data>
+  <data name="Cmd.Pages.Delete" xml:space="preserve"><value>Delete Pages</value></data>
+  <data name="Cmd.Pages.Extract" xml:space="preserve"><value>Extract</value></data>
+  <data name="Cmd.Pages.Replace" xml:space="preserve"><value>Replace</value></data>
+  <data name="Cmd.Pages.Duplicate" xml:space="preserve"><value>Duplicate</value></data>
+  <data name="Cmd.Pages.Move" xml:space="preserve"><value>Move</value></data>
+  <data name="Cmd.Pages.Swap" xml:space="preserve"><value>Swap</value></data>
+  <data name="Cmd.Pages.Reverse" xml:space="preserve"><value>Reverse Order</value></data>
+  <data name="Cmd.Pages.Interleave" xml:space="preserve"><value>Interleave</value></data>
+  <data name="Cmd.Pages.Split" xml:space="preserve"><value>Split Document</value></data>
+  <data name="Cmd.Pages.Merge" xml:space="preserve"><value>Merge PDFs</value></data>
+  <data name="Cmd.Pages.RotateLeft" xml:space="preserve"><value>Rotate Left</value></data>
+  <data name="Cmd.Pages.RotateRight" xml:space="preserve"><value>Rotate Right</value></data>
+  <data name="Cmd.Pages.Rotate" xml:space="preserve"><value>Rotate Pages…</value></data>
+  <data name="Cmd.Pages.Crop" xml:space="preserve"><value>Crop Pages</value></data>
+  <data name="Cmd.Pages.Resize" xml:space="preserve"><value>Resize Pages</value></data>
+  <data name="Cmd.Pages.Flatten" xml:space="preserve"><value>Flatten</value></data>
+  <data name="Cmd.Pages.PageLabels" xml:space="preserve"><value>Page Number Format</value></data>
+  <data name="Cmd.Stamp.Watermark" xml:space="preserve"><value>Watermark</value></data>
+  <data name="Cmd.Stamp.Watermark.Add" xml:space="preserve"><value>Add Watermark</value></data>
+  <data name="Cmd.Stamp.Watermark.Update" xml:space="preserve"><value>Update Watermark</value></data>
+  <data name="Cmd.Stamp.Watermark.RemoveAll" xml:space="preserve"><value>Remove All Watermarks</value></data>
+  <data name="Cmd.Stamp.Background" xml:space="preserve"><value>Background</value></data>
+  <data name="Cmd.Stamp.Background.Add" xml:space="preserve"><value>Add Background</value></data>
+  <data name="Cmd.Stamp.Background.Update" xml:space="preserve"><value>Update Background</value></data>
+  <data name="Cmd.Stamp.Background.RemoveAll" xml:space="preserve"><value>Remove All Backgrounds</value></data>
+  <data name="Cmd.Stamp.HeaderFooter" xml:space="preserve"><value>Header &amp; Footer</value></data>
+  <data name="Cmd.Stamp.HeaderFooter.Add" xml:space="preserve"><value>Add Header &amp; Footer</value></data>
+  <data name="Cmd.Stamp.HeaderFooter.Update" xml:space="preserve"><value>Update Header &amp; Footer</value></data>
+  <data name="Cmd.Stamp.HeaderFooter.RemoveAll" xml:space="preserve"><value>Remove Headers &amp; Footers</value></data>
+  <data name="Cmd.Stamp.PageNumbers" xml:space="preserve"><value>Page Numbers</value></data>
+  <data name="Cmd.Stamp.Bates" xml:space="preserve"><value>Bates Numbering</value></data>
+  <data name="Cmd.Stamp.Bates.Add" xml:space="preserve"><value>Add Bates Numbering</value></data>
+  <data name="Cmd.Stamp.Bates.RemoveAll" xml:space="preserve"><value>Remove Bates Numbering</value></data>
+  <data name="Cmd.Sanitize.Document" xml:space="preserve"><value>Sanitize Document</value></data>
+  <data name="Cmd.Comment.Highlight" xml:space="preserve"><value>Highlight</value></data>
+  <data name="Cmd.Comment.AreaHighlight" xml:space="preserve"><value>Area Highlight</value></data>
+  <data name="Cmd.Comment.Underline" xml:space="preserve"><value>Underline</value></data>
+  <data name="Cmd.Comment.Squiggly" xml:space="preserve"><value>Squiggly Underline</value></data>
+  <data name="Cmd.Comment.StrikeOut" xml:space="preserve"><value>Strikethrough</value></data>
+  <data name="Cmd.Comment.Note" xml:space="preserve"><value>Note</value></data>
+  <data name="Cmd.Comment.Typewriter" xml:space="preserve"><value>Typewriter</value></data>
+  <data name="Cmd.Comment.TextBox" xml:space="preserve"><value>Text Box</value></data>
+  <data name="Cmd.Comment.Callout" xml:space="preserve"><value>Callout</value></data>
+  <data name="Cmd.Comment.Rectangle" xml:space="preserve"><value>Rectangle</value></data>
+  <data name="Cmd.Comment.Oval" xml:space="preserve"><value>Oval</value></data>
+  <data name="Cmd.Comment.Line" xml:space="preserve"><value>Line</value></data>
+  <data name="Cmd.Comment.Arrow" xml:space="preserve"><value>Arrow</value></data>
+  <data name="Cmd.Comment.Polygon" xml:space="preserve"><value>Polygon</value></data>
+  <data name="Cmd.Comment.Polyline" xml:space="preserve"><value>Polyline</value></data>
+  <data name="Cmd.Comment.Pencil" xml:space="preserve"><value>Pencil</value></data>
+  <data name="Cmd.Comment.Stamp" xml:space="preserve"><value>Stamp</value></data>
+  <data name="Cmd.Comment.CustomStamp" xml:space="preserve"><value>Stamp from Image</value></data>
+  <data name="Cmd.Comment.Import" xml:space="preserve"><value>Import Comments</value></data>
+  <data name="Cmd.Comment.ExportAll" xml:space="preserve"><value>Export Comments</value></data>
+  <data name="Cmd.Comment.ShowAll" xml:space="preserve"><value>Show All Comments</value></data>
+  <data name="Cmd.Comment.HideAll" xml:space="preserve"><value>Hide All Comments</value></data>
+  <data name="Cmd.Comment.DeleteAll" xml:space="preserve"><value>Delete All Comments</value></data>
+  <data name="Cmd.Attach.AddFile" xml:space="preserve"><value>Attach File</value></data>
+  <data name="Cmd.Form.TextField" xml:space="preserve"><value>Text Field</value></data>
+  <data name="Cmd.Form.CheckBox" xml:space="preserve"><value>Check Box</value></data>
+  <data name="Cmd.Form.RadioButton" xml:space="preserve"><value>Radio Button</value></data>
+  <data name="Cmd.Form.ComboBox" xml:space="preserve"><value>Combo Box</value></data>
+  <data name="Cmd.Form.ListBox" xml:space="preserve"><value>List Box</value></data>
+  <data name="Cmd.Form.Button" xml:space="preserve"><value>Button</value></data>
+  <data name="Cmd.Form.SignatureField" xml:space="preserve"><value>Signature Field</value></data>
+  <data name="Cmd.Form.DateField" xml:space="preserve"><value>Date Field</value></data>
+  <data name="Cmd.Form.TabOrder" xml:space="preserve"><value>Tab Order</value></data>
+  <data name="Cmd.Form.HighlightFields" xml:space="preserve"><value>Highlight Fields</value></data>
+  <data name="Cmd.Form.ImportData" xml:space="preserve"><value>Import Data</value></data>
+  <data name="Cmd.Form.ExportData" xml:space="preserve"><value>Export Data</value></data>
+  <data name="Cmd.Form.Reset" xml:space="preserve"><value>Reset Form</value></data>
+  <data name="Cmd.FillSign.Open" xml:space="preserve"><value>Fill &amp; Sign</value></data>
+  <data name="Cmd.FillSign.Text" xml:space="preserve"><value>Text</value></data>
+  <data name="Cmd.FillSign.Check" xml:space="preserve"><value>Check Mark ✓</value></data>
+  <data name="Cmd.FillSign.Cross" xml:space="preserve"><value>Cross ✗</value></data>
+  <data name="Cmd.FillSign.Dot" xml:space="preserve"><value>Dot</value></data>
+  <data name="Cmd.FillSign.Line" xml:space="preserve"><value>Line</value></data>
+  <data name="Cmd.FillSign.Signature" xml:space="preserve"><value>Handwritten Signature</value></data>
+  <data name="Cmd.FillSign.ManageSignatures" xml:space="preserve"><value>Manage Signatures</value></data>
+  <data name="Cmd.FillSign.Flatten" xml:space="preserve"><value>Flatten on Save</value></data>
+  <data name="Cmd.FillSign.Close" xml:space="preserve"><value>Close Fill &amp; Sign</value></data>
+  <data name="Cmd.Security.PasswordProtect" xml:space="preserve"><value>Password Protection</value></data>
+  <data name="Cmd.Security.RemoveSecurity" xml:space="preserve"><value>Remove Security</value></data>
+  <data name="Cmd.Security.Properties" xml:space="preserve"><value>Security Properties</value></data>
+  <data name="Cmd.Redact.MarkText" xml:space="preserve"><value>Mark Text for Redaction</value></data>
+  <data name="Cmd.Redact.MarkArea" xml:space="preserve"><value>Mark Area for Redaction</value></data>
+  <data name="Cmd.Redact.SearchAndRedact" xml:space="preserve"><value>Search &amp; Redact</value></data>
+  <data name="Cmd.Redact.Apply" xml:space="preserve"><value>Apply Redactions</value></data>
+  <data name="Cmd.Sign.PlaceSignature" xml:space="preserve"><value>Sign Digitally</value></data>
+  <data name="Cmd.Sign.Validate" xml:space="preserve"><value>Validate Signatures</value></data>
+  <data name="Cmd.Sign.Timestamp" xml:space="preserve"><value>Document Timestamp</value></data>
+  <data name="Cmd.Sign.DigitalIds" xml:space="preserve"><value>Digital IDs</value></data>
+  <data name="Cmd.Compare.Start" xml:space="preserve"><value>Compare Documents</value></data>
+  <data name="Cmd.Compare.Next" xml:space="preserve"><value>Next Change</value></data>
+  <data name="Cmd.Compare.Previous" xml:space="preserve"><value>Previous Change</value></data>
+  <data name="Cmd.Compare.Report" xml:space="preserve"><value>Comparison Report</value></data>
+  <data name="Cmd.Compare.Close" xml:space="preserve"><value>Close Comparison</value></data>
+  <data name="Cmd.Help.Shortcuts" xml:space="preserve"><value>Keyboard Shortcuts</value></data>
+  <data name="Cmd.Help.Licenses" xml:space="preserve"><value>Third-party Licenses</value></data>
+  <data name="Cmd.Help.OpenLogFolder" xml:space="preserve"><value>Log Folder</value></data>
+  <data name="Cmd.Help.About" xml:space="preserve"><value>About</value></data>
+  <data name="Shell.Close.Unsaved" xml:space="preserve"><value>The document "{0}" has unsaved changes. Close it anyway?</value></data>
+</root>
