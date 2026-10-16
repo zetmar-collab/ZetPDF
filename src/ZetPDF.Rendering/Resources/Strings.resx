@@ -5,4 +5,18 @@
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <data name="Render.ModuleName" xml:space="preserve"><value>Rendering</value></data>
+  <data name="Render.Error.Empty" xml:space="preserve"><value>The file is empty.</value></data>
+  <data name="Render.Error.PasswordRequired" xml:space="preserve"><value>The document is password protected. Enter the password to open it.</value></data>
+  <data name="Render.Error.InvalidPassword" xml:space="preserve"><value>The password is incorrect.</value></data>
+  <data name="Render.Error.File" xml:space="preserve"><value>The file could not be read.</value></data>
+  <data name="Render.Error.Format" xml:space="preserve"><value>The file is not a PDF document or it is damaged.</value></data>
+  <data name="Render.Error.Security" xml:space="preserve"><value>The document uses an unsupported security handler.</value></data>
+  <data name="Render.Error.Page" xml:space="preserve"><value>The document contains a damaged page.</value></data>
+  <data name="Render.Error.Unknown" xml:space="preserve"><value>The PDF document could not be opened (unknown error).</value></data>
+  <data name="Render.Error.PageLoad" xml:space="preserve"><value>Page {0} could not be loaded.</value></data>
+  <data name="Render.Error.Text" xml:space="preserve"><value>The page text could not be read.</value></data>
+  <data name="Render.Error.Bitmap" xml:space="preserve"><value>Not enough memory to render the page.</value></data>
+  <data name="Render.Error.TooLarge" xml:space="preserve"><value>The requested image is too large. Reduce the zoom level or render a fragment.</value></data>
+  <data name="Render.Error.NoPages" xml:space="preserve"><value>The document has no pages.</value></data>
+  <data name="Render.Error.Save" xml:space="preserve"><value>The decrypted copy of the document could not be created.</value></data>
 </root>

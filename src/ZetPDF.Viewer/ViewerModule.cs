@@ -1,12 +1,22 @@
+using System.Globalization;
 using System.Resources;
+using System.Windows;
+using System.Windows.Input;
 using Microsoft.Extensions.DependencyInjection;
 using ZetPDF.Core.Commands;
 using ZetPDF.Core.Contracts;
+using ZetPDF.Viewer.Bookmarks;
+using ZetPDF.Viewer.Dialogs;
+using ZetPDF.Viewer.Panels;
+using ZetPDF.Viewer.Printing;
+using ZetPDF.Viewer.Tools;
+using ZetPDF.Viewer.View;
 
 namespace ZetPDF.Viewer;
 
 /// <summary>
-/// Moduł ZetPDF.Viewer (właściciel: renderer-viewer). Rejestracja w App jest stała (ModuleCatalog) – tu tylko wypełniamy usługi i polecenia.
+/// Moduł ZetPDF.Viewer (właściciel: renderer-viewer): widok dokumentu, narzędzia Ręka/Zaznacz tekst/Migawka,
+/// powiększenie, układy, obrót widoku, nawigacja, wyszukiwanie, zakładki, druk, panele Miniatury i Zakładki.
 /// </summary>
 public sealed class ViewerModule : IFeatureModule
 {
@@ -19,7 +29,10 @@ public sealed class ViewerModule : IFeatureModule
     {
         services.AddSingleton<ViewerService>();
         services.AddSingleton<IViewerService>(sp => sp.GetRequiredService<ViewerService>());
-        services.AddSingleton<IDocumentViewFactory, PlaceholderDocumentViewFactory>();
+        services.AddSingleton<IDocumentViewFactory, DocumentViewFactory>();
+        services.AddSingleton<HandTool>();
+        services.AddSingleton<SelectTextTool>();
+        services.AddSingleton<SnapshotTool>();
         services.AddSingleton<IToolService, ToolService>();
         services.AddSingleton<IBookmarkService, BookmarkService>();
         services.AddSingleton<IPrintService, PrintService>();
@@ -27,10 +40,214 @@ public sealed class ViewerModule : IFeatureModule
 
     public void Initialize(IServiceProvider services)
     {
-        services.GetRequiredService<ILocalizationService>().RegisterResources(Strings);
-        // renderer-viewer: tu podpinamy obsługę poleceń z katalogu, np.:
-        // var registry = services.GetRequiredService<ICommandRegistry>();
-        // registry.Register(CommandIds.View.ZoomIn, new ActiveDocumentCommand(...));
-        // Polecenia bez obsługi są na wstążce wyszarzone.
+        var loc = services.GetRequiredService<ILocalizationService>();
+        loc.RegisterResources(Strings);
+        var registry = services.GetService<ICommandRegistry>();
+        if (registry is not null) new ViewerCommands(services, registry).RegisterAll();
+
+        var panels = services.GetService<IPanelRegistry>();
+        panels?.Register(new PanelDescriptor(PanelIds.Thumbnails, "Viewer.Panel.Thumbnails", "", 10, sp => new ThumbnailsPanel(sp)));
+        panels?.Register(new PanelDescriptor(PanelIds.Bookmarks, "Viewer.Panel.Bookmarks", "", 20, sp => new BookmarksPanel(sp)));
+    }
+}
+
+/// <summary>Obsługa poleceń wstążki należących do Viewer (30 poleceń z katalogu).</summary>
+internal sealed class ViewerCommands
+{
+    private readonly IServiceProvider _services;
+    private readonly ICommandRegistry _registry;
+    private readonly IViewerService _viewer;
+    private readonly IToolService _tools;
+    private readonly IDocumentManager _documents;
+    private readonly ILocalizationService _loc;
+    private readonly List<ToggleCommand> _toggles = new();
+    private DocumentView? _observed;
+
+    public ViewerCommands(IServiceProvider services, ICommandRegistry registry)
+    {
+        _services = services;
+        _registry = registry;
+        _viewer = services.GetRequiredService<IViewerService>();
+        _tools = services.GetRequiredService<IToolService>();
+        _documents = services.GetRequiredService<IDocumentManager>();
+        _loc = services.GetRequiredService<ILocalizationService>();
+    }
+
+    private DocumentView? View => _viewer.ActiveView as DocumentView;
+    private IShellService? Shell => _services.GetService<IShellService>();
+    private IDialogService? Dialogs => _services.GetService<IDialogService>();
+
+    public void RegisterAll()
+    {
+        // druk
+        _registry.Register(CommandIds.File.Print, new ActiveDocumentCommand(_documents, Dialogs,
+            s => _services.GetRequiredService<IPrintService>().ShowPrintDialogAsync(s, _viewer.GetView(s)?.CurrentPageIndex ?? 0), DocumentPermissions.Print));
+
+        // narzędzia
+        Tool(CommandIds.Tool.Hand, _services.GetRequiredService<HandTool>());
+        Tool(CommandIds.Tool.SelectText, _services.GetRequiredService<SelectTextTool>());
+        Tool(CommandIds.Tool.Snapshot, _services.GetRequiredService<SnapshotTool>());
+
+        // powiększenie
+        Cmd(CommandIds.View.ZoomIn, v => v.ZoomStep(true), v => v.Zoom < PageLayout.MaxZoom);
+        Cmd(CommandIds.View.ZoomOut, v => v.ZoomStep(false), v => v.Zoom > PageLayout.MinZoom);
+        Cmd(CommandIds.View.ZoomTo, ShowZoomTo);
+        Cmd(CommandIds.View.FitPage, v => v.ZoomMode = ZoomMode.FitPage);
+        Cmd(CommandIds.View.FitWidth, v => v.ZoomMode = ZoomMode.FitWidth);
+        Cmd(CommandIds.View.FitVisible, v => v.ZoomMode = ZoomMode.FitVisible);
+        Cmd(CommandIds.View.ActualSize, v => v.ZoomMode = ZoomMode.ActualSize);
+        Cmd(CommandIds.View.RotateLeft, v => v.ViewRotation -= 90);
+        Cmd(CommandIds.View.RotateRight, v => v.ViewRotation += 90);
+
+        // układy
+        LayoutToggle(CommandIds.View.SinglePage, PageLayoutMode.SinglePage);
+        LayoutToggle(CommandIds.View.Continuous, PageLayoutMode.Continuous);
+        LayoutToggle(CommandIds.View.TwoPages, PageLayoutMode.TwoPages);
+        LayoutToggle(CommandIds.View.TwoPagesContinuous, PageLayoutMode.TwoPagesContinuous);
+
+        // tryby powłoki
+        ShellToggle(CommandIds.View.ReadingMode, s => s.IsReadingMode, (s, v) => s.IsReadingMode = v);
+        ShellToggle(CommandIds.View.FullScreen, s => s.IsFullScreen, (s, v) => s.IsFullScreen = v);
+
+        // nawigacja
+        Cmd(CommandIds.Nav.GoToPage, ShowGoToPage);
+        Cmd(CommandIds.Nav.FirstPage, v => v.GoToPage(0), v => v.CurrentPageIndex > 0);
+        Cmd(CommandIds.Nav.PreviousPage, v => v.NavigatePage(-1), v => v.CurrentPageIndex > 0);
+        Cmd(CommandIds.Nav.NextPage, v => v.NavigatePage(+1), v => PageLayout.SpreadStart(v.CurrentPageIndex, v.Layout) + (PageLayout.IsTwoUp(v.Layout) ? 2 : 1) < v.PageCount);
+        Cmd(CommandIds.Nav.LastPage, v => v.GoToPage(v.PageCount - 1), v => v.CurrentPageIndex < v.PageCount - 1);
+
+        // wyszukiwanie
+        Cmd(CommandIds.Nav.Find, v => v.Find.Open(v.TextSelection?.Text));
+        Cmd(CommandIds.Nav.FindNext, v => v.Find.Move(+1));
+        Cmd(CommandIds.Nav.FindPrevious, v => v.Find.Move(-1));
+
+        // zakładki
+        _registry.Register(CommandIds.Nav.AddBookmark, new ActiveDocumentCommand(_documents, Dialogs, AddBookmarkAsync, DocumentPermissions.AssembleDocument,
+            s => _viewer.GetView(s) is DocumentView { IsDocumentLoaded: true }));
+
+        // schowek
+        Cmd(CommandIds.Edit.Copy, v =>
+        {
+            if (v.TextSelection is { Text.Length: > 0 } sel) Clipboard.SetText(sel.Text);
+        }, v => v.TextSelection is { Text.Length: > 0 } && v.Session.Can(DocumentPermissions.CopyContent));
+        Cmd(CommandIds.Edit.SelectAll, v => _ = SelectAllSafe(v), v => v.Session.Can(DocumentPermissions.CopyContent) || v.Session.Can(DocumentPermissions.Annotate));
+
+        // odświeżanie stanów przełączników
+        _tools.ActiveToolChanged += (_, _) => RaiseToggles();
+        _viewer.ActiveViewChanged += (_, _) => { Observe(View); RaiseToggles(); };
+        if (Shell is { } shell) shell.ShellStateChanged += (_, _) => RaiseToggles();
+        Observe(View);
+    }
+
+    private void Observe(DocumentView? view)
+    {
+        if (_observed is not null) _observed.ViewStateChanged -= OnViewStateChanged;
+        _observed = view;
+        if (view is not null) view.ViewStateChanged += OnViewStateChanged;
+    }
+
+    private void OnViewStateChanged(object? sender, EventArgs e) => RaiseToggles();
+
+    private void RaiseToggles()
+    {
+        foreach (var t in _toggles) t.RaiseIsCheckedChanged();
+        CommandManager.InvalidateRequerySuggested();
+    }
+
+    private bool HasView() => View is { IsDocumentLoaded: true };
+
+    private void Cmd(string id, Action<DocumentView> execute, Func<DocumentView, bool>? canExecute = null) =>
+        _registry.Register(id, new ViewCommand(() => View, execute, canExecute, Dialogs));
+
+    private void Tool(string id, IViewerTool tool)
+    {
+        var t = new ToggleCommand(_ => _tools.Activate(tool), () => _tools.IsActive(id));
+        _toggles.Add(t);
+        _registry.Register(id, t);
+    }
+
+    private void LayoutToggle(string id, PageLayoutMode mode)
+    {
+        var t = new ToggleCommand(_ => { if (View is { } v) v.Layout = mode; }, () => View?.Layout == mode, _ => HasView());
+        _toggles.Add(t);
+        _registry.Register(id, t);
+    }
+
+    private void ShellToggle(string id, Func<IShellService, bool> get, Action<IShellService, bool> set)
+    {
+        var t = new ToggleCommand(_ => { if (Shell is { } s) set(s, !get(s)); }, () => Shell is { } s && get(s), _ => Shell is not null);
+        _toggles.Add(t);
+        _registry.Register(id, t);
+    }
+
+    private async Task SelectAllSafe(DocumentView v)
+    {
+        try { await v.SelectAllAsync(); }
+        catch (Exception ex) when (ex is not OutOfMemoryException) { Dialogs?.ShowError(ex); }
+    }
+
+    private void ShowZoomTo(DocumentView v)
+    {
+        var suggestions = PageLayout.ZoomSteps.Where(s => s >= 0.25 && s <= 16).Select(s => (s * 100).ToString("0.#", CultureInfo.CurrentCulture) + "%");
+        var dlg = new InputDialog(_loc, "Viewer.ZoomTo.Title", _loc["Viewer.ZoomTo.Prompt"], (v.Zoom * 100).ToString("0.#", CultureInfo.CurrentCulture) + "%", suggestions,
+            text => ViewerBar.TryParsePercent(text, out _) ? null : _loc["Viewer.ZoomTo.Invalid"]);
+        if (ShowDialog(dlg) == true && ViewerBar.TryParsePercent(dlg.Value, out double z)) v.Zoom = z;
+    }
+
+    private void ShowGoToPage(DocumentView v)
+    {
+        string? Validate(string text) =>
+            int.TryParse(text.Trim(), NumberStyles.Integer, CultureInfo.CurrentCulture, out int n) && n >= 1 && n <= v.PageCount ? null : _loc.Format("Viewer.GoTo.Invalid", v.PageCount);
+        var dlg = new InputDialog(_loc, "Viewer.GoTo.Title", _loc.Format("Viewer.GoTo.Prompt", v.PageCount), (v.CurrentPageIndex + 1).ToString(CultureInfo.CurrentCulture), Array.Empty<string>(), Validate);
+        if (ShowDialog(dlg) == true && int.TryParse(dlg.Value.Trim(), NumberStyles.Integer, CultureInfo.CurrentCulture, out int page)) v.GoToPage(page - 1);
+    }
+
+    private bool? ShowDialog(Window w) => Dialogs is { } d ? d.ShowDialog(w) : w.ShowDialog();
+
+    private async Task AddBookmarkAsync(IPdfDocumentSession session)
+    {
+        if (_viewer.GetView(session) is not DocumentView view) return;
+        Shell?.ShowPanel(PanelIds.Bookmarks);
+        if (BookmarksPanel.Instance?.TryGetTarget(out var panel) == true && panel.IsLoaded && ReferenceEquals(_viewer.ActiveView, view))
+        {
+            await panel.AddBookmarkAsync();
+            return;
+        }
+        var service = _services.GetRequiredService<IBookmarkService>();
+        var tree = await service.GetBookmarksAsync(session.Current.GetBytes());
+        var node = new BookmarkNode(BookmarksPanel.DefaultTitle(view, _loc), view.CurrentPageIndex, BookmarkNode.NoChildren);
+        await BookmarkTree.CommitAsync(session, service, BookmarkTree.Insert(tree, Array.Empty<int>(), tree.Count, node), "Viewer.Undo.AddBookmark");
+    }
+}
+
+/// <summary>Polecenie działające na aktywnym (wczytanym) widoku.</summary>
+internal sealed class ViewCommand : ICommand
+{
+    private readonly Func<DocumentView?> _view;
+    private readonly Action<DocumentView> _execute;
+    private readonly Func<DocumentView, bool>? _canExecute;
+    private readonly IDialogService? _dialogs;
+
+    public ViewCommand(Func<DocumentView?> view, Action<DocumentView> execute, Func<DocumentView, bool>? canExecute, IDialogService? dialogs)
+    {
+        _view = view;
+        _execute = execute;
+        _canExecute = canExecute;
+        _dialogs = dialogs;
+    }
+
+    public event EventHandler? CanExecuteChanged
+    {
+        add => CommandManager.RequerySuggested += value;
+        remove => CommandManager.RequerySuggested -= value;
+    }
+
+    public bool CanExecute(object? parameter) => _view() is { IsDocumentLoaded: true } v && (_canExecute?.Invoke(v) ?? true);
+
+    public void Execute(object? parameter)
+    {
+        if (_view() is not { IsDocumentLoaded: true } v) return;
+        try { _execute(v); }
+        catch (Exception ex) when (ex is not OutOfMemoryException) { _dialogs?.ShowError(ex); }
     }
 }

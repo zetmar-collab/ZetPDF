@@ -1,0 +1,16 @@
+# Ograniczenia – renderer-viewer (ZetPDF.Rendering, ZetPDF.Viewer)
+
+1. **Wyszukiwanie** dopasowuje tekst w kodzie zarządzanym (PDFium 157 `FPDFText_FindStart` nie składa wielkości liter dla znaków spoza ASCII i traktuje litery diakrytyczne jako granice słów). Białe znaki i końce wierszy są zwijane do spacji, ale słowa przenoszone z dywizem („przeno-szone”) nie są łączone.
+2. **„Dopasuj widoczne” (Ctrl+3)** jest przybliżone: dopasowuje szerokość strony z minimalnym marginesem, bez analizy rzeczywistego obszaru treści.
+3. **Ostra bitmapa przy dużym powiększeniu**: powyżej ~8 Mpx na stronę renderowany jest tylko widoczny fragment (+25% marginesu); przy szybkim przewijaniu przez chwilę widać rozmyty podgląd niskiej rozdzielczości.
+4. **Miniatury** pokazują stronę z `/Rotate`, bez obrotu widoku. Pamięć: maks. ~160 obrazów miniatur, starsze niewidoczne są zwalniane.
+5. **Menu kontekstowe miniatur** (obróć, usuń, wstaw, wyodrębnij, duplikuj) wykonuje polecenia `Pages.*` z rejestru – działa dopiero po scaleniu pages-engine (do tego czasu pozycje są wyszarzone). Przeciąganie miniatur woła `IPageOperations.MoveAsync` – bez pages-engine pokazuje błąd `NotImplementedException`.
+6. **Druk**: rozdzielczość renderu ograniczona do 300 DPI (pamięć); orientacja papieru nie jest przełączana w sterowniku – „orientacja auto” obraca treść strony o 90°, gdy lepiej wypełnia komórkę. Kopie i sortowanie przekazywane do sterownika przez `PrintTicket` (zależy od drukarki). Podgląd w oknie druku zakłada papier A4. Postęp/anulowanie przez `IDialogService.RunWithProgressAsync` (okno postępu – ui-shell).
+7. **Druk N-up** pomija opcję „rzeczywisty rozmiar/własny %” (zawsze dopasowuje do komórki).
+8. **Zakładki**: PDFsharp 6.2.4 nie zapisuje `/Count` elementów zakładek – ustawiamy je ręcznie (dodatnie = rozwinięta, wartość = liczba bezpośrednich dzieci). Nie są obsługiwane kolory zakładek, cele nazwane (`/Dest` jako nazwa) są czytane przez PDFsharp tylko, jeśli da się je rozwiązać – inaczej zakładka ma PageIndex = -1. Zakładki z akcjami innymi niż GoTo (np. URI) tracą akcję po edycji drzewa.
+9. **Łącza URI** otwierane są w przeglądarce systemowej dopiero po potwierdzeniu (tylko http/https/mailto).
+10. **Tryb odczytu i pełny ekran** przełączają tylko `IShellService.IsReadingMode/IsFullScreen` – faktyczne ukrycie wstążki/paneli robi powłoka.
+11. **Ukrywanie komentarzy** (`Comment.HideAll`) nie jest jeszcze powiązane z flagami renderu (PDFium zawsze rysuje adnotacje z `/AP`) – do uzgodnienia z annotations-forms.
+12. **Zaznaczanie tekstu**: prostokąty wierszy są osiowe w przestrzeni strony (tekst obrócony o kąt inny niż 0/90/180/270° dostaje prostokąt otaczający). Brak zaznaczania kolumnowego (Alt+przeciąganie).
+13. **Uszkodzone pliki**: PDFium próbuje naprawy – obcięty plik może otworzyć się z częścią stron zamiast błędu (wtedy dalsza edycja PDFsharp może się nie powieść).
+14. Zrzutu ekranu całej aplikacji nie wykonano (sesja pulpitu była zablokowana – zrzuty czarne); widok sprawdzono renderem okna z modułem Viewer do PNG (`scratch\view1.png`, `scratch\view2.png`) oraz uruchomieniem `ZetPDF.exe` z plikiem (proces odpowiada, dziennik bez błędów).

@@ -1,0 +1,55 @@
+<UserControl x:Class="ZetPDF.Viewer.Panels.BookmarksPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:loc="clr-namespace:ZetPDF.Core.Localization;assembly=ZetPDF.Core"
+             xmlns:local="clr-namespace:ZetPDF.Viewer.Panels"
+             Background="{DynamicResource Brush.Surface}">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+        <local:InverseBoolToVisibilityConverter x:Key="InvBoolToVis" />
+    </UserControl.Resources>
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="4,4,4,2">
+            <Button x:Name="AddButton" Content="&#xE710;" FontFamily="{DynamicResource Font.Family.Icons}" MinWidth="28" Height="26" Margin="1,0" ToolTip="{loc:Loc Viewer.Bookmarks.Add}" Click="OnAdd" />
+            <Button x:Name="AddChildButton" Content="&#xE8A5;" FontFamily="{DynamicResource Font.Family.Icons}" MinWidth="28" Height="26" Margin="1,0" ToolTip="{loc:Loc Viewer.Bookmarks.AddChild}" Click="OnAddChild" />
+            <Button x:Name="RenameButton" Content="&#xE8AC;" FontFamily="{DynamicResource Font.Family.Icons}" MinWidth="28" Height="26" Margin="1,0" ToolTip="{loc:Loc Viewer.Bookmarks.Rename}" Click="OnRename" />
+            <Button x:Name="DeleteButton" Content="&#xE74D;" FontFamily="{DynamicResource Font.Family.Icons}" MinWidth="28" Height="26" Margin="1,0" ToolTip="{loc:Loc Viewer.Bookmarks.Delete}" Click="OnDelete" />
+            <Button x:Name="ExpandButton" Content="&#xE8A9;" FontFamily="{DynamicResource Font.Family.Icons}" MinWidth="28" Height="26" Margin="1,0" ToolTip="{loc:Loc Viewer.Bookmarks.ExpandAll}" Click="OnExpandAll" />
+            <Button x:Name="CollapseButton" Content="&#xE73F;" FontFamily="{DynamicResource Font.Family.Icons}" MinWidth="28" Height="26" Margin="1,0" ToolTip="{loc:Loc Viewer.Bookmarks.CollapseAll}" Click="OnCollapseAll" />
+        </StackPanel>
+        <Grid>
+            <TreeView x:Name="Tree" BorderThickness="0" AllowDrop="True" Background="{DynamicResource Brush.Surface}"
+                      AutomationProperties.Name="{loc:Loc Viewer.Panel.Bookmarks}">
+                <TreeView.ItemTemplate>
+                    <HierarchicalDataTemplate DataType="{x:Type local:BookmarkItem}" ItemsSource="{Binding Children}">
+                        <Grid Margin="0,1">
+                            <TextBlock Text="{Binding Title}" FontWeight="{Binding Weight}" FontStyle="{Binding Style}" TextTrimming="CharacterEllipsis"
+                                       Foreground="{DynamicResource Brush.Text.Primary}"
+                                       Visibility="{Binding IsEditing, Converter={StaticResource InvBoolToVis}}" />
+                            <TextBox Text="{Binding EditText, UpdateSourceTrigger=PropertyChanged}" MinWidth="140"
+                                     Visibility="{Binding IsEditing, Converter={StaticResource BoolToVis}}"
+                                     IsVisibleChanged="OnEditorVisibleChanged" KeyDown="OnEditorKeyDown" LostKeyboardFocus="OnEditorLostFocus" />
+                        </Grid>
+                    </HierarchicalDataTemplate>
+                </TreeView.ItemTemplate>
+                <TreeView.ContextMenu>
+                    <ContextMenu x:Name="Menu" Opened="OnMenuOpened">
+                        <MenuItem x:Name="MenuGo" Header="{loc:Loc Viewer.Bookmarks.Go}" Click="OnGo" />
+                        <Separator />
+                        <MenuItem x:Name="MenuAdd" Header="{loc:Loc Viewer.Bookmarks.Add}" Click="OnAdd" />
+                        <MenuItem x:Name="MenuAddChild" Header="{loc:Loc Viewer.Bookmarks.AddChild}" Click="OnAddChild" />
+                        <MenuItem x:Name="MenuSetTarget" Header="{loc:Loc Viewer.Bookmarks.SetTarget}" Click="OnSetTarget" />
+                        <MenuItem x:Name="MenuRename" Header="{loc:Loc Viewer.Bookmarks.Rename}" InputGestureText="F2" Click="OnRename" />
+                        <MenuItem x:Name="MenuDelete" Header="{loc:Loc Viewer.Bookmarks.Delete}" InputGestureText="Del" Click="OnDelete" />
+                    </ContextMenu>
+                </TreeView.ContextMenu>
+            </TreeView>
+            <Canvas x:Name="DropLayer" IsHitTestVisible="False">
+                <Rectangle x:Name="DropLine" Height="2" Visibility="Collapsed" Fill="{DynamicResource Brush.Accent}" />
+                <Rectangle x:Name="DropBox" Visibility="Collapsed" StrokeThickness="1" Stroke="{DynamicResource Brush.Accent}" />
+            </Canvas>
+            <TextBlock x:Name="EmptyText" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="12" TextWrapping="Wrap" TextAlignment="Center"
+                       Foreground="{DynamicResource Brush.Text.Secondary}" IsHitTestVisible="False" />
+        </Grid>
+    </DockPanel>
+</UserControl>

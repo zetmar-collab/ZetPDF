@@ -5,4 +5,18 @@
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <data name="Render.ModuleName" xml:space="preserve"><value>Renderowanie</value></data>
+  <data name="Render.Error.Empty" xml:space="preserve"><value>Plik jest pusty.</value></data>
+  <data name="Render.Error.PasswordRequired" xml:space="preserve"><value>Dokument jest chroniony hasłem. Wpisz hasło, aby go otworzyć.</value></data>
+  <data name="Render.Error.InvalidPassword" xml:space="preserve"><value>Hasło jest nieprawidłowe.</value></data>
+  <data name="Render.Error.File" xml:space="preserve"><value>Nie można odczytać pliku.</value></data>
+  <data name="Render.Error.Format" xml:space="preserve"><value>Plik nie jest dokumentem PDF albo jest uszkodzony.</value></data>
+  <data name="Render.Error.Security" xml:space="preserve"><value>Dokument używa nieobsługiwanej metody zabezpieczeń.</value></data>
+  <data name="Render.Error.Page" xml:space="preserve"><value>Dokument zawiera uszkodzoną stronę.</value></data>
+  <data name="Render.Error.Unknown" xml:space="preserve"><value>Nie można otworzyć dokumentu PDF (nieznany błąd).</value></data>
+  <data name="Render.Error.PageLoad" xml:space="preserve"><value>Nie można wczytać strony {0}.</value></data>
+  <data name="Render.Error.Text" xml:space="preserve"><value>Nie można odczytać tekstu strony.</value></data>
+  <data name="Render.Error.Bitmap" xml:space="preserve"><value>Za mało pamięci, aby wyświetlić stronę.</value></data>
+  <data name="Render.Error.TooLarge" xml:space="preserve"><value>Żądany obraz jest zbyt duży. Zmniejsz powiększenie albo renderuj fragment.</value></data>
+  <data name="Render.Error.NoPages" xml:space="preserve"><value>Dokument nie ma stron.</value></data>
+  <data name="Render.Error.Save" xml:space="preserve"><value>Nie można utworzyć odszyfrowanej kopii dokumentu.</value></data>
 </root>

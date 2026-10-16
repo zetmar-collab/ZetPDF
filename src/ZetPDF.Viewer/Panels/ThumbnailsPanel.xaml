@@ -1,0 +1,59 @@
+<UserControl x:Class="ZetPDF.Viewer.Panels.ThumbnailsPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:loc="clr-namespace:ZetPDF.Core.Localization;assembly=ZetPDF.Core"
+             Background="{DynamicResource Brush.Surface}">
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="4,4,4,2">
+            <Button x:Name="RotateLeftButton" Content="&#xE7AD;" FontFamily="{DynamicResource Font.Family.Icons}" MinWidth="28" Height="26" Margin="1,0" ToolTip="{loc:Loc Viewer.Thumbs.RotateLeft}" Click="OnRotateLeft">
+                <Button.LayoutTransform><ScaleTransform ScaleX="-1" /></Button.LayoutTransform>
+            </Button>
+            <Button x:Name="RotateRightButton" Content="&#xE7AD;" FontFamily="{DynamicResource Font.Family.Icons}" MinWidth="28" Height="26" Margin="1,0" ToolTip="{loc:Loc Viewer.Thumbs.RotateRight}" Click="OnRotateRight" />
+            <Button x:Name="DeleteButton" Content="&#xE74D;" FontFamily="{DynamicResource Font.Family.Icons}" MinWidth="28" Height="26" Margin="1,0" ToolTip="{loc:Loc Viewer.Thumbs.Delete}" Click="OnDelete" />
+            <Button x:Name="InsertButton" Content="&#xE710;" FontFamily="{DynamicResource Font.Family.Icons}" MinWidth="28" Height="26" Margin="1,0" ToolTip="{loc:Loc Viewer.Thumbs.InsertBlank}" Click="OnInsertBlank" />
+            <Button x:Name="ExtractButton" Content="&#xE8B7;" FontFamily="{DynamicResource Font.Family.Icons}" MinWidth="28" Height="26" Margin="1,0" ToolTip="{loc:Loc Viewer.Thumbs.Extract}" Click="OnExtract" />
+        </StackPanel>
+        <Grid>
+            <ListBox x:Name="List"
+                     SelectionMode="Extended"
+                     AllowDrop="True"
+                     BorderThickness="0"
+                     Background="{DynamicResource Brush.Surface}"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     VirtualizingPanel.IsVirtualizing="True"
+                     VirtualizingPanel.VirtualizationMode="Standard"
+                     VirtualizingPanel.ScrollUnit="Pixel"
+                     HorizontalContentAlignment="Center"
+                     AutomationProperties.Name="{loc:Loc Viewer.Panel.Thumbnails}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Margin="4,6,4,6" HorizontalAlignment="Center">
+                            <Border BorderThickness="1" BorderBrush="{DynamicResource Brush.Viewer.PageBorder}" Background="{DynamicResource Brush.Surface.Alt}"
+                                    Width="{Binding Width}" Height="{Binding Height}" HorizontalAlignment="Center">
+                                <Image Source="{Binding Image}" Stretch="Uniform" Loaded="OnThumbLoaded" Unloaded="OnThumbUnloaded" />
+                            </Border>
+                            <TextBlock Text="{Binding Label}" HorizontalAlignment="Center" Margin="0,3,0,0" Foreground="{DynamicResource Brush.Text.Primary}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+                <ListBox.ContextMenu>
+                    <ContextMenu x:Name="Menu" Opened="OnMenuOpened">
+                        <MenuItem x:Name="MenuRotateLeft" Header="{loc:Loc Viewer.Thumbs.RotateLeft}" Click="OnRotateLeft" />
+                        <MenuItem x:Name="MenuRotateRight" Header="{loc:Loc Viewer.Thumbs.RotateRight}" Click="OnRotateRight" />
+                        <Separator />
+                        <MenuItem x:Name="MenuInsert" Header="{loc:Loc Viewer.Thumbs.InsertBlank}" Click="OnInsertBlank" />
+                        <MenuItem x:Name="MenuDuplicate" Header="{loc:Loc Viewer.Thumbs.Duplicate}" Click="OnDuplicate" />
+                        <MenuItem x:Name="MenuExtract" Header="{loc:Loc Viewer.Thumbs.Extract}" Click="OnExtract" />
+                        <Separator />
+                        <MenuItem x:Name="MenuDelete" Header="{loc:Loc Viewer.Thumbs.Delete}" Click="OnDelete" />
+                    </ContextMenu>
+                </ListBox.ContextMenu>
+            </ListBox>
+            <Canvas x:Name="DropLayer" IsHitTestVisible="False">
+                <Rectangle x:Name="DropLine" Height="3" Visibility="Collapsed" Fill="{DynamicResource Brush.Accent}" />
+            </Canvas>
+            <TextBlock x:Name="EmptyText" Text="{loc:Loc Viewer.Panel.NoDocument}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Foreground="{DynamicResource Brush.Text.Secondary}" TextWrapping="Wrap" Margin="12" />
+        </Grid>
+    </DockPanel>
+</UserControl>
