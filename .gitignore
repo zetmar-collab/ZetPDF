@@ -7,3 +7,4 @@ TestResults/
 artifacts/
 scratch/
 tools/**/__pycache__/
+/.claude/worktrees/
