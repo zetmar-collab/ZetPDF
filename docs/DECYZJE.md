@@ -62,3 +62,10 @@ Format: problem → decyzja → uzasadnienie. Decyzje oznaczone **[DO ZATWIERDZE
 
 ## D-16. Silnik zakładek (zapis) – renderer-viewer
 - Panel zakładek jest w widoku; `IBookmarkService` (PDFsharp) implementuje renderer-viewer w `ZetPDF.Viewer`. „Zakładki z nagłówków” (edit-convert-ocr) generuje drzewo (`ILinkService.GenerateBookmarksFromHeadingsAsync`) i zapisuje przez `IBookmarkService`.
+
+## Zatwierdzenia koordynatora (krok 1)
+- D-01 zatwierdzona: PDFsharp 6.2.4 (MIT). Sprawdzono .nuspec: 6.5.0 = AGPL-3.0-only, 6.2.4 = MIT. Aktualizacja PDFsharp powyżej 6.2.x zabroniona bez sprawdzenia licencji.
+- D-08 zatwierdzona (ponowne szyfrowanie przy zapisie).
+- tessdata: agent edit-convert-ocr może zamienić tessdata_fast na tessdata (standard, Apache 2.0), jeśli jakość polskich znaków będzie wyraźnie lepsza; rozmiar exe jest drugorzędny.
+- Publikacja z -p:DebugType=None.
+
