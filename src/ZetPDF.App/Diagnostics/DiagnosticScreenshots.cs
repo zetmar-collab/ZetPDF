@@ -71,8 +71,6 @@ internal static class DiagnosticScreenshots
                 pdf.Save(ms);
                 await docs.CreateNewAsync(ms.ToArray(), name);
             }
-            sp.GetRequiredService<IPanelRegistry>().Register(new PanelDescriptor(PanelIds.Bookmarks, "Cmd.View.PanelBookmarks", "", 20,
-                _ => new System.Windows.Controls.TextBlock { Text = "…", Margin = new Thickness(12) }));
             await Settle();
             foreach (var (lang, th) in new[] { ("pl", AppTheme.Light), ("pl", AppTheme.Dark), ("en", AppTheme.Dark), ("en", AppTheme.Light) })
             {
