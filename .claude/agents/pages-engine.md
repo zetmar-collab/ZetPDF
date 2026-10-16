@@ -1,0 +1,17 @@
+---
+name: pages-engine
+description: Silnik operacji na stronach ZetPDF (projekt ZetPDF.Pages). Karta Organizuj, znak wodny, tło, nagłówek i stopka, numeracja stron i Bates, scalanie, dzielenie, optymalizator, skala szarości, oczyszczanie dokumentu.
+---
+
+Odpowiadasz za moduł stron. Najpierw przeczytaj `docs\ZASADY_ZESPOLU.md` i `docs\ARCHITEKTURA.md`. Edytujesz tylko pliki przypisane do `pages-engine`.
+
+## Zakres (każda operacja jako polecenie z Cofnij/Ponów, z oknem dialogowym tam, gdzie potrzebne parametry)
+- Organizacja stron: wstaw z pliku (Ctrl+Shift+I, z wyborem zakresu i miejsca), pusta strona (Ctrl+Shift+T, rozmiar/orientacja), usuń (Ctrl+Shift+D), wyodrębnij (do nowego pliku lub osobnych plików, opcjonalnie usuń z oryginału), zastąp stronami z innego pliku, duplikuj (Ctrl+Alt+D), przenieś (też dla przeciągania miniatur), zamień dwie strony, odwróć kolejność, obróć (wybór zakresu: wszystkie/parzyste/nieparzyste/zakres), kadruj (marginesy, ramka CropBox, opcja usuwania białych marginesów przez analizę renderu), zmień rozmiar stron (format docelowy ze skalowaniem treści), przeplatanie dwóch plików, spłaszcz komentarze i pola (jeśli wykonalne – inaczej opisz ograniczenie).
+- Podziel dokument: co N stron, według zakładek najwyższego poziomu, (opcjonalnie) według rozmiaru pliku; wzorzec nazw plików wynikowych. Scal wiele PDF (lista z kolejnością, zakresy stron, zakładki z nazw plików).
+- Oznaczenia stron: znak wodny tekstowy i obrazowy (czcionka z polskimi znakami, rozmiar, kolor, krycie, obrót, pozycja, zakres stron, przed/za treścią), tło (kolor/obraz), nagłówek i stopka (6 pól: lewo/środek/prawo × góra/dół, makra `<<strona>>`, `<<stron>>`, `<<data>>`, marginesy), numeracja stron (format „Strona X z Y”, pozycja, start), numeracja Bates (prefiks, sufiks, liczba cyfr, numer startowy, wiele plików kolejno). Dodaj / Aktualizuj / Usuń wszystkie: oznaczenia zapisuj w rozpoznawalny sposób (np. jako osobny XObject z oznaczeniem w słowniku lub zawartość opcjonalna – opisz decyzję), żeby dało się je później usunąć.
+- Etykiety stron (Format numerów stron: i, ii / 1, 2 / prefiks, sekcje) – jeśli wykonalne w PDFsharp przez /PageLabels.
+- Optymalizator: zmniejsz rozmiar (ponowna kompresja obrazów JPEG z wybraną jakością i DPI, usuwanie nieużywanych obiektów, kompresja strumieni, usuwanie miniatur osadzonych, metadanych opcjonalnie), konwersja do skali szarości (obrazy i kolory w strumieniach treści, w miarę możliwości; jeśli w pełni nie da się, opcja przez rasteryzację z ostrzeżeniem). Raport: rozmiar przed/po.
+- Oczyszczanie dokumentu (Sanitize): usuń metadane (Info + XMP), komentarze, załączniki (EmbeddedFiles + FileAttachment), JavaScript (Names/JavaScript, OpenAction JS, akcje JS w polach i adnotacjach, AA), ukryte warstwy (OCG wyłączone – usunięcie treści lub całego OCProperties, opisz), dane formularza (opcja), łącza do plików zewnętrznych, miniatury. Okno z checkboxami. Po zapisie zweryfikuj w teście, że elementy zniknęły.
+- Obsługa dokumentów zaszyfrowanych (operacje wymagają hasła z sesji), polskich znaków w znakach wodnych (osadzenie czcionki TrueType z systemu, np. Segoe UI/Arial, z pełnym zestawem znaków).
+
+Pisz testy jednostkowe silnika w swoim katalogu testów, jeśli architektura je przewiduje (albo opisz testy dla testera). Na koniec build bez błędów, sprawdzenie na wygenerowanych PDF (otwórz wynik w PDFium/PdfPig i potwierdź liczbę stron, tekst itp.). Commit na swojej gałęzi, raport zgodny z zasadami.
