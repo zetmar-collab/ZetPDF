@@ -44,6 +44,15 @@ public sealed class AnnotationService : IAnnotationService
     public Task<byte[]> UpdateAsync(byte[] pdf, AnnotationId id, AnnotationUpdate update, CancellationToken ct = default) =>
         PdfSharpEdit.ModifyAsync(pdf, doc => Update(doc, id, update), ct);
 
+    /// <summary>Czcionka i kolor tekstu adnotacji FreeText (null dla innych rodzajów) – do okna Właściwości.</summary>
+    public Task<TextStyle?> GetTextStyleAsync(byte[] pdf, AnnotationId id, CancellationToken ct = default) =>
+        Task.Run(() => PdfSharpEdit.Read(pdf, doc =>
+        {
+            if (AnnotationStore.Find(doc, id) is not { } found) return null;
+            var m = AnnotModel.Read(found.Dict);
+            return m.Subtype == "/FreeText" ? new TextStyle { FontFamily = m.FontFamily, FontSize = m.FontSize, Color = m.TextColor } : (TextStyle?)null;
+        }), ct);
+
     private void Update(PdfDocument doc, AnnotationId id, AnnotationUpdate u)
     {
         var found = AnnotationStore.Find(doc, id) ?? throw new KeyNotFoundException("Annotation not found: " + id.Name);
@@ -85,6 +94,15 @@ public sealed class AnnotationService : IAnnotationService
                 d.Elements[AnnotModel.PrivateKey] = priv;
             }
             else d.Elements["/C"] = ColorArray(doc, c);
+            style = true;
+        }
+        if (u.TextStyle is { } ts && m.Subtype == "/FreeText")
+        {
+            if (!string.IsNullOrWhiteSpace(ts.FontFamily)) m.FontFamily = ts.FontFamily.Trim();
+            if (ts.FontSize > 0) m.FontSize = Math.Clamp(ts.FontSize, 1, 1000);
+            m.TextColor = ts.Color;
+            d.Elements["/DA"] = Str(AnnotModel.BuildDa(m.FontSize, m.TextColor));
+            d.Elements["/DS"] = Str($"font: {Num(m.FontSize)}pt {m.FontFamily}; font-family: {m.FontFamily}; color:{Hex(m.TextColor)}");
             style = true;
         }
         if (u.Opacity is { } o)

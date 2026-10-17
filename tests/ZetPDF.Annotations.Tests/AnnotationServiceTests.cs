@@ -111,6 +111,34 @@ public class AnnotationServiceTests
     }
 
     [Fact]
+    public async Task Update_changes_font_size_and_text_color_of_existing_free_text()
+    {
+        var spec = new AnnotationSpec
+        {
+            Kind = AnnotationKind.FreeText, PageIndex = 0, Rect = Blank, Contents = "Zażółć gęślą jaźń", LineWidth = 0,
+            TextStyle = new TextStyle { FontFamily = "Arial", FontSize = 8, Color = PdfColor.Black },
+        };
+        var (pdf, id) = await _svc.AddAsync(SamplePdfFactory.Text(1), spec);
+        var before = await RenderCheck.NonWhitePixels(pdf, 0, Blank);
+        Assert.Equal(new TextStyle { FontFamily = "Arial", FontSize = 8, Color = PdfColor.Black }, await _svc.GetTextStyleAsync(pdf, id));
+
+        var red = new PdfColor(255, 255, 0, 0);
+        var updated = await _svc.UpdateAsync(pdf, id, new AnnotationUpdate { TextStyle = new TextStyle { FontFamily = "Times New Roman", FontSize = 20, Color = red } });
+        Assert.Equal(new TextStyle { FontFamily = "Times New Roman", FontSize = 20, Color = red }, await _svc.GetTextStyleAsync(updated, id));
+        var info = (await _svc.GetAnnotationsAsync(updated)).Single();
+        Assert.Equal("Zażółć gęślą jaźń", info.Contents);
+        Assert.Equal(Blank, info.Rect);
+        // wygląd /AP odtworzony: większy tekst = więcej pikseli
+        Assert.True(await RenderCheck.NonWhitePixels(updated, 0, Blank) > before * 2, "appearance regenerated with bigger font");
+
+        // inne rodzaje: TextStyle ignorowane
+        var (sq, sqId) = await _svc.AddAsync(SamplePdfFactory.Text(1), SpecFor(AnnotationKind.Square, Blank));
+        Assert.Null(await _svc.GetTextStyleAsync(sq, sqId));
+        var same = await _svc.UpdateAsync(sq, sqId, new AnnotationUpdate { TextStyle = new TextStyle { FontSize = 30 } });
+        Assert.Null(await _svc.GetTextStyleAsync(same, sqId));
+    }
+
+    [Fact]
     public async Task Hidden_flag_hides_annotation_in_render()
     {
         var (pdf, _) = await _svc.AddAsync(SamplePdfFactory.Text(1), SpecFor(AnnotationKind.Square, Blank));

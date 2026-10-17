@@ -11,7 +11,7 @@
 9. **XFDF**: stemple z obrazu i podpisy odręczne eksportowane są bez danych obrazu (element `stamp` z ikoną) – po imporcie odtwarzany jest tekstowy stempel. Adnotacje FileAttachment pomijane w XFDF (są w FDF). Rich text (`/RC`, `contents-richtext`) czytany jako zwykły tekst.
 10. **FDF** – własny parser składni (FDF nie otwiera się w PDFsharp); obsługiwane obiekty pośrednie, strumienie z `/Length`, bez strumieni obiektów i szyfrowanych FDF.
 11. **Stan recenzji** – jedna adnotacja stanu na autora (aktualizowana), bez pełnej historii zmian stanów jak w Acrobacie; model „Marked” nieobsługiwany.
-12. **Edycja tekstu FreeText po utworzeniu** – w oknie Właściwości (treść, kolor, krycie, grubość); brak edycji czcionki istniejącego pola tekstowego (kontrakt `AnnotationUpdate` nie ma czcionki) i edycji w miejscu po dwukliku.
+12. **Edycja tekstu FreeText po utworzeniu** – w oknie Właściwości (treść, kolor, krycie, grubość, czcionka i rozmiar – `AnnotationUpdate.TextStyle`); pogrubienie/kursywa nieobsługiwane (także przy tworzeniu), prostokąt pola nie jest dopasowywany do nowego rozmiaru czcionki; brak edycji w miejscu po dwukliku.
 13. **Zmiana rozmiaru stempla z obrazu** skaluje istniejący wygląd (BBox dopasowany do /Rect) – bez ponownego próbkowania obrazu. Zmiana rozmiaru linii/kształtów przelicza geometrię i odświeża wygląd.
 14. Ikona notatki jest jedna (dymek) niezależnie od `/Name`; okienko `/Popup` tworzone zamknięte.
 15. Podpis odręczny zapisywany jako PNG z przezroczystością (rysowany/wpisany/z obrazu); przy obrazie białe tło (>235) jest zamieniane na przezroczyste. Brak wygładzania/dynamiki nacisku w zapisanym obrazie poza tym, co rysuje InkCanvas.

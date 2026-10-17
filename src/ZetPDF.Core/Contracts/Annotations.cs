@@ -82,6 +82,11 @@ public sealed record AnnotationUpdate
     public double? LineWidth { get; init; }
     public AnnotationReviewState? State { get; init; }
     public bool? IsHidden { get; init; }
+    /// <summary>
+    /// FreeText (pole tekstowe, maszyna do pisania, objaśnienie): rodzina i rozmiar czcionki oraz kolor tekstu
+    /// (ramka bez zmian; Bold/Italic nieobsługiwane). Dla innych rodzajów ignorowane. Stosowane po <see cref="Color"/>.
+    /// </summary>
+    public TextStyle? TextStyle { get; init; }
 }
 
 public interface IAnnotationService

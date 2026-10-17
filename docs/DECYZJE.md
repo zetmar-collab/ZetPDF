@@ -78,7 +78,7 @@ Format: problem → decyzja → uzasadnienie. Decyzje oznaczone **[DO ZATWIERDZE
 ## Do zrobienia po scaleniu wszystkich modułów (koordynator, zmiany kontraktów)
 1. [x] IDocumentView.ShowAnnotations (render bez RenderFlags.Annotations, widżety zostają) – Pokaż/Ukryj komentarze nie zmienia pliku (annotations-forms + renderer-viewer). → D-17.
 2. [x] Hak przed zapisem w IDocumentManager – „Spłaszcz przy zapisie” (annotations-forms). → D-18.
-3. AnnotationUpdate.TextStyle – zmiana czcionki FreeText.
+3. [x] AnnotationUpdate.TextStyle – zmiana czcionki FreeText. → D-19.
 4. IStampingService: RemovePageNumbersAsync, GetStoredOptionsAsync (pages-engine, Kreator działań).
 5. Zdublowany pasek nawigacji stron (ViewerBar + pasek stanu powłoki) – zostawić jeden.
 6. BouncyCastle nieużywany w ZetPDF.Security – usunąć albo uzasadnić.
@@ -96,3 +96,6 @@ Format: problem → decyzja → uzasadnienie. Decyzje oznaczone **[DO ZATWIERDZE
 - Problem: „Spłaszcz przy zapisie” spłaszczało od razu (polecenie dokumentu), bo nie było zdarzenia „przed zapisem”.
 - Decyzja: `IDisposable AddSaveTransform(SaveTransform)` (delegat `session, bajty → bajty`). Haki działają w `GetBytesForSaveAsync` przed szyfrowaniem, więc obejmują Zapisz, Zapisz jako i podpis cyfrowy; sesja (zrzut, historia, „zmodyfikowany”) się nie zmienia. Wybrano przekształcenie zamiast zdarzenia z modyfikowalnym argumentem – asynchroniczne, jawna kolejność, łatwe do testu.
 - `FillSign.Flatten` w katalogu zmieniono z Button na Toggle (`tools/catalog/catalog.py`, wygenerowane pliki): włączenie (z potwierdzeniem) oznacza dokument, hak modułu Annotations spłaszcza komentarze i pola (`IPageOperations.FlattenAsync`, rezerwa: własne spłaszczanie). Stan per sesja, nie zapisywany.
+
+## D-19. `AnnotationUpdate.TextStyle`
+- Decyzja: nowe pole kontraktu; dla adnotacji `/FreeText` (pole tekstowe, maszyna do pisania, objaśnienie) zmienia rodzinę i rozmiar czcionki oraz kolor tekstu (`/DA`, `/DS`) i odtwarza `/AP`; dla innych rodzajów ignorowane. Stosowane po `Color` (który w FreeText ustawia kolor tekstu i ramki). Bold/Italic pomijane – model FreeText ich nie obsługuje także przy tworzeniu. Okno Właściwości pokazuje czcionkę i rozmiar dla FreeText (odczyt przez `AnnotationService.GetTextStyleAsync`, metoda modułu, poza kontraktem).
