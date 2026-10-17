@@ -151,9 +151,10 @@ internal static class SignatureValidator
         details.Add(Text(culture, "Security.Validate.Detail.Offline"));
 
         var status = !integrity ? SignatureStatus.Invalid
-            : cert is null || !trusted ? SignatureStatus.UnknownSigner
+            : cert is null ? SignatureStatus.UnknownSigner
             : !validAtTime ? SignatureStatus.Invalid
             : !covers ? SignatureStatus.ValidButModifiedAfter
+            : !trusted ? SignatureStatus.UnknownSigner
             : SignatureStatus.Valid;
 
         return new SignatureValidationResult

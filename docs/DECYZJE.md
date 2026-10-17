@@ -112,3 +112,11 @@ Format: problem → decyzja → uzasadnienie. Decyzje oznaczone **[DO ZATWIERDZE
 8. [x] Ostrzeżenia kompilacji → D-20 (build: 0 ostrzeżeń, 0 błędów).
 9. [x] `OcrPageResult.RegionOfInterest` → D-21.
 10. [x] Test dymny Kreatora działań na prawdziwych usługach z DI (`tests\ZetPDF.IntegrationTests\ActionWizardSmokeTests.cs`): „Przygotuj do dystrybucji”, „Zoptymalizuj dla Internetu”, „Archiwizuj” na 2 plikach z TestData (metadane+załącznik+JavaScript, skan) – wyniki otwierają się w PDFium; dystrybucja: puste Title/Subject/Keywords, brak `/JavaScript` i załączników, znak wodny i nagłówek/stopka wykryte (`DetectMarksAsync`) i tekst znaku wodnego obecny; Internet: wynik nie większy od oryginału, ta sama liczba stron; archiwum: tytuł uzupełniony tylko gdy pusty, JavaScript usunięty, załączniki zostają.
+
+## Decyzje koordynatora po raporcie testera (2026-10-17)
+- B-1 naprawiony: adres /URI zapisywany jako ASCII (punycode hosta + kodowanie procentowe UTF-8); adresy ASCII bez zmian (LinkService.ToAsciiUri).
+- B-2 naprawiony: kolejność statusu podpisu: integralność → ważność certyfikatu → zmiany po podpisaniu → zaufanie (SignatureValidator). Niezaufany certyfikat nie ukrywa już „zmieniono po podpisaniu” ani „certyfikat nieważny”.
+- D-22 (O-1): plik RC4 (i AES-128) otwarty z hasłem i zapisany jest szyfrowany ponownie AES-256 – świadomie (RC4 jest przestarzały). Do opisania w OGRANICZENIA i w komunikacie przy zapisie.
+- D-23 (O-2): plik z samym hasłem uprawnień, otwarty bez hasła właściciela, nie może zostać po cichu zapisany z nowym losowym hasłem właściciela. Przed zapisem takiego pliku program ma ostrzec i zaproponować: (a) podanie hasła właściciela (zachowanie ochrony), (b) ustawienie nowego hasła uprawnień, (c) zapis bez ochrony. Do wykonania przez recenzenta końcowego.
+- O-3: komunikaty wyjątków domenowych pokazywane użytkownikowi mają być zlokalizowane (klucze .resx), bez angielskich wstawek w polskim interfejsie. Do wykonania przez recenzenta końcowego.
+- Test EdgeCaseTests.Copy_selected_text_with_polish_characters_to_clipboard bywa niestabilny przy równoległym uruchomieniu (schowek współdzielony); pojedynczo przechodzi 3/3. Do przeniesienia do SequentialCollection.

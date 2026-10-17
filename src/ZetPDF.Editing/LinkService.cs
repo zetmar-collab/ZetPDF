@@ -161,13 +161,33 @@ public sealed class LinkService : ILinkService
         return a;
     }
 
+    /// <summary>
+    /// /URI musi być ciągiem 7-bitowym ASCII (ISO 32000-1, 12.6.4.7): host w punycode, reszta z kodowaniem procentowym UTF-8.
+    /// </summary>
+    internal static string ToAsciiUri(string uri)
+    {
+        if (uri.All(c => c < 128)) return uri; // adres ASCII zostaje dokładnie taki, jak podał użytkownik
+        string s = uri;
+        if (Uri.TryCreate(uri, UriKind.Absolute, out var u) && !string.IsNullOrEmpty(u.Host) && u.IdnHost != u.Host)
+            s = s.Replace(u.Host, u.IdnHost, StringComparison.OrdinalIgnoreCase);
+        var sb = new System.Text.StringBuilder();
+        Span<byte> buf = stackalloc byte[4];
+        foreach (var r in s.EnumerateRunes())
+        {
+            if (r.Value < 128) { sb.Append((char)r.Value); continue; }
+            int n = r.EncodeToUtf8(buf);
+            for (int i = 0; i < n; i++) sb.Append('%').Append(buf[i].ToString("X2"));
+        }
+        return sb.ToString();
+    }
+
     private static PdfDictionary Action(PdfDocument doc, LinkTarget target)
     {
         var act = new PdfDictionary(doc);
         if (!string.IsNullOrWhiteSpace(target.Uri))
         {
             act.Elements["/S"] = new PdfName("/URI");
-            act.Elements["/URI"] = new PdfString(target.Uri.Trim());
+            act.Elements["/URI"] = new PdfString(ToAsciiUri(target.Uri.Trim()));
             return act;
         }
         var page = doc.Pages[target.PageIndex!.Value];
