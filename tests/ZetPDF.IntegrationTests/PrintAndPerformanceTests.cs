@@ -12,7 +12,15 @@ using ZetPDF.TestData;
 
 namespace ZetPDF.IntegrationTests;
 
+/// <summary>Testy mierzące czas i liczniki procesu (uchwyty, pamięć) – uruchamiane bez równoległych klas testowych.</summary>
+[CollectionDefinition(Name, DisableParallelization = true)]
+public sealed class SequentialCollection
+{
+    public const string Name = "Sekwencyjne (pomiary procesu)";
+}
+
 /// <summary>Druk do XPS (zakres, N-up, skala szarości), 500 stron (czas, brak blokady wątku UI), uchwyty i pamięć.</summary>
+[Collection(SequentialCollection.Name)]
 public class PrintAndPerformanceTests
 {
     // ================================================================== druk
