@@ -4,5 +4,177 @@
   <resheader name="version"><value>2.0</value></resheader>
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Annot.Attach.Add" xml:space="preserve"><value>Add attachment</value></data>
+  <data name="Annot.Attach.Bytes" xml:space="preserve"><value>{0} B</value></data>
+  <data name="Annot.Attach.Empty" xml:space="preserve"><value>The document has no attachments.</value></data>
+  <data name="Annot.Attach.KB" xml:space="preserve"><value>{0} KB</value></data>
+  <data name="Annot.Attach.MB" xml:space="preserve"><value>{0} MB</value></data>
+  <data name="Annot.Attach.OnPage" xml:space="preserve"><value>page {0}</value></data>
+  <data name="Annot.Attach.Remove" xml:space="preserve"><value>Remove attachment</value></data>
+  <data name="Annot.Attach.RemoveConfirm" xml:space="preserve"><value>Remove the attachment "{0}" from the document?</value></data>
+  <data name="Annot.Attach.Save" xml:space="preserve"><value>Save attachment to disk</value></data>
+  <data name="Annot.Attach.Saved" xml:space="preserve"><value>Saved: {0}</value></data>
+  <data name="Annot.Attach.Title" xml:space="preserve"><value>Attachments</value></data>
+  <data name="Annot.Cmd.ToolStyle" xml:space="preserve"><value>Tool Style</value></data>
+  <data name="Annot.Cmd.ToolStyle.Tip" xml:space="preserve"><value>Color, opacity, line width and font of the active comment tool</value></data>
+  <data name="Annot.DeleteAll.Confirm" xml:space="preserve"><value>Delete all comments in the document? Links and form fields are kept. You can undo this.</value></data>
+  <data name="Annot.Dialog.Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Annot.Dialog.Close" xml:space="preserve"><value>Close</value></data>
+  <data name="Annot.Dialog.Ok" xml:space="preserve"><value>OK</value></data>
+  <data name="Annot.Export.Done" xml:space="preserve"><value>Exported: {0}</value></data>
+  <data name="Annot.Field.Action" xml:space="preserve"><value>Action</value></data>
+  <data name="Annot.Field.Action.None" xml:space="preserve"><value>None</value></data>
+  <data name="Annot.Field.Action.OpenUrl" xml:space="preserve"><value>Open web link</value></data>
+  <data name="Annot.Field.Action.ResetForm" xml:space="preserve"><value>Reset form</value></data>
+  <data name="Annot.Field.Auto" xml:space="preserve"><value>auto</value></data>
+  <data name="Annot.Field.Caption" xml:space="preserve"><value>Caption</value></data>
+  <data name="Annot.Field.DateFormat" xml:space="preserve"><value>Date format (e.g. yyyy-MM-dd, dd.MM.yyyy)</value></data>
+  <data name="Annot.Field.Default" xml:space="preserve"><value>Default value</value></data>
+  <data name="Annot.Field.DefaultCaption" xml:space="preserve"><value>Button</value></data>
+  <data name="Annot.Field.ExportValue" xml:space="preserve"><value>Export value</value></data>
+  <data name="Annot.Field.Kind.CheckBox" xml:space="preserve"><value>Check box</value></data>
+  <data name="Annot.Field.Kind.ComboBox" xml:space="preserve"><value>Combo box</value></data>
+  <data name="Annot.Field.Kind.Date" xml:space="preserve"><value>Date field</value></data>
+  <data name="Annot.Field.Kind.ListBox" xml:space="preserve"><value>List box</value></data>
+  <data name="Annot.Field.Kind.PushButton" xml:space="preserve"><value>Button</value></data>
+  <data name="Annot.Field.Kind.RadioButton" xml:space="preserve"><value>Radio button</value></data>
+  <data name="Annot.Field.Kind.Signature" xml:space="preserve"><value>Signature field</value></data>
+  <data name="Annot.Field.Kind.Text" xml:space="preserve"><value>Text field</value></data>
+  <data name="Annot.Field.Multiline" xml:space="preserve"><value>Multi-line</value></data>
+  <data name="Annot.Field.Name" xml:space="preserve"><value>Name</value></data>
+  <data name="Annot.Field.NameRequired" xml:space="preserve"><value>The field name is required.</value></data>
+  <data name="Annot.Field.NameTaken" xml:space="preserve"><value>A field with this name already exists.</value></data>
+  <data name="Annot.Field.Options" xml:space="preserve"><value>Options (one per line)</value></data>
+  <data name="Annot.Field.ReadOnly" xml:space="preserve"><value>Read only</value></data>
+  <data name="Annot.Field.Required" xml:space="preserve"><value>Required</value></data>
+  <data name="Annot.Field.Title" xml:space="preserve"><value>Field Properties</value></data>
+  <data name="Annot.Field.Tooltip" xml:space="preserve"><value>Tooltip</value></data>
+  <data name="Annot.Field.Url" xml:space="preserve"><value>Web address</value></data>
+  <data name="Annot.Field.UrlInvalid" xml:space="preserve"><value>Enter a valid absolute web address.</value></data>
+  <data name="Annot.Filter.Comments" xml:space="preserve"><value>Comments (XFDF, FDF)</value></data>
+  <data name="Annot.Filter.Csv" xml:space="preserve"><value>CSV (comma separated)</value></data>
+  <data name="Annot.Filter.FormData" xml:space="preserve"><value>Form data (FDF, XFDF, CSV)</value></data>
+  <data name="Annot.Filter.Images" xml:space="preserve"><value>Images (PNG, JPG)</value></data>
+  <data name="Annot.Flatten.Confirm" xml:space="preserve"><value>Flatten all comments, Fill &amp; Sign objects and form fields into the page content? They will no longer be editable (you can undo this before closing the document).</value></data>
+  <data name="Annot.Form.OpenUrlConfirm" xml:space="preserve"><value>Open this address in the web browser?
+{0}</value></data>
+  <data name="Annot.Form.ReadOnly" xml:space="preserve"><value>This field is read only.</value></data>
+  <data name="Annot.Form.ResetConfirm" xml:space="preserve"><value>Reset all form fields to their default values?</value></data>
+  <data name="Annot.Form.SignatureHint" xml:space="preserve"><value>Use Protect &gt; Sign Digitally to sign this field.</value></data>
+  <data name="Annot.Kind.AreaHighlight" xml:space="preserve"><value>Area highlight</value></data>
+  <data name="Annot.Kind.Arrow" xml:space="preserve"><value>Arrow</value></data>
+  <data name="Annot.Kind.Callout" xml:space="preserve"><value>Callout</value></data>
+  <data name="Annot.Kind.Circle" xml:space="preserve"><value>Oval</value></data>
+  <data name="Annot.Kind.FileAttachment" xml:space="preserve"><value>File attachment</value></data>
+  <data name="Annot.Kind.FreeText" xml:space="preserve"><value>Text box</value></data>
+  <data name="Annot.Kind.Highlight" xml:space="preserve"><value>Highlight</value></data>
+  <data name="Annot.Kind.Ink" xml:space="preserve"><value>Pencil</value></data>
+  <data name="Annot.Kind.Line" xml:space="preserve"><value>Line</value></data>
+  <data name="Annot.Kind.Link" xml:space="preserve"><value>Link</value></data>
+  <data name="Annot.Kind.Note" xml:space="preserve"><value>Note</value></data>
+  <data name="Annot.Kind.Other" xml:space="preserve"><value>Other</value></data>
+  <data name="Annot.Kind.Polygon" xml:space="preserve"><value>Polygon</value></data>
+  <data name="Annot.Kind.Polyline" xml:space="preserve"><value>Polyline</value></data>
+  <data name="Annot.Kind.Popup" xml:space="preserve"><value>Pop-up</value></data>
+  <data name="Annot.Kind.Redact" xml:space="preserve"><value>Redaction</value></data>
+  <data name="Annot.Kind.Reply" xml:space="preserve"><value>Reply</value></data>
+  <data name="Annot.Kind.Square" xml:space="preserve"><value>Rectangle</value></data>
+  <data name="Annot.Kind.Squiggly" xml:space="preserve"><value>Squiggly underline</value></data>
+  <data name="Annot.Kind.Stamp" xml:space="preserve"><value>Stamp</value></data>
+  <data name="Annot.Kind.StrikeOut" xml:space="preserve"><value>Strikethrough</value></data>
+  <data name="Annot.Kind.Typewriter" xml:space="preserve"><value>Typewriter</value></data>
+  <data name="Annot.Kind.Underline" xml:space="preserve"><value>Underline</value></data>
+  <data name="Annot.Kind.Widget" xml:space="preserve"><value>Form field</value></data>
   <data name="Annot.ModuleName" xml:space="preserve"><value>Comments and forms</value></data>
+  <data name="Annot.Panel.AllAuthors" xml:space="preserve"><value>All authors</value></data>
+  <data name="Annot.Panel.AllStates" xml:space="preserve"><value>All states</value></data>
+  <data name="Annot.Panel.AllTypes" xml:space="preserve"><value>All types</value></data>
+  <data name="Annot.Panel.Delete" xml:space="preserve"><value>Delete</value></data>
+  <data name="Annot.Panel.Empty" xml:space="preserve"><value>No comments.</value></data>
+  <data name="Annot.Panel.FilterAuthor" xml:space="preserve"><value>Filter by author</value></data>
+  <data name="Annot.Panel.FilterState" xml:space="preserve"><value>Filter by state</value></data>
+  <data name="Annot.Panel.FilterType" xml:space="preserve"><value>Filter by type</value></data>
+  <data name="Annot.Panel.Hidden" xml:space="preserve"><value>hidden</value></data>
+  <data name="Annot.Panel.Page" xml:space="preserve"><value>Page {0} ({1})</value></data>
+  <data name="Annot.Panel.Properties" xml:space="preserve"><value>Properties</value></data>
+  <data name="Annot.Panel.Reply" xml:space="preserve"><value>Reply</value></data>
+  <data name="Annot.Panel.ReplyHint" xml:space="preserve"><value>Write a reply (Ctrl+Enter sends)</value></data>
+  <data name="Annot.Panel.Sort" xml:space="preserve"><value>Sort</value></data>
+  <data name="Annot.Panel.SortAuthor" xml:space="preserve"><value>By author</value></data>
+  <data name="Annot.Panel.SortDate" xml:space="preserve"><value>By date</value></data>
+  <data name="Annot.Panel.SortPage" xml:space="preserve"><value>By page</value></data>
+  <data name="Annot.Panel.SortType" xml:space="preserve"><value>By type</value></data>
+  <data name="Annot.Panel.State" xml:space="preserve"><value>State</value></data>
+  <data name="Annot.Panel.Title" xml:space="preserve"><value>Comments</value></data>
+  <data name="Annot.Props.Info" xml:space="preserve"><value>{0} · {1} · {2}</value></data>
+  <data name="Annot.Props.Title" xml:space="preserve"><value>Comment Properties</value></data>
+  <data name="Annot.Sign.Browse" xml:space="preserve"><value>Choose image…</value></data>
+  <data name="Annot.Sign.Clear" xml:space="preserve"><value>Clear</value></data>
+  <data name="Annot.Sign.Contents" xml:space="preserve"><value>Handwritten signature</value></data>
+  <data name="Annot.Sign.Delete" xml:space="preserve"><value>Delete</value></data>
+  <data name="Annot.Sign.DeleteConfirm" xml:space="preserve"><value>Delete the selected saved signature?</value></data>
+  <data name="Annot.Sign.Draw" xml:space="preserve"><value>Draw</value></data>
+  <data name="Annot.Sign.Empty" xml:space="preserve"><value>The signature is empty.</value></data>
+  <data name="Annot.Sign.Image" xml:space="preserve"><value>Image</value></data>
+  <data name="Annot.Sign.Ink" xml:space="preserve"><value>Ink color</value></data>
+  <data name="Annot.Sign.InkBlack" xml:space="preserve"><value>Black</value></data>
+  <data name="Annot.Sign.InkBlue" xml:space="preserve"><value>Blue</value></data>
+  <data name="Annot.Sign.ManageTitle" xml:space="preserve"><value>Manage Signatures</value></data>
+  <data name="Annot.Sign.Name" xml:space="preserve"><value>Your name</value></data>
+  <data name="Annot.Sign.New" xml:space="preserve"><value>New…</value></data>
+  <data name="Annot.Sign.NewItem" xml:space="preserve"><value>Create signature…</value></data>
+  <data name="Annot.Sign.Title" xml:space="preserve"><value>New Signature</value></data>
+  <data name="Annot.Sign.Type" xml:space="preserve"><value>Type</value></data>
+  <data name="Annot.Sign.Use" xml:space="preserve"><value>Use</value></data>
+  <data name="Annot.Stamp.Approved" xml:space="preserve"><value>Approved</value></data>
+  <data name="Annot.Stamp.Completed" xml:space="preserve"><value>Completed</value></data>
+  <data name="Annot.Stamp.Confidential" xml:space="preserve"><value>Confidential</value></data>
+  <data name="Annot.Stamp.Draft" xml:space="preserve"><value>Draft</value></data>
+  <data name="Annot.Stamp.Final" xml:space="preserve"><value>Final</value></data>
+  <data name="Annot.Stamp.ForComment" xml:space="preserve"><value>For comment</value></data>
+  <data name="Annot.Stamp.ForInformation" xml:space="preserve"><value>For information</value></data>
+  <data name="Annot.Stamp.Rejected" xml:space="preserve"><value>Rejected</value></data>
+  <data name="Annot.Stamp.Urgent" xml:space="preserve"><value>Urgent</value></data>
+  <data name="Annot.State.Accepted" xml:space="preserve"><value>Accepted</value></data>
+  <data name="Annot.State.Cancelled" xml:space="preserve"><value>Cancelled</value></data>
+  <data name="Annot.State.Completed" xml:space="preserve"><value>Completed</value></data>
+  <data name="Annot.State.None" xml:space="preserve"><value>None</value></data>
+  <data name="Annot.State.Rejected" xml:space="preserve"><value>Rejected</value></data>
+  <data name="Annot.Style.Color" xml:space="preserve"><value>Color</value></data>
+  <data name="Annot.Style.Contents" xml:space="preserve"><value>Text</value></data>
+  <data name="Annot.Style.Fill" xml:space="preserve"><value>Fill</value></data>
+  <data name="Annot.Style.Font" xml:space="preserve"><value>Font</value></data>
+  <data name="Annot.Style.FontSize" xml:space="preserve"><value>Font size (pt)</value></data>
+  <data name="Annot.Style.For" xml:space="preserve"><value>Default style for: {0}</value></data>
+  <data name="Annot.Style.Hex" xml:space="preserve"><value>Color code #RRGGBB</value></data>
+  <data name="Annot.Style.LineWidth" xml:space="preserve"><value>Line width (pt)</value></data>
+  <data name="Annot.Style.Opacity" xml:space="preserve"><value>Opacity (%)</value></data>
+  <data name="Annot.Style.Title" xml:space="preserve"><value>Tool Style</value></data>
+  <data name="Annot.TabOrder.ByColumns" xml:space="preserve"><value>By columns</value></data>
+  <data name="Annot.TabOrder.ByRows" xml:space="preserve"><value>By rows</value></data>
+  <data name="Annot.TabOrder.Down" xml:space="preserve"><value>Move down</value></data>
+  <data name="Annot.TabOrder.Info" xml:space="preserve"><value>Order of fields on page {0}. Drag fields or use the buttons.</value></data>
+  <data name="Annot.TabOrder.NoFields" xml:space="preserve"><value>There are no form fields on page {0}.</value></data>
+  <data name="Annot.TabOrder.Title" xml:space="preserve"><value>Tab Order</value></data>
+  <data name="Annot.TabOrder.Up" xml:space="preserve"><value>Move up</value></data>
+  <data name="Annot.Undo.Add" xml:space="preserve"><value>Add comment</value></data>
+  <data name="Annot.Undo.AttachAdd" xml:space="preserve"><value>Add attachment</value></data>
+  <data name="Annot.Undo.AttachRemove" xml:space="preserve"><value>Remove attachment</value></data>
+  <data name="Annot.Undo.Delete" xml:space="preserve"><value>Delete</value></data>
+  <data name="Annot.Undo.DeleteAll" xml:space="preserve"><value>Delete all comments</value></data>
+  <data name="Annot.Undo.Edit" xml:space="preserve"><value>Edit comment</value></data>
+  <data name="Annot.Undo.FieldAdd" xml:space="preserve"><value>Add form field</value></data>
+  <data name="Annot.Undo.FieldDelete" xml:space="preserve"><value>Delete form field</value></data>
+  <data name="Annot.Undo.FieldEdit" xml:space="preserve"><value>Edit form field</value></data>
+  <data name="Annot.Undo.Flatten" xml:space="preserve"><value>Flatten</value></data>
+  <data name="Annot.Undo.FormFill" xml:space="preserve"><value>Fill form field</value></data>
+  <data name="Annot.Undo.FormImport" xml:space="preserve"><value>Import form data</value></data>
+  <data name="Annot.Undo.FormReset" xml:space="preserve"><value>Reset form</value></data>
+  <data name="Annot.Undo.HideAll" xml:space="preserve"><value>Hide all comments</value></data>
+  <data name="Annot.Undo.Import" xml:space="preserve"><value>Import comments</value></data>
+  <data name="Annot.Undo.Move" xml:space="preserve"><value>Move comment</value></data>
+  <data name="Annot.Undo.Reply" xml:space="preserve"><value>Reply</value></data>
+  <data name="Annot.Undo.ShowAll" xml:space="preserve"><value>Show all comments</value></data>
+  <data name="Annot.Undo.State" xml:space="preserve"><value>Set state</value></data>
+  <data name="Annot.Undo.TabOrder" xml:space="preserve"><value>Tab order</value></data>
 </root>
