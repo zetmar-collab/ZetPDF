@@ -211,10 +211,11 @@ public sealed class ConversionService : IConversionService
     public Task<IReadOnlyList<string>> PdfToImagesAsync(byte[] pdf, ImageExportOptions options, string outputDirectory, string baseName, IProgress<OperationProgress>? progress = null, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(options);
-        return Task.Run<IReadOnlyList<string>>(async () =>
+        // Obiekty WIC/WPF mają powinowactwo wątku – cała pętla na jednym wątku (PDFium i tak działa na własnym wątku).
+        return Task.Factory.StartNew<IReadOnlyList<string>>(() =>
         {
             Directory.CreateDirectory(outputDirectory);
-            using var doc = await _renderer.OpenAsync(pdf, null, ct).ConfigureAwait(false);
+            using var doc = _renderer.OpenAsync(pdf, null, ct).GetAwaiter().GetResult();
             var pages = string.IsNullOrWhiteSpace(options.PageRange) ? Enumerable.Range(0, doc.PageCount).ToList() : PageRange.Parse(options.PageRange, doc.PageCount).ToList();
             int dpi = Math.Clamp(options.Dpi, 36, 1200);
             var files = new List<string>();
@@ -225,7 +226,7 @@ public sealed class ConversionService : IConversionService
             {
                 ct.ThrowIfCancellationRequested();
                 progress?.Report(OperationProgress.Of(i, pages.Count, _loc?.Format("Edit.Convert.Progress.Page", pages[i] + 1)));
-                var bmp = await doc.RenderPageAsync(pages[i], new RenderRequest(dpi / 72.0), ct).ConfigureAwait(false);
+                var bmp = doc.RenderPageAsync(pages[i], new RenderRequest(dpi / 72.0), ct).GetAwaiter().GetResult();
                 var frame = ImageCodec.Frame(bmp, dpi, options.Format);
                 if (multi is not null) { multi.Frames.Add(frame); continue; }
                 var enc = ImageCodec.CreateEncoder(options.Format, options.JpegQuality);
@@ -237,7 +238,7 @@ public sealed class ConversionService : IConversionService
             if (multi is not null && multi.Frames.Count > 0) files.Add(Save(multi, Path.Combine(outputDirectory, safeBase + ".tif")));
             progress?.Report(OperationProgress.Of(pages.Count, pages.Count));
             return files;
-        }, ct);
+        }, ct, TaskCreationOptions.LongRunning, TaskScheduler.Default);
     }
 
     private static string Save(BitmapEncoder enc, string path)

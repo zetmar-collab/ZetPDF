@@ -2,7 +2,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using ZetPDF.Core.Contracts;
-using ZetPDF.Core.Utilities;
+using CorePageRange = ZetPDF.Core.Utilities.PageRange;
 
 namespace ZetPDF.Editing.Ui.Dialogs;
 
@@ -202,9 +202,9 @@ internal sealed class PageRangePicker : StackPanel
     public string? RangeText =>
         _all.IsChecked == true ? string.Empty
         : _current.IsChecked == true ? (_currentPage + 1).ToString(CultureInfo.InvariantCulture)
-        : PageRange.TryParse(_text.Text, _count, out var pages) && pages.Count > 0 ? PageRange.Format(pages) : null;
+        : CorePageRange.TryParse(_text.Text, _count, out var pages) && pages.Count > 0 ? CorePageRange.Format(pages) : null;
 
-    public IReadOnlyList<int>? Pages => RangeText is { } t ? (t.Length == 0 ? Enumerable.Range(0, _count).ToList() : PageRange.Parse(t, _count)) : null;
+    public IReadOnlyList<int>? Pages => RangeText is { } t ? (t.Length == 0 ? Enumerable.Range(0, _count).ToList() : CorePageRange.Parse(t, _count)) : null;
 }
 
 /// <summary>Eksport do obrazów.</summary>

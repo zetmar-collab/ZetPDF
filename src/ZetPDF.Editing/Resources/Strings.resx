@@ -5,4 +5,183 @@
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <data name="Edit.ModuleName" xml:space="preserve"><value>Editing and conversion</value></data>
+  <data name="Edit.Dialog.Ok" xml:space="preserve"><value>OK</value></data>
+  <data name="Edit.Dialog.Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Edit.Bookmarks.CreateConfirm" xml:space="preserve"><value>{0} bookmarks were detected from headings. Create them?</value></data>
+  <data name="Edit.Bookmarks.ReplaceConfirm" xml:space="preserve"><value>{0} bookmarks were detected from headings. They will replace the existing {1} bookmarks (Undo restores them). Continue?</value></data>
+  <data name="Edit.Bookmarks.None" xml:space="preserve"><value>No headings were found (larger or bold text lines).</value></data>
+  <data name="Edit.Bookmarks.Progress" xml:space="preserve"><value>Detecting headings…</value></data>
+  <data name="Edit.Clipboard.DocumentName" xml:space="preserve"><value>From clipboard.pdf</value></data>
+  <data name="Edit.Clipboard.Empty" xml:space="preserve"><value>The clipboard contains neither an image nor text.</value></data>
+  <data name="Edit.Color.Black" xml:space="preserve"><value>Black</value></data>
+  <data name="Edit.Color.DarkGray" xml:space="preserve"><value>Dark gray</value></data>
+  <data name="Edit.Color.Red" xml:space="preserve"><value>Red</value></data>
+  <data name="Edit.Color.Blue" xml:space="preserve"><value>Blue</value></data>
+  <data name="Edit.Color.Green" xml:space="preserve"><value>Green</value></data>
+  <data name="Edit.Color.Orange" xml:space="preserve"><value>Orange</value></data>
+  <data name="Edit.Color.White" xml:space="preserve"><value>White</value></data>
+  <data name="Edit.Color.Current" xml:space="preserve"><value>Current</value></data>
+  <data name="Edit.Combine.Title" xml:space="preserve"><value>Combine Files</value></data>
+  <data name="Edit.Combine.Hint" xml:space="preserve"><value>PDF files, images (JPG, PNG, TIFF, BMP, GIF) and text files are combined into one PDF in the order of the list.</value></data>
+  <data name="Edit.Combine.Files" xml:space="preserve"><value>Files to combine</value></data>
+  <data name="Edit.Combine.Add" xml:space="preserve"><value>Add files…</value></data>
+  <data name="Edit.Combine.Remove" xml:space="preserve"><value>Remove</value></data>
+  <data name="Edit.Combine.Up" xml:space="preserve"><value>Move up</value></data>
+  <data name="Edit.Combine.Down" xml:space="preserve"><value>Move down</value></data>
+  <data name="Edit.Combine.Combine" xml:space="preserve"><value>Combine</value></data>
+  <data name="Edit.Combine.Empty" xml:space="preserve"><value>Add at least one file.</value></data>
+  <data name="Edit.Combine.Progress" xml:space="preserve"><value>Combining files…</value></data>
+  <data name="Edit.Combine.DocumentName" xml:space="preserve"><value>Combined.pdf</value></data>
+  <data name="Edit.Convert.Create" xml:space="preserve"><value>Create</value></data>
+  <data name="Edit.Convert.Export" xml:space="preserve"><value>Export</value></data>
+  <data name="Edit.Convert.Format" xml:space="preserve"><value>Format:</value></data>
+  <data name="Edit.Convert.Dpi" xml:space="preserve"><value>Resolution (DPI):</value></data>
+  <data name="Edit.Convert.JpegQuality" xml:space="preserve"><value>JPEG quality (1–100):</value></data>
+  <data name="Edit.Convert.InvalidDpi" xml:space="preserve"><value>Enter a resolution from 36 to 1200 DPI.</value></data>
+  <data name="Edit.Convert.Progress" xml:space="preserve"><value>Converting…</value></data>
+  <data name="Edit.Convert.Progress.Page" xml:space="preserve"><value>Page {0}…</value></data>
+  <data name="Edit.Convert.Saved" xml:space="preserve"><value>Saved: {0}</value></data>
+  <data name="Edit.Convert.Images.Title" xml:space="preserve"><value>Images to PDF</value></data>
+  <data name="Edit.Convert.Images.Count" xml:space="preserve"><value>Selected images: {0} (multi-page TIFF files give one page per frame).</value></data>
+  <data name="Edit.Convert.Images.PageSize" xml:space="preserve"><value>Page size:</value></data>
+  <data name="Edit.Convert.Images.FitImage" xml:space="preserve"><value>Same as image</value></data>
+  <data name="Edit.Convert.Images.A4" xml:space="preserve"><value>A4 (fit image)</value></data>
+  <data name="Edit.Convert.Images.Letter" xml:space="preserve"><value>Letter (fit image)</value></data>
+  <data name="Edit.Convert.Images.Margin" xml:space="preserve"><value>Margin (pt):</value></data>
+  <data name="Edit.Convert.Images.InvalidMargin" xml:space="preserve"><value>Enter a margin from 0 to 200 points.</value></data>
+  <data name="Edit.Convert.ToImages.Title" xml:space="preserve"><value>Export to Images</value></data>
+  <data name="Edit.Convert.ToImages.MultiTiff" xml:space="preserve"><value>TIFF: all pages in one multi-page file</value></data>
+  <data name="Edit.Convert.ToImages.Folder" xml:space="preserve"><value>Choose the destination folder</value></data>
+  <data name="Edit.Convert.ToImages.Done" xml:space="preserve"><value>Created {0} image files in:
+{1}</value></data>
+  <data name="Edit.Convert.ToText.Title" xml:space="preserve"><value>Export to Text (TXT)</value></data>
+  <data name="Edit.Convert.ToText.Layout" xml:space="preserve"><value>Preserve layout (spaces reproduce positions)</value></data>
+  <data name="Edit.Convert.ToText.Separator" xml:space="preserve"><value>Separate pages with a form feed character</value></data>
+  <data name="Edit.Convert.ToDocx.Title" xml:space="preserve"><value>Export to Word (DOCX)</value></data>
+  <data name="Edit.Convert.ToDocx.Images" xml:space="preserve"><value>Include embedded images</value></data>
+  <data name="Edit.Convert.ToDocx.Rasterize" xml:space="preserve"><value>Insert pages without text (scans) as images</value></data>
+  <data name="Edit.Convert.ToDocx.Note" xml:space="preserve"><value>Basic conversion: paragraphs with font size and bold/italic, images and page breaks. Tables, columns and exact layout are not reproduced.</value></data>
+  <data name="Edit.Create.ChooseFiles" xml:space="preserve"><value>Choose files</value></data>
+  <data name="Edit.Create.Progress" xml:space="preserve"><value>Creating PDF…</value></data>
+  <data name="Edit.Filter.Images" xml:space="preserve"><value>Images</value></data>
+  <data name="Edit.Filter.Supported" xml:space="preserve"><value>Supported files</value></data>
+  <data name="Edit.Filter.Text" xml:space="preserve"><value>Text files</value></data>
+  <data name="Edit.Filter.Docx" xml:space="preserve"><value>Word document</value></data>
+  <data name="Edit.FindReplace.Title" xml:space="preserve"><value>Find and Replace</value></data>
+  <data name="Edit.FindReplace.Find" xml:space="preserve"><value>Find:</value></data>
+  <data name="Edit.FindReplace.Replace" xml:space="preserve"><value>Replace with:</value></data>
+  <data name="Edit.FindReplace.ReplaceAll" xml:space="preserve"><value>Replace all</value></data>
+  <data name="Edit.FindReplace.Empty" xml:space="preserve"><value>Enter the text to find.</value></data>
+  <data name="Edit.FindReplace.Note" xml:space="preserve"><value>Lines containing the text are rewritten with a matching system font; the old text is removed from the page content.</value></data>
+  <data name="Edit.FindReplace.Result" xml:space="preserve"><value>Replaced: {0}. Not replaced (text split across lines): {1}.</value></data>
+  <data name="Edit.Format.Png" xml:space="preserve"><value>PNG</value></data>
+  <data name="Edit.Format.Jpeg" xml:space="preserve"><value>JPEG</value></data>
+  <data name="Edit.Format.Tiff" xml:space="preserve"><value>TIFF</value></data>
+  <data name="Edit.Format.Bmp" xml:space="preserve"><value>BMP</value></data>
+  <data name="Edit.Image.Choose" xml:space="preserve"><value>Choose an image</value></data>
+  <data name="Edit.Image.Added" xml:space="preserve"><value>Image added – use Edit Object to move or resize it.</value></data>
+  <data name="Edit.Link.Title" xml:space="preserve"><value>New Link</value></data>
+  <data name="Edit.Link.EditTitle" xml:space="preserve"><value>Edit Link</value></data>
+  <data name="Edit.Link.ToUrl" xml:space="preserve"><value>Web address or e-mail:</value></data>
+  <data name="Edit.Link.ToPage" xml:space="preserve"><value>Page in this document:</value></data>
+  <data name="Edit.Link.PageHint" xml:space="preserve"><value>Clicking the link opens the address or goes to the page.</value></data>
+  <data name="Edit.Link.Delete" xml:space="preserve"><value>Delete link</value></data>
+  <data name="Edit.Link.InvalidUrl" xml:space="preserve"><value>Enter a valid address, e.g. https://example.com.</value></data>
+  <data name="Edit.Link.InvalidPage" xml:space="preserve"><value>Enter a page number from 1 to {0}.</value></data>
+  <data name="Edit.Link.Created" xml:space="preserve"><value>Links created: {0}.</value></data>
+  <data name="Edit.Link.NoneToRemove" xml:space="preserve"><value>The document has no links.</value></data>
+  <data name="Edit.Link.RemoveAllConfirm" xml:space="preserve"><value>Remove all links ({0})?</value></data>
+  <data name="Edit.Object.RotateLeft" xml:space="preserve"><value>Rotate left 90°</value></data>
+  <data name="Edit.Object.RotateRight" xml:space="preserve"><value>Rotate right 90°</value></data>
+  <data name="Edit.Object.ReplaceImage" xml:space="preserve"><value>Replace image…</value></data>
+  <data name="Edit.Object.Delete" xml:space="preserve"><value>Delete</value></data>
+  <data name="Edit.Ocr.Title" xml:space="preserve"><value>Recognize Text (OCR)</value></data>
+  <data name="Edit.Ocr.Languages" xml:space="preserve"><value>Languages:</value></data>
+  <data name="Edit.Ocr.Polish" xml:space="preserve"><value>Polish</value></data>
+  <data name="Edit.Ocr.English" xml:space="preserve"><value>English</value></data>
+  <data name="Edit.Ocr.SkipText" xml:space="preserve"><value>Skip pages that already contain text</value></data>
+  <data name="Edit.Ocr.Threshold" xml:space="preserve"><value>Suspect below confidence (%):</value></data>
+  <data name="Edit.Ocr.Review" xml:space="preserve"><value>Review suspect results before adding the text layer</value></data>
+  <data name="Edit.Ocr.Note" xml:space="preserve"><value>Pages are rendered at 300 DPI; recognized text is added as an invisible layer, so it can be searched and copied.</value></data>
+  <data name="Edit.Ocr.Start" xml:space="preserve"><value>Recognize</value></data>
+  <data name="Edit.Ocr.NoLanguage" xml:space="preserve"><value>Choose at least one language.</value></data>
+  <data name="Edit.Ocr.InvalidThreshold" xml:space="preserve"><value>Enter a threshold from 0 to 100.</value></data>
+  <data name="Edit.Ocr.Progress" xml:space="preserve"><value>Recognizing text…</value></data>
+  <data name="Edit.Ocr.Applying" xml:space="preserve"><value>Adding the text layer…</value></data>
+  <data name="Edit.Ocr.Unavailable" xml:space="preserve"><value>The OCR engine could not be started (Tesseract files could not be prepared).</value></data>
+  <data name="Edit.Ocr.AllSkipped" xml:space="preserve"><value>All selected pages already contain text – nothing was recognized. Clear the skip option to recognize them anyway.</value></data>
+  <data name="Edit.Ocr.NothingFound" xml:space="preserve"><value>No text was recognized.</value></data>
+  <data name="Edit.Ocr.Done" xml:space="preserve"><value>OCR finished: {0} words, suspect: {1}, skipped pages: {2}.</value></data>
+  <data name="Edit.Ocr.ReviewTitle" xml:space="preserve"><value>Suspect OCR Results</value></data>
+  <data name="Edit.Ocr.ReviewCount" xml:space="preserve"><value>Words with low confidence: {0}. Correct them if needed (empty field removes the word).</value></data>
+  <data name="Edit.Ocr.WordInfo" xml:space="preserve"><value>page {0}, {1}%</value></data>
+  <data name="Edit.Ocr.WordAutomation" xml:space="preserve"><value>Word on page {0}, confidence {1}%</value></data>
+  <data name="Edit.Ocr.ApplyLayer" xml:space="preserve"><value>Add text layer</value></data>
+  <data name="Edit.Ocr.NoResults" xml:space="preserve"><value>Run text recognition for this document first.</value></data>
+  <data name="Edit.Ocr.Outdated" xml:space="preserve"><value>The document was changed after recognition – run OCR again to review results.</value></data>
+  <data name="Edit.Ocr.NoSuspects" xml:space="preserve"><value>The last recognition has no suspect words.</value></data>
+  <data name="Edit.Range.Title" xml:space="preserve"><value>Pages:</value></data>
+  <data name="Edit.Range.All" xml:space="preserve"><value>All</value></data>
+  <data name="Edit.Range.Current" xml:space="preserve"><value>Current page</value></data>
+  <data name="Edit.Range.Pages" xml:space="preserve"><value>Pages:</value></data>
+  <data name="Edit.Range.Invalid" xml:space="preserve"><value>Enter a valid page range, e.g. 1-3,5.</value></data>
+  <data name="Edit.Redact.Marked" xml:space="preserve"><value>Area marked for redaction. Use Apply Redactions to remove the content permanently.</value></data>
+  <data name="Edit.Redact.MarkedCount" xml:space="preserve"><value>Marked for redaction: {0}.</value></data>
+  <data name="Edit.Redact.NoMarks" xml:space="preserve"><value>There are no areas marked for redaction.</value></data>
+  <data name="Edit.Redact.Applying" xml:space="preserve"><value>Applying redactions…</value></data>
+  <data name="Edit.Redact.Applied" xml:space="preserve"><value>Redactions applied. Save the document to keep the result.</value></data>
+  <data name="Edit.Redact.Warning.Title" xml:space="preserve"><value>Apply Redactions</value></data>
+  <data name="Edit.Redact.Warning.Irreversible" xml:space="preserve"><value>Redaction permanently removes the marked content ({0} areas on {1} pages): pages with marks are converted to images, text under the marks is deleted and only the remaining text stays searchable. After saving, this cannot be undone. Continue?</value></data>
+  <data name="Edit.Redact.Progress.Search" xml:space="preserve"><value>Searching page {0} of {1}…</value></data>
+  <data name="Edit.Redact.Progress.Apply" xml:space="preserve"><value>Redacting page {0}…</value></data>
+  <data name="Edit.Redact.Pattern.Pesel" xml:space="preserve"><value>PESEL</value></data>
+  <data name="Edit.Redact.Pattern.Nip" xml:space="preserve"><value>NIP (tax ID)</value></data>
+  <data name="Edit.Redact.Pattern.Email" xml:space="preserve"><value>E-mail</value></data>
+  <data name="Edit.Redact.Pattern.Phone" xml:space="preserve"><value>Phone (PL)</value></data>
+  <data name="Edit.Redact.Pattern.Card" xml:space="preserve"><value>Card number</value></data>
+  <data name="Edit.Redact.Pattern.Iban" xml:space="preserve"><value>IBAN (PL)</value></data>
+  <data name="Edit.Redact.Pattern.Phrase" xml:space="preserve"><value>Phrase</value></data>
+  <data name="Edit.Redact.Search.Title" xml:space="preserve"><value>Search &amp; Redact</value></data>
+  <data name="Edit.Redact.Search.Phrases" xml:space="preserve"><value>Phrases (one per line):</value></data>
+  <data name="Edit.Redact.Search.Patterns" xml:space="preserve"><value>Patterns (checksums are validated):</value></data>
+  <data name="Edit.Redact.Search.Find" xml:space="preserve"><value>Search</value></data>
+  <data name="Edit.Redact.Search.Results" xml:space="preserve"><value>Found items</value></data>
+  <data name="Edit.Redact.Search.SelectAll" xml:space="preserve"><value>Select all</value></data>
+  <data name="Edit.Redact.Search.SelectNone" xml:space="preserve"><value>Select none</value></data>
+  <data name="Edit.Redact.Search.Found" xml:space="preserve"><value>Found: {0}</value></data>
+  <data name="Edit.Redact.Search.Item" xml:space="preserve"><value>Page {0} · {1} · {2}</value></data>
+  <data name="Edit.Redact.Search.Mark" xml:space="preserve"><value>Mark for redaction</value></data>
+  <data name="Edit.Redact.Search.Nothing" xml:space="preserve"><value>Enter a phrase or choose a pattern.</value></data>
+  <data name="Edit.Redact.Search.NoneSelected" xml:space="preserve"><value>Search and select at least one item.</value></data>
+  <data name="Edit.Search.MatchCase" xml:space="preserve"><value>Match case</value></data>
+  <data name="Edit.Search.WholeWord" xml:space="preserve"><value>Whole words only</value></data>
+  <data name="Edit.Shape.Rectangle" xml:space="preserve"><value>Rectangle</value></data>
+  <data name="Edit.Shape.Ellipse" xml:space="preserve"><value>Ellipse</value></data>
+  <data name="Edit.Shape.Line" xml:space="preserve"><value>Line</value></data>
+  <data name="Edit.Text.EditTitle" xml:space="preserve"><value>Edit Text</value></data>
+  <data name="Edit.Text.AddTitle" xml:space="preserve"><value>Add Text</value></data>
+  <data name="Edit.Text.Font" xml:space="preserve"><value>Font</value></data>
+  <data name="Edit.Text.Size" xml:space="preserve"><value>Size</value></data>
+  <data name="Edit.Text.Color" xml:space="preserve"><value>Color</value></data>
+  <data name="Edit.Text.Bold" xml:space="preserve"><value>Bold</value></data>
+  <data name="Edit.Text.Italic" xml:space="preserve"><value>Italic</value></data>
+  <data name="Edit.Text.Content" xml:space="preserve"><value>Text</value></data>
+  <data name="Edit.Text.Hint" xml:space="preserve"><value>Ctrl+Enter confirms, Esc cancels. The font is embedded with Polish characters.</value></data>
+  <data name="Edit.Undo.AddImage" xml:space="preserve"><value>Add image</value></data>
+  <data name="Edit.Undo.AddLink" xml:space="preserve"><value>Add link</value></data>
+  <data name="Edit.Undo.AddShape" xml:space="preserve"><value>Add shape</value></data>
+  <data name="Edit.Undo.AddText" xml:space="preserve"><value>Add text</value></data>
+  <data name="Edit.Undo.ApplyRedactions" xml:space="preserve"><value>Apply redactions</value></data>
+  <data name="Edit.Undo.BookmarksFromHeadings" xml:space="preserve"><value>Bookmarks from headings</value></data>
+  <data name="Edit.Undo.CreateLinks" xml:space="preserve"><value>Create links from URLs</value></data>
+  <data name="Edit.Undo.DeleteLink" xml:space="preserve"><value>Delete link</value></data>
+  <data name="Edit.Undo.DeleteObject" xml:space="preserve"><value>Delete object</value></data>
+  <data name="Edit.Undo.EditLink" xml:space="preserve"><value>Edit link</value></data>
+  <data name="Edit.Undo.EditText" xml:space="preserve"><value>Edit text</value></data>
+  <data name="Edit.Undo.FindReplace" xml:space="preserve"><value>Find and replace</value></data>
+  <data name="Edit.Undo.MarkRedaction" xml:space="preserve"><value>Mark for redaction</value></data>
+  <data name="Edit.Undo.Ocr" xml:space="preserve"><value>Text recognition (OCR)</value></data>
+  <data name="Edit.Undo.RemoveLinks" xml:space="preserve"><value>Remove all links</value></data>
+  <data name="Edit.Undo.ReplaceImage" xml:space="preserve"><value>Replace image</value></data>
+  <data name="Edit.Undo.TransformObject" xml:space="preserve"><value>Move/transform object</value></data>
 </root>
