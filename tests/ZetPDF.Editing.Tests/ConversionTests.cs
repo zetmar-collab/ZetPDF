@@ -91,7 +91,7 @@ public class ConversionTests
         var path = Path.Combine(TestPaths.NewDirectory(), "wynik ąę.docx");
         await _svc.PdfToDocxAsync(combined, path, new DocxExportOptions());
         using var word = WordprocessingDocument.Open(path, false);
-        var body = word.MainDocumentPart!.Document.Body!;
+        var body = word.MainDocumentPart!.Document!.Body!;
         var text = body.InnerText;
         Assert.Contains("Strona 1", text);
         Assert.Contains(SamplePdfFactory.PolishPangram, text);

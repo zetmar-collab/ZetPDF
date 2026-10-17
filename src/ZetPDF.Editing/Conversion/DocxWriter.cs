@@ -59,9 +59,9 @@ internal static class DocxWriter
                     {
                         var data = ImageBytes(img, out var type);
                         if (data is null) continue;
-                        double w = Math.Max(4, img.Bounds.Width), h = Math.Max(4, img.Bounds.Height);
+                        double w = Math.Max(4, img.BoundingBox.Width), h = Math.Max(4, img.BoundingBox.Height);
                         if (w > contentWidth) { h *= contentWidth / w; w = contentWidth; }
-                        items.Add((img.Bounds.Top, ImageParagraph(main, data, type, w, h, imageId++)));
+                        items.Add((img.BoundingBox.Top, ImageParagraph(main, data, type, w, h, imageId++)));
                     }
                 }
             }

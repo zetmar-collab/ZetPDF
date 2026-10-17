@@ -118,7 +118,7 @@ public sealed class LinkService : ILinkService
                             if (value.Length < 5) continue;
                             var letters = word.Letters.Skip(m.Index).Take(value.Length).ToList();
                             if (letters.Count == 0) continue;
-                            var rect = letters.Select(l => TextLine.R(l.GlyphRectangle)).Aggregate((a, b) => a.Union(b)).Inflate(1);
+                            var rect = letters.Select(l => TextLine.R(l.BoundingBox)).Aggregate((a, b) => a.Union(b)).Inflate(1);
                             var uri = m.Groups["mail"].Success ? "mailto:" + value
                                 : value.StartsWith("www.", StringComparison.OrdinalIgnoreCase) ? "http://" + value : value;
                             found.Add((p, rect, uri));

@@ -99,3 +99,7 @@ Format: problem → decyzja → uzasadnienie. Decyzje oznaczone **[DO ZATWIERDZE
 
 ## D-19. `AnnotationUpdate.TextStyle`
 - Decyzja: nowe pole kontraktu; dla adnotacji `/FreeText` (pole tekstowe, maszyna do pisania, objaśnienie) zmienia rodzinę i rozmiar czcionki oraz kolor tekstu (`/DA`, `/DS`) i odtwarza `/AP`; dla innych rodzajów ignorowane. Stosowane po `Color` (który w FreeText ustawia kolor tekstu i ramki). Bold/Italic pomijane – model FreeText ich nie obsługuje także przy tworzeniu. Okno Właściwości pokazuje czcionkę i rozmiar dla FreeText (odczyt przez `AnnotationService.GetTextStyleAsync`, metoda modułu, poza kontraktem).
+
+## D-20. Ostrzeżenia kompilacji (cel: 0)
+- CS0618 PdfPig 0.1.16: `IPdfImage.Bounds` → `BoundingBox` (DocxWriter), `Letter.GlyphRectangle` → `BoundingBox` (LinkService). Przed zamianą sprawdzono tymczasowym testem na dokumencie z tekstem, obrazem i stroną z `/Rotate 90`, że stare i nowe właściwości zwracają identyczne prostokąty (stare są tylko aliasami); testy DOCX i łączy przechodzą bez zmian.
+- CS8602 w `ConversionTests` (nullowalne `MainDocumentPart.Document` w OpenXml 3.5) – jawne `!`.
