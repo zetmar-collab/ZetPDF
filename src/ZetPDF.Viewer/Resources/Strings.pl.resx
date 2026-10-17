@@ -4,17 +4,6 @@
   <resheader name="version"><value>2.0</value></resheader>
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
-  <data name="Viewer.Bar.FirstPage" xml:space="preserve"><value>Pierwsza strona (Ctrl+Home)</value></data>
-  <data name="Viewer.Bar.FitPage" xml:space="preserve"><value>Dopasuj stronę (Ctrl+0)</value></data>
-  <data name="Viewer.Bar.FitWidth" xml:space="preserve"><value>Dopasuj szerokość (Ctrl+2)</value></data>
-  <data name="Viewer.Bar.LastPage" xml:space="preserve"><value>Ostatnia strona (Ctrl+End)</value></data>
-  <data name="Viewer.Bar.NextPage" xml:space="preserve"><value>Następna strona (Ctrl+Page Down)</value></data>
-  <data name="Viewer.Bar.Of" xml:space="preserve"><value>z {0}</value></data>
-  <data name="Viewer.Bar.PageNumber" xml:space="preserve"><value>Numer strony</value></data>
-  <data name="Viewer.Bar.PreviousPage" xml:space="preserve"><value>Poprzednia strona (Ctrl+Page Up)</value></data>
-  <data name="Viewer.Bar.Zoom" xml:space="preserve"><value>Powiększenie</value></data>
-  <data name="Viewer.Bar.ZoomIn" xml:space="preserve"><value>Powiększ (Ctrl++)</value></data>
-  <data name="Viewer.Bar.ZoomOut" xml:space="preserve"><value>Pomniejsz (Ctrl+-)</value></data>
   <data name="Viewer.Bookmarks.Add" xml:space="preserve"><value>Dodaj zakładkę do bieżącej strony (Ctrl+B)</value></data>
   <data name="Viewer.Bookmarks.AddChild" xml:space="preserve"><value>Dodaj zakładkę podrzędną</value></data>
   <data name="Viewer.Bookmarks.CollapseAll" xml:space="preserve"><value>Zwiń wszystkie</value></data>

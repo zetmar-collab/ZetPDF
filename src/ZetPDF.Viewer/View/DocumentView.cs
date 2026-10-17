@@ -56,7 +56,6 @@ public sealed class DocumentView : IDocumentView
     private readonly ScrollViewer _scroll;
     private readonly PagesPresenter _presenter;
     private readonly FindBar _find;
-    private readonly ViewerBar _bar;
     private readonly TextBlock _status;
 
     private readonly RenderCache _hi = new(HighBudget);
@@ -133,16 +132,11 @@ public sealed class DocumentView : IDocumentView
         _status.Loc(TextBlock.TextProperty, _loc, "Viewer.Loading");
         _status.IsHitTestVisible = false;
 
-        _bar = new ViewerBar(this, _loc);
-
+        // nawigacja stron i powiększenie: pasek stanu powłoki (bez własnego paska pod widokiem)
         _root = new Grid();
-        _root.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-        _root.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         _root.Children.Add(_scroll);
         _root.Children.Add(_status);
         _root.Children.Add(_find);
-        Grid.SetRow(_bar, 1);
-        _root.Children.Add(_bar);
         _root.SetResourceReference(Panel.BackgroundProperty, ThemeKeys.ViewerBackground);
         _root.PreviewKeyDown += OnPreviewKeyDown;
         _root.PreviewKeyUp += OnPreviewKeyUp;
@@ -1068,7 +1062,6 @@ public sealed class DocumentView : IDocumentView
         old?.Dispose();
         _presenter.InvalidateAll();
         if (_find.IsOpen && (structure || content)) _find.Refresh();
-        _bar.Refresh();
         DocumentReloaded?.Invoke(this, new DocumentReloadedEventArgs(old is null ? DocumentChangeKind.All : kind, affected));
         ViewStateChanged?.Invoke(this, EventArgs.Empty);
         CurrentPageChanged?.Invoke(this, EventArgs.Empty);

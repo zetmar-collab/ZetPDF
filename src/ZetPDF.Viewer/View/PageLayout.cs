@@ -144,6 +144,16 @@ public sealed class PageLayout
     public const double MinZoom = 0.05;
     public const double MaxZoom = 64.0;
 
+    /// <summary>„125%”, „125”, „1,25” → 1.25 (procenty; okno Powiększenie do).</summary>
+    public static bool TryParsePercent(string? text, out double zoom)
+    {
+        zoom = 0;
+        var t = (text ?? string.Empty).Trim().TrimEnd('%').Trim().Replace(',', '.');
+        if (!double.TryParse(t, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out double v) || v <= 0) return false;
+        zoom = Clamp(v / 100.0);
+        return true;
+    }
+
     public static double Clamp(double zoom) => double.IsNaN(zoom) ? 1 : Math.Clamp(zoom, MinZoom, MaxZoom);
 
     /// <summary>Standardowe stopnie powiększenia (Ctrl+/Ctrl−, lista pola procentowego).</summary>

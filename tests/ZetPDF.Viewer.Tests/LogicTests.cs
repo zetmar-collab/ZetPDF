@@ -65,9 +65,9 @@ public class LogicTests
         Assert.Equal(1.25, PageLayout.NextZoomStep(1.0, true));
         Assert.Equal(0.75, PageLayout.NextZoomStep(1.0, false));
         Assert.Equal(PageLayout.MaxZoom, PageLayout.NextZoomStep(64, true));
-        Assert.True(ViewerBar.TryParsePercent("125%", out var z) && Math.Abs(z - 1.25) < 1e-9);
-        Assert.True(ViewerBar.TryParsePercent(" 66,5 ", out z) && Math.Abs(z - 0.665) < 1e-9);
-        Assert.False(ViewerBar.TryParsePercent("abc", out _));
+        Assert.True(PageLayout.TryParsePercent("125%", out var z) && Math.Abs(z - 1.25) < 1e-9);
+        Assert.True(PageLayout.TryParsePercent(" 66,5 ", out z) && Math.Abs(z - 0.665) < 1e-9);
+        Assert.False(PageLayout.TryParsePercent("abc", out _));
     }
 
     private static PageText Line(int page, string text, double y = 700, double x0 = 50, double w = 10)

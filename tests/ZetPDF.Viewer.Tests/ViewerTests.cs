@@ -203,6 +203,25 @@ public class ViewerTests
     });
 
     [Fact]
+    public void View_has_no_own_page_navigation_bar_but_keeps_find_bar() => Sta.Run(async () =>
+    {
+        // nawigacja stron i powiększenie są na pasku stanu powłoki – widok nie dubluje ich własnym paskiem
+        using var host = new ViewerHost();
+        var (_, view) = await host.OpenAsync(SamplePdfFactory.Text(2));
+        static IEnumerable<DependencyObject> All(DependencyObject root)
+        {
+            yield return root;
+            foreach (var child in LogicalTreeHelper.GetChildren(root).OfType<DependencyObject>())
+                foreach (var d in All(child)) yield return d;
+        }
+        var elements = All(view.Element).ToList();
+        Assert.DoesNotContain(elements, e => e is System.Windows.Controls.ComboBox);
+        Assert.Contains(elements, e => e is FindBar);
+        Assert.True(((System.Windows.Controls.Grid)view.Element).RowDefinitions.Count <= 1);
+        view.Dispose();
+    });
+
+    [Fact]
     public void Closing_document_disposes_view_and_releases_pdfium_handles() => Sta.Run(async () =>
     {
         await PdfiumRenderer.FlushAsync();

@@ -190,8 +190,8 @@ internal sealed class ViewerCommands
     {
         var suggestions = PageLayout.ZoomSteps.Where(s => s >= 0.25 && s <= 16).Select(s => (s * 100).ToString("0.#", CultureInfo.CurrentCulture) + "%");
         var dlg = new InputDialog(_loc, "Viewer.ZoomTo.Title", _loc["Viewer.ZoomTo.Prompt"], (v.Zoom * 100).ToString("0.#", CultureInfo.CurrentCulture) + "%", suggestions,
-            text => ViewerBar.TryParsePercent(text, out _) ? null : _loc["Viewer.ZoomTo.Invalid"]);
-        if (ShowDialog(dlg) == true && ViewerBar.TryParsePercent(dlg.Value, out double z)) v.Zoom = z;
+            text => PageLayout.TryParsePercent(text, out _) ? null : _loc["Viewer.ZoomTo.Invalid"]);
+        if (ShowDialog(dlg) == true && PageLayout.TryParsePercent(dlg.Value, out double z)) v.Zoom = z;
     }
 
     private void ShowGoToPage(DocumentView v)

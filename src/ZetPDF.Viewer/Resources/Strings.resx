@@ -4,17 +4,6 @@
   <resheader name="version"><value>2.0</value></resheader>
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
-  <data name="Viewer.Bar.FirstPage" xml:space="preserve"><value>First page (Ctrl+Home)</value></data>
-  <data name="Viewer.Bar.FitPage" xml:space="preserve"><value>Fit page (Ctrl+0)</value></data>
-  <data name="Viewer.Bar.FitWidth" xml:space="preserve"><value>Fit width (Ctrl+2)</value></data>
-  <data name="Viewer.Bar.LastPage" xml:space="preserve"><value>Last page (Ctrl+End)</value></data>
-  <data name="Viewer.Bar.NextPage" xml:space="preserve"><value>Next page (Ctrl+Page Down)</value></data>
-  <data name="Viewer.Bar.Of" xml:space="preserve"><value>of {0}</value></data>
-  <data name="Viewer.Bar.PageNumber" xml:space="preserve"><value>Page number</value></data>
-  <data name="Viewer.Bar.PreviousPage" xml:space="preserve"><value>Previous page (Ctrl+Page Up)</value></data>
-  <data name="Viewer.Bar.Zoom" xml:space="preserve"><value>Zoom</value></data>
-  <data name="Viewer.Bar.ZoomIn" xml:space="preserve"><value>Zoom in (Ctrl++)</value></data>
-  <data name="Viewer.Bar.ZoomOut" xml:space="preserve"><value>Zoom out (Ctrl+-)</value></data>
   <data name="Viewer.Bookmarks.Add" xml:space="preserve"><value>Add bookmark for the current page (Ctrl+B)</value></data>
   <data name="Viewer.Bookmarks.AddChild" xml:space="preserve"><value>Add Child Bookmark</value></data>
   <data name="Viewer.Bookmarks.CollapseAll" xml:space="preserve"><value>Collapse All</value></data>
