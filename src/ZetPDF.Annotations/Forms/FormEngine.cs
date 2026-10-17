@@ -364,6 +364,51 @@ internal static class FormEngine
         FieldAppearance.Build(doc, fresh, forceStates: true);
     }
 
+    /// <summary>Przesuwa/zmienia rozmiar jednego widżetu (bez zmiany innych właściwości pola).</summary>
+    public static void MoveWidget(PdfDocument doc, string fullName, string? onState, PdfRect rect)
+    {
+        var f = FieldTree.Find(doc, fullName) ?? throw new KeyNotFoundException("Field not found: " + fullName);
+        var w = f.Widgets.Count == 1 ? f.Widgets[0] : f.Widgets.FirstOrDefault(x => FieldNode.OnState(x) == onState) ?? f.Widgets[0];
+        w.Elements["/Rect"] = RectArray(doc, rect);
+        if (f.Kind is FormFieldKind.CheckBox or FormFieldKind.RadioButton) FieldAppearance.BuildStates(doc, f, w, f.Kind == FormFieldKind.RadioButton);
+        else FieldAppearance.Build(doc, f);
+    }
+
+    /// <summary>Pełna specyfikacja istniejącego pola (okno właściwości).</summary>
+    public static FormFieldSpec Describe(PdfDocument doc, string fullName)
+    {
+        var f = FieldTree.Find(doc, fullName) ?? throw new KeyNotFoundException("Field not found: " + fullName);
+        var info = Read(doc).First(i => i.FullName == fullName);
+        AnnotModel.ParseDa(f.DaText, out double size, out var color);
+        var w = f.Widgets[0];
+        var action = Dict(w, "/A") ?? Dict(f.Dict, "/A");
+        var s = NameOf(action ?? NewDict(doc), "/S");
+        return new FormFieldSpec
+        {
+            Kind = info.Kind,
+            Name = fullName,
+            PageIndex = info.PageIndex,
+            Rect = info.Rect,
+            DefaultValue = info.DefaultValue,
+            Options = info.Options,
+            ExportValue = FieldNode.OnState(w),
+            Tooltip = info.Tooltip,
+            Required = info.Required,
+            ReadOnly = info.ReadOnly,
+            Multiline = info.Multiline,
+            Style = new TextStyle
+            {
+                FontSize = size,
+                Color = color ?? PdfColor.Black,
+                FontFamily = Dict(f.Dict, AnnotModel.PrivateKey) is { } p && Text(p, "/Font") is { Length: > 0 } fam ? fam : "Arial",
+            },
+            DateFormat = f.DateFormat.Length > 0 ? f.DateFormat : null,
+            ButtonAction = s switch { "/ResetForm" => FormButtonAction.ResetForm, "/URI" => FormButtonAction.OpenUrl, _ => FormButtonAction.None },
+            ButtonUrl = action is not null && s == "/URI" ? Text(action, "/URI") : null,
+            ButtonCaption = Dict(w, "/MK") is { } mk ? Text(mk, "/CA") : null,
+        };
+    }
+
     public static void Delete(PdfDocument doc, IReadOnlyList<string> names)
     {
         var acro = FieldTree.AcroForm(doc);

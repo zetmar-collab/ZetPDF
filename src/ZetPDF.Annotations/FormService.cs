@@ -18,6 +18,12 @@ public sealed class FormService : IFormService
     internal Task<List<(string Name, FormFieldKind Kind, int Page, PdfRect Rect, string? OnState)>> GetWidgetsAsync(byte[] pdf, CancellationToken ct = default) =>
         Task.Run(() => PdfSharpEdit.Read(pdf, FormEngine.Widgets), ct);
 
+    internal Task<byte[]> MoveWidgetAsync(byte[] pdf, string fullName, string? onState, PdfRect rect, CancellationToken ct = default) =>
+        PdfSharpEdit.ModifyAsync(pdf, doc => FormEngine.MoveWidget(doc, fullName, onState, rect), ct);
+
+    internal Task<FormFieldSpec> DescribeAsync(byte[] pdf, string fullName, CancellationToken ct = default) =>
+        Task.Run(() => PdfSharpEdit.Read(pdf, doc => FormEngine.Describe(doc, fullName)), ct);
+
     public Task<byte[]> SetValuesAsync(byte[] pdf, IReadOnlyDictionary<string, string> values, CancellationToken ct = default) =>
         PdfSharpEdit.ModifyAsync(pdf, doc =>
         {
