@@ -1,0 +1,129 @@
+// Recenzent: niezależna kontrola bezpieczeństwa na prawdziwych usługach (poza xUnit) + przygotowanie próbek do testu dymnego exe.
+using System.Text;
+using Microsoft.Extensions.DependencyInjection;
+using PdfSharp.Pdf;
+using PdfSharp.Pdf.IO;
+using ZetPDF.Core.Commands;
+using ZetPDF.Core.Contracts;
+using ZetPDF.Core.Documents;
+using ZetPDF.Core.Services;
+using ZetPDF.TestData;
+using PigDocument = UglyToad.PdfPig.PdfDocument;
+using ParsingOptions = UglyToad.PdfPig.ParsingOptions;
+
+var outDir = args.Length > 0 ? args[0] : Path.Combine(Path.GetTempPath(), "ZetPDF-recenzja", "Próbny folder ąę");
+Directory.CreateDirectory(outDir);
+var home = Path.Combine(outDir, "_home");
+var s = new ServiceCollection();
+s.AddZetPdfCore(new AppPaths(home));
+foreach (var m in ZetPDF.App.ModuleCatalog.CreateAll()) m.ConfigureServices(s);
+using var sp = s.BuildServiceProvider();
+var docs = sp.GetRequiredService<IDocumentManager>();
+var renderer = sp.GetRequiredService<IPdfRenderer>();
+int failures = 0;
+void Check(bool ok, string what) { Console.WriteLine((ok ? "OK    " : "BŁĄD  ") + what); if (!ok) failures++; }
+
+async Task<string> PdfiumText(byte[] pdf, string? pwd = null)
+{
+    using var d = await renderer.OpenAsync(pdf, pwd);
+    var sb = new StringBuilder();
+    for (int i = 0; i < d.PageCount; i++) sb.Append((await d.GetPageTextAsync(i)).Text).Append('\n');
+    return sb.ToString();
+}
+string PigText(byte[] pdf, string? pwd = null)
+{
+    using var d = pwd is null ? PigDocument.Open(pdf) : PigDocument.Open(pdf, new ParsingOptions { Password = pwd });
+    return string.Join("\n", d.GetPages().Select(p => p.Text));
+}
+// Wszystkie strumienie po dekompresji + ciągi – czy fraza występuje gdziekolwiek w pliku.
+bool Anywhere(byte[] pdf, string phrase, string? pwd = null)
+{
+    PdfSharpEdit.EnsureInitialized();
+    using var d = pwd is null ? PdfReader.Open(new MemoryStream(pdf), PdfDocumentOpenMode.Import) : PdfReader.Open(new MemoryStream(pdf), pwd, PdfDocumentOpenMode.Import);
+    foreach (var o in d.Internals.GetAllObjects())
+    {
+        if (o is PdfDictionary dict)
+        {
+            if (dict.Stream is { } st)
+            {
+                var bytes = st.UnfilteredValue ?? st.Value;
+                if (Encoding.Latin1.GetString(bytes).Contains(phrase) || Encoding.UTF8.GetString(bytes).Contains(phrase) || Encoding.BigEndianUnicode.GetString(bytes).Contains(phrase)) return true;
+            }
+            foreach (var k in dict.Elements.Keys)
+                if (dict.Elements[k] is PdfString ps && ps.Value.Contains(phrase)) return true;
+        }
+    }
+    foreach (var k in d.Info.Elements.Keys) if (d.Info.Elements[k] is PdfString ps && ps.Value.Contains(phrase)) return true;
+    return false;
+}
+
+// ---- 1. AES-256 przez DocumentManager (ochrona hasłem jak w Ochrona > Ochrona hasłem, potem Zapisz jako)
+var plainPath = Path.Combine(outDir, "zażółć gęślą.pdf");
+File.WriteAllBytes(plainPath, SamplePdfFactory.Text(3));
+var session = (await docs.OpenAsync(plainPath))!;
+const string user = "otwórz-ą1", owner = "właściciel-ź2";
+await session.ExecuteAsync(new SetEncryptionCommand("Core.Undo.SetEncryption", new PdfEncryptionSettings(user, owner, PdfEncryptionMethod.Aes256, DocumentPermissions.Print)));
+var encPath = Path.Combine(outDir, "zaszyfrowany AES-256 ąę.pdf");
+await docs.SaveAsync(session, encPath);
+docs.Close(session);
+var enc = File.ReadAllBytes(encPath);
+var latin = Encoding.Latin1.GetString(enc);
+Check(latin.Contains("/V 5") && latin.Contains("/R 6") && latin.Contains("/AESV3"), "AES-256: słownik /Encrypt ma /V 5 /R 6 /AESV3");
+Check((await renderer.ProbeAsync(enc)).Status == PdfProbeStatus.PasswordRequired, "AES-256: PDFium bez hasła – wymaga hasła");
+Check((await renderer.ProbeAsync(enc, "złe")).Status == PdfProbeStatus.InvalidPassword, "AES-256: PDFium złe hasło – odmowa");
+Check((await PdfiumText(enc, user)).Contains("gęślą"), "AES-256: PDFium hasłem użytkownika – tekst z polskimi znakami");
+Check(PigText(enc, user).Contains("gęślą"), "AES-256: PdfPig hasłem użytkownika – tekst");
+Check(PigText(enc, owner).Contains("gęślą"), "AES-256: PdfPig hasłem właściciela – tekst");
+var probe = await renderer.ProbeAsync(enc, user);
+Check(!probe.Permissions.HasFlag(DocumentPermissions.ModifyContent) && probe.Permissions.HasFlag(DocumentPermissions.Print), "AES-256: uprawnienia zapisane (tylko druk)");
+try { PigText(enc); Check(false, "AES-256: PdfPig bez hasła powinien odmówić"); } catch (Exception) { Check(true, "AES-256: PdfPig bez hasła – odmowa"); }
+
+// ---- 2. Redakcja PESEL i frazy
+var sens = SamplePdfFactory.WithSensitiveData();
+var red = sp.GetRequiredService<IRedactionService>();
+var found = await red.FindAsync(sens.Pdf, new RedactionSearch { Patterns = SensitiveDataPattern.Pesel | SensitiveDataPattern.Email, Phrases = new[] { "jaźń" } });
+Console.WriteLine($"      redakcja: znaleziono {found.Count} trafień: " + string.Join(", ", found.Select(f => f.Text)));
+var marked = await red.MarkAsync(sens.Pdf, found.Select(f => new RedactionMark(f.PageIndex, f.Quads)).ToList());
+var redacted = await red.ApplyAsync(marked, new RedactionApplyOptions());
+var redPath = Path.Combine(outDir, "po redakcji ąę.pdf");
+File.WriteAllBytes(redPath, redacted);
+foreach (var phrase in new[] { sens.Pesel, sens.Email, "jaźń" })
+{
+    Check(!PigText(redacted).Contains(phrase), $"redakcja: PdfPig nie widzi „{phrase}”");
+    Check(!(await PdfiumText(redacted)).Contains(phrase), $"redakcja: PDFium nie widzi „{phrase}”");
+    Check(!Anywhere(redacted, phrase), $"redakcja: „{phrase}” brak w zdekodowanych strumieniach i ciągach");
+}
+Check(PigText(redacted).Contains("Telefon"), "redakcja: reszta tekstu zostaje (PdfPig „Telefon”)");
+
+// ---- 3. Oczyszczanie (metadane Info + XMP)
+var withMeta = PdfSharpEdit.Modify(SamplePdfFactory.WithMetadataAttachmentAndJavaScript(), d =>
+{
+    d.Info.Author = "Autor Poufny";
+    var xmp = new PdfDictionary(d);
+    xmp.Elements["/Type"] = new PdfName("/Metadata");
+    xmp.Elements["/Subtype"] = new PdfName("/XML");
+    xmp.CreateStream(Encoding.UTF8.GetBytes("<x:xmpmeta xmlns:x='adobe:ns:meta/'><rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'><rdf:Description xmlns:dc='http://purl.org/dc/elements/1.1/'><dc:creator>XmpTajnyAutor</dc:creator></rdf:Description></rdf:RDF></x:xmpmeta>"));
+    d.Internals.AddObject(xmp);
+    d.Internals.Catalog.Elements["/Metadata"] = xmp.Reference!;
+});
+Check(Anywhere(withMeta, "XmpTajnyAutor") && Anywhere(withMeta, "Tajny tytuł"), "oczyszczanie: próbka ma XMP i /Info");
+var san = await sp.GetRequiredService<ISanitizeService>().SanitizeAsync(withMeta, new SanitizeOptions());
+File.WriteAllBytes(Path.Combine(outDir, "po oczyszczeniu ąę.pdf"), san.Pdf);
+foreach (var phrase in new[] { "Tajny tytuł", "Temat poufny", "poufne; test", "Autor Poufny", "XmpTajnyAutor", "zalacznik.txt", "Treść załącznika" })
+    Check(!Anywhere(san.Pdf, phrase), $"oczyszczanie: „{phrase}” usunięte z całego pliku");
+Check(!Encoding.Latin1.GetString(san.Pdf).Contains("/JavaScript"), "oczyszczanie: brak /JavaScript");
+using (var pig = PigDocument.Open(san.Pdf))
+    Check(string.IsNullOrEmpty(pig.Information.Title) && string.IsNullOrEmpty(pig.Information.Author), $"oczyszczanie: PdfPig – Title/Author puste (Producer: {pig.Information.Producer})");
+
+// ---- 4. Próbki do testu dymnego exe
+File.WriteAllBytes(Path.Combine(outDir, "uszkodzony ąę.pdf"), SamplePdfFactory.Corrupted());
+File.WriteAllBytes(Path.Combine(outDir, "formularz ąę.pdf"), SamplePdfFactory.WithForm());
+File.WriteAllBytes(Path.Combine(outDir, "500 stron ąę.pdf"), SamplePdfFactory.Large(500));
+File.WriteAllBytes(Path.Combine(outDir, "AES-256 próbka ąę.pdf"), SamplePdfFactory.EncryptedAes256());
+var secSvc = sp.GetRequiredService<ISecurityService>();
+File.WriteAllBytes(Path.Combine(outDir, "aes256-ascii.pdf"), await secSvc.EncryptAsync(SamplePdfFactory.Text(1), new PdfEncryptionSettings("user123", "owner123", PdfEncryptionMethod.Aes256, DocumentPermissions.Print)));
+File.WriteAllBytes(Path.Combine(outDir, "aes128-ascii.pdf"), await secSvc.EncryptAsync(SamplePdfFactory.Text(1), new PdfEncryptionSettings("user123", "owner123", PdfEncryptionMethod.Aes128, DocumentPermissions.Print)));
+File.WriteAllBytes(Path.Combine(outDir, "aes256-tylko-uprawnienia.pdf"), await secSvc.EncryptAsync(SamplePdfFactory.Text(1), new PdfEncryptionSettings(null, "owner123", PdfEncryptionMethod.Aes256, DocumentPermissions.Print)));
+Console.WriteLine($"Próbki: {outDir}");
+Console.WriteLine(failures == 0 ? "WYNIK: wszystkie kontrole OK" : $"WYNIK: {failures} błędów");
+return failures == 0 ? 0 : 1;
