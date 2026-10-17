@@ -74,3 +74,12 @@ Format: problem → decyzja → uzasadnienie. Decyzje oznaczone **[DO ZATWIERDZE
 - Pages.Tests może referować ZetPDF.Rendering (tylko weryfikacja wyników testów).
 - Rozszerzenie IStampingService o RemovePageNumbersAsync i GetStoredOptionsAsync odłożone do scalenia wszystkich modułów (zmiana kontraktu w Core przez koordynatora); do tego czasu polecenia używają metod klasy StampingService.
 
+
+## Do zrobienia po scaleniu wszystkich modułów (koordynator, zmiany kontraktów)
+1. IDocumentView.ShowAnnotations (render bez RenderFlags.Annotations, widżety zostają) – Pokaż/Ukryj komentarze nie zmienia pliku (annotations-forms + renderer-viewer).
+2. Hak przed zapisem w IDocumentManager – „Spłaszcz przy zapisie” (annotations-forms).
+3. AnnotationUpdate.TextStyle – zmiana czcionki FreeText.
+4. IStampingService: RemovePageNumbersAsync, GetStoredOptionsAsync (pages-engine, Kreator działań).
+5. Zdublowany pasek nawigacji stron (ViewerBar + pasek stanu powłoki) – zostawić jeden.
+6. BouncyCastle nieużywany w ZetPDF.Security – usunąć albo uzasadnić.
+7. Annotations: FillSign.Flatten po scaleniu ma używać IPageOperations.FlattenAsync z pages-engine – sprawdzić /AS widżetów.
