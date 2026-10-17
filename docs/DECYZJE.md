@@ -76,10 +76,18 @@ Format: problem → decyzja → uzasadnienie. Decyzje oznaczone **[DO ZATWIERDZE
 
 
 ## Do zrobienia po scaleniu wszystkich modułów (koordynator, zmiany kontraktów)
-1. IDocumentView.ShowAnnotations (render bez RenderFlags.Annotations, widżety zostają) – Pokaż/Ukryj komentarze nie zmienia pliku (annotations-forms + renderer-viewer).
+1. [x] IDocumentView.ShowAnnotations (render bez RenderFlags.Annotations, widżety zostają) – Pokaż/Ukryj komentarze nie zmienia pliku (annotations-forms + renderer-viewer). → D-17.
 2. Hak przed zapisem w IDocumentManager – „Spłaszcz przy zapisie” (annotations-forms).
 3. AnnotationUpdate.TextStyle – zmiana czcionki FreeText.
 4. IStampingService: RemovePageNumbersAsync, GetStoredOptionsAsync (pages-engine, Kreator działań).
 5. Zdublowany pasek nawigacji stron (ViewerBar + pasek stanu powłoki) – zostawić jeden.
 6. BouncyCastle nieużywany w ZetPDF.Security – usunąć albo uzasadnić.
 7. Annotations: FillSign.Flatten po scaleniu ma używać IPageOperations.FlattenAsync z pages-engine – sprawdzić /AS widżetów.
+
+
+## Zmiany po scaleniu (integrator)
+
+## D-17. Pokaż/Ukryj komentarze tylko w widoku
+- Problem: `Comment.ShowAll/HideAll` zmieniały flagę Hidden w pliku (polecenie dokumentu, stan „zmodyfikowany”).
+- Decyzja: `IDocumentView.ShowAnnotations` (kontrakt). `false` = render widoku bez `RenderFlags.Annotations` (FPDF_ANNOT), z `RenderFlags.FormFields`. Sprawdzone renderem PDFium 157: `FPDF_RenderPageBitmap` bez FPDF_ANNOT nie rysuje adnotacji, a `FPDF_FFLDraw` rysuje tylko widżety pól – rozdzielenie jest pełne (test `ShowAnnotationsTests`). Polecenia przełączają aktywny widok; `IAnnotationService.SetAllHiddenAsync` zostaje w usłudze (bez polecenia).
+- Kompromis: widżety w pliku bez `/AcroForm` (brak środowiska formularza PDFium) znikają razem z komentarzami; miniatury i druk nie zależą od przełącznika.

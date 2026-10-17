@@ -13,7 +13,7 @@ namespace ZetPDF.Annotations.Tests;
 /// <summary>Narzędzia modułu z prawdziwym widokiem (Viewer + PDFium): zdarzenia wskaźnika → polecenie → adnotacja w pliku → Cofnij.</summary>
 public class ViewerIntegrationTests
 {
-    private static void RunSta(Func<Task> body)
+    internal static void RunSta(Func<Task> body)
     {
         Exception? error = null;
         var thread = new Thread(() =>
@@ -33,7 +33,7 @@ public class ViewerIntegrationTests
         if (error is not null) ExceptionDispatchInfo.Capture(error).Throw();
     }
 
-    private static async Task WaitFor(Func<bool> cond, string what)
+    internal static async Task WaitFor(Func<bool> cond, string what)
     {
         var start = Environment.TickCount64;
         while (!cond())
@@ -43,11 +43,25 @@ public class ViewerIntegrationTests
         }
     }
 
-    private static void Layout(FrameworkElement e)
+    internal static void Layout(FrameworkElement e)
     {
         e.Measure(new Size(900, 700));
         e.Arrange(new Rect(0, 0, 900, 700));
         e.UpdateLayout();
+    }
+
+    internal static ServiceProvider BuildServices()
+    {
+        var s = new ServiceCollection();
+        s.AddZetPdfCore(new AppPaths(TestPaths.NewDirectory()));
+        new ZetPDF.Rendering.RenderingModule().ConfigureServices(s);
+        new ZetPDF.Viewer.ViewerModule().ConfigureServices(s);
+        new AnnotationsModule().ConfigureServices(s);
+        var sp = s.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true });
+        new ZetPDF.Rendering.RenderingModule().Initialize(sp);
+        new ZetPDF.Viewer.ViewerModule().Initialize(sp);
+        new AnnotationsModule().Initialize(sp);
+        return sp;
     }
 
     [Fact]
@@ -55,15 +69,8 @@ public class ViewerIntegrationTests
     {
         RunSta(async () =>
         {
-            var s = new ServiceCollection();
-            s.AddZetPdfCore(new AppPaths(TestPaths.NewDirectory()));
-            new ZetPDF.Rendering.RenderingModule().ConfigureServices(s);
-            new ZetPDF.Viewer.ViewerModule().ConfigureServices(s);
-            new AnnotationsModule().ConfigureServices(s);
-            using var sp = s.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true });
-            new ZetPDF.Rendering.RenderingModule().Initialize(sp);
-            new ZetPDF.Viewer.ViewerModule().Initialize(sp);
-            new AnnotationsModule().Initialize(sp);
+            using var sp = BuildServices();
+
 
             var docs = sp.GetRequiredService<IDocumentManager>();
             var session = await docs.CreateNewAsync(SamplePdfFactory.Text(1), "t.pdf");

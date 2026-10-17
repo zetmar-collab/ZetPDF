@@ -49,6 +49,11 @@ public interface IDocumentView : IDisposable
     PageLayoutMode Layout { get; set; }
     /// <summary>Obrót widoku 0/90/180/270 (nie zmienia pliku).</summary>
     int ViewRotation { get; set; }
+    /// <summary>
+    /// Czy rysować komentarze (adnotacje inne niż widżety pól). false = render bez <see cref="RenderFlags.Annotations"/>
+    /// (FPDF_ANNOT), z <see cref="RenderFlags.FormFields"/> (FPDF_FFLDraw rysuje tylko widżety). Nie zmienia pliku.
+    /// </summary>
+    bool ShowAnnotations { get; set; }
     event EventHandler? ViewStateChanged;
 
     /// <summary>Strony zaznaczone w panelu miniatur (0-based, posortowane); gdy pusto – bieżąca strona.</summary>

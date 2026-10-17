@@ -167,7 +167,7 @@ Każdy projekt ma jedną klasę `*Module : IFeatureModule` (`RenderingModule`, `
 - Narzędzia: `IViewerTool` (Id = id polecenia wstążki), aktywacja przez `IToolService.Activate`. Domyślne narzędzie: Ręka. Zdarzenia myszy/pióra jako `PagePointerEventArgs` (strona, punkt PDF, nacisk).
 - Nakładki: `IPageOverlay.Render(DrawingContext, page, PageTransform)` z `ZIndex`: 100 komentarze, 200 formularze, 300 edycja, 400 redakcja, 900 aktywne narzędzie. Kolory z motywu (`ThemeKeys.Viewer*`), kolory treści (wybór użytkownika) – wolno.
 - Zaznaczenie tekstu: `IDocumentView.TextSelection` (`PdfTextSelection` – spany ze stronami i czworokątami `PdfQuad`) → adiustacja (QuadPoints), redakcja, kopiowanie.
-- Widok nakłada ukrywanie komentarzy (`Comment.HideAll`) – annotations-forms może renderować własną nakładkę albo renderer flagą `RenderFlags` (do uzgodnienia między nimi bez zmiany kontraktu: domyślnie PDFium rysuje adnotacje z `/AP`).
+- Ukrywanie komentarzy (`Comment.HideAll`/`ShowAll`, annotations-forms) ustawia `IDocumentView.ShowAnnotations`: widok renderuje wtedy bez `RenderFlags.Annotations` (FPDF_ANNOT), z `RenderFlags.FormFields` (FPDF_FFLDraw rysuje tylko widżety) – plik się nie zmienia.
 
 ## 9. Kontrakty – mapa (implementacja → użytkownicy)
 

@@ -79,8 +79,9 @@ internal sealed class AnnotationCommands
         // ---------------------------------------------------------------- zarządzanie komentarzami
         _registry.Register(CommandIds.Comment.Import, Doc(ImportCommentsAsync, DocumentPermissions.Annotate));
         _registry.Register(CommandIds.Comment.ExportAll, Doc(ExportCommentsAsync, DocumentPermissions.None));
-        _registry.Register(CommandIds.Comment.ShowAll, Doc(s => _ctx.RunAsync(s, "Annot.Undo.ShowAll", (pdf, ct) => _ctx.Annotations.SetAllHiddenAsync(pdf, false, ct)), DocumentPermissions.Annotate));
-        _registry.Register(CommandIds.Comment.HideAll, Doc(s => _ctx.RunAsync(s, "Annot.Undo.HideAll", (pdf, ct) => _ctx.Annotations.SetAllHiddenAsync(pdf, true, ct)), DocumentPermissions.Annotate));
+        // Pokaż/Ukryj komentarze – tylko widok (render bez FPDF_ANNOT, widżety pól zostają); plik bez zmian
+        _registry.Register(CommandIds.Comment.ShowAll, new RelayCmd(_ => SetCommentsVisible(true), _ => _ctx.ActiveView is not null));
+        _registry.Register(CommandIds.Comment.HideAll, new RelayCmd(_ => SetCommentsVisible(false), _ => _ctx.ActiveView is not null));
         _registry.Register(CommandIds.Comment.DeleteAll, Doc(DeleteAllAsync, DocumentPermissions.Annotate));
 
         // ---------------------------------------------------------------- załączniki
@@ -297,6 +298,13 @@ internal sealed class AnnotationCommands
     {
         if (_ctx.Services.GetService(typeof(IFileService)) is IFileService fs) await fs.WriteAllBytesSafeAsync(path, data);
         else await File.WriteAllBytesAsync(path, data);
+    }
+
+    private void SetCommentsVisible(bool visible)
+    {
+        if (_ctx.ActiveView is not { } view) return;
+        view.ShowAnnotations = visible;
+        CommandManager.InvalidateRequerySuggested();
     }
 
     private async Task DeleteAllAsync(IPdfDocumentSession s)

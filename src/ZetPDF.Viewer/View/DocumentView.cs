@@ -83,6 +83,8 @@ public sealed class DocumentView : IDocumentView
     private ZoomMode _zoomMode;
     private PageLayoutMode _layoutMode;
     private int _viewRotation;
+    private bool _showAnnotations = true;
+    private int _renderEpoch;
     private int _currentPage;
     private IReadOnlyList<int> _selectedPages = Array.Empty<int>();
     private PdfTextSelection? _selection;
@@ -222,6 +224,28 @@ public sealed class DocumentView : IDocumentView
             ViewStateChanged?.Invoke(this, EventArgs.Empty);
         }
     }
+
+    public bool ShowAnnotations
+    {
+        get => _showAnnotations;
+        set
+        {
+            if (_showAnnotations == value) return;
+            _showAnnotations = value;
+            // bitmapy z poprzednimi flagami są nieaktualne – renderujemy od nowa (plik bez zmian)
+            _renderEpoch++;
+            CancelAllRenders();
+            _hi.Clear();
+            _lo.Clear();
+            _failed.Clear();
+            _presenter.InvalidateVisual();
+            ScheduleRenders();
+            ViewStateChanged?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    /// <summary>Flagi renderu widoku: bez komentarzy (FPDF_ANNOT) przy ukryciu, zawsze z widżetami pól (FPDF_FFLDraw).</summary>
+    internal RenderFlags ViewRenderFlags => _showAnnotations ? RenderFlags.Default : RenderFlags.FormFields;
 
     public IReadOnlyList<int> SelectedPages
     {
@@ -640,7 +664,7 @@ public sealed class DocumentView : IDocumentView
 
     private void Request(int page, int kind, double scale, PixelRect region, int fullW, int fullH)
     {
-        string key = FormattableString.Invariant($"{_generation}|{page}|{kind}|{scale:F5}|{_viewRotation}|{region.X},{region.Y},{region.Width},{region.Height}");
+        string key = FormattableString.Invariant($"{_generation}|{_renderEpoch}|{page}|{kind}|{scale:F5}|{_viewRotation}|{region.X},{region.Y},{region.Width},{region.Height}");
         if (_failed.Contains(key)) return;
         if (_pending.TryGetValue((page, kind), out var p))
         {
@@ -649,17 +673,17 @@ public sealed class DocumentView : IDocumentView
         }
         var cts = new CancellationTokenSource();
         _pending[(page, kind)] = (cts, key);
-        _ = RunRender(_doc!, _generation, page, kind, scale, _viewRotation, region, fullW, fullH, key, cts);
+        _ = RunRender(_doc!, _generation, _renderEpoch, ViewRenderFlags, page, kind, scale, _viewRotation, region, fullW, fullH, key, cts);
     }
 
-    private async Task RunRender(IRenderDocument doc, int gen, int page, int kind, double scale, int rotation, PixelRect region, int fullW, int fullH, string key, CancellationTokenSource cts)
+    private async Task RunRender(IRenderDocument doc, int gen, int epoch, RenderFlags flags, int page, int kind, double scale, int rotation, PixelRect region, int fullW, int fullH, string key, CancellationTokenSource cts)
     {
         try
         {
-            var request = new RenderRequest(scale, rotation, region.X == 0 && region.Y == 0 && region.Width >= fullW && region.Height >= fullH ? null : region);
+            var request = new RenderRequest(scale, rotation, region.X == 0 && region.Y == 0 && region.Width >= fullW && region.Height >= fullH ? null : region, flags);
             var bmp = await doc.RenderPageAsync(page, request, cts.Token);
             var src = await Task.Run(() => Ui.ToBitmapSource(bmp));
-            if (gen != _generation || cts.IsCancellationRequested || _disposed) return;
+            if (gen != _generation || epoch != _renderEpoch || cts.IsCancellationRequested || _disposed) return;
             var entry = new PageBitmap(page, rotation, scale, new PixelRect(region.X, region.Y, bmp.Width, bmp.Height), fullW, fullH, src);
             (kind == KindLow ? _lo : _hi).Put(page, kind, entry);
             _presenter.InvalidateVisual();
@@ -718,7 +742,7 @@ public sealed class DocumentView : IDocumentView
         var t = new PageTransform(info.Size, info.CropOrigin, info.Rotation + _viewRotation, scale, new Point(0, 0));
         var px = t.ToView(rect);
         var clip = new PixelRect((int)Math.Floor(px.X), (int)Math.Floor(px.Y), Math.Max(1, (int)Math.Ceiling(px.Width)), Math.Max(1, (int)Math.Ceiling(px.Height)));
-        var bmp = await doc.RenderPageAsync(page, new RenderRequest(scale, _viewRotation, clip));
+        var bmp = await doc.RenderPageAsync(page, new RenderRequest(scale, _viewRotation, clip, ViewRenderFlags));
         return await Task.Run(() => Ui.ToBitmapSource(bmp, scale * 72));
     }
 
