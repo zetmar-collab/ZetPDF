@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using PdfSharp.Pdf;
 using ZetPDF.Core.Contracts;
 using static ZetPDF.Annotations.Pdf.PdfLow;
+using ZetPDF.Core.Localization;
 
 namespace ZetPDF.Annotations.Pdf;
 
@@ -93,7 +94,7 @@ internal sealed partial class AnnotModel
         AnnotationKind.Stamp => "/Stamp",
         AnnotationKind.FileAttachment => "/FileAttachment",
         AnnotationKind.Redact => "/Redact",
-        _ => throw new NotSupportedException("Annotation kind not supported: " + kind),
+        _ => throw new NotSupportedException("Annotation kind not supported: " + kind).WithMessageKey("Annot.Error.KindNotSupported", kind),
     };
 
     /// <summary>Czy to komentarz (adiustacja, notatka, rysunek, stempel…), a nie łącze/pole/okienko.</summary>

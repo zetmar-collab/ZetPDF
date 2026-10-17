@@ -5,6 +5,7 @@ using System.Xml.Linq;
 using PdfSharp.Pdf;
 using ZetPDF.Core.Contracts;
 using static ZetPDF.Annotations.Pdf.PdfLow;
+using ZetPDF.Core.Localization;
 
 namespace ZetPDF.Annotations.Pdf;
 
@@ -162,7 +163,9 @@ internal static class XfdfComments
             using var reader = XmlReader.Create(ms, settings);
             x = XDocument.Load(reader, LoadOptions.PreserveWhitespace);
         }
-        var root = x.Root ?? throw new InvalidDataException("Empty XFDF.");
+        var root = x.Root ?? throw new InvalidDataException("Empty XFDF.").WithMessageKey("Annot.Error.EmptyXfdf");
+        if (!string.Equals(root.Name.LocalName, "xfdf", StringComparison.OrdinalIgnoreCase))
+            throw new InvalidDataException("Not an XFDF file (root element <" + root.Name.LocalName + ">).").WithMessageKey("Annot.Error.EmptyXfdf");
         var ns = root.Name.Namespace;
         var annots = root.Element(ns + "annots");
         if (annots is null) return 0;

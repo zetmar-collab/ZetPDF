@@ -4,6 +4,7 @@ using PdfSharp.Pdf.Advanced;
 using ZetPDF.Core.Contracts;
 using ZetPDF.Pages.Content;
 using ZetPDF.Pages.Engine;
+using ZetPDF.Core.Localization;
 
 namespace ZetPDF.Pages.Optimizer;
 
@@ -311,7 +312,7 @@ public sealed class OptimizerService : IOptimizerService
     /// <summary>Rasteryzacja: każda strona → obraz w skali szarości 150 DPI (tekst przestaje być tekstem).</summary>
     private async Task<byte[]> RasterizeGrayAsync(byte[] pdf, IProgress<OperationProgress>? progress, CancellationToken ct)
     {
-        if (_renderer is null) throw new InvalidOperationException(PagesModule.Text("Pages.Error.RendererUnavailable"));
+        if (_renderer is null) throw new InvalidOperationException(PagesModule.Text("Pages.Error.RendererUnavailable")).WithMessageKey("Pages.Error.RendererUnavailable");
         var bitmaps = new List<RawImage>();
         using (var rdoc = await _renderer.OpenAsync(pdf, null, ct).ConfigureAwait(false))
         {

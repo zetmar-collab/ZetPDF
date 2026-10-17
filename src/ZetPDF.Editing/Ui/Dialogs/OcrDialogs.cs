@@ -6,6 +6,7 @@ using System.Windows.Media.Imaging;
 using ZetPDF.Core.Contracts;
 using ZetPDF.Core.Theming;
 using ZetPDF.Editing.Imaging;
+using ZetPDF.Core.Localization;
 
 namespace ZetPDF.Editing.Ui.Dialogs;
 
@@ -255,7 +256,7 @@ internal sealed class SearchRedactDialog : DialogBase
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
-            ShowError(ex.Message);
+            ShowError(L.Describe(ex));
         }
         finally { _searchButton.IsEnabled = true; }
     }

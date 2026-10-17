@@ -11,6 +11,7 @@ using ZetPDF.Editing.Conversion;
 using ZetPDF.Editing.Imaging;
 using ZetPDF.Editing.Text;
 using ZetPDF.Ocr.Pdf;
+using ZetPDF.Core.Localization;
 
 namespace ZetPDF.Editing;
 
@@ -44,7 +45,7 @@ public sealed class ConversionService : IConversionService
                 progress?.Report(OperationProgress.Of(i, imagePaths.Count, Path.GetFileName(imagePaths[i])));
                 foreach (var frame in ImageCodec.PrepareFrames(File.ReadAllBytes(imagePaths[i]))) AddImagePage(doc, frame, options);
             }
-            if (doc.PageCount == 0) throw new InvalidOperationException("No images.");
+            if (doc.PageCount == 0) throw new InvalidOperationException("No images.").WithMessageKey("Edit.Error.NoImages");
             return PdfSharpEdit.Save(doc);
         }, ct);
     }
@@ -189,7 +190,7 @@ public sealed class ConversionService : IConversionService
                     WriteTextPages(output, ReadText(path), new TextStyle { FontFamily = "Arial", FontSize = 11 }, ct);
                 }
             }
-            if (output.PageCount == 0) throw new InvalidOperationException("No pages.");
+            if (output.PageCount == 0) throw new InvalidOperationException("No pages.").WithMessageKey("Edit.Error.NoPages");
             return PdfSharpEdit.Save(output);
         }, ct);
     }

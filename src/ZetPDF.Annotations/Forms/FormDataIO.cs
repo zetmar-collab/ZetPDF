@@ -3,6 +3,7 @@ using System.Xml;
 using System.Xml.Linq;
 using ZetPDF.Annotations.Pdf;
 using ZetPDF.Core.Contracts;
+using ZetPDF.Core.Localization;
 
 namespace ZetPDF.Annotations.Forms;
 
@@ -114,7 +115,7 @@ internal static class FormDataIO
     private static Dictionary<string, string> ImportFdf(byte[] data)
     {
         var fdf = FdfParser.Parse(data);
-        var root = fdf.FdfRoot ?? throw new InvalidDataException("Not an FDF file.");
+        var root = fdf.FdfRoot ?? throw new InvalidDataException("Not an FDF file.").WithMessageKey("Annot.Error.NotFdf");
         var result = new Dictionary<string, string>(StringComparer.Ordinal);
         void Walk(FdfValue? item, string prefix, int depth)
         {
@@ -145,7 +146,9 @@ internal static class FormDataIO
         using (var ms = new MemoryStream(data, writable: false))
         using (var reader = XmlReader.Create(ms, new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null }))
             x = XDocument.Load(reader, LoadOptions.PreserveWhitespace);
-        var root = x.Root ?? throw new InvalidDataException("Empty XFDF.");
+        var root = x.Root ?? throw new InvalidDataException("Empty XFDF.").WithMessageKey("Annot.Error.EmptyXfdf");
+        if (!string.Equals(root.Name.LocalName, "xfdf", StringComparison.OrdinalIgnoreCase))
+            throw new InvalidDataException("Not an XFDF file (root element <" + root.Name.LocalName + ">).").WithMessageKey("Annot.Error.EmptyXfdf");
         var ns = root.Name.Namespace;
         var result = new Dictionary<string, string>(StringComparer.Ordinal);
         void Walk(XElement el, string prefix)

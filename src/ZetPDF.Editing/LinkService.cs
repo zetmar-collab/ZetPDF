@@ -4,6 +4,7 @@ using ZetPDF.Core.Contracts;
 using ZetPDF.Core.Documents;
 using ZetPDF.Editing.Pdf;
 using ZetPDF.Editing.Text;
+using ZetPDF.Core.Localization;
 
 namespace ZetPDF.Editing;
 
@@ -144,8 +145,8 @@ public sealed class LinkService : ILinkService
     private static void Validate(PdfDocument doc, int pageIndex, PdfRect rect, LinkTarget target)
     {
         if (pageIndex < 0 || pageIndex >= doc.PageCount) throw new ArgumentOutOfRangeException(nameof(pageIndex));
-        if (rect.IsEmpty) throw new ArgumentException("Empty rectangle.", nameof(rect));
-        if (string.IsNullOrWhiteSpace(target.Uri) && target.PageIndex is not { } t) throw new ArgumentException("Link needs URI or page.", nameof(target));
+        if (rect.IsEmpty) throw new ArgumentException("Empty rectangle.", nameof(rect)).WithMessageKey("Edit.Error.EmptyArea");
+        if (string.IsNullOrWhiteSpace(target.Uri) && target.PageIndex is not { } t) throw new ArgumentException("Link needs URI or page.", nameof(target)).WithMessageKey("Edit.Error.LinkTarget");
         if (target.PageIndex is { } pi && (pi < 0 || pi >= doc.PageCount)) throw new ArgumentOutOfRangeException(nameof(target));
     }
 

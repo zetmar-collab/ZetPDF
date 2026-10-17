@@ -11,6 +11,7 @@ using ZetPDF.Core.Contracts;
 using ZetPDF.Core.Theming;
 using ZetPDF.Viewer.Text;
 using ZetPDF.Viewer.Tools;
+using ZetPDF.Core.Localization;
 
 namespace ZetPDF.Viewer.View;
 
@@ -1015,7 +1016,7 @@ public sealed class DocumentView : IDocumentView
             if (version != _reloadVersion || _disposed) return;
             _log?.LogError(ex, "Cannot open document in view");
             BindingOperationsClear(_status);
-            _status.Text = _loc.Format("Viewer.LoadError", ex.Message);
+            _status.Text = _loc.Format("Viewer.LoadError", _loc.Describe(ex));
             _status.Visibility = Visibility.Visible;
             return;
         }

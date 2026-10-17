@@ -2,6 +2,7 @@ using System.Text;
 using PdfSharp.Pdf;
 using ZetPDF.Core.Contracts;
 using static ZetPDF.Annotations.Pdf.PdfLow;
+using ZetPDF.Core.Localization;
 
 namespace ZetPDF.Annotations.Pdf;
 
@@ -32,7 +33,7 @@ internal static class FdfComments
     public static int Import(PdfDocument doc, byte[] data, IAnnotationTexts texts, DateTimeOffset now)
     {
         var fdf = FdfParser.Parse(data);
-        var root = fdf.FdfRoot ?? throw new InvalidDataException("Not an FDF file (missing /FDF dictionary).");
+        var root = fdf.FdfRoot ?? throw new InvalidDataException("Not an FDF file (missing /FDF dictionary).").WithMessageKey("Annot.Error.NotFdf");
         var annotsArr = fdf.ResolveArray(root["/Annots"]);
         if (annotsArr is null) return 0;
         var existing = new HashSet<string>(AnnotationStore.All(doc).Select(a => a.Id.Name), StringComparer.Ordinal);

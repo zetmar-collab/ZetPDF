@@ -298,4 +298,10 @@ ukryte warstwy: {4}
   <data name="Pages.Watermark.Text" xml:space="preserve"><value>Tekst</value></data>
   <data name="Pages.Watermark.Title" xml:space="preserve"><value>Dodaj znak wodny</value></data>
   <data name="Pages.Watermark.UpdateTitle" xml:space="preserve"><value>Aktualizuj znak wodny</value></data>
+  <data name="Pages.Error.NoLabelRanges" xml:space="preserve"><value>Nie podano żadnego prawidłowego zakresu etykiet stron.</value></data>
+  <data name="Pages.Error.NoPagesToExtract" xml:space="preserve"><value>Nie wybrano stron do wyodrębnienia.</value></data>
+  <data name="Pages.Error.DuplicateTargets" xml:space="preserve"><value>Strony docelowe powtarzają się.</value></data>
+  <data name="Pages.Error.Rotation90" xml:space="preserve"><value>Obrót musi być wielokrotnością 90°.</value></data>
+  <data name="Pages.Error.InvalidOrder" xml:space="preserve"><value>Nieprawidłowa kolejność stron.</value></data>
+  <data name="Pages.Error.NoSources" xml:space="preserve"><value>Nie wybrano plików do scalenia.</value></data>
 </root>

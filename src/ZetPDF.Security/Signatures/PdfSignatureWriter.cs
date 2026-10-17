@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text;
 using ZetPDF.Core.Contracts;
 using ZetPDF.Security.Pdf;
+using ZetPDF.Core.Localization;
 
 namespace ZetPDF.Security.Signatures;
 
@@ -93,9 +94,9 @@ internal static class PdfSignatureWriter
         if (placement.FieldName is { } fieldName)
         {
             var field = fields.FirstOrDefault(f => f.FullName == fieldName && f.FieldType == "Sig")
-                ?? throw new InvalidOperationException($"Signature field '{fieldName}' not found.");
-            if (field.Dictionary["V"] is not null) throw new InvalidOperationException($"Signature field '{fieldName}' is already signed.");
-            if (field.Reference is null || field.Widgets.Count == 0) throw new InvalidOperationException($"Signature field '{fieldName}' has no widget.");
+                ?? throw new InvalidOperationException($"Signature field '{fieldName}' not found.").WithMessageKey("Security.Error.FieldNotFound", fieldName);
+            if (field.Dictionary["V"] is not null) throw new InvalidOperationException($"Signature field '{fieldName}' is already signed.").WithMessageKey("Security.Error.FieldSigned", fieldName);
+            if (field.Reference is null || field.Widgets.Count == 0) throw new InvalidOperationException($"Signature field '{fieldName}' has no widget.").WithMessageKey("Security.Error.FieldNoWidget", fieldName);
             widgetRef = field.Widgets[0];
             bool merged = widgetRef.Equals(field.Reference);
             var fieldDict = (CosDictionary)field.Dictionary.Clone();

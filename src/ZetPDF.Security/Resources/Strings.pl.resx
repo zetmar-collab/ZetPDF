@@ -333,4 +333,12 @@
   <data name="Security.Param.Keywords" xml:space="preserve"><value>Słowa kluczowe</value></data>
   <data name="Security.Param.Creator" xml:space="preserve"><value>Aplikacja tworząca</value></data>
   <data name="Security.Param.OnlyIfEmpty" xml:space="preserve"><value>Uzupełnij tylko puste pola</value></data>
+  <data name="Security.Error.PasswordRequired" xml:space="preserve"><value>Podaj hasło otwarcia albo hasło uprawnień.</value></data>
+  <data name="Security.Error.Handler" xml:space="preserve"><value>Ten plik używa nieobsługiwanego sposobu zabezpieczenia („{0}”, np. zabezpieczenia certyfikatem).</value></data>
+  <data name="Security.Error.TsaScheme" xml:space="preserve"><value>Adres serwera znacznika czasu musi zaczynać się od http:// lub https://.</value></data>
+  <data name="Security.Error.FieldNotFound" xml:space="preserve"><value>Nie znaleziono pola podpisu „{0}”.</value></data>
+  <data name="Security.Error.FieldSigned" xml:space="preserve"><value>Pole podpisu „{0}” jest już podpisane.</value></data>
+  <data name="Security.Error.FieldNoWidget" xml:space="preserve"><value>Pole podpisu „{0}” nie ma obszaru na żadnej stronie.</value></data>
+  <data name="Security.Error.NoSigner" xml:space="preserve"><value>Podpis nie zawiera informacji o podpisującym.</value></data>
+  <data name="Security.Validate.Detail.Malformed" xml:space="preserve"><value>struktura podpisu jest uszkodzona albo nieobsługiwana</value></data>
 </root>

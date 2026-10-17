@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
 using ZetPDF.Core.Contracts;
+using ZetPDF.Core.Localization;
 
 namespace ZetPDF.Pages.Ui;
 
@@ -38,8 +39,8 @@ internal abstract partial class PagesDialog : Window
             {
                 if (Accept()) DialogResult = true;
             }
-            catch (FormatException ex) { _error.Text = ex.Message; }
-            catch (ArgumentException ex) { _error.Text = ex.Message; }
+            catch (FormatException ex) { _error.Text = Loc.Describe(ex); }
+            catch (ArgumentException ex) { _error.Text = Loc.Describe(ex); }
         };
         var cancel = new Button { MinWidth = 96, IsCancel = true, Padding = new Thickness(12, 4, 12, 4) };
         Bind(cancel, ContentControl.ContentProperty, "Pages.Dialog.Cancel");

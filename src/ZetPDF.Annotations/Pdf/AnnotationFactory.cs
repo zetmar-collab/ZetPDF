@@ -1,6 +1,7 @@
 using PdfSharp.Pdf;
 using ZetPDF.Core.Contracts;
 using static ZetPDF.Annotations.Pdf.PdfLow;
+using ZetPDF.Core.Localization;
 
 namespace ZetPDF.Annotations.Pdf;
 
@@ -45,7 +46,7 @@ internal static class AnnotationFactory
             case AnnotationKind.Highlight or AnnotationKind.Underline or AnnotationKind.Squiggly or AnnotationKind.StrikeOut or AnnotationKind.Redact:
                 if (spec.Quads is { Count: > 0 } qs) m.Quads.AddRange(qs);
                 else if (!spec.Rect.IsEmpty) m.Quads.Add(PdfQuad.FromRect(spec.Rect));
-                else throw new ArgumentException("Text markup requires quads or a rectangle.", nameof(spec));
+                else throw new ArgumentException("Text markup requires quads or a rectangle.", nameof(spec)).WithMessageKey("Annot.Error.Geometry");
                 double h = m.Quads.Max(q => q.Bounds.Height);
                 m.Rect = m.GeometryBounds(Math.Max(1, h * 0.2));
                 break;
@@ -57,19 +58,19 @@ internal static class AnnotationFactory
                 m.Rect = spec.Rect;
                 break;
             case AnnotationKind.Line or AnnotationKind.Arrow:
-                if (spec.Points is not { Count: >= 2 }) throw new ArgumentException("Line requires 2 points.", nameof(spec));
+                if (spec.Points is not { Count: >= 2 }) throw new ArgumentException("Line requires 2 points.", nameof(spec)).WithMessageKey("Annot.Error.Geometry");
                 m.Points.Add(spec.Points[0]);
                 m.Points.Add(spec.Points[1]);
                 m.LineEnd = kind == AnnotationKind.Arrow ? "OpenArrow" : null;
                 m.Rect = m.GeometryBounds(AppearanceBuilder.ArrowSize(m.LineWidth) + m.LineWidth);
                 break;
             case AnnotationKind.Polygon or AnnotationKind.Polyline:
-                if (spec.Points is not { Count: >= 2 }) throw new ArgumentException("Polygon requires points.", nameof(spec));
+                if (spec.Points is not { Count: >= 2 }) throw new ArgumentException("Polygon requires points.", nameof(spec)).WithMessageKey("Annot.Error.Geometry");
                 m.Points.AddRange(spec.Points);
                 m.Rect = m.GeometryBounds(m.LineWidth + 1);
                 break;
             case AnnotationKind.Ink:
-                if (spec.InkStrokes is not { Count: > 0 }) throw new ArgumentException("Ink requires strokes.", nameof(spec));
+                if (spec.InkStrokes is not { Count: > 0 }) throw new ArgumentException("Ink requires strokes.", nameof(spec)).WithMessageKey("Annot.Error.Geometry");
                 foreach (var s in spec.InkStrokes.Where(s => s.Count > 0)) m.Ink.Add(s.ToList());
                 m.Rect = m.GeometryBounds(m.LineWidth + 1);
                 break;
@@ -87,7 +88,7 @@ internal static class AnnotationFactory
                 ConfigureAttachment(doc, d, m, spec);
                 break;
             default:
-                throw new NotSupportedException("Annotation kind not supported: " + kind);
+                throw new NotSupportedException("Annotation kind not supported: " + kind).WithMessageKey("Annot.Error.KindNotSupported", kind);
         }
 
         if (m.Rect.Width < 1 || m.Rect.Height < 1)
@@ -222,7 +223,7 @@ internal static class AnnotationFactory
 
     private static void ConfigureAttachment(PdfDocument doc, PdfDictionary d, AnnotModel m, AnnotationSpec spec)
     {
-        if (string.IsNullOrEmpty(spec.AttachmentPath) || !File.Exists(spec.AttachmentPath)) throw new FileNotFoundException("Attachment not found.", spec.AttachmentPath);
+        if (string.IsNullOrEmpty(spec.AttachmentPath) || !File.Exists(spec.AttachmentPath)) throw new FileNotFoundException("Attachment not found.", spec.AttachmentPath).WithMessageKey("Annot.Error.AttachmentFileNotFound", spec.AttachmentPath);
         var at = new PdfPoint(spec.Rect.Left, spec.Rect.Top);
         m.Rect = spec.Rect.IsEmpty ? new PdfRect(at.X, at.Y - 20, at.X + 14, at.Y) : spec.Rect;
         m.Icon = "PushPin";

@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PdfSharp.Pdf.IO;
 using ZetPDF.Core.Contracts;
+using ZetPDF.Core.Localization;
 
 namespace ZetPDF.Core.Documents;
 
@@ -87,7 +88,7 @@ public sealed class DocumentManager : IDocumentManager
 
     public async Task SaveAsync(IPdfDocumentSession session, string? path = null, CancellationToken ct = default)
     {
-        var target = path ?? session.FilePath ?? throw new InvalidOperationException("Document has no file path – use Save As.");
+        var target = path ?? session.FilePath ?? throw new InvalidOperationException("Document has no file path – use Save As.").WithMessageKey("Core.Error.NoFilePath");
         target = Path.GetFullPath(target);
         var bytes = await GetBytesForSaveAsync(session, ct);
         await _files.WriteAllBytesSafeAsync(target, bytes, keepBackup: false, ct);
@@ -174,7 +175,7 @@ public sealed class DocumentManager : IDocumentManager
 
     public async Task RevertAsync(IPdfDocumentSession session, CancellationToken ct = default)
     {
-        if (session.FilePath is null) throw new InvalidOperationException("Document was never saved.");
+        if (session.FilePath is null) throw new InvalidOperationException("Document was never saved.").WithMessageKey("Core.Error.NeverSaved");
         var original = await File.ReadAllBytesAsync(session.FilePath, ct);
         var loaded = await LoadAsync(original, session.DisplayName, session.SecurityInfo.Password, ct);
         if (loaded is null) return;

@@ -184,4 +184,13 @@
   <data name="Edit.Undo.RemoveLinks" xml:space="preserve"><value>Remove all links</value></data>
   <data name="Edit.Undo.ReplaceImage" xml:space="preserve"><value>Replace image</value></data>
   <data name="Edit.Undo.TransformObject" xml:space="preserve"><value>Move/transform object</value></data>
+  <data name="Edit.Error.NoImages" xml:space="preserve"><value>None of the selected images could be read.</value></data>
+  <data name="Edit.Error.NoPages" xml:space="preserve"><value>The result has no pages (none of the files could be converted).</value></data>
+  <data name="Edit.Error.EmptyArea" xml:space="preserve"><value>The selected area is empty.</value></data>
+  <data name="Edit.Error.LinkTarget" xml:space="preserve"><value>A link needs a web address or a target page.</value></data>
+  <data name="Edit.Error.ObjectNotFound" xml:space="preserve"><value>The object no longer exists on the page (the document has changed). Select it again.</value></data>
+  <data name="Edit.Error.NotImage" xml:space="preserve"><value>The selected object is not an image.</value></data>
+  <data name="Edit.Error.Transform" xml:space="preserve"><value>This transformation cannot be applied (zero size).</value></data>
+  <data name="Edit.Error.TextBlockNotFound" xml:space="preserve"><value>The text block no longer exists on the page (the document has changed).</value></data>
+  <data name="Edit.Error.EmptySearch" xml:space="preserve"><value>Enter the text to find.</value></data>
 </root>

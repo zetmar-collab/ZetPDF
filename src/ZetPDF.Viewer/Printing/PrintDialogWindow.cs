@@ -7,6 +7,7 @@ using System.Windows.Threading;
 using ZetPDF.Core.Contracts;
 using ZetPDF.Core.Theming;
 using PageRange = ZetPDF.Core.Utilities.PageRange;
+using ZetPDF.Core.Localization;
 
 namespace ZetPDF.Viewer.Printing;
 
@@ -213,6 +214,6 @@ internal sealed class PrintDialogWindow : Window
         }
         catch (OperationCanceledException) { }
         catch (ObjectDisposedException) { }
-        catch (Exception ex) when (ex is not OutOfMemoryException) { _error.Text = ex.Message; }
+        catch (Exception ex) when (ex is not OutOfMemoryException) { _error.Text = _loc.Describe(ex); }
     }
 }

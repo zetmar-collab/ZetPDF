@@ -5,6 +5,7 @@ using PdfSharp.Pdf;
 using ZetPDF.Core.Contracts;
 using ZetPDF.Core.Utilities;
 using ZetPDF.Pages.Engine;
+using ZetPDF.Core.Localization;
 
 namespace ZetPDF.Pages.Stamping;
 
@@ -23,7 +24,7 @@ public sealed class StampingService : IStampingService
         {
             bool hasText = !string.IsNullOrWhiteSpace(options.Text);
             bool hasImage = !string.IsNullOrWhiteSpace(options.ImagePath);
-            if (!hasText && !hasImage) throw new ArgumentException(PagesModule.Text("Pages.Error.WatermarkEmpty"));
+            if (!hasText && !hasImage) throw new ArgumentException(PagesModule.Text("Pages.Error.WatermarkEmpty")).WithMessageKey("Pages.Error.WatermarkEmpty");
             using var doc = PdfIo.OpenModify(pdf);
             var pages = PageRange.Parse(options.PageRange, doc.PageCount);
             double opacity = Math.Clamp(options.Opacity, 0.01, 1);
@@ -51,7 +52,7 @@ public sealed class StampingService : IStampingService
             }
             else
             {
-                if (!File.Exists(options.ImagePath)) throw new FileNotFoundException(PagesModule.Text("Pages.Error.ImageNotFound"), options.ImagePath);
+                if (!File.Exists(options.ImagePath)) throw new FileNotFoundException(PagesModule.Text("Pages.Error.ImageNotFound"), options.ImagePath).WithMessageKey("Pages.Error.ImageNotFound");
                 var (img, iw, ih) = FormFactory.Image(doc, options.ImagePath!);
                 var res = new PdfDictionary();
                 var xo = new PdfDictionary();
@@ -106,7 +107,7 @@ public sealed class StampingService : IStampingService
         Task.Run(() =>
         {
             bool hasImage = !string.IsNullOrWhiteSpace(options.ImagePath);
-            if (options.Color is null && !hasImage) throw new ArgumentException(PagesModule.Text("Pages.Error.BackgroundEmpty"));
+            if (options.Color is null && !hasImage) throw new ArgumentException(PagesModule.Text("Pages.Error.BackgroundEmpty")).WithMessageKey("Pages.Error.BackgroundEmpty");
             using var doc = PdfIo.OpenModify(pdf);
             var pages = PageRange.Parse(options.PageRange, doc.PageCount);
             double opacity = Math.Clamp(options.Opacity, 0.01, 1);
@@ -120,7 +121,7 @@ public sealed class StampingService : IStampingService
             }
             if (hasImage)
             {
-                if (!File.Exists(options.ImagePath)) throw new FileNotFoundException(PagesModule.Text("Pages.Error.ImageNotFound"), options.ImagePath);
+                if (!File.Exists(options.ImagePath)) throw new FileNotFoundException(PagesModule.Text("Pages.Error.ImageNotFound"), options.ImagePath).WithMessageKey("Pages.Error.ImageNotFound");
                 var (img, w, h) = FormFactory.Image(doc, options.ImagePath!);
                 iw = w; ih = h;
                 var res = new PdfDictionary();
@@ -169,7 +170,7 @@ public sealed class StampingService : IStampingService
                 (options.HeaderLeft, XStringFormats.TopLeft, true), (options.HeaderCenter, XStringFormats.TopCenter, true), (options.HeaderRight, XStringFormats.TopRight, true),
                 (options.FooterLeft, XStringFormats.BottomLeft, false), (options.FooterCenter, XStringFormats.BottomCenter, false), (options.FooterRight, XStringFormats.BottomRight, false),
             };
-            if (fields.All(f => string.IsNullOrWhiteSpace(f.Text))) throw new ArgumentException(PagesModule.Text("Pages.Error.HeaderFooterEmpty"));
+            if (fields.All(f => string.IsNullOrWhiteSpace(f.Text))) throw new ArgumentException(PagesModule.Text("Pages.Error.HeaderFooterEmpty")).WithMessageKey("Pages.Error.HeaderFooterEmpty");
             for (int k = 0; k < pages.Count; k++)
             {
                 ct.ThrowIfCancellationRequested();

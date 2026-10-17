@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using ZetPDF.Core.Contracts;
+using ZetPDF.Core.Localization;
 
 namespace ZetPDF.Security.Pdf;
 
@@ -98,7 +99,7 @@ internal sealed class StandardSecurityHandler
     public static StandardSecurityHandler Create(CosDictionary encrypt, byte[] id0)
     {
         var filter = encrypt.GetName("Filter");
-        if (filter != "Standard") throw new NotSupportedException($"Security handler '{filter}' is not supported.");
+        if (filter != "Standard") throw new NotSupportedException($"Security handler '{filter}' is not supported.").WithMessageKey("Security.Error.Handler", filter);
         return new StandardSecurityHandler(encrypt, id0);
     }
 

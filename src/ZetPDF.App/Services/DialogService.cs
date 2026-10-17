@@ -1,11 +1,11 @@
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
 using ZetPDF.App.Dialogs;
-using ZetPDF.Core.Contracts;
-
 using ZetPDF.App.Shell;
+using ZetPDF.Core.Contracts;
+using ZetPDF.Core.Localization;
 
 namespace ZetPDF.App.Services;
 
@@ -221,26 +221,11 @@ public sealed class DialogService : IDialogService, IOwnerProtectionPrompts
     public void ShowError(Exception exception, string? contextText = null)
     {
         _log.LogError(exception, "Error shown to user: {Context}", contextText);
-        var known = true;
-        var text = exception switch
-        {
-            PdfCorruptException => _loc.Format("Core.Error.Corrupt", contextText ?? string.Empty),
-            PdfInvalidPasswordException => _loc["Core.Error.InvalidPassword"],
-            PdfPasswordRequiredException => _loc["Core.Error.PasswordRequired"],
-            DocumentPermissionException => _loc["Core.Error.PermissionDenied"],
-            NotImplementedException => _loc["Core.Error.NotImplemented"],
-            FileNotFoundException => _loc.Format("Core.Error.FileAccess", contextText ?? string.Empty, exception.Message),
-            IOException io => _loc.Format("Core.Error.FileAccess", contextText ?? string.Empty, io.Message),
-            UnauthorizedAccessException ua => _loc.Format("Core.Error.FileAccess", contextText ?? string.Empty, ua.Message),
-            _ => Unknown(),
-        };
-        string Unknown()
-        {
-            known = false;
-            return _loc.Format("Core.Error.Generic", exception.Message);
-        }
-        var details = known ? null : exception.GetType().FullName + ": " + exception.Message + Environment.NewLine + Environment.NewLine
-                                     + _loc.Format("Shell.Error.LogHint", _paths.LogDirectory);
+        // Tekst w języku interfejsu (O-3); angielski komunikat biblioteki/.NET tylko w rozwijanych szczegółach.
+        var text = _loc.Describe(exception, out var specific, contextText);
+        bool keyed = LocalizedError.TryGetMessageKey(exception, out _, out _);
+        var details = keyed ? null
+            : LocalizedError.TechnicalDetails(exception) + (specific ? string.Empty : Environment.NewLine + Environment.NewLine + _loc.Format("Shell.Error.LogHint", _paths.LogDirectory));
         Show(_loc["Core.Error.Title"], text, MessageSeverity.Error, false,
             new[] { new MessageWindow.ButtonSpec(_loc["Core.Button.Ok"], 1, IsDefault: true, IsCancel: true) }, 1,
             details, _loc["Shell.Error.Details"]);

@@ -176,4 +176,17 @@
   <data name="Annot.Undo.Reply" xml:space="preserve"><value>Reply</value></data>
   <data name="Annot.Undo.State" xml:space="preserve"><value>Set state</value></data>
   <data name="Annot.Undo.TabOrder" xml:space="preserve"><value>Tab order</value></data>
+  <data name="Annot.Error.AnnotationNotFound" xml:space="preserve"><value>The comment no longer exists in the document ({0}).</value></data>
+  <data name="Annot.Error.ReplyParent" xml:space="preserve"><value>A reply cannot be added to this comment (unusual file structure).</value></data>
+  <data name="Annot.Error.AttachmentNotFound" xml:space="preserve"><value>Attachment “{0}” does not exist in the document.</value></data>
+  <data name="Annot.Error.AttachmentFileNotFound" xml:space="preserve"><value>File “{0}” was not found.</value></data>
+  <data name="Annot.Error.AttachmentNoData" xml:space="preserve"><value>The attachment contains no file data.</value></data>
+  <data name="Annot.Error.NotFdf" xml:space="preserve"><value>The file is not a valid FDF file.</value></data>
+  <data name="Annot.Error.EmptyXfdf" xml:space="preserve"><value>The XFDF file is empty or is not a valid XFDF file.</value></data>
+  <data name="Annot.Error.FieldNameRequired" xml:space="preserve"><value>Enter a field name.</value></data>
+  <data name="Annot.Error.FieldNameUsed" xml:space="preserve"><value>The field name “{0}” is already used in the form.</value></data>
+  <data name="Annot.Error.RadioStructure" xml:space="preserve"><value>Unsupported structure of the radio button group.</value></data>
+  <data name="Annot.Error.FieldNotFound" xml:space="preserve"><value>Field “{0}” does not exist in the form.</value></data>
+  <data name="Annot.Error.Geometry" xml:space="preserve"><value>Too few points or an empty area to create the comment.</value></data>
+  <data name="Annot.Error.KindNotSupported" xml:space="preserve"><value>This kind of comment is not supported ({0}).</value></data>
 </root>

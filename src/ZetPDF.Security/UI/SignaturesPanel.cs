@@ -5,6 +5,7 @@ using System.Windows.Input;
 using Microsoft.Extensions.DependencyInjection;
 using ZetPDF.Core.Contracts;
 using ZetPDF.Core.Theming;
+using ZetPDF.Core.Localization;
 
 namespace ZetPDF.Security.UI;
 
@@ -97,7 +98,7 @@ internal sealed class SignaturesPanel : UserControl
             if (cts.IsCancellationRequested) return;
             _results = Array.Empty<SignatureValidationResult>();
             Render();
-            _status.Text = _loc.Format("Security.Panel.Error", ex.Message);
+            _status.Text = _loc.Format("Security.Panel.Error", _loc.Describe(ex));
         }
     }
 

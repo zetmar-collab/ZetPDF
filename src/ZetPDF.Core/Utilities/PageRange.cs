@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text;
+using ZetPDF.Core.Localization;
 
 namespace ZetPDF.Core.Utilities;
 
@@ -33,7 +34,7 @@ public static class PageRange
                 to = right.Length == 0 ? pageCount : ParseNumber(right, text);
             }
             if (from > to) (from, to) = (to, from);
-            if (from < 1 || to > pageCount) throw new FormatException($"Page range '{part}' is outside 1–{pageCount}.");
+            if (from < 1 || to > pageCount) throw new FormatException($"Page range '{part}' is outside 1–{pageCount}.").WithMessageKey("Core.Error.PageRangeOutside", part, pageCount);
             for (int i = from; i <= to; i++) set.Add(i - 1);
         }
         return set.ToArray();
@@ -62,5 +63,5 @@ public static class PageRange
     }
 
     private static int ParseNumber(string s, string whole) =>
-        int.TryParse(s, NumberStyles.None, CultureInfo.InvariantCulture, out var n) ? n : throw new FormatException($"Invalid page range '{whole}'.");
+        int.TryParse(s, NumberStyles.None, CultureInfo.InvariantCulture, out var n) ? n : throw new FormatException($"Invalid page range '{whole}'.").WithMessageKey("Core.Error.PageRangeInvalid", whole);
 }

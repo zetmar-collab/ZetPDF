@@ -2,6 +2,7 @@ using PdfSharp.Pdf;
 using PdfSharp.Pdf.Advanced;
 using ZetPDF.Core.Contracts;
 using ZetPDF.Core.Documents;
+using ZetPDF.Core.Localization;
 
 namespace ZetPDF.Pages.Engine;
 
@@ -92,7 +93,7 @@ public sealed partial class PageOperations : IPageOperations
             using var doc = PdfIo.OpenModify(pdf);
             var set = Distinct(pages, doc.PageCount);
             if (set.Count == 0) return pdf;
-            if (set.Count >= doc.PageCount) throw new InvalidOperationException(PagesModule.Text("Pages.Error.CannotDeleteAll"));
+            if (set.Count >= doc.PageCount) throw new InvalidOperationException(PagesModule.Text("Pages.Error.CannotDeleteAll")).WithMessageKey("Pages.Error.CannotDeleteAll");
             RemovePages(doc, set);
             return PdfIo.Save(doc);
         }, ct);
@@ -104,7 +105,7 @@ public sealed partial class PageOperations : IPageOperations
     {
         using var src = PdfIo.OpenImport(pdf);
         Validate(pages, src.PageCount, nameof(pages));
-        if (pages.Count == 0) throw new ArgumentException("No pages to extract.", nameof(pages));
+        if (pages.Count == 0) throw new ArgumentException("No pages to extract.", nameof(pages)).WithMessageKey("Pages.Error.NoPagesToExtract");
         using var doc = PdfIo.NewDocument();
         CopyInfo(src, doc);
         foreach (var p in pages)
@@ -148,12 +149,12 @@ public sealed partial class PageOperations : IPageOperations
     internal static byte[] ReplaceCore(byte[] pdf, IReadOnlyList<int> targetPages, byte[] source, IReadOnlyList<int> sourcePages, CancellationToken ct)
     {
         if (targetPages.Count != sourcePages.Count)
-            throw new ArgumentException(PagesModule.Text("Pages.Error.ReplaceCountMismatch"));
+            throw new ArgumentException(PagesModule.Text("Pages.Error.ReplaceCountMismatch")).WithMessageKey("Pages.Error.ReplaceCountMismatch");
         using var doc = PdfIo.OpenModify(pdf);
         using var src = PdfIo.OpenImport(source);
         Validate(targetPages, doc.PageCount, nameof(targetPages));
         Validate(sourcePages, src.PageCount, nameof(sourcePages));
-        if (targetPages.Distinct().Count() != targetPages.Count) throw new ArgumentException("Duplicate target pages.", nameof(targetPages));
+        if (targetPages.Distinct().Count() != targetPages.Count) throw new ArgumentException("Duplicate target pages.", nameof(targetPages)).WithMessageKey("Pages.Error.DuplicateTargets");
         var old = targetPages.Select(i => doc.Pages[i]).ToArray();
         // wstaw nowe strony przed zastępowanymi, potem usuń stare (zachowuje pozycje)
         for (int k = 0; k < targetPages.Count; k++)
@@ -253,7 +254,7 @@ public sealed partial class PageOperations : IPageOperations
     public Task<byte[]> RotateAsync(byte[] pdf, IReadOnlyList<int> pages, int degrees, CancellationToken ct = default) =>
         Task.Run(() =>
         {
-            if (degrees % 90 != 0) throw new ArgumentException("Rotation must be a multiple of 90 degrees.", nameof(degrees));
+            if (degrees % 90 != 0) throw new ArgumentException("Rotation must be a multiple of 90 degrees.", nameof(degrees)).WithMessageKey("Pages.Error.Rotation90");
             using var doc = PdfIo.OpenModify(pdf);
             foreach (var p in Distinct(pages, doc.PageCount))
             {
@@ -291,7 +292,7 @@ public sealed partial class PageOperations : IPageOperations
     {
         int n = doc.PageCount;
         if (order.Count != n || order.Distinct().Count() != n || order.Any(i => i < 0 || i >= n))
-            throw new ArgumentException("Invalid page order.", nameof(order));
+            throw new ArgumentException("Invalid page order.", nameof(order)).WithMessageKey("Pages.Error.InvalidOrder");
         var original = Enumerable.Range(0, n).Select(i => doc.Pages[i]).ToArray();
         for (int i = 0; i < n; i++)
         {

@@ -9,6 +9,7 @@ using System.Windows.Xps.Packaging;
 using Microsoft.Extensions.DependencyInjection;
 using ZetPDF.Core.Contracts;
 using ZetPDF.Core.Utilities;
+using ZetPDF.Core.Localization;
 
 namespace ZetPDF.Viewer.Printing;
 
@@ -94,7 +95,7 @@ public sealed class PrintService : IPrintService
         IProgress<OperationProgress>? progress, CancellationToken ct)
     {
         var pages = PageRange.Parse(options.PageRange, doc.PageCount);
-        if (pages.Count == 0) throw new InvalidOperationException("No pages to print.");
+        if (pages.Count == 0) throw new InvalidOperationException("No pages to print.").WithMessageKey("Viewer.Error.NoPagesToPrint");
         var sheets = PrintLayout.Sheets(pages, options.PagesPerSheet);
         var collator = ticket is null ? writer.CreateVisualsCollator() : writer.CreateVisualsCollator(ticket, ticket);
         collator.BeginBatchWrite();

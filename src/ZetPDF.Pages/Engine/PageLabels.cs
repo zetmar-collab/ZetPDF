@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text;
 using PdfSharp.Pdf;
 using ZetPDF.Core.Contracts;
+using ZetPDF.Core.Localization;
 
 namespace ZetPDF.Pages.Engine;
 
@@ -19,7 +20,7 @@ internal static class PageLabels
         }
         var sorted = ranges.Where(r => r.StartPageIndex >= 0 && r.StartPageIndex < doc.PageCount)
             .GroupBy(r => r.StartPageIndex).Select(g => g.Last()).OrderBy(r => r.StartPageIndex).ToList();
-        if (sorted.Count == 0) throw new ArgumentException("No valid page label ranges.", nameof(ranges));
+        if (sorted.Count == 0) throw new ArgumentException("No valid page label ranges.", nameof(ranges)).WithMessageKey("Pages.Error.NoLabelRanges");
         if (sorted[0].StartPageIndex != 0) sorted.Insert(0, new PageLabelRange(0, PageLabelStyle.Decimal));
         var nums = new PdfArray(doc);
         foreach (var r in sorted)

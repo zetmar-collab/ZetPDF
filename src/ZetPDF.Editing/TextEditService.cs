@@ -7,6 +7,7 @@ using ZetPDF.Core.Documents;
 using ZetPDF.Editing.Content;
 using ZetPDF.Editing.Text;
 using ZetPDF.Ocr.Pdf;
+using ZetPDF.Core.Localization;
 
 namespace ZetPDF.Editing;
 
@@ -53,7 +54,7 @@ public sealed class TextEditService : ITextEditService
         return Task.Run(() =>
         {
             var line = Lines(pdf, pageIndex).FirstOrDefault(l => BlockId(l) == blockId)
-                ?? throw new InvalidOperationException("Text block not found: " + blockId);
+                ?? throw new InvalidOperationException("Text block not found: " + blockId).WithMessageKey("Edit.Error.TextBlockNotFound");
             return PdfSharpEdit.Modify(pdf, doc =>
             {
                 var page = doc.Pages[pageIndex];
@@ -75,7 +76,7 @@ public sealed class TextEditService : ITextEditService
 
     public Task<FindReplaceResult> FindReplaceAsync(byte[] pdf, string find, string replace, TextSearchOptions options, IProgress<OperationProgress>? progress = null, CancellationToken ct = default)
     {
-        if (string.IsNullOrEmpty(find)) throw new ArgumentException("Empty search text.", nameof(find));
+        if (string.IsNullOrEmpty(find)) throw new ArgumentException("Empty search text.", nameof(find)).WithMessageKey("Edit.Error.EmptySearch");
         replace ??= string.Empty;
         return Task.Run(() =>
         {

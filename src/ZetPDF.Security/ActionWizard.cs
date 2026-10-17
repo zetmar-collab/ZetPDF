@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using ZetPDF.Core.Contracts;
 using ZetPDF.Core.Documents;
 using ZetPDF.Security.Actions;
+using ZetPDF.Core.Localization;
 
 namespace ZetPDF.Security;
 
@@ -196,7 +197,7 @@ public sealed class ActionWizard : IActionWizard
             }
             catch (Exception ex)
             {
-                results.Add(new ActionFileResult(input, null, false, ex.Message));
+                results.Add(new ActionFileResult(input, null, false, _services.GetService<ILocalizationService>() is { } loc ? loc.Describe(ex, name) : ex.Message));
             }
         }
         progress?.Report(new OperationProgress(1, null, inputFiles.Count, inputFiles.Count));
@@ -304,5 +305,5 @@ public sealed class ActionWizard : IActionWizard
 /// <summary>Błąd kroku działania (komunikat już przetłumaczony).</summary>
 public sealed class ActionStepException : Exception
 {
-    public ActionStepException(string message) : base(message) { }
+    public ActionStepException(string message) : base(message) => this.MarkLocalized();
 }

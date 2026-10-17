@@ -333,4 +333,12 @@
   <data name="Security.Param.Keywords" xml:space="preserve"><value>Keywords</value></data>
   <data name="Security.Param.Creator" xml:space="preserve"><value>Creator application</value></data>
   <data name="Security.Param.OnlyIfEmpty" xml:space="preserve"><value>Fill in empty fields only</value></data>
+  <data name="Security.Error.PasswordRequired" xml:space="preserve"><value>Enter an open password or a permissions password.</value></data>
+  <data name="Security.Error.Handler" xml:space="preserve"><value>This file uses an unsupported protection method (“{0}”, e.g. certificate security).</value></data>
+  <data name="Security.Error.TsaScheme" xml:space="preserve"><value>The time stamp server address must start with http:// or https://.</value></data>
+  <data name="Security.Error.FieldNotFound" xml:space="preserve"><value>Signature field “{0}” was not found.</value></data>
+  <data name="Security.Error.FieldSigned" xml:space="preserve"><value>Signature field “{0}” is already signed.</value></data>
+  <data name="Security.Error.FieldNoWidget" xml:space="preserve"><value>Signature field “{0}” has no visible area on any page.</value></data>
+  <data name="Security.Error.NoSigner" xml:space="preserve"><value>The signature contains no signer information.</value></data>
+  <data name="Security.Validate.Detail.Malformed" xml:space="preserve"><value>the signature structure is damaged or not supported</value></data>
 </root>

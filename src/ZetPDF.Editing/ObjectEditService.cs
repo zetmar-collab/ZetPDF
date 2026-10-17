@@ -9,6 +9,7 @@ using ZetPDF.Editing.Content;
 using ZetPDF.Editing.Imaging;
 using ZetPDF.Editing.Pdf;
 using ZetPDF.Ocr.Pdf;
+using ZetPDF.Core.Localization;
 
 namespace ZetPDF.Editing;
 
@@ -34,7 +35,7 @@ public sealed class ObjectEditService : IObjectEditService
     private static (ContentWalker Walker, ContentObject Obj) Find(PdfPage page, string id)
     {
         var walker = new ContentWalker(page);
-        var obj = walker.Objects.FirstOrDefault(o => Id(o) == id) ?? throw new InvalidOperationException("Object not found: " + id);
+        var obj = walker.Objects.FirstOrDefault(o => Id(o) == id) ?? throw new InvalidOperationException("Object not found: " + id).WithMessageKey("Edit.Error.ObjectNotFound");
         return (walker, obj);
     }
 
@@ -62,7 +63,7 @@ public sealed class ObjectEditService : IObjectEditService
         {
             var page = Page(doc, pageIndex);
             var (walker, obj) = Find(page, objectId);
-            if (obj.Kind != PageObjectKind.Image) throw new InvalidOperationException("Not an image object.");
+            if (obj.Kind != PageObjectKind.Image) throw new InvalidOperationException("Not an image object.").WithMessageKey("Edit.Error.NotImage");
             var (name, w, h) = AddImageResource(doc, page, imageData);
             // Dopasowanie z zachowaniem proporcji wewnątrz dotychczasowego prostokąta obrazu (kwadrat jednostkowy).
             var c = obj.Matrix;
@@ -77,7 +78,7 @@ public sealed class ObjectEditService : IObjectEditService
     public Task<byte[]> AddImageAsync(byte[] pdf, int pageIndex, byte[] imageData, PdfRect rect, CancellationToken ct = default) =>
         PdfSharpEdit.ModifyAsync(pdf, doc =>
         {
-            if (rect.IsEmpty) throw new ArgumentException("Empty rectangle.", nameof(rect));
+            if (rect.IsEmpty) throw new ArgumentException("Empty rectangle.", nameof(rect)).WithMessageKey("Edit.Error.EmptyArea");
             var page = Page(doc, pageIndex);
             var (name, _, _) = AddImageResource(doc, page, imageData);
             PageContent.Append(page, Encoding.ASCII.GetBytes($"q {PageContent.Matrix(rect.Width, 0, 0, rect.Height, rect.Left, rect.Bottom)} cm {name} Do Q\n"));
@@ -138,7 +139,7 @@ public sealed class ObjectEditService : IObjectEditService
     internal static PdfMatrix Invert(PdfMatrix m)
     {
         double det = m.A * m.D - m.B * m.C;
-        if (Math.Abs(det) < 1e-12) throw new InvalidOperationException("Singular matrix.");
+        if (Math.Abs(det) < 1e-12) throw new InvalidOperationException("Singular matrix.").WithMessageKey("Edit.Error.Transform");
         double a = m.D / det, b = -m.B / det, c = -m.C / det, d = m.A / det;
         return new PdfMatrix(a, b, c, d, -(m.E * a + m.F * c), -(m.E * b + m.F * d));
     }

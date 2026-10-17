@@ -184,4 +184,13 @@
   <data name="Edit.Undo.RemoveLinks" xml:space="preserve"><value>Usuń wszystkie łącza</value></data>
   <data name="Edit.Undo.ReplaceImage" xml:space="preserve"><value>Zamień obraz</value></data>
   <data name="Edit.Undo.TransformObject" xml:space="preserve"><value>Przesuń/przekształć obiekt</value></data>
+  <data name="Edit.Error.NoImages" xml:space="preserve"><value>Nie udało się odczytać żadnego z wybranych obrazów.</value></data>
+  <data name="Edit.Error.NoPages" xml:space="preserve"><value>Wynik nie ma żadnej strony (żadnego z plików nie udało się przekształcić).</value></data>
+  <data name="Edit.Error.EmptyArea" xml:space="preserve"><value>Zaznaczony obszar jest pusty.</value></data>
+  <data name="Edit.Error.LinkTarget" xml:space="preserve"><value>Łącze musi mieć adres internetowy albo stronę docelową.</value></data>
+  <data name="Edit.Error.ObjectNotFound" xml:space="preserve"><value>Obiekt nie istnieje już na stronie (dokument się zmienił). Zaznacz go ponownie.</value></data>
+  <data name="Edit.Error.NotImage" xml:space="preserve"><value>Wybrany obiekt nie jest obrazem.</value></data>
+  <data name="Edit.Error.Transform" xml:space="preserve"><value>Nie można zastosować tego przekształcenia (zerowy rozmiar).</value></data>
+  <data name="Edit.Error.TextBlockNotFound" xml:space="preserve"><value>Blok tekstu nie istnieje już na stronie (dokument się zmienił).</value></data>
+  <data name="Edit.Error.EmptySearch" xml:space="preserve"><value>Wpisz szukany tekst.</value></data>
 </root>

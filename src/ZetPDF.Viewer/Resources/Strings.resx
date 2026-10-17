@@ -89,4 +89,5 @@ Open it?</value></data>
   <data name="Viewer.ZoomTo.Invalid" xml:space="preserve"><value>Enter a percentage from 5 to 6400.</value></data>
   <data name="Viewer.ZoomTo.Prompt" xml:space="preserve"><value>Zoom level (%):</value></data>
   <data name="Viewer.ZoomTo.Title" xml:space="preserve"><value>Zoom To</value></data>
+  <data name="Viewer.Error.NoPagesToPrint" xml:space="preserve"><value>The range contains no pages to print.</value></data>
 </root>

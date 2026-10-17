@@ -14,6 +14,7 @@ using ContextMenu = System.Windows.Controls.ContextMenu;
 using ToggleButton = System.Windows.Controls.Primitives.ToggleButton;
 using Separator = System.Windows.Controls.Separator;
 using ComboBox = System.Windows.Controls.ComboBox;
+using ZetPDF.Core.Localization;
 
 namespace ZetPDF.App.Shell;
 
@@ -397,7 +398,7 @@ public partial class MainWindow : RibbonWindow
             catch (Exception ex)
             {
                 _log.LogError(ex, "Panel factory failed: {Panel}", panelId);
-                var err = new TextBlock { Margin = new Thickness(16), TextWrapping = TextWrapping.Wrap, Text = _loc.Format("Core.Error.Generic", ex.Message) };
+                var err = new TextBlock { Margin = new Thickness(16), TextWrapping = TextWrapping.Wrap, Text = _loc.Format("Core.Error.Generic", _loc.Describe(ex)) };
                 err.SetResourceReference(TextBlock.ForegroundProperty, ThemeKeys.StatusError);
                 entry.Content = err;
             }

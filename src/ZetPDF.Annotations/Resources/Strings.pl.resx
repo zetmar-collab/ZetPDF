@@ -176,4 +176,17 @@
   <data name="Annot.Undo.Reply" xml:space="preserve"><value>Odpowiedź</value></data>
   <data name="Annot.Undo.State" xml:space="preserve"><value>Ustaw stan</value></data>
   <data name="Annot.Undo.TabOrder" xml:space="preserve"><value>Kolejność tabulacji</value></data>
+  <data name="Annot.Error.AnnotationNotFound" xml:space="preserve"><value>Komentarz nie istnieje już w dokumencie ({0}).</value></data>
+  <data name="Annot.Error.ReplyParent" xml:space="preserve"><value>Nie można dodać odpowiedzi do tego komentarza (nietypowa struktura pliku).</value></data>
+  <data name="Annot.Error.AttachmentNotFound" xml:space="preserve"><value>Załącznik „{0}” nie istnieje w dokumencie.</value></data>
+  <data name="Annot.Error.AttachmentFileNotFound" xml:space="preserve"><value>Nie znaleziono pliku „{0}”.</value></data>
+  <data name="Annot.Error.AttachmentNoData" xml:space="preserve"><value>Załącznik nie zawiera danych pliku.</value></data>
+  <data name="Annot.Error.NotFdf" xml:space="preserve"><value>Plik nie jest prawidłowym plikiem FDF.</value></data>
+  <data name="Annot.Error.EmptyXfdf" xml:space="preserve"><value>Plik XFDF jest pusty albo nie jest prawidłowym plikiem XFDF.</value></data>
+  <data name="Annot.Error.FieldNameRequired" xml:space="preserve"><value>Podaj nazwę pola.</value></data>
+  <data name="Annot.Error.FieldNameUsed" xml:space="preserve"><value>Nazwa pola „{0}” jest już używana w formularzu.</value></data>
+  <data name="Annot.Error.RadioStructure" xml:space="preserve"><value>Nieobsługiwana struktura grupy przycisków opcji.</value></data>
+  <data name="Annot.Error.FieldNotFound" xml:space="preserve"><value>Pole „{0}” nie istnieje w formularzu.</value></data>
+  <data name="Annot.Error.Geometry" xml:space="preserve"><value>Za mało punktów albo pusty obszar, aby utworzyć komentarz.</value></data>
+  <data name="Annot.Error.KindNotSupported" xml:space="preserve"><value>Ten rodzaj komentarza nie jest obsługiwany ({0}).</value></data>
 </root>

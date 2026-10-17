@@ -2,6 +2,7 @@ using System.Runtime.CompilerServices;
 using ZetPDF.Core.Contracts;
 using ZetPDF.Core.Documents;
 using ZetPDF.Security.Pdf;
+using ZetPDF.Core.Localization;
 
 namespace ZetPDF.Security;
 
@@ -62,7 +63,7 @@ public sealed class SecurityService : ISecurityService
     internal static byte[] Encrypt(byte[] plain, PdfEncryptionSettings settings)
     {
         if (string.IsNullOrEmpty(settings.OwnerPassword) && string.IsNullOrEmpty(settings.UserPassword))
-            throw new ArgumentException("An owner or user password is required.", nameof(settings));
+            throw new ArgumentException("An owner or user password is required.", nameof(settings)).WithMessageKey("Security.Error.PasswordRequired");
         return PdfSharpEdit.Modify(plain, doc =>
         {
             var h = doc.SecurityHandler;
@@ -72,7 +73,7 @@ public sealed class SecurityService : ISecurityService
                 case PdfEncryptionMethod.Aes128: h.SetEncryptionToV4UsingAES(); break;
                 case PdfEncryptionMethod.Rc4_128: h.SetEncryptionToV2With128Bits(); break;
                 case PdfEncryptionMethod.Rc4_40: h.SetEncryptionToV1(); break;
-                default: throw new NotSupportedException($"Encryption method {settings.Method} is not supported.");
+                default: throw new NotSupportedException($"Encryption method {settings.Method} is not supported.").WithMessageKey("Core.Error.EncryptionMethod", settings.Method);
             }
             var s = doc.SecuritySettings;
             s.UserPassword = settings.UserPassword ?? string.Empty;

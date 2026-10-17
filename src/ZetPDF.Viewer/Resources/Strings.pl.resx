@@ -89,4 +89,5 @@ Czy otworzyć?</value></data>
   <data name="Viewer.ZoomTo.Invalid" xml:space="preserve"><value>Wpisz wartość procentową od 5 do 6400.</value></data>
   <data name="Viewer.ZoomTo.Prompt" xml:space="preserve"><value>Powiększenie (%):</value></data>
   <data name="Viewer.ZoomTo.Title" xml:space="preserve"><value>Powiększ do</value></data>
+  <data name="Viewer.Error.NoPagesToPrint" xml:space="preserve"><value>Zakres nie zawiera żadnej strony do wydrukowania.</value></data>
 </root>

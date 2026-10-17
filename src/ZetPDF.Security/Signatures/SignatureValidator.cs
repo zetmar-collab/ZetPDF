@@ -4,6 +4,7 @@ using System.Security.Cryptography.Pkcs;
 using System.Security.Cryptography.X509Certificates;
 using ZetPDF.Core.Contracts;
 using ZetPDF.Security.Pdf;
+using ZetPDF.Core.Localization;
 
 namespace ZetPDF.Security.Signatures;
 
@@ -37,7 +38,7 @@ internal static class SignatureValidator
                 {
                     FieldName = field.FullName,
                     Status = SignatureStatus.Error,
-                    Details = Text(culture, "Security.Validate.Detail.Error", ex.Message),
+                    Details = Text(culture, "Security.Validate.Detail.Error", ErrorText(culture, ex)),
                 };
             }
             results.Add(result with { PageIndex = page, Rect = rect });
@@ -50,17 +51,17 @@ internal static class SignatureValidator
         var details = new List<string>();
         var br = (doc.Resolve(sig["ByteRange"]) as CosArray)?.Items.Select(i => (doc.Resolve(i) as CosNumber)?.AsLong ?? -1).ToArray();
         if (br is null || br.Length != 4 || br.Any(v => v < 0) || br[0] != 0 || br[0] + br[1] > br[2] || br[2] + br[3] > pdf.LongLength)
-            throw new FormatException(Text(culture, "Security.Validate.Detail.BadByteRange"));
+            throw new FormatException(Text(culture, "Security.Validate.Detail.BadByteRange")).MarkLocalized();
 
         // /Contents z luki w ByteRange (czytamy surowe bajty pliku – działa też w plikach zaszyfrowanych)
         int gapStart = (int)(br[0] + br[1]), gapEnd = (int)br[2];
         while (gapStart < gapEnd && CosParser.IsWhitespace(pdf[gapStart])) gapStart++;
         while (gapEnd > gapStart && CosParser.IsWhitespace(pdf[gapEnd - 1])) gapEnd--;
         if (gapEnd - gapStart < 2 || pdf[gapStart] != '<' || pdf[gapEnd - 1] != '>')
-            throw new FormatException(Text(culture, "Security.Validate.Detail.BadByteRange"));
+            throw new FormatException(Text(culture, "Security.Validate.Detail.BadByteRange")).MarkLocalized();
         var contents = HexToBytes(pdf, gapStart + 1, gapEnd - 1);
         if (sig["Contents"] is CosString cs && !TrimDer(cs.Bytes).AsSpan().SequenceEqual(TrimDer(contents)))
-            throw new FormatException(Text(culture, "Security.Validate.Detail.ContentsMismatch"));
+            throw new FormatException(Text(culture, "Security.Validate.Detail.ContentsMismatch")).MarkLocalized();
         var der = TrimDer(contents);
 
         var signed = new byte[br[1] + br[3]];
@@ -82,7 +83,7 @@ internal static class SignatureValidator
         if (subFilter == "ETSI.RFC3161" || sig.GetName("Type") == "DocTimeStamp")
         {
             if (!Rfc3161TimestampToken.TryDecode(der, out var token, out _) || token is null)
-                throw new CryptographicException(Text(culture, "Security.Validate.Detail.BadToken"));
+                throw new CryptographicException(Text(culture, "Security.Validate.Detail.BadToken")).MarkLocalized();
             integrity = token.VerifySignatureForData(signed, out cert, null);
             hasTs = true;
             tsTime = token.TokenInfo.Timestamp;
@@ -106,7 +107,7 @@ internal static class SignatureValidator
                 integrity = true;
             }
             extra.AddRange(cms.Certificates);
-            var si = cms.SignerInfos.Count > 0 ? cms.SignerInfos[0] : throw new CryptographicException("No signer.");
+            var si = cms.SignerInfos.Count > 0 ? cms.SignerInfos[0] : throw new CryptographicException("No signer.").WithMessageKey("Security.Error.NoSigner");
             cert = si.Certificate;
             try { si.CheckSignature(verifySignatureOnly: true); }
             catch (CryptographicException) { integrity = false; }
@@ -131,7 +132,7 @@ internal static class SignatureValidator
         }
         else
         {
-            throw new NotSupportedException(Text(culture, "Security.Validate.Detail.UnsupportedSubFilter", subFilter));
+            throw new NotSupportedException(Text(culture, "Security.Validate.Detail.UnsupportedSubFilter", subFilter)).MarkLocalized();
         }
 
         var checkTime = tsTime ?? signingTime ?? DateTimeOffset.Now;
@@ -219,6 +220,12 @@ internal static class SignatureValidator
         long total = header + len;
         return total <= der.Length ? der.AsSpan(0, (int)total).ToArray() : der;
     }
+
+    /// <summary>Opis błędu w języku raportu (O-3): klucz z wyjątku, tekst już przetłumaczony albo ogólny opis.</summary>
+    private static string ErrorText(CultureInfo culture, Exception ex) =>
+        LocalizedError.TryGetMessageKey(ex, out var key, out var args) ? Text(culture, key, args)
+        : LocalizedError.IsLocalized(ex) ? ex.Message
+        : Text(culture, "Security.Validate.Detail.Malformed");
 
     private static string Text(CultureInfo culture, string key, params object?[] args)
     {

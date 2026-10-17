@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Security.Cryptography.Pkcs;
 using System.Security.Cryptography.X509Certificates;
+using ZetPDF.Core.Localization;
 
 namespace ZetPDF.Security.Signatures;
 
@@ -24,7 +25,7 @@ public sealed class HttpTimestampClient : ITimestampClient
     public async Task<byte[]> RequestAsync(Uri tsaUrl, byte[] request, CancellationToken ct)
     {
         if (tsaUrl.Scheme != Uri.UriSchemeHttp && tsaUrl.Scheme != Uri.UriSchemeHttps)
-            throw new ArgumentException("TSA address must use http or https.", nameof(tsaUrl));
+            throw new ArgumentException("TSA address must use http or https.", nameof(tsaUrl)).WithMessageKey("Security.Error.TsaScheme");
         using var content = new ByteArrayContent(request);
         content.Headers.ContentType = new MediaTypeHeaderValue("application/timestamp-query");
         using var msg = new HttpRequestMessage(HttpMethod.Post, tsaUrl) { Content = content };
@@ -44,7 +45,7 @@ internal static class CmsSignatureBuilder
     public static async Task<byte[]> SignAsync(byte[] data, X509Certificate2 certificate, DateTimeOffset signingTime,
         ITimestampClient? tsaClient, Uri? tsaUrl, bool silent, CancellationToken ct)
     {
-        if (!certificate.HasPrivateKey) throw new CryptographicException("The certificate has no private key.");
+        if (!certificate.HasPrivateKey) throw new CryptographicException("The certificate has no private key.").WithMessageKey("Security.Sign.Error.NoPrivateKey");
         var cms = new SignedCms(new ContentInfo(data), detached: true);
         var signer = new CmsSigner(SubjectIdentifierType.IssuerAndSerialNumber, certificate)
         {

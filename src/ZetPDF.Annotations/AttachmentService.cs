@@ -3,6 +3,7 @@ using ZetPDF.Annotations.Pdf;
 using ZetPDF.Core.Contracts;
 using ZetPDF.Core.Documents;
 using static ZetPDF.Annotations.Pdf.PdfLow;
+using ZetPDF.Core.Localization;
 
 namespace ZetPDF.Annotations;
 
@@ -37,7 +38,7 @@ public sealed class AttachmentService : IAttachmentService
             if (e is not null) return EmbeddedFiles.Data(e.FileSpec);
             var a = AnnotationFiles(doc).FirstOrDefault(x => EmbeddedFiles.FileName(x.Spec) == name);
             if (a.Spec is not null) return EmbeddedFiles.Data(a.Spec);
-            throw new FileNotFoundException("Attachment not found.", name);
+            throw new FileNotFoundException("Attachment not found.", name).WithMessageKey("Annot.Error.AttachmentNotFound", name);
         }), ct);
 
     public Task<byte[]> AddAsync(byte[] pdf, string filePath, string description, CancellationToken ct = default) =>
@@ -60,7 +61,7 @@ public sealed class AttachmentService : IAttachmentService
                 return;
             }
             var targets = AnnotationFiles(doc).Where(x => EmbeddedFiles.FileName(x.Spec) == name).Select(x => x.Annot).ToList();
-            if (targets.Count == 0) throw new FileNotFoundException("Attachment not found.", name);
+            if (targets.Count == 0) throw new FileNotFoundException("Attachment not found.", name).WithMessageKey("Annot.Error.AttachmentNotFound", name);
             AnnotationStore.Remove(doc, targets);
         }, ct);
 }

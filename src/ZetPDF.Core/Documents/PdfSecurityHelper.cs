@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
 using ZetPDF.Core.Contracts;
+using ZetPDF.Core.Localization;
 
 namespace ZetPDF.Core.Documents;
 
@@ -104,7 +105,7 @@ public static class PdfSecurityHelper
                 case PdfEncryptionMethod.Aes128: h.SetEncryptionToV4UsingAES(); break;
                 case PdfEncryptionMethod.Rc4_128: h.SetEncryptionToV2With128Bits(); break;
                 case PdfEncryptionMethod.Rc4_40: h.SetEncryptionToV1(); break;
-                default: throw new NotSupportedException($"Encryption method {settings.Method} is not supported.");
+                default: throw new NotSupportedException($"Encryption method {settings.Method} is not supported.").WithMessageKey("Core.Error.EncryptionMethod", settings.Method);
             }
             var s = doc.SecuritySettings;
             s.UserPassword = settings.UserPassword ?? string.Empty;

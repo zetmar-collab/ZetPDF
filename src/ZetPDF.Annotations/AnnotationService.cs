@@ -3,6 +3,7 @@ using ZetPDF.Annotations.Pdf;
 using ZetPDF.Core.Contracts;
 using ZetPDF.Core.Documents;
 using static ZetPDF.Annotations.Pdf.PdfLow;
+using ZetPDF.Core.Localization;
 
 namespace ZetPDF.Annotations;
 
@@ -55,7 +56,7 @@ public sealed class AnnotationService : IAnnotationService
 
     private void Update(PdfDocument doc, AnnotationId id, AnnotationUpdate u)
     {
-        var found = AnnotationStore.Find(doc, id) ?? throw new KeyNotFoundException("Annotation not found: " + id.Name);
+        var found = AnnotationStore.Find(doc, id) ?? throw new KeyNotFoundException("Annotation not found: " + id.Name).WithMessageKey("Annot.Error.AnnotationNotFound", id.Name);
         var d = found.Dict;
         var now = Clock();
         bool geometry = false, style = false;
@@ -143,7 +144,7 @@ public sealed class AnnotationService : IAnnotationService
         {
             existing = AnnotationStore.NewAnnot(doc, page, "/Text", NewName(), author, now,
                 AnnotationStore.FlagHidden | AnnotationStore.FlagPrint | AnnotationStore.FlagNoZoom | AnnotationStore.FlagNoRotate);
-            existing.Elements["/IRT"] = parent.Dict.Reference is { } pr ? pr : throw new InvalidOperationException("Parent annotation must be indirect.");
+            existing.Elements["/IRT"] = parent.Dict.Reference is { } pr ? pr : throw new InvalidOperationException("Parent annotation must be indirect.").WithMessageKey("Annot.Error.ReplyParent");
             existing.Elements["/Rect"] = RectArray(doc, PdfLow.Rect(parent.Dict) ?? new PdfRect(0, 0, 1, 1));
             existing.Elements["/StateModel"] = Str("Review");
             AnnotationStore.SetEmptyAppearance(doc, existing);
@@ -176,7 +177,7 @@ public sealed class AnnotationService : IAnnotationService
             AnnotationId id = default;
             var result = PdfSharpEdit.Modify(pdf, doc =>
             {
-                var p = AnnotationStore.Find(doc, parent) ?? throw new KeyNotFoundException("Annotation not found: " + parent.Name);
+                var p = AnnotationStore.Find(doc, parent) ?? throw new KeyNotFoundException("Annotation not found: " + parent.Name).WithMessageKey("Annot.Error.AnnotationNotFound", parent.Name);
                 var page = doc.Pages[p.PageIndex];
                 if (p.Dict.Reference is null) doc.Internals.AddObject(p.Dict);
                 var d = AnnotationStore.NewAnnot(doc, page, "/Text", NewName(), string.IsNullOrWhiteSpace(author) ? _texts.DefaultAuthor : author, Clock(),

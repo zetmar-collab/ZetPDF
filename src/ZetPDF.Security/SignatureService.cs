@@ -4,6 +4,7 @@ using System.Security.Cryptography.X509Certificates;
 using ZetPDF.Core.Contracts;
 using ZetPDF.Security.Pdf;
 using ZetPDF.Security.Signatures;
+using ZetPDF.Core.Localization;
 
 namespace ZetPDF.Security;
 
@@ -36,7 +37,7 @@ public sealed class SignatureService : ISignatureService
         ArgumentNullException.ThrowIfNull(finalPdf);
         ArgumentNullException.ThrowIfNull(request);
         var cert = request.Certificate.Certificate;
-        if (!cert.HasPrivateKey) throw new CryptographicException(T("Security.Sign.Error.NoPrivateKey"));
+        if (!cert.HasPrivateKey) throw new CryptographicException(T("Security.Sign.Error.NoPrivateKey")).WithMessageKey("Security.Sign.Error.NoPrivateKey");
         var time = DateTimeOffset.Now;
         Uri? tsaUrl = string.IsNullOrWhiteSpace(request.TsaUrl) ? null : new Uri(request.TsaUrl.Trim(), UriKind.Absolute);
         string signerName = cert.GetNameInfo(X509NameType.SimpleName, false);
@@ -97,7 +98,7 @@ public sealed class SignatureService : ISignatureService
     public async Task<byte[]> TimestampDocumentAsync(byte[] finalPdf, string tsaUrl, string? password, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(finalPdf);
-        if (string.IsNullOrWhiteSpace(tsaUrl)) throw new ArgumentException(T("Security.Timestamp.Error.NoTsa"), nameof(tsaUrl));
+        if (string.IsNullOrWhiteSpace(tsaUrl)) throw new ArgumentException(T("Security.Timestamp.Error.NoTsa"), nameof(tsaUrl)).WithMessageKey("Security.Timestamp.Error.NoTsa");
         var url = new Uri(tsaUrl.Trim(), UriKind.Absolute);
         var sig = new CosDictionary
         {
@@ -171,8 +172,8 @@ public sealed class SignatureService : ISignatureService
     public Task<string> CreateSelfSignedIdAsync(DigitalIdRequest request, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(request);
-        if (string.IsNullOrWhiteSpace(request.Name)) throw new ArgumentException(T("Security.DigitalId.Error.NameRequired"), nameof(request));
-        if (string.IsNullOrEmpty(request.Password)) throw new ArgumentException(T("Security.DigitalId.Error.PasswordRequired"), nameof(request));
+        if (string.IsNullOrWhiteSpace(request.Name)) throw new ArgumentException(T("Security.DigitalId.Error.NameRequired"), nameof(request)).WithMessageKey("Security.DigitalId.Error.NameRequired");
+        if (string.IsNullOrEmpty(request.Password)) throw new ArgumentException(T("Security.DigitalId.Error.PasswordRequired"), nameof(request)).WithMessageKey("Security.DigitalId.Error.PasswordRequired");
         return Task.Run(() =>
         {
             var pfx = CreateSelfSignedPfx(request);

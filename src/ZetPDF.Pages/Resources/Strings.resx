@@ -298,4 +298,10 @@ external links: {5}</value></data>
   <data name="Pages.Watermark.Text" xml:space="preserve"><value>Text</value></data>
   <data name="Pages.Watermark.Title" xml:space="preserve"><value>Add Watermark</value></data>
   <data name="Pages.Watermark.UpdateTitle" xml:space="preserve"><value>Update Watermark</value></data>
+  <data name="Pages.Error.NoLabelRanges" xml:space="preserve"><value>No valid page label range was given.</value></data>
+  <data name="Pages.Error.NoPagesToExtract" xml:space="preserve"><value>No pages were selected for extraction.</value></data>
+  <data name="Pages.Error.DuplicateTargets" xml:space="preserve"><value>Target pages are repeated.</value></data>
+  <data name="Pages.Error.Rotation90" xml:space="preserve"><value>The rotation must be a multiple of 90°.</value></data>
+  <data name="Pages.Error.InvalidOrder" xml:space="preserve"><value>Invalid page order.</value></data>
+  <data name="Pages.Error.NoSources" xml:space="preserve"><value>No files were selected for merging.</value></data>
 </root>

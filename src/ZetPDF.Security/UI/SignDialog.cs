@@ -3,6 +3,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Windows;
 using System.Windows.Controls;
 using ZetPDF.Core.Contracts;
+using ZetPDF.Core.Localization;
 
 namespace ZetPDF.Security.UI;
 
@@ -173,7 +174,7 @@ internal sealed class SignDialog : SecurityDialog
         {
             try { cert = SignatureService.LoadPfx(pfx, _pfxPassword.Password); }
             catch (CryptographicException) { ShowError(Loc["Security.Sign.Error.PfxPassword"]); return false; }
-            catch (IOException ex) { ShowError(ex.Message); return false; }
+            catch (IOException ex) { ShowError(Loc.Describe(ex, pfx)); return false; }
             Source = CertificateSource.PfxFile;
             PfxPath = pfx;
         }
@@ -188,7 +189,7 @@ internal sealed class SignDialog : SecurityDialog
         if (_image.Text.Length > 0)
         {
             try { image = File.ReadAllBytes(_image.Text); }
-            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { ShowError(ex.Message); return false; }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { ShowError(Loc.Describe(ex, _image.Text)); return false; }
         }
         Certificate = cert;
         Appearance = new SignatureAppearance
@@ -258,7 +259,7 @@ internal sealed class CreateDigitalIdDialog : SecurityDialog
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or CryptographicException or ArgumentException)
         {
-            ShowError(ex.Message);
+            ShowError(Loc.Describe(ex));
         }
         finally
         {

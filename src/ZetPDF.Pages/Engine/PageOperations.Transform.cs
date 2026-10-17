@@ -4,6 +4,7 @@ using PdfSharp.Drawing;
 using PdfSharp.Pdf;
 using PdfSharp.Pdf.Advanced;
 using ZetPDF.Core.Contracts;
+using ZetPDF.Core.Localization;
 
 namespace ZetPDF.Pages.Engine;
 
@@ -16,7 +17,7 @@ public sealed partial class PageOperations
         Dictionary<int, PdfRect?>? content = null;
         if (options.RemoveWhiteMargins)
         {
-            if (_renderer is null) throw new InvalidOperationException(PagesModule.Text("Pages.Error.RendererUnavailable"));
+            if (_renderer is null) throw new InvalidOperationException(PagesModule.Text("Pages.Error.RendererUnavailable")).WithMessageKey("Pages.Error.RendererUnavailable");
             content = await WhiteMargins.DetectAsync(_renderer, pdf, pages, progress, ct).ConfigureAwait(false);
         }
         return await Task.Run(() =>
@@ -40,7 +41,7 @@ public sealed partial class PageOperations
                     display = new PdfRect(options.Left, options.Bottom, f.Width - options.Right, f.Height - options.Top);
                 }
                 if (display.Width < 3 || display.Height < 3)
-                    throw new ArgumentException(PagesModule.Text("Pages.Error.CropTooLarge"));
+                    throw new ArgumentException(PagesModule.Text("Pages.Error.CropTooLarge")).WithMessageKey("Pages.Error.CropTooLarge");
                 var user = f.DisplayToUser(display);
                 page.CropBox = PdfIo.ToPdfRectangle(user);
                 if (options.ApplyToMediaBox) page.MediaBox = PdfIo.ToPdfRectangle(user);

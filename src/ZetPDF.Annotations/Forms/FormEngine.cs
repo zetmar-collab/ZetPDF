@@ -2,6 +2,7 @@ using PdfSharp.Pdf;
 using ZetPDF.Annotations.Pdf;
 using ZetPDF.Core.Contracts;
 using static ZetPDF.Annotations.Pdf.PdfLow;
+using ZetPDF.Core.Localization;
 
 namespace ZetPDF.Annotations.Forms;
 
@@ -140,7 +141,7 @@ internal static class FormEngine
 
     public static void Create(PdfDocument doc, FormFieldSpec spec)
     {
-        if (string.IsNullOrWhiteSpace(spec.Name)) throw new ArgumentException("Field name is required.", nameof(spec));
+        if (string.IsNullOrWhiteSpace(spec.Name)) throw new ArgumentException("Field name is required.", nameof(spec)).WithMessageKey("Annot.Error.FieldNameRequired");
         if (spec.PageIndex < 0 || spec.PageIndex >= doc.PageCount) throw new ArgumentOutOfRangeException(nameof(spec));
         var acro = EnsureAcroForm(doc);
         var fields = ArrayOf(acro, "/Fields")!;
@@ -151,7 +152,7 @@ internal static class FormEngine
         if (spec.Kind == FormFieldKind.RadioButton)
         {
             var group = existing;
-            if (group is not null && group.Kind != FormFieldKind.RadioButton) throw new ArgumentException("Field name already used: " + spec.Name);
+            if (group is not null && group.Kind != FormFieldKind.RadioButton) throw new ArgumentException("Field name already used: " + spec.Name).WithMessageKey("Annot.Error.FieldNameUsed", spec.Name);
             PdfDictionary parent;
             if (group is null)
             {
@@ -170,7 +171,7 @@ internal static class FormEngine
             {
                 parent = group.Dict;
                 // pole scalone z jednym widżetem – rozdzielamy, żeby dodać kolejny
-                if (ArrayOf(parent, "/Kids") is null) throw new InvalidOperationException("Unsupported radio group structure.");
+                if (ArrayOf(parent, "/Kids") is null) throw new InvalidOperationException("Unsupported radio group structure.").WithMessageKey("Annot.Error.RadioStructure");
             }
             int n = (ArrayOf(parent, "/Kids")?.Elements.Count ?? 0) + 1;
             string export = SafeName(string.IsNullOrWhiteSpace(spec.ExportValue) ? "Choice" + n : spec.ExportValue!);
@@ -194,7 +195,7 @@ internal static class FormEngine
             return;
         }
 
-        if (existing is not null) throw new ArgumentException("Field name already used: " + spec.Name);
+        if (existing is not null) throw new ArgumentException("Field name already used: " + spec.Name).WithMessageKey("Annot.Error.FieldNameUsed", spec.Name);
         var f = NewWidget(doc, page, spec.Rect);
         f.Elements["/T"] = Str(spec.Name);
         if (spec.Tooltip.Length > 0) f.Elements["/TU"] = Str(spec.Tooltip);
@@ -319,7 +320,7 @@ internal static class FormEngine
 
     public static void Update(PdfDocument doc, string fullName, FormFieldSpec spec)
     {
-        var f = FieldTree.Find(doc, fullName) ?? throw new KeyNotFoundException("Field not found: " + fullName);
+        var f = FieldTree.Find(doc, fullName) ?? throw new KeyNotFoundException("Field not found: " + fullName).WithMessageKey("Annot.Error.FieldNotFound", fullName);
         var d = f.Dict;
         int ff = f.Flags & ~(FieldNode.FfReadOnly | FieldNode.FfRequired | FieldNode.FfMultiline);
         ff |= CommonFlags(spec);
@@ -332,7 +333,7 @@ internal static class FormEngine
         var newPartial = spec.Name.StartsWith(prefix, StringComparison.Ordinal) ? spec.Name[prefix.Length..] : spec.Name;
         if (newPartial.Length > 0 && newPartial != fullName[prefix.Length..])
         {
-            if (FieldTree.Find(doc, prefix + newPartial) is not null) throw new ArgumentException("Field name already used: " + spec.Name);
+            if (FieldTree.Find(doc, prefix + newPartial) is not null) throw new ArgumentException("Field name already used: " + spec.Name).WithMessageKey("Annot.Error.FieldNameUsed", spec.Name);
             d.Elements["/T"] = Str(newPartial);
         }
         var kind = f.Kind;
@@ -367,7 +368,7 @@ internal static class FormEngine
     /// <summary>Przesuwa/zmienia rozmiar jednego widżetu (bez zmiany innych właściwości pola).</summary>
     public static void MoveWidget(PdfDocument doc, string fullName, string? onState, PdfRect rect)
     {
-        var f = FieldTree.Find(doc, fullName) ?? throw new KeyNotFoundException("Field not found: " + fullName);
+        var f = FieldTree.Find(doc, fullName) ?? throw new KeyNotFoundException("Field not found: " + fullName).WithMessageKey("Annot.Error.FieldNotFound", fullName);
         var w = f.Widgets.Count == 1 ? f.Widgets[0] : f.Widgets.FirstOrDefault(x => FieldNode.OnState(x) == onState) ?? f.Widgets[0];
         w.Elements["/Rect"] = RectArray(doc, rect);
         if (f.Kind is FormFieldKind.CheckBox or FormFieldKind.RadioButton) FieldAppearance.BuildStates(doc, f, w, f.Kind == FormFieldKind.RadioButton);
@@ -377,7 +378,7 @@ internal static class FormEngine
     /// <summary>Pełna specyfikacja istniejącego pola (okno właściwości).</summary>
     public static FormFieldSpec Describe(PdfDocument doc, string fullName)
     {
-        var f = FieldTree.Find(doc, fullName) ?? throw new KeyNotFoundException("Field not found: " + fullName);
+        var f = FieldTree.Find(doc, fullName) ?? throw new KeyNotFoundException("Field not found: " + fullName).WithMessageKey("Annot.Error.FieldNotFound", fullName);
         var info = Read(doc).First(i => i.FullName == fullName);
         AnnotModel.ParseDa(f.DaText, out double size, out var color);
         var w = f.Widgets[0];

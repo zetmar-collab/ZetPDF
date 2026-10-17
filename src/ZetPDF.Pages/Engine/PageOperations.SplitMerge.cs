@@ -1,5 +1,6 @@
 using PdfSharp.Pdf;
 using ZetPDF.Core.Contracts;
+using ZetPDF.Core.Localization;
 
 namespace ZetPDF.Pages.Engine;
 
@@ -49,7 +50,7 @@ public sealed partial class PageOperations
             {
                 var starts = Outlines.Read(src).Where(o => o.PageIndex >= 0)
                     .GroupBy(o => o.PageIndex).Select(g => (Page: g.Key, Title: g.First().Title)).OrderBy(x => x.Page).ToList();
-                if (starts.Count == 0) throw new InvalidOperationException(PagesModule.Text("Pages.Error.NoBookmarks"));
+                if (starts.Count == 0) throw new InvalidOperationException(PagesModule.Text("Pages.Error.NoBookmarks")).WithMessageKey("Pages.Error.NoBookmarks");
                 if (starts[0].Page > 0) parts.Add((0, starts[0].Page - 1, string.Empty));
                 for (int i = 0; i < starts.Count; i++)
                 {
@@ -110,7 +111,7 @@ public sealed partial class PageOperations
 
     public async Task<byte[]> MergeAsync(IReadOnlyList<MergeSource> sources, MergeOptions options, IProgress<OperationProgress>? progress = null, CancellationToken ct = default)
     {
-        if (sources.Count == 0) throw new ArgumentException("No sources.", nameof(sources));
+        if (sources.Count == 0) throw new ArgumentException("No sources.", nameof(sources)).WithMessageKey("Pages.Error.NoSources");
         var loaded = new List<(MergeSource Source, byte[] Data)>();
         for (int i = 0; i < sources.Count; i++)
         {
@@ -155,7 +156,7 @@ public sealed partial class PageOperations
                 Outlines.Write(target, Outlines.Read(src), i => map.TryGetValue(i, out var pg) ? pg : null);
         }
         progress?.Report(OperationProgress.Of(sources.Count, sources.Count));
-        if (doc.PageCount == 0) throw new InvalidOperationException(PagesModule.Text("Pages.Error.NoPages"));
+        if (doc.PageCount == 0) throw new InvalidOperationException(PagesModule.Text("Pages.Error.NoPages")).WithMessageKey("Pages.Error.NoPages");
         return PdfIo.Save(doc);
     }
 }

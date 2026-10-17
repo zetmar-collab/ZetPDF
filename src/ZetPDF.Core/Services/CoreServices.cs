@@ -3,6 +3,7 @@ using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Logging;
 using ZetPDF.Core.Contracts;
+using ZetPDF.Core.Localization;
 
 namespace ZetPDF.Core.Services;
 
@@ -58,7 +59,7 @@ public sealed class FileService : IFileService
     public async Task WriteAllBytesSafeAsync(string path, byte[] data, bool keepBackup = false, CancellationToken ct = default)
     {
         var full = Path.GetFullPath(path);
-        var dir = Path.GetDirectoryName(full) ?? throw new ArgumentException("Invalid path.", nameof(path));
+        var dir = Path.GetDirectoryName(full) ?? throw new ArgumentException("Invalid path.", nameof(path)).WithMessageKey("Core.Error.InvalidPath", path);
         Directory.CreateDirectory(dir);
         var temp = Path.Combine(dir, $".{Path.GetFileName(full)}.{Guid.NewGuid():N}.tmp");
         try

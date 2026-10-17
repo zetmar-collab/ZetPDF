@@ -2,6 +2,7 @@ using System.IO.Compression;
 using PdfSharp.Pdf;
 using ZetPDF.Core.Contracts;
 using static ZetPDF.Annotations.Pdf.PdfLow;
+using ZetPDF.Core.Localization;
 
 namespace ZetPDF.Annotations.Pdf;
 
@@ -67,7 +68,7 @@ internal static class EmbeddedFiles
 
     public static byte[] Data(PdfDictionary spec)
     {
-        var s = EmbeddedStream(spec) ?? throw new InvalidDataException("File specification has no embedded data.");
+        var s = EmbeddedStream(spec) ?? throw new InvalidDataException("File specification has no embedded data.").WithMessageKey("Annot.Error.AttachmentNoData");
         return s.Stream?.UnfilteredValue ?? Array.Empty<byte>();
     }
 
