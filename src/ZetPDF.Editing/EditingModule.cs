@@ -2,11 +2,13 @@ using System.Resources;
 using Microsoft.Extensions.DependencyInjection;
 using ZetPDF.Core.Commands;
 using ZetPDF.Core.Contracts;
+using ZetPDF.Editing.Ui;
 
 namespace ZetPDF.Editing;
 
 /// <summary>
-/// Moduł ZetPDF.Editing (właściciel: edit-convert-ocr). Rejestracja w App jest stała (ModuleCatalog) – tu tylko wypełniamy usługi i polecenia.
+/// Moduł ZetPDF.Editing (właściciel: edit-convert-ocr): edycja tekstu i obiektów, łącza, zakładki z nagłówków,
+/// konwersje, redakcja oraz okna OCR (silnik OCR: ZetPDF.Ocr).
 /// </summary>
 public sealed class EditingModule : IFeatureModule
 {
@@ -20,16 +22,14 @@ public sealed class EditingModule : IFeatureModule
         services.AddSingleton<ITextEditService, TextEditService>();
         services.AddSingleton<IObjectEditService, ObjectEditService>();
         services.AddSingleton<ILinkService, LinkService>();
-        services.AddSingleton<IConversionService, ConversionService>();
-        services.AddSingleton<IRedactionService, RedactionService>();
+        services.AddSingleton<IConversionService>(sp => new ConversionService(sp.GetRequiredService<IPdfRenderer>(), sp.GetService<ILocalizationService>()));
+        services.AddSingleton<IRedactionService>(sp => new RedactionService(sp.GetRequiredService<IPdfRenderer>(), sp.GetService<ILocalizationService>()));
     }
 
     public void Initialize(IServiceProvider services)
     {
         services.GetRequiredService<ILocalizationService>().RegisterResources(Strings);
-        // edit-convert-ocr: tu podpinamy obsługę poleceń z katalogu, np.:
-        // var registry = services.GetRequiredService<ICommandRegistry>();
-        // registry.Register(CommandIds.Edit.EditText, new ActiveDocumentCommand(...));
-        // Polecenia bez obsługi są na wstążce wyszarzone.
+        var registry = services.GetService<ICommandRegistry>();
+        if (registry is not null) new EditingCommands(new EditingContext(services), registry).RegisterAll();
     }
 }
