@@ -17,9 +17,11 @@ public sealed class DocumentActions
     private readonly IRecentFilesService _recent;
     private readonly IShellService _shell;
     private readonly ILogger<DocumentActions> _log;
+    private readonly OwnerProtectionGuard _ownerGuard;
 
-    public DocumentActions(IDocumentManager documents, IDialogService dialogs, ILocalizationService loc, IRecentFilesService recent, IShellService shell, ILogger<DocumentActions> log)
+    public DocumentActions(IDocumentManager documents, IDialogService dialogs, ILocalizationService loc, IRecentFilesService recent, IShellService shell, ILogger<DocumentActions> log, OwnerProtectionGuard ownerGuard)
     {
+        _ownerGuard = ownerGuard;
         _documents = documents;
         _dialogs = (DialogService)dialogs;
         _loc = loc;
@@ -78,11 +80,12 @@ public sealed class DocumentActions
     public async Task<bool> SaveAsync(IPdfDocumentSession d)
     {
         if (d.FilePath is null) return await SaveAsAsync(d);
+        if (!await _ownerGuard.EnsureAsync(d)) return false;
         try
         {
             _shell.SetStatus(_loc.Format("Shell.Status.Saving", d.DisplayName));
             await _documents.SaveAsync(d);
-            _shell.SetStatus(_loc.Format("Shell.Status.Saved", d.DisplayName));
+            _shell.SetStatus(SavedStatus(d, d.DisplayName));
             return true;
         }
         catch (Exception ex)
@@ -99,11 +102,12 @@ public sealed class DocumentActions
         var dir = d.FilePath is null ? null : Path.GetDirectoryName(d.FilePath);
         var path = _dialogs.SaveFile(_loc["Cmd.File.SaveAs"], new[] { FileFilter.Pdf(_loc) }, name, dir);
         if (path is null) return false;
+        if (!await _ownerGuard.EnsureAsync(d)) return false;
         try
         {
             _shell.SetStatus(_loc.Format("Shell.Status.Saving", Path.GetFileName(path)));
             await _documents.SaveAsync(d, path);
-            _shell.SetStatus(_loc.Format("Shell.Status.Saved", Path.GetFileName(path)));
+            _shell.SetStatus(SavedStatus(d, Path.GetFileName(path)));
             return true;
         }
         catch (Exception ex)
@@ -112,6 +116,21 @@ public sealed class DocumentActions
             _dialogs.ShowError(ex, path);
             return false;
         }
+    }
+
+    /// <summary>
+    /// Tekst paska stanu po zapisie. DECYZJE D-22: plik RC4 (lub o nieznanej metodzie) zapisany z ochroną jest
+    /// szyfrowany ponownie AES-256 – użytkownik dostaje o tym informację.
+    /// </summary>
+    internal string SavedStatus(IPdfDocumentSession d, string name) => SavedStatus(_loc, _documents, d, name);
+
+    public static string SavedStatus(ILocalizationService loc, IDocumentManager documents, IPdfDocumentSession d, string name)
+    {
+        var effective = documents is Core.Documents.DocumentManager dm ? dm.GetEffectiveSaveEncryption(d) : d.Current.Encryption;
+        var source = d.SecurityInfo;
+        if (effective is not null && source.IsEncrypted && source.Method != effective.Method)
+            return loc.Format("Shell.Status.SavedReencrypted", name, loc["Shell.Encryption." + source.Method], loc["Shell.Encryption." + effective.Method]);
+        return loc.Format("Shell.Status.Saved", name);
     }
 
     /// <summary>Pyta o zapis (jeśli trzeba) i zamyka. Zwraca false, gdy użytkownik anulował.</summary>

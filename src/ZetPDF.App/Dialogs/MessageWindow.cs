@@ -87,10 +87,18 @@ public sealed class MessageWindow : Window
         }
         body.Children.Add(textStack);
 
-        var buttonPanel = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right };
+        // Więcej niż 3 przyciski (np. wybór ochrony przed zapisem) – pionowo, żeby długie polskie etykiety nie były ucinane
+        // przez MaxWidth okna.
+        bool vertical = buttons.Count > 3;
+        var buttonPanel = new StackPanel
+        {
+            Orientation = vertical ? Orientation.Vertical : Orientation.Horizontal,
+            HorizontalAlignment = vertical ? HorizontalAlignment.Stretch : HorizontalAlignment.Right,
+        };
         foreach (var spec in buttons)
         {
-            var b = new Button { Content = spec.Text, IsDefault = spec.IsDefault, IsCancel = spec.IsCancel, MinWidth = 88, Margin = new Thickness(8, 0, 0, 0) };
+            var b = new Button { Content = spec.Text, IsDefault = spec.IsDefault, IsCancel = spec.IsCancel, MinWidth = 88, Margin = vertical ? new Thickness(0, 4, 0, 0) : new Thickness(8, 0, 0, 0) };
+            if (vertical) b.HorizontalContentAlignment = HorizontalAlignment.Left;
             var result = spec.Result;
             b.Click += (_, _) =>
             {

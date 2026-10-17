@@ -48,6 +48,8 @@ public partial class App : Application
         services.AddSingleton<IDialogService>(sp => sp.GetRequiredService<DialogService>());
         services.AddSingleton<ShellService>();
         services.AddSingleton<IShellService>(sp => sp.GetRequiredService<ShellService>());
+        services.AddSingleton<IOwnerProtectionPrompts>(sp => sp.GetRequiredService<DialogService>());
+        services.AddSingleton<OwnerProtectionGuard>();
         services.AddSingleton<DocumentActions>();
         services.AddSingleton<MainWindow>();
         foreach (var m in modules) m.ConfigureServices(services);

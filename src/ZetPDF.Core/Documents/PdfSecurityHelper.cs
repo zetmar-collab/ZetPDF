@@ -148,7 +148,7 @@ public static class PdfSecurityHelper
         var method = info.Method is PdfEncryptionMethod.Aes128 or PdfEncryptionMethod.Aes256 ? info.Method : PdfEncryptionMethod.Aes256;
         if (info.OpenedWithOwnerPassword)
             return new PdfEncryptionSettings(userPasswordEmpty ? null : info.Password, info.Password ?? string.Empty, method, info.FilePermissions);
-        return new PdfEncryptionSettings(info.Password, GenerateRandomPassword(), method, info.FilePermissions);
+        return new PdfEncryptionSettings(info.Password, GenerateRandomPassword(), method, info.FilePermissions) { GeneratedOwnerPassword = true };
     }
 
     public static string GenerateRandomPassword() => Convert.ToBase64String(RandomNumberGenerator.GetBytes(24));

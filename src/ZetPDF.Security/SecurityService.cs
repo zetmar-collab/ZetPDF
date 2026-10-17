@@ -102,6 +102,6 @@ public sealed class SecurityService : ISecurityService
             if (string.IsNullOrEmpty(user)) user = null;
             return new PdfEncryptionSettings(user, info.Password ?? string.Empty, method, info.FilePermissions);
         }
-        return new PdfEncryptionSettings(info.Password, PdfSecurityHelper.GenerateRandomPassword(), method, info.FilePermissions);
+        return new PdfEncryptionSettings(info.Password, PdfSecurityHelper.GenerateRandomPassword(), method, info.FilePermissions) { GeneratedOwnerPassword = true };
     }
 }

@@ -109,9 +109,50 @@ public sealed class DocumentManager : IDocumentManager
         public void Dispose() => Interlocked.Exchange(ref _action, null)?.Invoke();
     }
 
+    // ------------------------------------------------------------------ D-23: plik z samym hasłem uprawnień
+
+    private sealed record EncryptionOverride(PdfEncryptionSettings Generated, PdfEncryptionSettings? Settings);
+
+    private readonly System.Runtime.CompilerServices.ConditionalWeakTable<IPdfDocumentSession, EncryptionOverride> _overrides = new();
+
+    /// <summary>
+    /// Czy przed zapisem trzeba zapytać użytkownika o ochronę (DECYZJE D-23): plik ma tylko hasło uprawnień
+    /// (puste hasło otwarcia), otwarto go bez hasła właściciela, więc ustawienia zapisu mają hasło właściciela
+    /// wygenerowane przez ZetPDF – a użytkownik jeszcze nie wybrał, co z tym zrobić.
+    /// </summary>
+    public bool RequiresOwnerPasswordDecision(IPdfDocumentSession session)
+    {
+        ArgumentNullException.ThrowIfNull(session);
+        var enc = session.Current.Encryption;
+        if (enc is not { GeneratedOwnerPassword: true } || !string.IsNullOrEmpty(enc.UserPassword)) return false;
+        return !(_overrides.TryGetValue(session, out var o) && Equals(o.Generated, enc));
+    }
+
+    /// <summary>
+    /// Wybór użytkownika dla <see cref="RequiresOwnerPasswordDecision"/>: ustawienia szyfrowania użyte przy zapisie
+    /// zamiast wygenerowanych (null = zapis bez ochrony). Nie zmienia historii dokumentu; obowiązuje, dopóki
+    /// ustawienia szyfrowania sesji się nie zmienią (np. Przywróć tworzy nowe – wtedy pytanie wraca).
+    /// </summary>
+    public void SetSaveEncryptionOverride(IPdfDocumentSession session, PdfEncryptionSettings? settings)
+    {
+        ArgumentNullException.ThrowIfNull(session);
+        var enc = session.Current.Encryption ?? throw new InvalidOperationException("Document has no encryption settings.");
+        _overrides.AddOrUpdate(session, new EncryptionOverride(enc, settings));
+    }
+
+    /// <summary>Ustawienia szyfrowania, które zostaną zastosowane przy zapisie (z uwzględnieniem wyboru D-23).</summary>
+    public PdfEncryptionSettings? GetEffectiveSaveEncryption(IPdfDocumentSession session)
+    {
+        ArgumentNullException.ThrowIfNull(session);
+        var enc = session.Current.Encryption;
+        if (enc is not null && _overrides.TryGetValue(session, out var o) && Equals(o.Generated, enc)) return o.Settings;
+        return enc;
+    }
+
     public async Task<byte[]> GetBytesForSaveAsync(IPdfDocumentSession session, CancellationToken ct = default)
     {
         var snapshot = session.Current;
+        var encryption = GetEffectiveSaveEncryption(session);
         var plain = snapshot.GetBytes();
         SaveTransform[] transforms;
         lock (_saveTransforms) transforms = _saveTransforms.ToArray();
@@ -121,14 +162,14 @@ public sealed class DocumentManager : IDocumentManager
             var input = plain;
             plain = await Task.Run(() => transform(session, input, ct), ct) ?? input;
         }
-        if (snapshot.Encryption is null) return plain;
+        if (encryption is null) return plain;
         var security = Security;
         if (security is not null)
         {
-            try { return await security.EncryptAsync(plain, snapshot.Encryption, ct); }
+            try { return await security.EncryptAsync(plain, encryption, ct); }
             catch (NotImplementedException) { }
         }
-        return await Task.Run(() => PdfSecurityHelper.Encrypt(plain, snapshot.Encryption), ct);
+        return await Task.Run(() => PdfSecurityHelper.Encrypt(plain, encryption), ct);
     }
 
     public async Task RevertAsync(IPdfDocumentSession session, CancellationToken ct = default)

@@ -361,4 +361,22 @@ Remove it from the recent files list?</value></data>
   <data name="Shell.Shortcuts.SingleKey" xml:space="preserve"><value>Key</value></data>
   <data name="Shell.Shortcuts.SingleKeyOn" xml:space="preserve"><value>Single-key shortcuts: on</value></data>
   <data name="Shell.Shortcuts.SingleKeyOff" xml:space="preserve"><value>Single-key shortcuts: off (Settings &gt; Keyboard)</value></data>
+  <data name="Shell.OwnerOnly.Title" xml:space="preserve"><value>Document protection</value></data>
+  <data name="Shell.OwnerOnly.Text" xml:space="preserve"><value>“{0}” opens without a password but is protected by a permissions password, and it was opened without that password. ZetPDF will not silently replace it with a random password (you would no longer be able to lift the restrictions). How do you want to save it?</value></data>
+  <data name="Shell.OwnerOnly.EnterOwner" xml:space="preserve"><value>Enter the permissions (owner) password – keep the protection</value></data>
+  <data name="Shell.OwnerOnly.NewPassword" xml:space="preserve"><value>Set a new permissions password</value></data>
+  <data name="Shell.OwnerOnly.NoProtection" xml:space="preserve"><value>Save without protection</value></data>
+  <data name="Shell.OwnerOnly.EnterOwner.Title" xml:space="preserve"><value>Permissions password</value></data>
+  <data name="Shell.OwnerOnly.EnterOwner.Prompt" xml:space="preserve"><value>Enter the permissions (owner) password of this file:</value></data>
+  <data name="Shell.OwnerOnly.EnterOwner.Retry" xml:space="preserve"><value>This is not the permissions password of the file. Try again:</value></data>
+  <data name="Shell.OwnerOnly.NewPassword.Title" xml:space="preserve"><value>New permissions password</value></data>
+  <data name="Shell.OwnerOnly.NewPassword.Prompt" xml:space="preserve"><value>New permissions password (the file will still open without a password; restrictions stay the same, encryption AES-256):</value></data>
+  <data name="Shell.OwnerOnly.NewPassword.Repeat" xml:space="preserve"><value>Repeat the password:</value></data>
+  <data name="Shell.Status.SavedReencrypted" xml:space="preserve"><value>Saved: {0}. Encryption {1} was replaced with {2}.</value></data>
+  <data name="Shell.Encryption.None" xml:space="preserve"><value>none</value></data>
+  <data name="Shell.Encryption.Rc4_40" xml:space="preserve"><value>RC4 40-bit</value></data>
+  <data name="Shell.Encryption.Rc4_128" xml:space="preserve"><value>RC4 128-bit</value></data>
+  <data name="Shell.Encryption.Aes128" xml:space="preserve"><value>AES-128</value></data>
+  <data name="Shell.Encryption.Aes256" xml:space="preserve"><value>AES-256</value></data>
+  <data name="Shell.Encryption.Unknown" xml:space="preserve"><value>of an unknown type</value></data>
 </root>

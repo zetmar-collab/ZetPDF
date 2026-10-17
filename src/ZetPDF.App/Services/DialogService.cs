@@ -5,13 +5,15 @@ using Microsoft.Win32;
 using ZetPDF.App.Dialogs;
 using ZetPDF.Core.Contracts;
 
+using ZetPDF.App.Shell;
+
 namespace ZetPDF.App.Services;
 
 /// <summary>
 /// Okna dialogowe w motywie ZetPDF. Komunikaty – własne okno <see cref="MessageWindow"/> (systemowy MessageBox
 /// nie obsługuje motywu ciemnego). Okna wyboru plików/folderów – systemowe (język i motyw wg Windows).
 /// </summary>
-public sealed class DialogService : IDialogService
+public sealed class DialogService : IDialogService, IOwnerProtectionPrompts
 {
     private readonly ILocalizationService _loc;
     private readonly IAppPaths _paths;
@@ -104,30 +106,62 @@ public sealed class DialogService : IDialogService
         return w.Result;
     }
 
-    public string? AskPassword(string documentName, bool isRetry)
+    public string? AskPassword(string documentName, bool isRetry) =>
+        AskSecret(_loc["Core.Password.Title"], documentName,
+            isRetry ? _loc["Core.Password.Retry"] : _loc.Format("Core.Password.Prompt", documentName), isRetry, confirm: false);
+
+    // ------------------------------------------------------------------ D-23 (IOwnerProtectionPrompts)
+
+    public OwnerProtectionChoice AskOwnerProtectionChoice(string documentName, bool canEnterOwnerPassword)
+    {
+        var buttons = new List<MessageWindow.ButtonSpec>();
+        if (canEnterOwnerPassword)
+            buttons.Add(new MessageWindow.ButtonSpec(_loc["Shell.OwnerOnly.EnterOwner"], (int)OwnerProtectionChoice.EnterOwnerPassword, IsDefault: true));
+        buttons.Add(new MessageWindow.ButtonSpec(_loc["Shell.OwnerOnly.NewPassword"], (int)OwnerProtectionChoice.NewPermissionsPassword, IsDefault: !canEnterOwnerPassword));
+        buttons.Add(new MessageWindow.ButtonSpec(_loc["Shell.OwnerOnly.NoProtection"], (int)OwnerProtectionChoice.NoProtection));
+        buttons.Add(new MessageWindow.ButtonSpec(_loc["Core.Button.Cancel"], (int)OwnerProtectionChoice.Cancel, IsCancel: true));
+        return (OwnerProtectionChoice)Show(_loc["Shell.OwnerOnly.Title"], _loc.Format("Shell.OwnerOnly.Text", documentName), MessageSeverity.Warning, false,
+            buttons, (int)OwnerProtectionChoice.Cancel);
+    }
+
+    public string? AskOwnerPassword(string documentName, bool isRetry) =>
+        AskSecret(_loc["Shell.OwnerOnly.EnterOwner.Title"], documentName,
+            isRetry ? _loc["Shell.OwnerOnly.EnterOwner.Retry"] : _loc["Shell.OwnerOnly.EnterOwner.Prompt"], isRetry, confirm: false);
+
+    public string? AskNewPermissionsPassword(string documentName) =>
+        AskSecret(_loc["Shell.OwnerOnly.NewPassword.Title"], documentName, _loc["Shell.OwnerOnly.NewPassword.Prompt"], false, confirm: true);
+
+    /// <summary>Okno z polem hasła (opcjonalnie drugim – powtórzenie; OK aktywne dopiero przy zgodnych, niepustych hasłach).</summary>
+    private string? AskSecret(string title, string documentName, string promptText, bool isError, bool confirm)
     {
         var box = new PasswordBox { Margin = new Thickness(0, 10, 0, 0), MinWidth = 300 };
+        var repeat = new PasswordBox { Margin = new Thickness(0, 4, 0, 0), MinWidth = 300 };
         var ok = new Button { Content = _loc["Core.Button.Ok"], IsDefault = true, MinWidth = 88, Margin = new Thickness(8, 0, 0, 0) };
         var cancel = new Button { Content = _loc["Core.Button.Cancel"], IsCancel = true, MinWidth = 88, Margin = new Thickness(8, 0, 0, 0) };
-        var prompt = new TextBlock
-        {
-            Text = isRetry ? _loc["Core.Password.Retry"] : _loc.Format("Core.Password.Prompt", documentName),
-            TextWrapping = TextWrapping.Wrap,
-            MaxWidth = 380,
-        };
-        if (isRetry) prompt.SetResourceReference(TextBlock.ForegroundProperty, Core.Theming.ThemeKeys.StatusError);
+        var prompt = new TextBlock { Text = promptText, TextWrapping = TextWrapping.Wrap, MaxWidth = 380 };
+        if (isError) prompt.SetResourceReference(TextBlock.ForegroundProperty, Core.Theming.ThemeKeys.StatusError);
         var name = new TextBlock { Text = documentName, FontWeight = FontWeights.SemiBold, TextTrimming = TextTrimming.CharacterEllipsis, MaxWidth = 380, Margin = new Thickness(0, 0, 0, 6) };
+        var content = new StackPanel { Margin = new Thickness(20, 18, 20, 18), Children = { name, prompt, box } };
+        if (confirm)
+        {
+            content.Children.Add(new TextBlock { Text = _loc["Shell.OwnerOnly.NewPassword.Repeat"], Margin = new Thickness(0, 10, 0, 0), TextWrapping = TextWrapping.Wrap, MaxWidth = 380 });
+            content.Children.Add(repeat);
+            void Validate() => ok.IsEnabled = box.Password.Length > 0 && box.Password == repeat.Password;
+            box.PasswordChanged += (_, _) => Validate();
+            repeat.PasswordChanged += (_, _) => Validate();
+            Validate();
+        }
         var buttons = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, Children = { ok, cancel } };
         var footer = new Border { Padding = new Thickness(20, 12, 20, 12), Child = buttons };
         footer.SetResourceReference(Border.BackgroundProperty, Core.Theming.ThemeKeys.SurfaceAlt);
         var root = new DockPanel();
         DockPanel.SetDock(footer, Dock.Bottom);
         root.Children.Add(footer);
-        root.Children.Add(new StackPanel { Margin = new Thickness(20, 18, 20, 18), Children = { name, prompt, box } });
+        root.Children.Add(content);
         var owner = Owner;
         var window = new Window
         {
-            Title = _loc["Core.Password.Title"],
+            Title = title,
             SizeToContent = SizeToContent.WidthAndHeight,
             ResizeMode = ResizeMode.NoResize,
             WindowStartupLocation = owner is null ? WindowStartupLocation.CenterScreen : WindowStartupLocation.CenterOwner,

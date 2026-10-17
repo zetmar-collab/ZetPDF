@@ -361,4 +361,22 @@ Usunąć go z listy ostatnich plików?</value></data>
   <data name="Shell.Shortcuts.SingleKey" xml:space="preserve"><value>Klawisz</value></data>
   <data name="Shell.Shortcuts.SingleKeyOn" xml:space="preserve"><value>Klawisze jednoliterowe: włączone</value></data>
   <data name="Shell.Shortcuts.SingleKeyOff" xml:space="preserve"><value>Klawisze jednoliterowe: wyłączone (Ustawienia &gt; Klawiatura)</value></data>
+  <data name="Shell.OwnerOnly.Title" xml:space="preserve"><value>Ochrona dokumentu</value></data>
+  <data name="Shell.OwnerOnly.Text" xml:space="preserve"><value>Plik „{0}” otwiera się bez hasła, ale jest chroniony hasłem uprawnień, a otwarto go bez tego hasła. ZetPDF nie zastąpi go po cichu losowym hasłem (nie dałoby się już zdjąć ograniczeń). Jak zapisać plik?</value></data>
+  <data name="Shell.OwnerOnly.EnterOwner" xml:space="preserve"><value>Podaj hasło uprawnień (właściciela) – zachowaj ochronę</value></data>
+  <data name="Shell.OwnerOnly.NewPassword" xml:space="preserve"><value>Ustaw nowe hasło uprawnień</value></data>
+  <data name="Shell.OwnerOnly.NoProtection" xml:space="preserve"><value>Zapisz bez ochrony</value></data>
+  <data name="Shell.OwnerOnly.EnterOwner.Title" xml:space="preserve"><value>Hasło uprawnień</value></data>
+  <data name="Shell.OwnerOnly.EnterOwner.Prompt" xml:space="preserve"><value>Wpisz hasło uprawnień (właściciela) tego pliku:</value></data>
+  <data name="Shell.OwnerOnly.EnterOwner.Retry" xml:space="preserve"><value>To nie jest hasło uprawnień tego pliku. Spróbuj ponownie:</value></data>
+  <data name="Shell.OwnerOnly.NewPassword.Title" xml:space="preserve"><value>Nowe hasło uprawnień</value></data>
+  <data name="Shell.OwnerOnly.NewPassword.Prompt" xml:space="preserve"><value>Nowe hasło uprawnień (plik nadal otworzy się bez hasła; ograniczenia bez zmian, szyfrowanie AES-256):</value></data>
+  <data name="Shell.OwnerOnly.NewPassword.Repeat" xml:space="preserve"><value>Powtórz hasło:</value></data>
+  <data name="Shell.Status.SavedReencrypted" xml:space="preserve"><value>Zapisano: {0}. Szyfrowanie {1} zastąpiono {2}.</value></data>
+  <data name="Shell.Encryption.None" xml:space="preserve"><value>brak</value></data>
+  <data name="Shell.Encryption.Rc4_40" xml:space="preserve"><value>RC4 40-bitowe</value></data>
+  <data name="Shell.Encryption.Rc4_128" xml:space="preserve"><value>RC4 128-bitowe</value></data>
+  <data name="Shell.Encryption.Aes128" xml:space="preserve"><value>AES-128</value></data>
+  <data name="Shell.Encryption.Aes256" xml:space="preserve"><value>AES-256</value></data>
+  <data name="Shell.Encryption.Unknown" xml:space="preserve"><value>o nieznanej metodzie</value></data>
 </root>

@@ -231,7 +231,14 @@ public sealed record PdfEncryptionSettings(
     string? UserPassword,
     string OwnerPassword,
     PdfEncryptionMethod Method = PdfEncryptionMethod.Aes256,
-    DocumentPermissions Permissions = DocumentPermissions.All);
+    DocumentPermissions Permissions = DocumentPermissions.All)
+{
+    /// <summary>
+    /// Hasło właściciela wygenerował ZetPDF (plik otwarto bez hasła właściciela – DECYZJE D-08). Przy pustym
+    /// haśle otwarcia powłoka przed zapisem pyta, co zrobić z ochroną (DECYZJE D-23).
+    /// </summary>
+    public bool GeneratedOwnerPassword { get; init; }
+}
 
 /// <summary>Co wiadomo o zabezpieczeniach pliku w chwili otwarcia.</summary>
 public sealed record PdfSecurityInfo(
