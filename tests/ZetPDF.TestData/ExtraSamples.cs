@@ -157,6 +157,93 @@ public static class ExtraSamples
     public static byte[] WithUrls(string path = "sciezka") =>
         SamplePdfFactory.Text(1, $"Zobacz https://example.com/{path} oraz kontakt@example.com");
 
+
+    /// <summary>
+    /// PDF 1.5 jak z nowoczesnych programów: słowniki w strumieniu obiektów (/ObjStm), tabela xref jako strumień
+    /// (/XRef), treść Flate. Tekst dosłowny (Helvetica): "Strumienie obiektow" i <see cref="SecretPhrase"/>.
+    /// </summary>
+    public static byte[] WithObjectStreams()
+    {
+        static byte[] Deflate(byte[] data)
+        {
+            using var ms = new MemoryStream();
+            using (var z = new System.IO.Compression.ZLibStream(ms, System.IO.Compression.CompressionLevel.Optimal, leaveOpen: true)) z.Write(data);
+            return ms.ToArray();
+        }
+        var objs = new[]
+        {
+            "<< /Type /Catalog /Pages 2 0 R >>",
+            "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+            "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>",
+            "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>",
+        };
+        var header = new StringBuilder();
+        var body = new StringBuilder();
+        for (int i = 0; i < objs.Length; i++)
+        {
+            header.Append(i + 1).Append(' ').Append(body.Length).Append(' ');
+            body.Append(objs[i]).Append('\n');
+        }
+        var objStmData = Encoding.ASCII.GetBytes(header.ToString() + body);
+        int first = header.Length;
+        var content = Encoding.ASCII.GetBytes($"BT /F1 16 Tf 56 760 Td (Strumienie obiektow) Tj 0 -30 Td ({SecretPhrase}) Tj ET\n");
+
+        var ms = new MemoryStream();
+        void W(string t) { var b = Encoding.ASCII.GetBytes(t); ms.Write(b); }
+        void WB(byte[] b) => ms.Write(b);
+        W("%PDF-1.5\n%âãÏÓ\n".Replace("âãÏÓ", "AAAA"));
+        var offsets = new long[8];
+        var c = Deflate(content);
+        offsets[5] = ms.Position;
+        W($"5 0 obj\n<< /Length {c.Length} /Filter /FlateDecode >>\nstream\n"); WB(c); W("\nendstream\nendobj\n");
+        var o = Deflate(objStmData);
+        offsets[6] = ms.Position;
+        W($"6 0 obj\n<< /Type /ObjStm /N {objs.Length} /First {first} /Length {o.Length} /Filter /FlateDecode >>\nstream\n"); WB(o); W("\nendstream\nendobj\n");
+        offsets[7] = ms.Position;
+        // xref: /W [1 4 2]
+        var x = new MemoryStream();
+        void Entry(int type, long f2, int f3)
+        {
+            x.WriteByte((byte)type);
+            x.WriteByte((byte)(f2 >> 24)); x.WriteByte((byte)(f2 >> 16)); x.WriteByte((byte)(f2 >> 8)); x.WriteByte((byte)f2);
+            x.WriteByte((byte)(f3 >> 8)); x.WriteByte((byte)f3);
+        }
+        Entry(0, 0, 65535);
+        for (int i = 0; i < 4; i++) Entry(2, 6, i);
+        Entry(1, offsets[5], 0);
+        Entry(1, offsets[6], 0);
+        Entry(1, offsets[7], 0);
+        var xd = x.ToArray();
+        W($"7 0 obj\n<< /Type /XRef /Size 8 /W [1 4 2] /Index [0 8] /Root 1 0 R /Length {xd.Length} >>\nstream\n"); WB(xd); W("\nendstream\nendobj\n");
+        W($"startxref\n{offsets[7]}\n%%EOF\n");
+        return ms.ToArray();
+    }
+
+    /// <summary>Plik z aktualizacją przyrostową: druga rewizja zmienia tytuł (/Info) na „Rewizja 2 – źdźbło”.</summary>
+    public static byte[] WithIncrementalUpdate()
+    {
+        var baseBytes = SamplePdfFactory.Text(1);
+        var text = Encoding.Latin1.GetString(baseBytes);
+        int sx = text.LastIndexOf("startxref", StringComparison.Ordinal);
+        long prev = long.Parse(text[(sx + 9)..].Trim().Split('\n', '\r')[0].Trim(), System.Globalization.CultureInfo.InvariantCulture);
+        // największy numer obiektu i katalog z bieżącego pliku
+        int size = PdfSharpEdit.Read(baseBytes, d => d.Internals.GetAllObjects().Max(o => o.Reference?.ObjectNumber ?? 0)) + 1;
+        int root = PdfSharpEdit.Read(baseBytes, d => d.Internals.Catalog.Reference!.ObjectNumber);
+        var ms = new MemoryStream();
+        ms.Write(baseBytes);
+        void W(string t) { var b = Encoding.Latin1.GetBytes(t); ms.Write(b); }
+        W("\n");
+        long infoOffset = ms.Position;
+        // tytuł jako UTF-16BE z BOM (polskie znaki)
+        var title = "Rewizja 2 – źdźbło";
+        var hex = "FEFF" + string.Concat(Encoding.BigEndianUnicode.GetBytes(title).Select(b => b.ToString("X2")));
+        W($"{size} 0 obj\n<< /Title <{hex}> /Producer (ZetPDF test) >>\nendobj\n");
+        long xref = ms.Position;
+        W($"xref\n0 1\n0000000000 65535 f \n{size} 1\n{infoOffset:D10} 00000 n \n");
+        W($"trailer\n<< /Size {size + 1} /Root {root} 0 R /Info {size} 0 R /Prev {prev} >>\nstartxref\n{xref}\n%%EOF\n");
+        return ms.ToArray();
+    }
+
     /// <summary>PNG (gradient) w pamięci.</summary>
     public static byte[] Png(int w = 120, int h = 80)
     {
