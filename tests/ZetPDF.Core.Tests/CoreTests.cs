@@ -335,6 +335,41 @@ public class DocumentManagerTests : IDisposable
     }
 
     [Fact]
+    public async Task Save_transforms_run_in_order_before_encryption_and_do_not_change_session()
+    {
+        using var sp = _home.BuildServices();
+        var manager = sp.GetRequiredService<IDocumentManager>();
+        var path = TestPaths.WriteSample(SamplePdfFactory.Text(1), "hak zapisu.pdf");
+        var session = (await manager.OpenAsync(path))!;
+        var calls = new List<string>();
+        using var first = manager.AddSaveTransform((s, pdf, _) =>
+        {
+            calls.Add("1");
+            Assert.False(PdfSecurityHelper.IsEncrypted(pdf));
+            return Task.FromResult(PdfSharpEdit.Modify(pdf, d => d.AddPage()));
+        });
+        var second = manager.AddSaveTransform((s, pdf, _) =>
+        {
+            calls.Add("2:" + PdfSharpEdit.Read(pdf, d => d.PageCount));
+            return Task.FromResult(pdf);
+        });
+        await session.ExecuteAsync(new SetEncryptionCommand("Test.Encrypt", new PdfEncryptionSettings("user1", "owner1")));
+        await manager.SaveAsync(session);
+
+        Assert.Equal(new[] { "1", "2:2" }, calls);
+        var saved = File.ReadAllBytes(path);
+        Assert.True(PdfSecurityHelper.IsEncrypted(saved));
+        Assert.Equal(2, PdfSharpEdit.Read(PdfSecurityHelper.RemoveSecurity(saved, "owner1"), d => d.PageCount));
+        Assert.Equal(1, PdfSharpEdit.Read(session.Current.GetBytes(), d => d.PageCount)); // sesja bez zmian
+        Assert.False(session.IsModified);
+
+        second.Dispose();
+        calls.Clear();
+        await manager.GetBytesForSaveAsync(session);
+        Assert.Equal(new[] { "1" }, calls);
+    }
+
+    [Fact]
     public async Task CreateNew_is_modified_and_needs_path()
     {
         using var sp = _home.BuildServices();

@@ -23,6 +23,7 @@ public sealed class DocumentManager : IDocumentManager
     private readonly ILogger<DocumentManager> _log;
     private readonly ObservableCollection<IPdfDocumentSession> _documents = new();
     private IPdfDocumentSession? _active;
+    private readonly List<SaveTransform> _saveTransforms = new();
 
     public DocumentManager(IServiceProvider services, IFileService files, IAppPaths paths, ISettingsService settings, IRecentFilesService recent, ILogger<DocumentManager> log)
     {
@@ -95,10 +96,31 @@ public sealed class DocumentManager : IDocumentManager
         _log.LogInformation("Saved {File} ({Bytes} B)", target, bytes.Length);
     }
 
+    public IDisposable AddSaveTransform(SaveTransform transform)
+    {
+        ArgumentNullException.ThrowIfNull(transform);
+        lock (_saveTransforms) _saveTransforms.Add(transform);
+        return new Unregister(() => { lock (_saveTransforms) _saveTransforms.Remove(transform); });
+    }
+
+    private sealed class Unregister(Action action) : IDisposable
+    {
+        private Action? _action = action;
+        public void Dispose() => Interlocked.Exchange(ref _action, null)?.Invoke();
+    }
+
     public async Task<byte[]> GetBytesForSaveAsync(IPdfDocumentSession session, CancellationToken ct = default)
     {
         var snapshot = session.Current;
         var plain = snapshot.GetBytes();
+        SaveTransform[] transforms;
+        lock (_saveTransforms) transforms = _saveTransforms.ToArray();
+        foreach (var transform in transforms)
+        {
+            ct.ThrowIfCancellationRequested();
+            var input = plain;
+            plain = await Task.Run(() => transform(session, input, ct), ct) ?? input;
+        }
         if (snapshot.Encryption is null) return plain;
         var security = Security;
         if (security is not null)

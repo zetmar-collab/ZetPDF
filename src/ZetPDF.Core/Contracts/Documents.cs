@@ -42,12 +42,25 @@ public interface IDocumentManager
     /// </summary>
     Task<byte[]> GetBytesForSaveAsync(IPdfDocumentSession session, CancellationToken ct = default);
 
+    /// <summary>
+    /// Rejestruje hak przed zapisem: przekształcenie bajtów BEZ szyfrowania wykonywane w <see cref="GetBytesForSaveAsync"/>
+    /// (więc przy Zapisz, Zapisz jako i podpisie) przed szyfrowaniem, w kolejności rejestracji. Sesja (zrzut, historia)
+    /// się nie zmienia – zmienia się tylko zapisany plik. Dispose wyniku wyrejestrowuje hak.
+    /// </summary>
+    IDisposable AddSaveTransform(SaveTransform transform);
+
     /// <summary>Wczytuje ponownie plik z dysku (Przywróć) – czyści historię Cofnij/Ponów.</summary>
     Task RevertAsync(IPdfDocumentSession session, CancellationToken ct = default);
 
     /// <summary>Zamyka kartę BEZ pytania o zapis (pytanie zadaje powłoka wcześniej).</summary>
     void Close(IPdfDocumentSession session);
 }
+
+/// <summary>
+/// Hak przed zapisem (<see cref="IDocumentManager.AddSaveTransform"/>). Wołany w tle; zwróć <paramref name="pdf"/>
+/// bez zmian, gdy hak nie dotyczy sesji. Nie modyfikuj tablicy wejściowej.
+/// </summary>
+public delegate Task<byte[]> SaveTransform(IPdfDocumentSession session, byte[] pdf, CancellationToken ct);
 
 /// <summary>
 /// Jeden otwarty dokument. Bieżąca wersja to niezmienny <see cref="DocumentSnapshot"/> z bajtami PDF

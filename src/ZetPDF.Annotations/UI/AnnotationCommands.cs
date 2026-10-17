@@ -22,6 +22,7 @@ internal sealed class AnnotationCommands
     private string _stampId = "Approved";
     private byte[]? _imageStamp;
     private byte[]? _signature;
+    private readonly HashSet<Guid> _flattenOnSave = new();
 
     public AnnotationCommands(AnnotContext ctx, ICommandRegistry registry, SelectAnnotationTool select)
     {
@@ -131,7 +132,15 @@ internal sealed class AnnotationCommands
         _registry.Register(CommandIds.FillSign.Signature, sigToggle);
         RefreshSignatureMenu();
         _registry.Register(CommandIds.FillSign.ManageSignatures, new RelayCmd(_ => ManageSignatures()));
-        _registry.Register(CommandIds.FillSign.Flatten, Doc(FlattenAsync, DocumentPermissions.ModifyContent));
+        // Spłaszcz przy zapisie – przełącznik per dokument; spłaszcza hak IDocumentManager.AddSaveTransform (sesja bez zmian)
+        var flatten = new ToggleCommand(_ => ToggleFlattenOnSave(),
+            () => _ctx.Documents.ActiveDocument is { } d && IsFlattenOnSave(d),
+            _ => _ctx.Documents.ActiveDocument is { } d && d.Can(DocumentPermissions.ModifyContent));
+        _toggles.Add(flatten);
+        _registry.Register(CommandIds.FillSign.Flatten, flatten);
+        _ctx.Documents.AddSaveTransform(FlattenOnSaveAsync);
+        _ctx.Documents.DocumentClosed += (_, s) => { lock (_flattenOnSave) _flattenOnSave.Remove(s.Id); };
+        _ctx.Documents.ActiveDocumentChanged += (_, _) => RaiseToggles();
         _registry.Register(CommandIds.FillSign.Close, new RelayCmd(_ =>
         {
             _ctx.Shell?.SetContextualTabVisible(ContextualTabIds.FillSign, false);
@@ -503,19 +512,35 @@ internal sealed class AnnotationCommands
         });
     }
 
-    private async Task FlattenAsync(IPdfDocumentSession s)
+    internal bool IsFlattenOnSave(IPdfDocumentSession s)
     {
-        if (Dialogs is { } d && !d.Confirm(_loc["Annot.Flatten.Confirm"])) return;
-        await _ctx.RunAsync(s, "Annot.Undo.Flatten", async (pdf, ct) =>
+        lock (_flattenOnSave) return _flattenOnSave.Contains(s.Id);
+    }
+
+    private void ToggleFlattenOnSave()
+    {
+        if (_ctx.Documents.ActiveDocument is not { } s) return;
+        bool on = !IsFlattenOnSave(s);
+        if (on && Dialogs is { } d && !d.Confirm(_loc["Annot.Flatten.Confirm"])) return;
+        lock (_flattenOnSave)
         {
-            if (_ctx.Pages is { } pages)
-            {
-                try { return await pages.FlattenAsync(pdf, new FlattenOptions(), null, ct); }
-                catch (NotImplementedException) { }
-            }
-            return await _ctx.Annotations.FlattenAsync(pdf, includeFormFields: true, ct: ct);
-        }, DocumentChangeKind.Annotations | DocumentChangeKind.FormFields | DocumentChangeKind.PageContent, DocumentPermissions.ModifyContent);
-        _ctx.Selection = null;
+            if (on) _flattenOnSave.Add(s.Id);
+            else _flattenOnSave.Remove(s.Id);
+        }
+        _ctx.Shell?.SetStatus(_loc[on ? "Annot.Flatten.On" : "Annot.Flatten.Off"]);
+        RaiseToggles();
+    }
+
+    /// <summary>Hak przed zapisem: spłaszcza komentarze i pola w zapisywanych bajtach, jeśli włączono to dla dokumentu.</summary>
+    private async Task<byte[]> FlattenOnSaveAsync(IPdfDocumentSession s, byte[] pdf, CancellationToken ct)
+    {
+        if (!IsFlattenOnSave(s)) return pdf;
+        if (_ctx.Pages is { } pages)
+        {
+            try { return await pages.FlattenAsync(pdf, new FlattenOptions(), null, ct); }
+            catch (NotImplementedException) { }
+        }
+        return await _ctx.Annotations.FlattenAsync(pdf, includeFormFields: true, ct: ct);
     }
 
     // ================================================================== styl narzędzia

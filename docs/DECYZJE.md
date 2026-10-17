@@ -77,7 +77,7 @@ Format: problem → decyzja → uzasadnienie. Decyzje oznaczone **[DO ZATWIERDZE
 
 ## Do zrobienia po scaleniu wszystkich modułów (koordynator, zmiany kontraktów)
 1. [x] IDocumentView.ShowAnnotations (render bez RenderFlags.Annotations, widżety zostają) – Pokaż/Ukryj komentarze nie zmienia pliku (annotations-forms + renderer-viewer). → D-17.
-2. Hak przed zapisem w IDocumentManager – „Spłaszcz przy zapisie” (annotations-forms).
+2. [x] Hak przed zapisem w IDocumentManager – „Spłaszcz przy zapisie” (annotations-forms). → D-18.
 3. AnnotationUpdate.TextStyle – zmiana czcionki FreeText.
 4. IStampingService: RemovePageNumbersAsync, GetStoredOptionsAsync (pages-engine, Kreator działań).
 5. Zdublowany pasek nawigacji stron (ViewerBar + pasek stanu powłoki) – zostawić jeden.
@@ -91,3 +91,8 @@ Format: problem → decyzja → uzasadnienie. Decyzje oznaczone **[DO ZATWIERDZE
 - Problem: `Comment.ShowAll/HideAll` zmieniały flagę Hidden w pliku (polecenie dokumentu, stan „zmodyfikowany”).
 - Decyzja: `IDocumentView.ShowAnnotations` (kontrakt). `false` = render widoku bez `RenderFlags.Annotations` (FPDF_ANNOT), z `RenderFlags.FormFields`. Sprawdzone renderem PDFium 157: `FPDF_RenderPageBitmap` bez FPDF_ANNOT nie rysuje adnotacji, a `FPDF_FFLDraw` rysuje tylko widżety pól – rozdzielenie jest pełne (test `ShowAnnotationsTests`). Polecenia przełączają aktywny widok; `IAnnotationService.SetAllHiddenAsync` zostaje w usłudze (bez polecenia).
 - Kompromis: widżety w pliku bez `/AcroForm` (brak środowiska formularza PDFium) znikają razem z komentarzami; miniatury i druk nie zależą od przełącznika.
+
+## D-18. Hak przed zapisem: `IDocumentManager.AddSaveTransform`
+- Problem: „Spłaszcz przy zapisie” spłaszczało od razu (polecenie dokumentu), bo nie było zdarzenia „przed zapisem”.
+- Decyzja: `IDisposable AddSaveTransform(SaveTransform)` (delegat `session, bajty → bajty`). Haki działają w `GetBytesForSaveAsync` przed szyfrowaniem, więc obejmują Zapisz, Zapisz jako i podpis cyfrowy; sesja (zrzut, historia, „zmodyfikowany”) się nie zmienia. Wybrano przekształcenie zamiast zdarzenia z modyfikowalnym argumentem – asynchroniczne, jawna kolejność, łatwe do testu.
+- `FillSign.Flatten` w katalogu zmieniono z Button na Toggle (`tools/catalog/catalog.py`, wygenerowane pliki): włączenie (z potwierdzeniem) oznacza dokument, hak modułu Annotations spłaszcza komentarze i pola (`IPageOperations.FlattenAsync`, rezerwa: własne spłaszczanie). Stan per sesja, nie zapisywany.

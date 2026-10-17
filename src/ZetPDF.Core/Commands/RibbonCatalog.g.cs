@@ -163,7 +163,7 @@ public static partial class RibbonCatalog
         new("FillSign.Line", FeatureModuleId.Annotations, CommandKind.Toggle, "\uE738", "", ""),
         new("FillSign.Signature", FeatureModuleId.Annotations, CommandKind.Menu, "\uEE56", "", ""),
         new("FillSign.ManageSignatures", FeatureModuleId.Annotations, CommandKind.Button, "\uE713", "", ""),
-        new("FillSign.Flatten", FeatureModuleId.Annotations, CommandKind.Button, "\uE81E", "", ""),
+        new("FillSign.Flatten", FeatureModuleId.Annotations, CommandKind.Toggle, "\uE81E", "", ""),
         new("FillSign.Close", FeatureModuleId.Annotations, CommandKind.Button, "\uE711", "", ""),
         new("Security.PasswordProtect", FeatureModuleId.Security, CommandKind.Button, "\uE72E", "", ""),
         new("Security.RemoveSecurity", FeatureModuleId.Security, CommandKind.Button, "\uE785", "", ""),

@@ -245,7 +245,7 @@
 | `FillSign.Tools` Narzędzia | `FillSign.Line` | Linia | Line | Annotations (annotations-forms) | Toggle |  |  |
 | `FillSign.Signatures` Podpisy | `FillSign.Signature` | Podpis odręczny | Handwritten Signature | Annotations (annotations-forms) | Menu |  |  |
 | `FillSign.Signatures` Podpisy | `FillSign.ManageSignatures` | Zarządzaj podpisami | Manage Signatures | Annotations (annotations-forms) | Button |  |  |
-| `FillSign.Signatures` Podpisy | `FillSign.Flatten` | Spłaszcz przy zapisie | Flatten on Save | Annotations (annotations-forms) | Button |  |  |
+| `FillSign.Signatures` Podpisy | `FillSign.Flatten` | Spłaszcz przy zapisie | Flatten on Save | Annotations (annotations-forms) | Toggle |  |  |
 | `FillSign.CloseGroup` Zamknij | `FillSign.Close` | Zamknij Wypełnij i podpisz | Close Fill & Sign | Annotations (annotations-forms) | Button |  |  |
 
 ## Karta `CompareResults` – Wyniki porównania / Compare Results (kontekstowa)

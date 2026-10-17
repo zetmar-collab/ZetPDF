@@ -55,7 +55,9 @@
   <data name="Annot.Filter.Csv" xml:space="preserve"><value>CSV (comma separated)</value></data>
   <data name="Annot.Filter.FormData" xml:space="preserve"><value>Form data (FDF, XFDF, CSV)</value></data>
   <data name="Annot.Filter.Images" xml:space="preserve"><value>Images (PNG, JPG)</value></data>
-  <data name="Annot.Flatten.Confirm" xml:space="preserve"><value>Flatten all comments, Fill &amp; Sign objects and form fields into the page content? They will no longer be editable (you can undo this before closing the document).</value></data>
+  <data name="Annot.Flatten.Confirm" xml:space="preserve"><value>Flatten all comments, Fill &amp; Sign objects and form fields into the page content of the saved file? They stay editable in the open document.</value></data>
+  <data name="Annot.Flatten.On" xml:space="preserve"><value>Comments and fields will be flattened on save.</value></data>
+  <data name="Annot.Flatten.Off" xml:space="preserve"><value>Flatten on save turned off.</value></data>
   <data name="Annot.Form.OpenUrlConfirm" xml:space="preserve"><value>Open this address in the web browser?
 {0}</value></data>
   <data name="Annot.Form.ReadOnly" xml:space="preserve"><value>This field is read only.</value></data>
@@ -166,15 +168,12 @@
   <data name="Annot.Undo.FieldAdd" xml:space="preserve"><value>Add form field</value></data>
   <data name="Annot.Undo.FieldDelete" xml:space="preserve"><value>Delete form field</value></data>
   <data name="Annot.Undo.FieldEdit" xml:space="preserve"><value>Edit form field</value></data>
-  <data name="Annot.Undo.Flatten" xml:space="preserve"><value>Flatten</value></data>
   <data name="Annot.Undo.FormFill" xml:space="preserve"><value>Fill form field</value></data>
   <data name="Annot.Undo.FormImport" xml:space="preserve"><value>Import form data</value></data>
   <data name="Annot.Undo.FormReset" xml:space="preserve"><value>Reset form</value></data>
-  <data name="Annot.Undo.HideAll" xml:space="preserve"><value>Hide all comments</value></data>
   <data name="Annot.Undo.Import" xml:space="preserve"><value>Import comments</value></data>
   <data name="Annot.Undo.Move" xml:space="preserve"><value>Move comment</value></data>
   <data name="Annot.Undo.Reply" xml:space="preserve"><value>Reply</value></data>
-  <data name="Annot.Undo.ShowAll" xml:space="preserve"><value>Show all comments</value></data>
   <data name="Annot.Undo.State" xml:space="preserve"><value>Set state</value></data>
   <data name="Annot.Undo.TabOrder" xml:space="preserve"><value>Tab order</value></data>
 </root>

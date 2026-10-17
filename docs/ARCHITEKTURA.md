@@ -148,7 +148,7 @@ Każdy projekt ma jedną klasę `*Module : IFeatureModule` (`RenderingModule`, `
 2. `IPdfRenderer.ProbeAsync` (rezerwa: PDFsharp) → `PasswordRequired`/`InvalidPassword` → `IDialogService.AskPassword` (pętla, anulowanie = null) → `Corrupt` → `PdfCorruptException`.
 3. Plik zaszyfrowany: `ISecurityService.AnalyzeAsync` (rezerwa: `PdfSecurityHelper.Analyze`) → metoda, rewizja, uprawnienia, czy hasło właściciela; odszyfrowanie `IPdfRenderer.RemoveSecurityAsync` (PDFium; rezerwa PDFsharp – tylko z hasłem właściciela); ustawienia ponownego szyfrowania `ISecurityService.CreateResaveSettings` (rezerwa: `PdfSecurityHelper.CreateResaveSettings`, DECYZJE D-08).
 4. Uprawnienia efektywne: hasło właściciela lub brak szyfrowania → `All`; hasło użytkownika → uprawnienia z `/P`. Polecenia deklarują `RequiredPermission`, sesja egzekwuje.
-5. Zapis: `GetBytesForSaveAsync` (zrzut + szyfrowanie: `ISecurityService.EncryptAsync`, rezerwa `PdfSecurityHelper.Encrypt`) → `IFileService.WriteAllBytesSafeAsync`: plik tymczasowy w tym samym folderze, potem `File.Replace` (kopia `.bak` usuwana po sukcesie) lub `File.Move`. Nigdy bezpośrednie nadpisanie.
+5. Zapis: `GetBytesForSaveAsync` (zrzut → haki `AddSaveTransform` w kolejności rejestracji, np. „Spłaszcz przy zapisie” – sesja się nie zmienia → szyfrowanie: `ISecurityService.EncryptAsync`, rezerwa `PdfSecurityHelper.Encrypt`) → `IFileService.WriteAllBytesSafeAsync`: plik tymczasowy w tym samym folderze, potem `File.Replace` (kopia `.bak` usuwana po sukcesie) lub `File.Move`. Nigdy bezpośrednie nadpisanie.
 6. Podpis cyfrowy: `GetBytesForSaveAsync` → `ISignatureService.SignAsync` → zapis bajtów → ponowne otwarcie (`RevertAsync`/`OpenAsync`), bo podpisany plik nie może już przejść przez PDFsharp-owy zapis.
 7. Ścieżki z polskimi znakami i spacjami – test `Open_modify_save_with_polish_path`.
 
@@ -480,7 +480,7 @@ Sprawdzone na szkielecie: powstaje jeden `ZetPDF.exe` (~91 MB, + pliki `.pdb`; m
 | `FillSign.Tools` Narzędzia | `FillSign.Line` | Linia | Line | Annotations (annotations-forms) | Toggle |  |  |
 | `FillSign.Signatures` Podpisy | `FillSign.Signature` | Podpis odręczny | Handwritten Signature | Annotations (annotations-forms) | Menu |  |  |
 | `FillSign.Signatures` Podpisy | `FillSign.ManageSignatures` | Zarządzaj podpisami | Manage Signatures | Annotations (annotations-forms) | Button |  |  |
-| `FillSign.Signatures` Podpisy | `FillSign.Flatten` | Spłaszcz przy zapisie | Flatten on Save | Annotations (annotations-forms) | Button |  |  |
+| `FillSign.Signatures` Podpisy | `FillSign.Flatten` | Spłaszcz przy zapisie | Flatten on Save | Annotations (annotations-forms) | Toggle |  |  |
 | `FillSign.CloseGroup` Zamknij | `FillSign.Close` | Zamknij Wypełnij i podpisz | Close Fill & Sign | Annotations (annotations-forms) | Button |  |  |
 
 ### Karta `CompareResults` – Wyniki porównania / Compare Results (kontekstowa)

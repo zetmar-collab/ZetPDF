@@ -199,7 +199,7 @@ cmd("FillSign.Dot", ANNOT, "", "", T, "E91F", "Kropka", "Dot")
 cmd("FillSign.Line", ANNOT, "", "", T, "E738", "Linia", "Line")
 cmd("FillSign.Signature", ANNOT, "", "", M, "EE56", "Podpis odręczny", "Handwritten Signature")
 cmd("FillSign.ManageSignatures", ANNOT, "", "", B, "E713", "Zarządzaj podpisami", "Manage Signatures")
-cmd("FillSign.Flatten", ANNOT, "", "", B, "E81E", "Spłaszcz przy zapisie", "Flatten on Save")
+cmd("FillSign.Flatten", ANNOT, "", "", T, "E81E", "Spłaszcz przy zapisie", "Flatten on Save")
 cmd("FillSign.Close", ANNOT, "", "", B, "E711", "Zamknij Wypełnij i podpisz", "Close Fill & Sign")
 
 # ---- Ochrona (security-signatures; redakcja: edit-convert-ocr)

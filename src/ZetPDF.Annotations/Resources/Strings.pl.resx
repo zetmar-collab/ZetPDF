@@ -55,7 +55,9 @@
   <data name="Annot.Filter.Csv" xml:space="preserve"><value>CSV (rozdzielany przecinkami)</value></data>
   <data name="Annot.Filter.FormData" xml:space="preserve"><value>Dane formularza (FDF, XFDF, CSV)</value></data>
   <data name="Annot.Filter.Images" xml:space="preserve"><value>Obrazy (PNG, JPG)</value></data>
-  <data name="Annot.Flatten.Confirm" xml:space="preserve"><value>Spłaszczyć wszystkie komentarze, obiekty Wypełnij i podpisz oraz pola formularza w treść stron? Nie będzie można ich edytować (do zamknięcia dokumentu można to cofnąć).</value></data>
+  <data name="Annot.Flatten.Confirm" xml:space="preserve"><value>Przy zapisie spłaszczyć wszystkie komentarze, obiekty Wypełnij i podpisz oraz pola formularza w treść stron zapisywanego pliku? W otwartym dokumencie pozostaną edytowalne.</value></data>
+  <data name="Annot.Flatten.On" xml:space="preserve"><value>Komentarze i pola zostaną spłaszczone przy zapisie.</value></data>
+  <data name="Annot.Flatten.Off" xml:space="preserve"><value>Spłaszczanie przy zapisie wyłączone.</value></data>
   <data name="Annot.Form.OpenUrlConfirm" xml:space="preserve"><value>Otworzyć ten adres w przeglądarce?
 {0}</value></data>
   <data name="Annot.Form.ReadOnly" xml:space="preserve"><value>To pole jest tylko do odczytu.</value></data>
@@ -166,15 +168,12 @@
   <data name="Annot.Undo.FieldAdd" xml:space="preserve"><value>Dodaj pole formularza</value></data>
   <data name="Annot.Undo.FieldDelete" xml:space="preserve"><value>Usuń pole formularza</value></data>
   <data name="Annot.Undo.FieldEdit" xml:space="preserve"><value>Zmień pole formularza</value></data>
-  <data name="Annot.Undo.Flatten" xml:space="preserve"><value>Spłaszcz</value></data>
   <data name="Annot.Undo.FormFill" xml:space="preserve"><value>Wypełnij pole</value></data>
   <data name="Annot.Undo.FormImport" xml:space="preserve"><value>Import danych formularza</value></data>
   <data name="Annot.Undo.FormReset" xml:space="preserve"><value>Resetuj formularz</value></data>
-  <data name="Annot.Undo.HideAll" xml:space="preserve"><value>Ukryj wszystkie komentarze</value></data>
   <data name="Annot.Undo.Import" xml:space="preserve"><value>Import komentarzy</value></data>
   <data name="Annot.Undo.Move" xml:space="preserve"><value>Przenieś komentarz</value></data>
   <data name="Annot.Undo.Reply" xml:space="preserve"><value>Odpowiedź</value></data>
-  <data name="Annot.Undo.ShowAll" xml:space="preserve"><value>Pokaż wszystkie komentarze</value></data>
   <data name="Annot.Undo.State" xml:space="preserve"><value>Ustaw stan</value></data>
   <data name="Annot.Undo.TabOrder" xml:space="preserve"><value>Kolejność tabulacji</value></data>
 </root>
