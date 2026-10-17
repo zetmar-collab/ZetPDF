@@ -122,6 +122,22 @@ public sealed class SignatureService : ISignatureService
         }
     }
 
+    /// <summary>Puste (niepodpisane) pola podpisu: nazwa, strona, prostokąt.</summary>
+    public static IReadOnlyList<(string Name, int Page, Core.Contracts.PdfRect Rect)> GetEmptySignatureFields(byte[] pdf, string? password)
+    {
+        var doc = CosDocument.Open(pdf, password);
+        var pages = doc.GetPageReferences();
+        var result = new List<(string, int, Core.Contracts.PdfRect)>();
+        foreach (var f in doc.GetFields())
+        {
+            if (f.FieldType != "Sig" || f.Dictionary["V"] is not null || f.Widgets.Count == 0) continue;
+            int page = doc.FindWidgetPage(f.Widgets[0], pages);
+            var rect = CosDocument.ToRect(doc.Resolve(doc.ResolveDict(f.Widgets[0])?["Rect"]));
+            if (page >= 0 && !rect.IsEmpty) result.Add((f.FullName, page, rect));
+        }
+        return result;
+    }
+
     public IReadOnlyList<X509Certificate2> GetStoreCertificates()
     {
         using var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
