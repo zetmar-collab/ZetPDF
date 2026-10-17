@@ -34,7 +34,7 @@
 - Widok wyników w osobnym oknie (karty dokumentów są zarezerwowane dla sesji); skróty Ctrl+. / Ctrl+, działają w oknie wyników i (przez kartę kontekstową) w oknie głównym.
 
 ## Kreator działań
-- Kroki korzystają z modułów innych agentów przez kontrakty; przed scaleniem ich implementacji krok kończy się komunikatem „Ten krok nie jest dostępny…” (raport per plik).
+- Kroki korzystają z modułów innych agentów przez kontrakty (po scaleniu wszystkie dostępne; test dymny `ActionWizardSmokeTests` w IntegrationTests uruchamia trzy wbudowane działania na prawdziwych usługach). Gdyby usługa nie była zarejestrowana, krok kończy się komunikatem „Ten krok nie jest dostępny…” (raport per plik).
 - „Archiwizuj” NIE tworzy PDF/A (brak walidacji PDF/A, osadzania profili ICC i czcionek w ZetPDF) – uzupełnia metadane i usuwa skrypty; opisano to w opisie działania.
 - Pliki zaszyfrowane nie są przetwarzane (błąd w raporcie). Krok OCR – zawsze wszystkie strony. Znak wodny z obrazu nie jest edytowalny w edytorze parametrów (tylko tekst).
 - Hasła kroku „Chroń hasłem” nie są zapisywane w JSON – okno pyta o nie przed uruchomieniem.

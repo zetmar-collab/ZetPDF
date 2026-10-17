@@ -107,3 +107,8 @@ Format: problem → decyzja → uzasadnienie. Decyzje oznaczone **[DO ZATWIERDZE
 ## D-21. `OcrPageResult.RegionOfInterest`
 - Problem: wynik OCR obszaru był oznaczany obejściem `ConditionalWeakTable` w `TesseractOcrService.AsRegionResult` (znacznik ginął przy każdej kopii wyniku, np. po poprawkach w oknie przeglądu – okno musiało go przenosić ręcznie).
 - Decyzja: opcjonalny parametr kontraktu `OcrPageResult.RegionOfInterest` (`PdfRect?`, domyślnie null = cała strona). `ApplyTextLayerAsync` decyduje per strona: z obszarem – dopisuje warstwę `ocr-region`, bez – zastępuje warstwę strony. Obejście i metody `AsRegionResult`/`IsRegionResult` usunięte; kopie `with` zachowują obszar (test `Region_ocr_recognizes_only_the_area`).
+
+## Pozostałe zadania integratora (po liście 1–7)
+8. [x] Ostrzeżenia kompilacji → D-20 (build: 0 ostrzeżeń, 0 błędów).
+9. [x] `OcrPageResult.RegionOfInterest` → D-21.
+10. [x] Test dymny Kreatora działań na prawdziwych usługach z DI (`tests\ZetPDF.IntegrationTests\ActionWizardSmokeTests.cs`): „Przygotuj do dystrybucji”, „Zoptymalizuj dla Internetu”, „Archiwizuj” na 2 plikach z TestData (metadane+załącznik+JavaScript, skan) – wyniki otwierają się w PDFium; dystrybucja: puste Title/Subject/Keywords, brak `/JavaScript` i załączników, znak wodny i nagłówek/stopka wykryte (`DetectMarksAsync`) i tekst znaku wodnego obecny; Internet: wynik nie większy od oryginału, ta sama liczba stron; archiwum: tytuł uzupełniony tylko gdy pusty, JavaScript usunięty, załączniki zostają.
