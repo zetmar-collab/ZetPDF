@@ -1,8 +1,301 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
   <resheader name="version"><value>2.0</value></resheader>
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <data name="Pages.ModuleName" xml:space="preserve"><value>Pages</value></data>
+  <data name="Pages.Background.Color" xml:space="preserve"><value>Color</value></data>
+  <data name="Pages.Background.Hint" xml:space="preserve"><value>The background is placed under the page content.</value></data>
+  <data name="Pages.Background.Image" xml:space="preserve"><value>Image (fitted to the page)</value></data>
+  <data name="Pages.Background.Title" xml:space="preserve"><value>Add Background</value></data>
+  <data name="Pages.Background.UpdateTitle" xml:space="preserve"><value>Update Background</value></data>
+  <data name="Pages.Bates.Digits" xml:space="preserve"><value>Number of digits</value></data>
+  <data name="Pages.Bates.Done" xml:space="preserve"><value>Bates numbering added to {0} more file(s) in {1}. Last number: {2}.</value></data>
+  <data name="Pages.Bates.MoreFiles" xml:space="preserve"><value>Next files (numbering continues)</value></data>
+  <data name="Pages.Bates.MoreFilesHint" xml:space="preserve"><value>Optional: these files are numbered after the current document and saved to the output folder.</value></data>
+  <data name="Pages.Bates.OutputFolder" xml:space="preserve"><value>Output folder</value></data>
+  <data name="Pages.Bates.Prefix" xml:space="preserve"><value>Prefix</value></data>
+  <data name="Pages.Bates.Start" xml:space="preserve"><value>Start number</value></data>
+  <data name="Pages.Bates.Suffix" xml:space="preserve"><value>Suffix</value></data>
+  <data name="Pages.Bates.Title" xml:space="preserve"><value>Bates Numbering</value></data>
+  <data name="Pages.Blank.Count" xml:space="preserve"><value>Number of pages</value></data>
+  <data name="Pages.Blank.NewName" xml:space="preserve"><value>New document</value></data>
+  <data name="Pages.Blank.NewTitle" xml:space="preserve"><value>Blank Document</value></data>
+  <data name="Pages.Blank.Title" xml:space="preserve"><value>Insert Blank Pages</value></data>
+  <data name="Pages.Crop.Bottom" xml:space="preserve"><value>Bottom</value></data>
+  <data name="Pages.Crop.Hint" xml:space="preserve"><value>Margins are measured on the page as displayed (after rotation). Cropping sets the CropBox; content outside it is hidden, not deleted.</value></data>
+  <data name="Pages.Crop.Left" xml:space="preserve"><value>Left</value></data>
+  <data name="Pages.Crop.Margins" xml:space="preserve"><value>Margins to remove</value></data>
+  <data name="Pages.Crop.MediaBox" xml:space="preserve"><value>Also change the MediaBox</value></data>
+  <data name="Pages.Crop.RemoveWhite" xml:space="preserve"><value>Remove white margins (content analysis)</value></data>
+  <data name="Pages.Crop.Right" xml:space="preserve"><value>Right</value></data>
+  <data name="Pages.Crop.Title" xml:space="preserve"><value>Crop Pages</value></data>
+  <data name="Pages.Crop.Top" xml:space="preserve"><value>Top</value></data>
+  <data name="Pages.Delete.Hint" xml:space="preserve"><value>The selected pages will be deleted. You can undo this with Ctrl+Z.</value></data>
+  <data name="Pages.Delete.Ok" xml:space="preserve"><value>Delete</value></data>
+  <data name="Pages.Delete.Title" xml:space="preserve"><value>Delete Pages</value></data>
+  <data name="Pages.Dialog.AddFiles" xml:space="preserve"><value>Add files…</value></data>
+  <data name="Pages.Dialog.Browse" xml:space="preserve"><value>Browse…</value></data>
+  <data name="Pages.Dialog.Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Pages.Dialog.Down" xml:space="preserve"><value>Move down</value></data>
+  <data name="Pages.Dialog.ErrorTitle" xml:space="preserve"><value>Pages</value></data>
+  <data name="Pages.Dialog.Folder" xml:space="preserve"><value>Folder</value></data>
+  <data name="Pages.Dialog.InfoTitle" xml:space="preserve"><value>Pages</value></data>
+  <data name="Pages.Dialog.Ok" xml:space="preserve"><value>OK</value></data>
+  <data name="Pages.Dialog.Pattern" xml:space="preserve"><value>File name pattern</value></data>
+  <data name="Pages.Dialog.PatternHint" xml:space="preserve"><value>{name} – document name, {page} – page number, {n} – file number.</value></data>
+  <data name="Pages.Dialog.Remove" xml:space="preserve"><value>Remove</value></data>
+  <data name="Pages.Dialog.SelectFolder" xml:space="preserve"><value>Select folder</value></data>
+  <data name="Pages.Dialog.SelectImage" xml:space="preserve"><value>Select image</value></data>
+  <data name="Pages.Dialog.SelectPdf" xml:space="preserve"><value>Select PDF file</value></data>
+  <data name="Pages.Dialog.SourceFile" xml:space="preserve"><value>File</value></data>
+  <data name="Pages.Dialog.SourceRange" xml:space="preserve"><value>Source pages</value></data>
+  <data name="Pages.Dialog.SourceRangeHint" xml:space="preserve"><value>e.g. 1-3,5 (empty = all)</value></data>
+  <data name="Pages.Dialog.Up" xml:space="preserve"><value>Move up</value></data>
+  <data name="Pages.Error.BackgroundEmpty" xml:space="preserve"><value>Choose a background color or an image.</value></data>
+  <data name="Pages.Error.CannotDeleteAll" xml:space="preserve"><value>A document must keep at least one page.</value></data>
+  <data name="Pages.Error.CropTooLarge" xml:space="preserve"><value>The margins are larger than the page.</value></data>
+  <data name="Pages.Error.FileNotFound" xml:space="preserve"><value>The file does not exist.</value></data>
+  <data name="Pages.Error.FolderNotFound" xml:space="preserve"><value>Choose an existing folder.</value></data>
+  <data name="Pages.Error.FormatEmpty" xml:space="preserve"><value>Enter the number format.</value></data>
+  <data name="Pages.Error.HeaderFooterEmpty" xml:space="preserve"><value>Fill in at least one header or footer field.</value></data>
+  <data name="Pages.Error.ImageNotFound" xml:space="preserve"><value>The image file does not exist.</value></data>
+  <data name="Pages.Error.InvalidColor" xml:space="preserve"><value>Enter the color as #RRGGBB.</value></data>
+  <data name="Pages.Error.InvalidCount" xml:space="preserve"><value>Enter a number from {0} to {1}.</value></data>
+  <data name="Pages.Error.InvalidNumber" xml:space="preserve"><value>One of the values is not a valid number or is out of range.</value></data>
+  <data name="Pages.Error.InvalidPage" xml:space="preserve"><value>Enter a valid page number.</value></data>
+  <data name="Pages.Error.InvalidPageOf" xml:space="preserve"><value>Enter a page number from 1 to {0}.</value></data>
+  <data name="Pages.Error.InvalidRange" xml:space="preserve"><value>Enter a valid page range, e.g. 1-3,5.</value></data>
+  <data name="Pages.Error.InvalidRangeFor" xml:space="preserve"><value>Invalid page range for {0}.</value></data>
+  <data name="Pages.Error.InvalidRangeOf" xml:space="preserve"><value>Invalid page range. The file has {0} page(s).</value></data>
+  <data name="Pages.Error.InvalidSize" xml:space="preserve"><value>Enter a valid page size (10–5000 mm).</value></data>
+  <data name="Pages.Error.InvalidStyle" xml:space="preserve"><value>Check the font size (1–1000 pt) and color (#RRGGBB).</value></data>
+  <data name="Pages.Error.MergeTwoFiles" xml:space="preserve"><value>Add at least two files.</value></data>
+  <data name="Pages.Error.NoBookmarks" xml:space="preserve"><value>The document has no top-level bookmarks.</value></data>
+  <data name="Pages.Error.NoPages" xml:space="preserve"><value>The result contains no pages.</value></data>
+  <data name="Pages.Error.NothingSelected" xml:space="preserve"><value>Select at least one option.</value></data>
+  <data name="Pages.Error.RendererUnavailable" xml:space="preserve"><value>This operation needs the page renderer (PDFium), which is not available.</value></data>
+  <data name="Pages.Error.ReplaceCountMismatch" xml:space="preserve"><value>The number of replaced pages must equal the number of source pages.</value></data>
+  <data name="Pages.Error.SamePage" xml:space="preserve"><value>Choose two different pages.</value></data>
+  <data name="Pages.Error.SourceTooShort" xml:space="preserve"><value>The source file has {0} page(s), but {1} are needed from the chosen start page.</value></data>
+  <data name="Pages.Error.WatermarkEmpty" xml:space="preserve"><value>Enter the watermark text or choose an image.</value></data>
+  <data name="Pages.Extract.DeleteAfter" xml:space="preserve"><value>Delete pages from the original after extracting</value></data>
+  <data name="Pages.Extract.Done" xml:space="preserve"><value>{0} file(s) saved in {1}.</value></data>
+  <data name="Pages.Extract.Mode" xml:space="preserve"><value>Output</value></data>
+  <data name="Pages.Extract.NewName" xml:space="preserve"><value>{0} (pages {1})</value></data>
+  <data name="Pages.Extract.Separate" xml:space="preserve"><value>Each page as a separate file</value></data>
+  <data name="Pages.Extract.Single" xml:space="preserve"><value>One new document (opened in a new tab)</value></data>
+  <data name="Pages.Extract.Title" xml:space="preserve"><value>Extract Pages</value></data>
+  <data name="Pages.Filter.Images" xml:space="preserve"><value>Images</value></data>
+  <data name="Pages.Flatten.Annotations" xml:space="preserve"><value>Comments (annotations)</value></data>
+  <data name="Pages.Flatten.Fields" xml:space="preserve"><value>Form fields</value></data>
+  <data name="Pages.Flatten.Hint" xml:space="preserve"><value>Flattening draws comments and fields into the page content; they can no longer be edited. Comments without an appearance stream stay as comments.</value></data>
+  <data name="Pages.Flatten.KeepLinks" xml:space="preserve"><value>Keep links</value></data>
+  <data name="Pages.Flatten.Title" xml:space="preserve"><value>Flatten</value></data>
+  <data name="Pages.Gray.Raster" xml:space="preserve"><value>Rasterize pages (150 DPI)</value></data>
+  <data name="Pages.Gray.RasterWarning" xml:space="preserve"><value>Warning: pages become images – text can no longer be selected or searched (use OCR), and the file may grow.</value></data>
+  <data name="Pages.Gray.Title" xml:space="preserve"><value>Convert to Grayscale</value></data>
+  <data name="Pages.Gray.Vector" xml:space="preserve"><value>Convert colors and images (text stays text)</value></data>
+  <data name="Pages.Gray.VectorHint" xml:space="preserve"><value>Converts RGB/CMYK colors in page content, forms and simple gradients, and RGB images. Patterns, spot colors and CMYK JPEG images stay unchanged.</value></data>
+  <data name="Pages.HeaderFooter.DateFormat" xml:space="preserve"><value>Date format</value></data>
+  <data name="Pages.HeaderFooter.Footer" xml:space="preserve"><value>Footer</value></data>
+  <data name="Pages.HeaderFooter.Header" xml:space="preserve"><value>Header</value></data>
+  <data name="Pages.HeaderFooter.Layout" xml:space="preserve"><value>Layout</value></data>
+  <data name="Pages.HeaderFooter.MacroHint" xml:space="preserve"><value>Macros: &lt;&lt;page&gt;&gt;, &lt;&lt;pages&gt;&gt;, &lt;&lt;date&gt;&gt;, &lt;&lt;file&gt;&gt; (also &lt;&lt;strona&gt;&gt;, &lt;&lt;stron&gt;&gt;, &lt;&lt;data&gt;&gt;, &lt;&lt;plik&gt;&gt;).</value></data>
+  <data name="Pages.HeaderFooter.Margins" xml:space="preserve"><value>Margins (left, top, right, bottom)</value></data>
+  <data name="Pages.HeaderFooter.StartNumber" xml:space="preserve"><value>First page number</value></data>
+  <data name="Pages.HeaderFooter.Texts" xml:space="preserve"><value>Texts</value></data>
+  <data name="Pages.HeaderFooter.Title" xml:space="preserve"><value>Add Header &amp; Footer</value></data>
+  <data name="Pages.HeaderFooter.UpdateTitle" xml:space="preserve"><value>Update Header &amp; Footer</value></data>
+  <data name="Pages.Insert.Title" xml:space="preserve"><value>Insert Pages from File</value></data>
+  <data name="Pages.Interleave.Hint" xml:space="preserve"><value>Pages are combined alternately: 1st of this document, 1st of the second file, 2nd, 2nd… (e.g. odd and even pages scanned separately).</value></data>
+  <data name="Pages.Interleave.Reverse" xml:space="preserve"><value>Second file is in reverse order</value></data>
+  <data name="Pages.Interleave.Second" xml:space="preserve"><value>Second file</value></data>
+  <data name="Pages.Interleave.Title" xml:space="preserve"><value>Interleave Pages</value></data>
+  <data name="Pages.Labels.AddOrUpdate" xml:space="preserve"><value>Add / update</value></data>
+  <data name="Pages.Labels.Clear" xml:space="preserve"><value>Remove all</value></data>
+  <data name="Pages.Labels.Decimal" xml:space="preserve"><value>1, 2, 3</value></data>
+  <data name="Pages.Labels.Edit" xml:space="preserve"><value>Section</value></data>
+  <data name="Pages.Labels.FromPage" xml:space="preserve"><value>From page</value></data>
+  <data name="Pages.Labels.Hint" xml:space="preserve"><value>Page labels change how page numbers are shown in viewers (e.g. i, ii for the introduction, then 1, 2…). An empty list removes the labels.</value></data>
+  <data name="Pages.Labels.Item" xml:space="preserve"><value>From page {0}: {1}, prefix “{2}”, start {3}</value></data>
+  <data name="Pages.Labels.LowerLetters" xml:space="preserve"><value>a, b, c</value></data>
+  <data name="Pages.Labels.LowerRoman" xml:space="preserve"><value>i, ii, iii</value></data>
+  <data name="Pages.Labels.None" xml:space="preserve"><value>No number (prefix only)</value></data>
+  <data name="Pages.Labels.Prefix" xml:space="preserve"><value>Prefix</value></data>
+  <data name="Pages.Labels.Preview" xml:space="preserve"><value>Preview: {0}</value></data>
+  <data name="Pages.Labels.Sections" xml:space="preserve"><value>Sections</value></data>
+  <data name="Pages.Labels.Start" xml:space="preserve"><value>Start number</value></data>
+  <data name="Pages.Labels.Style" xml:space="preserve"><value>Style</value></data>
+  <data name="Pages.Labels.Title" xml:space="preserve"><value>Page Number Format</value></data>
+  <data name="Pages.Labels.UpperLetters" xml:space="preserve"><value>A, B, C</value></data>
+  <data name="Pages.Labels.UpperRoman" xml:space="preserve"><value>I, II, III</value></data>
+  <data name="Pages.Marks.NoneFound" xml:space="preserve"><value>The document has no marks of this kind added by ZetPDF.</value></data>
+  <data name="Pages.Merge.BookmarkPerFile" xml:space="preserve"><value>Add a bookmark with each file name</value></data>
+  <data name="Pages.Merge.Files" xml:space="preserve"><value>Files (in merge order)</value></data>
+  <data name="Pages.Merge.KeepBookmarks" xml:space="preserve"><value>Keep the files&apos; bookmarks</value></data>
+  <data name="Pages.Merge.NewName" xml:space="preserve"><value>Merged document</value></data>
+  <data name="Pages.Merge.Range" xml:space="preserve"><value>Pages of the selected file</value></data>
+  <data name="Pages.Merge.Title" xml:space="preserve"><value>Merge PDF Files</value></data>
+  <data name="Pages.Move.Target" xml:space="preserve"><value>Move to</value></data>
+  <data name="Pages.Move.Title" xml:space="preserve"><value>Move Pages</value></data>
+  <data name="Pages.Optimize.Cleanup" xml:space="preserve"><value>Cleanup</value></data>
+  <data name="Pages.Optimize.Dpi" xml:space="preserve"><value>Maximum resolution</value></data>
+  <data name="Pages.Optimize.DpiHint" xml:space="preserve"><value>DPI (0 = do not downsample)</value></data>
+  <data name="Pages.Optimize.Images" xml:space="preserve"><value>Recompress images as JPEG</value></data>
+  <data name="Pages.Optimize.ImagesHeader" xml:space="preserve"><value>Images</value></data>
+  <data name="Pages.Optimize.Metadata" xml:space="preserve"><value>Remove metadata (document properties, XMP)</value></data>
+  <data name="Pages.Optimize.Progress.Images" xml:space="preserve"><value>Images</value></data>
+  <data name="Pages.Optimize.Quality" xml:space="preserve"><value>JPEG quality</value></data>
+  <data name="Pages.Optimize.QualityHint" xml:space="preserve"><value>1–100</value></data>
+  <data name="Pages.Optimize.Report" xml:space="preserve"><value>Size before: {0}
+Size after: {1}
+Saved: {2}%
+Images recompressed: {3}</value></data>
+  <data name="Pages.Optimize.Streams" xml:space="preserve"><value>Compress streams</value></data>
+  <data name="Pages.Optimize.Thumbnails" xml:space="preserve"><value>Remove embedded page thumbnails</value></data>
+  <data name="Pages.Optimize.Title" xml:space="preserve"><value>Optimize PDF</value></data>
+  <data name="Pages.Optimize.Unused" xml:space="preserve"><value>Remove unused objects and resources</value></data>
+  <data name="Pages.PageNumbers.DefaultFormat" xml:space="preserve"><value>Page &lt;&lt;page&gt;&gt; of &lt;&lt;pages&gt;&gt;</value></data>
+  <data name="Pages.PageNumbers.Format" xml:space="preserve"><value>Format</value></data>
+  <data name="Pages.PageNumbers.Margin" xml:space="preserve"><value>Distance from edge</value></data>
+  <data name="Pages.PageNumbers.RemoveExisting" xml:space="preserve"><value>Remove page numbers</value></data>
+  <data name="Pages.PageNumbers.Replace" xml:space="preserve"><value>Replace existing page numbers</value></data>
+  <data name="Pages.PageNumbers.Title" xml:space="preserve"><value>Page Numbers</value></data>
+  <data name="Pages.Pos.Bottom" xml:space="preserve"><value>Bottom</value></data>
+  <data name="Pages.Pos.Center" xml:space="preserve"><value>Center</value></data>
+  <data name="Pages.Pos.Left" xml:space="preserve"><value>Left</value></data>
+  <data name="Pages.Pos.Middle" xml:space="preserve"><value>Middle</value></data>
+  <data name="Pages.Pos.Right" xml:space="preserve"><value>Right</value></data>
+  <data name="Pages.Pos.Top" xml:space="preserve"><value>Top</value></data>
+  <data name="Pages.Position.After" xml:space="preserve"><value>After page</value></data>
+  <data name="Pages.Position.Before" xml:space="preserve"><value>Before page</value></data>
+  <data name="Pages.Position.First" xml:space="preserve"><value>At the beginning</value></data>
+  <data name="Pages.Position.Header" xml:space="preserve"><value>Position</value></data>
+  <data name="Pages.Position.Last" xml:space="preserve"><value>At the end</value></data>
+  <data name="Pages.Position.PageOfFormat" xml:space="preserve"><value>of {0}</value></data>
+  <data name="Pages.Progress.Working" xml:space="preserve"><value>Processing pages…</value></data>
+  <data name="Pages.Range.All" xml:space="preserve"><value>All</value></data>
+  <data name="Pages.Range.Current" xml:space="preserve"><value>Current page</value></data>
+  <data name="Pages.Range.Custom" xml:space="preserve"><value>Pages:</value></data>
+  <data name="Pages.Range.Header" xml:space="preserve"><value>Page range</value></data>
+  <data name="Pages.Range.Hint" xml:space="preserve"><value>e.g. 1-3,5,8-</value></data>
+  <data name="Pages.Range.Selected" xml:space="preserve"><value>Selected thumbnails</value></data>
+  <data name="Pages.Range.Subset" xml:space="preserve"><value>Apply to</value></data>
+  <data name="Pages.Range.Subset.All" xml:space="preserve"><value>All pages in range</value></data>
+  <data name="Pages.Range.Subset.Even" xml:space="preserve"><value>Even pages only</value></data>
+  <data name="Pages.Range.Subset.Odd" xml:space="preserve"><value>Odd pages only</value></data>
+  <data name="Pages.Replace.Hint" xml:space="preserve"><value>Pages are replaced one by one with consecutive pages of the source file.</value></data>
+  <data name="Pages.Replace.SourceStart" xml:space="preserve"><value>Start from source page</value></data>
+  <data name="Pages.Replace.Title" xml:space="preserve"><value>Replace Pages</value></data>
+  <data name="Pages.Resize.Scale" xml:space="preserve"><value>Scale content to fit</value></data>
+  <data name="Pages.Resize.Title" xml:space="preserve"><value>Resize Pages</value></data>
+  <data name="Pages.Reverse.Hint" xml:space="preserve"><value>Reverses the order of all pages or only of the chosen pages.</value></data>
+  <data name="Pages.Reverse.Title" xml:space="preserve"><value>Reverse Page Order</value></data>
+  <data name="Pages.Rotate.Direction" xml:space="preserve"><value>Direction</value></data>
+  <data name="Pages.Rotate.Half" xml:space="preserve"><value>180°</value></data>
+  <data name="Pages.Rotate.Left" xml:space="preserve"><value>90° counterclockwise</value></data>
+  <data name="Pages.Rotate.Right" xml:space="preserve"><value>90° clockwise</value></data>
+  <data name="Pages.Rotate.Title" xml:space="preserve"><value>Rotate Pages</value></data>
+  <data name="Pages.Sanitize.Attachments" xml:space="preserve"><value>Attached files</value></data>
+  <data name="Pages.Sanitize.Comments" xml:space="preserve"><value>Comments</value></data>
+  <data name="Pages.Sanitize.FormData" xml:space="preserve"><value>Form data (field values)</value></data>
+  <data name="Pages.Sanitize.Hint" xml:space="preserve"><value>Selected items are permanently removed from the document (Undo is still available until the document is closed).</value></data>
+  <data name="Pages.Sanitize.JavaScript" xml:space="preserve"><value>JavaScript and actions</value></data>
+  <data name="Pages.Sanitize.Layers" xml:space="preserve"><value>Hidden layers (content of hidden layers is deleted)</value></data>
+  <data name="Pages.Sanitize.Links" xml:space="preserve"><value>Links and actions to external files</value></data>
+  <data name="Pages.Sanitize.Metadata" xml:space="preserve"><value>Metadata (document properties, XMP)</value></data>
+  <data name="Pages.Sanitize.Report" xml:space="preserve"><value>Removed:
+metadata entries: {0}
+comments: {1}
+attachments: {2}
+scripts and actions: {3}
+hidden layers: {4}
+external links: {5}</value></data>
+  <data name="Pages.Sanitize.Run" xml:space="preserve"><value>Remove</value></data>
+  <data name="Pages.Sanitize.Thumbnails" xml:space="preserve"><value>Embedded page thumbnails</value></data>
+  <data name="Pages.Sanitize.Title" xml:space="preserve"><value>Sanitize Document</value></data>
+  <data name="Pages.Size.A3" xml:space="preserve"><value>A3 (297 × 420 mm)</value></data>
+  <data name="Pages.Size.A4" xml:space="preserve"><value>A4 (210 × 297 mm)</value></data>
+  <data name="Pages.Size.A5" xml:space="preserve"><value>A5 (148 × 210 mm)</value></data>
+  <data name="Pages.Size.Current" xml:space="preserve"><value>Same as current page</value></data>
+  <data name="Pages.Size.Custom" xml:space="preserve"><value>Custom</value></data>
+  <data name="Pages.Size.CustomMm" xml:space="preserve"><value>Custom size</value></data>
+  <data name="Pages.Size.Format" xml:space="preserve"><value>Format</value></data>
+  <data name="Pages.Size.Header" xml:space="preserve"><value>Page size</value></data>
+  <data name="Pages.Size.Landscape" xml:space="preserve"><value>Landscape</value></data>
+  <data name="Pages.Size.Legal" xml:space="preserve"><value>Legal (8.5 × 14 in)</value></data>
+  <data name="Pages.Size.Letter" xml:space="preserve"><value>Letter (8.5 × 11 in)</value></data>
+  <data name="Pages.Size.Orientation" xml:space="preserve"><value>Orientation</value></data>
+  <data name="Pages.Size.Portrait" xml:space="preserve"><value>Portrait</value></data>
+  <data name="Pages.Split.Bookmarks" xml:space="preserve"><value>By top-level bookmarks</value></data>
+  <data name="Pages.Split.Done" xml:space="preserve"><value>{0} file(s) saved in {1}.</value></data>
+  <data name="Pages.Split.EveryN" xml:space="preserve"><value>Every</value></data>
+  <data name="Pages.Split.Mode" xml:space="preserve"><value>Split</value></data>
+  <data name="Pages.Split.Pages" xml:space="preserve"><value>pages</value></data>
+  <data name="Pages.Split.PatternHint" xml:space="preserve"><value>{name} – document name, {n} – part number, {page} – first page, {bookmark} – bookmark title. Existing files are not overwritten.</value></data>
+  <data name="Pages.Split.Size" xml:space="preserve"><value>Maximum file size</value></data>
+  <data name="Pages.Split.Title" xml:space="preserve"><value>Split Document</value></data>
+  <data name="Pages.Style.Bold" xml:space="preserve"><value>Bold</value></data>
+  <data name="Pages.Style.Color" xml:space="preserve"><value>Color</value></data>
+  <data name="Pages.Style.Font" xml:space="preserve"><value>Font</value></data>
+  <data name="Pages.Style.Header" xml:space="preserve"><value>Font</value></data>
+  <data name="Pages.Style.Italic" xml:space="preserve"><value>Italic</value></data>
+  <data name="Pages.Style.Size" xml:space="preserve"><value>Size</value></data>
+  <data name="Pages.Swap.PageA" xml:space="preserve"><value>First page</value></data>
+  <data name="Pages.Swap.PageB" xml:space="preserve"><value>Second page</value></data>
+  <data name="Pages.Swap.Title" xml:space="preserve"><value>Swap Pages</value></data>
+  <data name="Pages.Undo.Background" xml:space="preserve"><value>Add background</value></data>
+  <data name="Pages.Undo.Bates" xml:space="preserve"><value>Bates numbering</value></data>
+  <data name="Pages.Undo.Crop" xml:space="preserve"><value>Crop pages</value></data>
+  <data name="Pages.Undo.Delete" xml:space="preserve"><value>Delete pages</value></data>
+  <data name="Pages.Undo.Duplicate" xml:space="preserve"><value>Duplicate pages</value></data>
+  <data name="Pages.Undo.Flatten" xml:space="preserve"><value>Flatten</value></data>
+  <data name="Pages.Undo.Grayscale" xml:space="preserve"><value>Convert to grayscale</value></data>
+  <data name="Pages.Undo.HeaderFooter" xml:space="preserve"><value>Add header and footer</value></data>
+  <data name="Pages.Undo.Insert" xml:space="preserve"><value>Insert pages</value></data>
+  <data name="Pages.Undo.InsertBlank" xml:space="preserve"><value>Insert blank pages</value></data>
+  <data name="Pages.Undo.Interleave" xml:space="preserve"><value>Interleave pages</value></data>
+  <data name="Pages.Undo.Move" xml:space="preserve"><value>Move pages</value></data>
+  <data name="Pages.Undo.Optimize" xml:space="preserve"><value>Optimize</value></data>
+  <data name="Pages.Undo.PageLabels" xml:space="preserve"><value>Page number format</value></data>
+  <data name="Pages.Undo.PageNumbers" xml:space="preserve"><value>Page numbers</value></data>
+  <data name="Pages.Undo.RemoveBackgrounds" xml:space="preserve"><value>Remove backgrounds</value></data>
+  <data name="Pages.Undo.RemoveBates" xml:space="preserve"><value>Remove Bates numbering</value></data>
+  <data name="Pages.Undo.RemoveHeaderFooter" xml:space="preserve"><value>Remove headers and footers</value></data>
+  <data name="Pages.Undo.RemovePageNumbers" xml:space="preserve"><value>Remove page numbers</value></data>
+  <data name="Pages.Undo.RemoveWatermarks" xml:space="preserve"><value>Remove watermarks</value></data>
+  <data name="Pages.Undo.Replace" xml:space="preserve"><value>Replace pages</value></data>
+  <data name="Pages.Undo.Resize" xml:space="preserve"><value>Resize pages</value></data>
+  <data name="Pages.Undo.Reverse" xml:space="preserve"><value>Reverse page order</value></data>
+  <data name="Pages.Undo.Rotate" xml:space="preserve"><value>Rotate pages</value></data>
+  <data name="Pages.Undo.Sanitize" xml:space="preserve"><value>Sanitize document</value></data>
+  <data name="Pages.Undo.Swap" xml:space="preserve"><value>Swap pages</value></data>
+  <data name="Pages.Undo.UpdateBackground" xml:space="preserve"><value>Update background</value></data>
+  <data name="Pages.Undo.UpdateHeaderFooter" xml:space="preserve"><value>Update header and footer</value></data>
+  <data name="Pages.Undo.UpdateWatermark" xml:space="preserve"><value>Update watermark</value></data>
+  <data name="Pages.Undo.Watermark" xml:space="preserve"><value>Add watermark</value></data>
+  <data name="Pages.Unit.Degrees" xml:space="preserve"><value>°</value></data>
+  <data name="Pages.Unit.Mb" xml:space="preserve"><value>MB</value></data>
+  <data name="Pages.Unit.Mm" xml:space="preserve"><value>mm</value></data>
+  <data name="Pages.Unit.MmLtrb" xml:space="preserve"><value>mm</value></data>
+  <data name="Pages.Unit.MmXY" xml:space="preserve"><value>mm (X, Y – up)</value></data>
+  <data name="Pages.Unit.Percent" xml:space="preserve"><value>%</value></data>
+  <data name="Pages.Unit.PercentOfPage" xml:space="preserve"><value>% of page (0 = original size)</value></data>
+  <data name="Pages.Unit.Pt" xml:space="preserve"><value>pt</value></data>
+  <data name="Pages.Watermark.Appearance" xml:space="preserve"><value>Appearance and position</value></data>
+  <data name="Pages.Watermark.Behind" xml:space="preserve"><value>Behind page content</value></data>
+  <data name="Pages.Watermark.DefaultText" xml:space="preserve"><value>CONFIDENTIAL</value></data>
+  <data name="Pages.Watermark.Image" xml:space="preserve"><value>Image</value></data>
+  <data name="Pages.Watermark.ImageFile" xml:space="preserve"><value>Image file</value></data>
+  <data name="Pages.Watermark.ImageScale" xml:space="preserve"><value>Image size</value></data>
+  <data name="Pages.Watermark.Offset" xml:space="preserve"><value>Offset</value></data>
+  <data name="Pages.Watermark.Opacity" xml:space="preserve"><value>Opacity</value></data>
+  <data name="Pages.Watermark.Position" xml:space="preserve"><value>Position</value></data>
+  <data name="Pages.Watermark.Rotation" xml:space="preserve"><value>Rotation</value></data>
+  <data name="Pages.Watermark.Source" xml:space="preserve"><value>Source</value></data>
+  <data name="Pages.Watermark.Text" xml:space="preserve"><value>Text</value></data>
+  <data name="Pages.Watermark.Title" xml:space="preserve"><value>Add Watermark</value></data>
+  <data name="Pages.Watermark.UpdateTitle" xml:space="preserve"><value>Update Watermark</value></data>
 </root>

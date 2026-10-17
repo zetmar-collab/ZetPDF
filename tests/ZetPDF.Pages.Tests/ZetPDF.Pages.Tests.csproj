@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <!-- Testy. Własność: pages-engine. xUnit i test SDK dodaje tests/Directory.Build.props. -->
+  <!-- Testy. Własność: pages-engine. xUnit i test SDK dodaje tests/Directory.Build.props.
+       Rendering – tylko do weryfikacji wyników (PDFium) i białych marginesów/rasteryzacji w testach. -->
   <PropertyGroup>
     <UseWPF>true</UseWPF>
     <IsTestProject>true</IsTestProject>
@@ -8,6 +9,8 @@
   <ItemGroup>
     <ProjectReference Include="..\ZetPDF.TestData\ZetPDF.TestData.csproj" />
     <ProjectReference Include="..\..\src\ZetPDF.Core\ZetPDF.Core.csproj" />
+    <ProjectReference Include="..\..\src\ZetPDF.Rendering\ZetPDF.Rendering.csproj" />
     <ProjectReference Include="..\..\src\ZetPDF.Pages\ZetPDF.Pages.csproj" />
+    <PackageReference Include="PdfPig" Version="$(PdfPigVersion)" />
   </ItemGroup>
 </Project>
