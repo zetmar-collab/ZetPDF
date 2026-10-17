@@ -81,7 +81,7 @@ Format: problem → decyzja → uzasadnienie. Decyzje oznaczone **[DO ZATWIERDZE
 3. [x] AnnotationUpdate.TextStyle – zmiana czcionki FreeText. → D-19.
 4. [x] IStampingService: RemovePageNumbersAsync, GetStoredOptionsAsync (pages-engine, Kreator działań). Dodane do kontraktu; rzutowania na `StampingService` w poleceniach Pages usunięte, testy Pages wołają przez interfejs.
 5. [x] Zdublowany pasek nawigacji stron (ViewerBar + pasek stanu powłoki) – zostawić jeden. Został pasek stanu powłoki (wymaganie: „pasek stanu z numerem strony i powiększeniem”); `ViewerBar` usunięty z Viewer (z tekstami `Viewer.Bar.*`), `TryParsePercent` przeniesione do `PageLayout` (okno Powiększenie do), FindBar bez zmian.
-6. BouncyCastle nieużywany w ZetPDF.Security – usunąć albo uzasadnić.
+6. [x] BouncyCastle nieużywany w ZetPDF.Security – usunąć albo uzasadnić. Usunięty: brak `Org.BouncyCastle` w kodzie i w zależnościach przechodnich (project.assets.json); podpisy/CMS/TSA działają na System.Security.Cryptography.Pkcs. Usunięty też z `docs\LICENCJE.md` i listy licencji w oknie O programie.
 7. Annotations: FillSign.Flatten po scaleniu ma używać IPageOperations.FlattenAsync z pages-engine – sprawdzić /AS widżetów.
 
 

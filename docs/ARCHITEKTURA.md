@@ -16,7 +16,7 @@ Dokument obowiązuje wszystkich agentów. Kontrakty w `src\ZetPDF.Core\Contracts
 | CommunityToolkit.Mvvm | 8.4.2 | MIT | – |
 | Microsoft.Extensions.DependencyInjection / Logging | 8.0.x | MIT | – |
 | System.Security.Cryptography.Pkcs | 8.0.2 (PDFsharp ciągnie 8.0.1 z CVE) | MIT | OK |
-| BouncyCastle.Cryptography | 2.6.2 | MIT | OK |
+| ~~BouncyCastle.Cryptography~~ | – | MIT | usunięty po scaleniu – nieużywany (podpisy przez System.Security.Cryptography.Pkcs) |
 | DocumentFormat.OpenXml | 3.5.1 | MIT | OK |
 | ZXing.Net (etap 3) | 0.16.11 | Apache-2.0 | OK (nie dołączony jeszcze do żadnego projektu) |
 | xUnit 2.9.3, Test SDK 17.14.1, runner 3.1.4 | – | Apache-2.0 / MIT | testy |
@@ -63,7 +63,7 @@ ZetPDF.sln
 │  ├─ ZetPDF.Annotations   (WPF lib)  komentarze, formularze, Wypełnij i podpisz, załączniki → Core (+PdfPig)
 │  ├─ ZetPDF.Ocr           (lib)      Tesseract → IOcrService                            → Core (+Tesseract)
 │  ├─ ZetPDF.Editing       (WPF lib)  edycja tekstu/obiektów, łącza, konwersje, redakcja, okna OCR → Core, Ocr (+PdfPig, OpenXml)
-│  ├─ ZetPDF.Security      (WPF lib)  hasła, podpisy, porównanie, Kreator działań         → Core (+PdfPig, BouncyCastle)
+│  ├─ ZetPDF.Security      (WPF lib)  hasła, podpisy, porównanie, Kreator działań         → Core (+PdfPig)
 │  └─ ZetPDF.App           (WinExe, AssemblyName=ZetPDF)  powłoka                         → wszystkie powyższe (+Fluent.Ribbon, M.E.DI)
 └─ tests\
    ├─ ZetPDF.TestData            generator przykładowych PDF (wspólny)

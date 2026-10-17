@@ -57,8 +57,6 @@ public static class ThirdPartyLibraries
             "Copyright (c) .NET Foundation and Contributors", "https://github.com/dotnet/runtime", "MIT.txt"),
         new("DocumentFormat.OpenXml", "3.5.1", "MIT",
             "© Microsoft Corporation. All rights reserved.", "https://github.com/dotnet/Open-XML-SDK", "MIT.txt"),
-        new("BouncyCastle.Cryptography", "2.6.2", "MIT",
-            "Copyright © Legion of the Bouncy Castle Inc. 2000-2025", "https://www.bouncycastle.org/", "MIT.txt"),
         new(".NET 8 Runtime / WPF", "8.0", "MIT",
             "Copyright (c) .NET Foundation and Contributors", "https://github.com/dotnet/wpf", "MIT.txt"),
     };

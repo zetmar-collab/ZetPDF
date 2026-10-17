@@ -20,7 +20,6 @@ Sprawdzone w plikach `.nuspec` pobranych pakietów (16.10.2026) i `dotnet list p
 | System.Security.Cryptography.ProtectedData | 8.0.0 | MIT | Core | DPAPI dla zrzutów |
 | System.Text.Json, System.IO.Packaging, System.Memory i inne System.* | 8.0.x | MIT | przechodnie | |
 | DocumentFormat.OpenXml (+ .Framework) | 3.5.1 | MIT | Editing | PDF → DOCX |
-| BouncyCastle.Cryptography | 2.6.2 | MIT | Security | |
 | ZXing.Net | 0.16.11 | Apache-2.0 | (etap 3 – jeszcze nieużyty) | |
 | DiffPlex | 1.9.0 | Apache-2.0 | (kandydat dla porównania – security-signatures decyduje) | |
 | Newtonsoft.Json | 13.0.3 | MIT | tylko testy (przez Test SDK) | |
