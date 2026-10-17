@@ -10,6 +10,7 @@
     <ProjectReference Include="..\ZetPDF.TestData\ZetPDF.TestData.csproj" />
     <ProjectReference Include="..\..\src\ZetPDF.Core\ZetPDF.Core.csproj" />
     <ProjectReference Include="..\..\src\ZetPDF.Rendering\ZetPDF.Rendering.csproj" />
+    <ProjectReference Include="..\..\src\ZetPDF.Viewer\ZetPDF.Viewer.csproj" />
     <ProjectReference Include="..\..\src\ZetPDF.Annotations\ZetPDF.Annotations.csproj" />
     <PackageReference Include="PdfPig" Version="$(PdfPigVersion)" />
   </ItemGroup>

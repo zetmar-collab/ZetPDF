@@ -86,7 +86,8 @@ internal sealed class AnnotContext
     public IReadOnlyList<AnnotationInfo>? CachedAnnotations(IPdfDocumentSession session)
     {
         if (_annots.TryGetValue(session.Id, out var c) && c.Version == session.Current.Version && c.Task.IsCompletedSuccessfully) return c.Task.Result;
-        _ = GetAnnotationsAsync(session).ContinueWith(_ => ActiveView?.InvalidateOverlays(), TaskScheduler.FromCurrentSynchronizationContext());
+        if (System.Threading.SynchronizationContext.Current is not null)
+            _ = GetAnnotationsAsync(session).ContinueWith(_ => ActiveView?.InvalidateOverlays(), TaskScheduler.FromCurrentSynchronizationContext());
         return null;
     }
 

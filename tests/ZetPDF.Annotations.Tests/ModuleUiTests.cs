@@ -71,7 +71,7 @@ public class ModuleUiTests
     }
 
     [Fact]
-    public void Drawn_and_typed_signatures_render_to_transparent_png_and_can_be_stamped()
+    public async Task Drawn_and_typed_signatures_render_to_transparent_png_and_can_be_stamped()
     {
         byte[] drawn = Array.Empty<byte>(), typed = Array.Empty<byte>();
         Sta(() =>
@@ -85,9 +85,9 @@ public class ModuleUiTests
         var store = new SignatureStore(Path.Combine(TestPaths.NewDirectory(), "signatures"));
         var path = store.Save(drawn);
         Assert.Single(store.List());
-        var (pdf, _) = new AnnotationService().AddAsync(SamplePdfFactory.Text(1),
-            new AnnotationSpec { Kind = AnnotationKind.Stamp, PageIndex = 0, Rect = new(100, 300, 250, 340), ImageData = typed }).GetAwaiter().GetResult();
-        Assert.True(RenderCheck.NonWhitePixels(pdf, 0, new PdfRect(100, 300, 250, 340)).GetAwaiter().GetResult() > 100);
+        var (pdf, _) = await new AnnotationService().AddAsync(SamplePdfFactory.Text(1),
+            new AnnotationSpec { Kind = AnnotationKind.Stamp, PageIndex = 0, Rect = new(100, 300, 250, 340), ImageData = typed });
+        Assert.True(await RenderCheck.NonWhitePixels(pdf, 0, new PdfRect(100, 300, 250, 340)) > 100);
         store.Delete(path);
         Assert.Empty(store.List());
     }

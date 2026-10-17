@@ -42,7 +42,15 @@ internal sealed class FormFillController
         view.AddOverlay(new DelegateOverlay(100, (dc, page, t) => SelectAnnotationTool.RenderSelection(_ctx, _select, dc, page, t, view)));
         view.AddOverlay(new DelegateOverlay(200, (dc, page, t) => RenderFields(view, dc, page, t), () => _ctx.Settings.HighlightFields));
         view.Element.PreviewMouseLeftButtonDown += (_, e) => OnMouseDown(view, e);
-        view.Session.Changed += (_, _) => view.InvalidateOverlays();
+        view.Session.Changed += (_, _) => { Prefetch(view); view.InvalidateOverlays(); };
+        Prefetch(view);
+    }
+
+    /// <summary>Lista widżetów i komentarzy wczytywana z wyprzedzeniem (pierwsze kliknięcie w pole działa od razu).</summary>
+    private void Prefetch(IDocumentView view)
+    {
+        _ = _ctx.GetWidgetsAsync(view.Session).ContinueWith(_ => view.InvalidateOverlays(), TaskScheduler.FromCurrentSynchronizationContext());
+        _ = _ctx.GetAnnotationsAsync(view.Session);
     }
 
     private bool FillMode => _ctx.Tools is not { } t || t.IsActive(CommandIds.Tool.Hand) || t.IsActive(CommandIds.Tool.SelectText);
