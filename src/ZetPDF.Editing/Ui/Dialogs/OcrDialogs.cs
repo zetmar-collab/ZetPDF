@@ -157,8 +157,7 @@ internal sealed class OcrReviewWindow : Window
                 Words = p.Words.Select((w, i) => edits.TryGetValue((p.PageIndex, i), out var t) ? w with { Text = t, IsSuspect = false } : w)
                     .Where(w => !string.IsNullOrWhiteSpace(w.Text)).ToList(),
             }).ToList();
-            var r = new OcrResult(pages);
-            return Ocr.TesseractOcrService.IsRegionResult(_result) ? Ocr.TesseractOcrService.AsRegionResult(r) : r;
+            return new OcrResult(pages); // RegionOfInterest stron zachowany przez „with”
         }
     }
 }

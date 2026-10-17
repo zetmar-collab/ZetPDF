@@ -103,3 +103,7 @@ Format: problem → decyzja → uzasadnienie. Decyzje oznaczone **[DO ZATWIERDZE
 ## D-20. Ostrzeżenia kompilacji (cel: 0)
 - CS0618 PdfPig 0.1.16: `IPdfImage.Bounds` → `BoundingBox` (DocxWriter), `Letter.GlyphRectangle` → `BoundingBox` (LinkService). Przed zamianą sprawdzono tymczasowym testem na dokumencie z tekstem, obrazem i stroną z `/Rotate 90`, że stare i nowe właściwości zwracają identyczne prostokąty (stare są tylko aliasami); testy DOCX i łączy przechodzą bez zmian.
 - CS8602 w `ConversionTests` (nullowalne `MainDocumentPart.Document` w OpenXml 3.5) – jawne `!`.
+
+## D-21. `OcrPageResult.RegionOfInterest`
+- Problem: wynik OCR obszaru był oznaczany obejściem `ConditionalWeakTable` w `TesseractOcrService.AsRegionResult` (znacznik ginął przy każdej kopii wyniku, np. po poprawkach w oknie przeglądu – okno musiało go przenosić ręcznie).
+- Decyzja: opcjonalny parametr kontraktu `OcrPageResult.RegionOfInterest` (`PdfRect?`, domyślnie null = cała strona). `ApplyTextLayerAsync` decyduje per strona: z obszarem – dopisuje warstwę `ocr-region`, bez – zastępuje warstwę strony. Obejście i metody `AsRegionResult`/`IsRegionResult` usunięte; kopie `with` zachowują obszar (test `Region_ocr_recognizes_only_the_area`).

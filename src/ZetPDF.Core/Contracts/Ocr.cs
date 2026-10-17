@@ -24,7 +24,12 @@ public sealed record OcrOptions
 /// <summary>Rozpoznane słowo: tekst, prostokąt w punktach strony, pewność 0–100.</summary>
 public sealed record OcrWord(string Text, PdfRect Box, float Confidence, int LineIndex, bool IsSuspect);
 
-public sealed record OcrPageResult(int PageIndex, IReadOnlyList<OcrWord> Words, float MeanConfidence, bool Skipped);
+/// <summary>
+/// Wynik strony. <paramref name="RegionOfInterest"/> = obszar strony (punkty), z którego pochodzi wynik (OCR zaznaczonego
+/// obszaru, <see cref="OcrOptions.Region"/>); null = cała strona. Warstwa z obszaru jest dopisywana bez usuwania
+/// istniejącej warstwy OCR strony.
+/// </summary>
+public sealed record OcrPageResult(int PageIndex, IReadOnlyList<OcrWord> Words, float MeanConfidence, bool Skipped, PdfRect? RegionOfInterest = null);
 
 public sealed record OcrResult(IReadOnlyList<OcrPageResult> Pages)
 {

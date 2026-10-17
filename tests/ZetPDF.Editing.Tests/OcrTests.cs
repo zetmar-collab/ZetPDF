@@ -76,6 +76,15 @@ public class OcrTests
         var output = await ocr.ApplyTextLayerAsync(scan, result);
         Assert.Equal(1, await TestEnv.PdfiumSearchCount(output, "Faktura"));
         Assert.Equal(0, await TestEnv.PdfiumSearchCount(output, "gęślą"));
+
+        // wynik z obszaru niesie RegionOfInterest (także po kopii „with”, jak w oknie przeglądu) –
+        // warstwa obszaru jest dopisywana, warstwa całej strony zostaje
+        Assert.Null(full.Pages[0].RegionOfInterest);
+        Assert.Equal(region, result.Pages[0].RegionOfInterest);
+        var corrected = new OcrResult(result.Pages.Select(p => p with { Words = p.Words.ToList() }).ToList());
+        var both = await ocr.ApplyTextLayerAsync(await ocr.ApplyTextLayerAsync(scan, full), corrected);
+        Assert.Equal(1, await TestEnv.PdfiumSearchCount(both, "gęślą"));
+        Assert.Equal(2, await TestEnv.PdfiumSearchCount(both, "Faktura"));
     }
 
     [Fact]

@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using System.Windows;
 using Tesseract;
 using ZetPDF.Core.Contracts;
@@ -21,7 +20,6 @@ public sealed class TesseractOcrService : IOcrService
     /// <summary>Znacznik strumienia warstwy OCR obszaru (nie zastępuje warstwy strony).</summary>
     public const string RegionLayerMarker = "ocr-region";
 
-    private static readonly ConditionalWeakTable<OcrResult, object> RegionResults = new();
     private static readonly string[] KnownLanguages = { "pol", "eng" };
 
     private readonly TesseractBootstrap _boot;
@@ -34,15 +32,6 @@ public sealed class TesseractOcrService : IOcrService
         _renderer = renderer;
         _loc = loc;
     }
-
-    /// <summary>Oznacza wynik jako OCR obszaru (warstwa dopisywana bez usuwania istniejącej warstwy strony).</summary>
-    public static OcrResult AsRegionResult(OcrResult result)
-    {
-        RegionResults.AddOrUpdate(result, new object());
-        return result;
-    }
-
-    public static bool IsRegionResult(OcrResult result) => RegionResults.TryGetValue(result, out _);
 
     public Task<bool> IsAvailableAsync(CancellationToken ct = default) => Task.Run(() =>
     {
@@ -89,19 +78,16 @@ public sealed class TesseractOcrService : IOcrService
                 var info = doc.Pages[pageIndex];
                 var transform = new PageTransform(info.Size, info.CropOrigin, info.Rotation, bitmap.Scale, new Point(0, 0));
                 var (words, mean) = Recognize(engine, bitmap, options.Region, transform, options.SuspectThreshold, (px, py) => transform.ToPage(new Point(px, py)));
-                results.Add(new OcrPageResult(pageIndex, words, mean, Skipped: false));
+                results.Add(new OcrPageResult(pageIndex, words, mean, Skipped: false, RegionOfInterest: options.Region));
             }
             progress?.Report(OperationProgress.Of(pages.Count, pages.Count, Text("Ocr.Progress.Done")));
-            var result = new OcrResult(results);
-            if (options.Region is not null) AsRegionResult(result);
-            return result;
+            return new OcrResult(results);
         }, ct);
     }
 
     public Task<byte[]> ApplyTextLayerAsync(byte[] pdf, OcrResult result, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(result);
-        bool region = IsRegionResult(result);
         return PdfSharpEdit.ModifyAsync(pdf, doc =>
         {
             foreach (var pr in result.Pages)
@@ -109,6 +95,7 @@ public sealed class TesseractOcrService : IOcrService
                 ct.ThrowIfCancellationRequested();
                 if (pr.Skipped || pr.PageIndex < 0 || pr.PageIndex >= doc.PageCount) continue;
                 var page = doc.Pages[pr.PageIndex];
+                bool region = pr.RegionOfInterest is not null;
                 if (!region) PageContent.RemoveMarked(page, LayerMarker);
                 var words = BuildLayerWords(page, pr.Words);
                 TextLayerWriter.Write(page, words, LayerStyle.HiddenText(region ? RegionLayerMarker : LayerMarker));
