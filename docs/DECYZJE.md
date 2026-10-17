@@ -69,3 +69,8 @@ Format: problem → decyzja → uzasadnienie. Decyzje oznaczone **[DO ZATWIERDZE
 - tessdata: agent edit-convert-ocr może zamienić tessdata_fast na tessdata (standard, Apache 2.0), jeśli jakość polskich znaków będzie wyraźnie lepsza; rozmiar exe jest drugorzędny.
 - Publikacja z -p:DebugType=None.
 
+
+## Zatwierdzenia koordynatora (krok 3, pages-engine)
+- Pages.Tests może referować ZetPDF.Rendering (tylko weryfikacja wyników testów).
+- Rozszerzenie IStampingService o RemovePageNumbersAsync i GetStoredOptionsAsync odłożone do scalenia wszystkich modułów (zmiana kontraktu w Core przez koordynatora); do tego czasu polecenia używają metod klasy StampingService.
+
