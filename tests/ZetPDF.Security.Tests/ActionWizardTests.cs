@@ -36,6 +36,8 @@ public class ActionWizardTests
         public Task<BatesResult> AddBatesAsync(byte[] pdf, BatesOptions o, long startNumber, CancellationToken ct = default) => throw new NotImplementedException();
         public Task<byte[]> RemoveBatesAsync(byte[] pdf, CancellationToken ct = default) => throw new NotImplementedException();
         public Task<PageMarkKind> DetectMarksAsync(byte[] pdf, CancellationToken ct = default) => throw new NotImplementedException();
+        public Task<byte[]> RemovePageNumbersAsync(byte[] pdf, CancellationToken ct = default) => throw new NotImplementedException();
+        public Task<T?> GetStoredOptionsAsync<T>(byte[] pdf, PageMarkKind kind, CancellationToken ct = default) where T : class => throw new NotImplementedException();
     }
 
     private sealed class NotReadyOptimizer : IOptimizerService

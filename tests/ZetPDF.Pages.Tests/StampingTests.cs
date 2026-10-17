@@ -7,7 +7,7 @@ namespace ZetPDF.Pages.Tests;
 
 public class StampingTests
 {
-    private readonly StampingService _st = new();
+    private readonly IStampingService _st = new StampingService(); // przez kontrakt (RemovePageNumbersAsync, GetStoredOptionsAsync)
 
     [Fact]
     public async Task Text_watermark_with_polish_characters_is_extractable_detectable_and_removable()

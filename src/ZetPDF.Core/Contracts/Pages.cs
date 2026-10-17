@@ -141,6 +141,7 @@ public interface IStampingService
 
     /// <summary>Numeracja stron to nagłówek/stopka z jednym polem (osobny znacznik, osobno usuwalna).</summary>
     Task<byte[]> AddPageNumbersAsync(byte[] pdf, PageNumberOptions options, CancellationToken ct = default);
+    Task<byte[]> RemovePageNumbersAsync(byte[] pdf, CancellationToken ct = default);
 
     /// <summary>Bates dla jednego dokumentu; startNumber zwracany w wyniku dla kolejnych plików.</summary>
     Task<BatesResult> AddBatesAsync(byte[] pdf, BatesOptions options, long startNumber, CancellationToken ct = default);
@@ -148,6 +149,12 @@ public interface IStampingService
 
     /// <summary>Czy dokument zawiera oznaczenia danego rodzaju (do włączania Aktualizuj/Usuń).</summary>
     Task<PageMarkKind> DetectMarksAsync(byte[] pdf, CancellationToken ct = default);
+
+    /// <summary>
+    /// Opcje ostatnio dodanego oznaczenia rodzaju <paramref name="kind"/> (do „Aktualizuj”) lub null.
+    /// T: <see cref="WatermarkOptions"/>, <see cref="BackgroundOptions"/>, <see cref="HeaderFooterOptions"/>, <see cref="PageNumberOptions"/>, <see cref="BatesOptions"/>.
+    /// </summary>
+    Task<T?> GetStoredOptionsAsync<T>(byte[] pdf, PageMarkKind kind, CancellationToken ct = default) where T : class;
 }
 
 [Flags]

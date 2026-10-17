@@ -79,7 +79,7 @@ Format: problem → decyzja → uzasadnienie. Decyzje oznaczone **[DO ZATWIERDZE
 1. [x] IDocumentView.ShowAnnotations (render bez RenderFlags.Annotations, widżety zostają) – Pokaż/Ukryj komentarze nie zmienia pliku (annotations-forms + renderer-viewer). → D-17.
 2. [x] Hak przed zapisem w IDocumentManager – „Spłaszcz przy zapisie” (annotations-forms). → D-18.
 3. [x] AnnotationUpdate.TextStyle – zmiana czcionki FreeText. → D-19.
-4. IStampingService: RemovePageNumbersAsync, GetStoredOptionsAsync (pages-engine, Kreator działań).
+4. [x] IStampingService: RemovePageNumbersAsync, GetStoredOptionsAsync (pages-engine, Kreator działań). Dodane do kontraktu; rzutowania na `StampingService` w poleceniach Pages usunięte, testy Pages wołają przez interfejs.
 5. Zdublowany pasek nawigacji stron (ViewerBar + pasek stanu powłoki) – zostawić jeden.
 6. BouncyCastle nieużywany w ZetPDF.Security – usunąć albo uzasadnić.
 7. Annotations: FillSign.Flatten po scaleniu ma używać IPageOperations.FlattenAsync z pages-engine – sprawdzić /AS widżetów.

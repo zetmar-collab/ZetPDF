@@ -191,7 +191,6 @@ internal sealed class PagesCommands
         _ => (bytes / 1024.0 / 1024.0).ToString("0.##", CultureInfo.CurrentCulture) + " MB",
     };
 
-    private StampingService? Stamping => _stamp as StampingService;
 
     // ------------------------------------------------------------------ strony
 
@@ -384,7 +383,7 @@ internal sealed class PagesCommands
     // ------------------------------------------------------------------ oznaczenia
 
     private async Task<T?> StoredAsync<T>(IPdfDocumentSession s, PageMarkKind kind) where T : class =>
-        Stamping is { } st ? await st.GetStoredOptionsAsync<T>(s.Current.GetBytes(), kind) : null;
+        await _stamp.GetStoredOptionsAsync<T>(s.Current.GetBytes(), kind);
 
     private async Task<bool> HasMarkAsync(IPdfDocumentSession s, PageMarkKind kind)
     {
@@ -454,17 +453,16 @@ internal sealed class PagesCommands
         var stored = has ? await StoredAsync<PageNumberOptions>(s, PageMarkKind.PageNumbers) : null;
         var dlg = new PageNumbersDialog(_loc, _dialogs, await ContextAsync(s), stored, has);
         if (_dialogs.ShowDialog(dlg) != true) return;
-        var st = Stamping;
         if (dlg.RemoveRequested)
         {
-            if (st is not null) await ExecAsync(s, "Pages.Undo.RemovePageNumbers", (pdf, _, ct) => st.RemovePageNumbersAsync(pdf, ct), DocumentChangeKind.PageContent, Modify);
+            await ExecAsync(s, "Pages.Undo.RemovePageNumbers", (pdf, _, ct) => _stamp.RemovePageNumbersAsync(pdf, ct), DocumentChangeKind.PageContent, Modify);
             return;
         }
         var o = dlg.Options with { Format = Macros.WithFile(dlg.Options.Format, s.DisplayName) };
-        bool replace = dlg.ReplaceExisting && st is not null;
+        bool replace = dlg.ReplaceExisting;
         await ExecAsync(s, "Pages.Undo.PageNumbers", async (pdf, _, ct) =>
         {
-            if (replace) pdf = await st!.RemovePageNumbersAsync(pdf, ct);
+            if (replace) pdf = await _stamp.RemovePageNumbersAsync(pdf, ct);
             return await _stamp.AddPageNumbersAsync(pdf, o, ct);
         }, DocumentChangeKind.PageContent, Modify, "Pages.PageNumbers.Title");
     }
