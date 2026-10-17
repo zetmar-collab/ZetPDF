@@ -2,11 +2,14 @@ using System.Resources;
 using Microsoft.Extensions.DependencyInjection;
 using ZetPDF.Core.Commands;
 using ZetPDF.Core.Contracts;
+using ZetPDF.Security.Signatures;
 
 namespace ZetPDF.Security;
 
 /// <summary>
-/// Moduł ZetPDF.Security (właściciel: security-signatures). Rejestracja w App jest stała (ModuleCatalog) – tu tylko wypełniamy usługi i polecenia.
+/// Moduł ZetPDF.Security (właściciel: security-signatures): ochrona hasłem, usuwanie zabezpieczeń, właściwości
+/// zabezpieczeń, podpisy cyfrowe (PFX/magazyn Windows, widoczne pole, TSA, DocTimeStamp), weryfikacja i panel Podpisy,
+/// identyfikatory cyfrowe, porównanie dokumentów, Kreator działań.
 /// </summary>
 public sealed class SecurityModule : IFeatureModule
 {
@@ -19,18 +22,17 @@ public sealed class SecurityModule : IFeatureModule
     {
         services.AddSingleton<SecurityService>();
         services.AddSingleton<ISecurityService>(sp => sp.GetRequiredService<SecurityService>());
-        services.AddSingleton<Signatures.ITimestampClient, Signatures.HttpTimestampClient>();
-        services.AddSingleton<ISignatureService, SignatureService>();
-        services.AddSingleton<ICompareService, CompareService>();
-        services.AddSingleton<IActionWizard, ActionWizard>();
+        services.AddSingleton<ITimestampClient, HttpTimestampClient>();
+        services.AddSingleton<ISignatureService>(sp => new SignatureService(sp.GetRequiredService<IAppPaths>(), sp.GetRequiredService<ITimestampClient>(), sp.GetService<ILocalizationService>()));
+        services.AddSingleton<ICompareService>(sp => new CompareService(sp));
+        services.AddSingleton<IActionWizard>(sp => new ActionWizard(sp, sp.GetRequiredService<IAppPaths>()));
     }
 
     public void Initialize(IServiceProvider services)
     {
         services.GetRequiredService<ILocalizationService>().RegisterResources(Strings);
-        // security-signatures: tu podpinamy obsługę poleceń z katalogu, np.:
-        // var registry = services.GetRequiredService<ICommandRegistry>();
-        // registry.Register(CommandIds.Security.PasswordProtect, new ActiveDocumentCommand(...));
-        // Polecenia bez obsługi są na wstążce wyszarzone.
+        var registry = services.GetService<ICommandRegistry>();
+        if (registry is not null && services.GetService<IDocumentManager>() is not null)
+            new SecurityCommands(services, registry).RegisterAll();
     }
 }
