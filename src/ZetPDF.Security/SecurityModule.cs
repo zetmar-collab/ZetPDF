@@ -17,7 +17,9 @@ public sealed class SecurityModule : IFeatureModule
 
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddSingleton<ISecurityService, SecurityService>();
+        services.AddSingleton<SecurityService>();
+        services.AddSingleton<ISecurityService>(sp => sp.GetRequiredService<SecurityService>());
+        services.AddSingleton<Signatures.ITimestampClient, Signatures.HttpTimestampClient>();
         services.AddSingleton<ISignatureService, SignatureService>();
         services.AddSingleton<ICompareService, CompareService>();
         services.AddSingleton<IActionWizard, ActionWizard>();

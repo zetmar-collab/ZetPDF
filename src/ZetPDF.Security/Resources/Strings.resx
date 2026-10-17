@@ -5,4 +5,65 @@
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <data name="Security.ModuleName" xml:space="preserve"><value>Security and signatures</value></data>
+  <data name="Security.Sign.Error.NoPrivateKey" xml:space="preserve"><value>The selected certificate has no private key and cannot be used for signing.</value></data>
+  <data name="Security.Sign.Error.NoCertificate" xml:space="preserve"><value>Select a digital ID (certificate).</value></data>
+  <data name="Security.Sign.Appearance.SignedBy" xml:space="preserve"><value>Digitally signed by {0}</value></data>
+  <data name="Security.Sign.Appearance.Date" xml:space="preserve"><value>Date: {0}</value></data>
+  <data name="Security.Sign.Appearance.Reason" xml:space="preserve"><value>Reason: {0}</value></data>
+  <data name="Security.Sign.Appearance.Location" xml:space="preserve"><value>Location: {0}</value></data>
+  <data name="Security.Timestamp.Error.NoTsa" xml:space="preserve"><value>No time stamp server (TSA) address is set. Enter it in Settings.</value></data>
+  <data name="Security.DigitalId.Error.NameRequired" xml:space="preserve"><value>Enter a name.</value></data>
+  <data name="Security.DigitalId.Error.PasswordRequired" xml:space="preserve"><value>Enter a password for the digital ID file.</value></data>
+  <data name="Security.Validate.Detail.Error" xml:space="preserve"><value>The signature could not be verified: {0}</value></data>
+  <data name="Security.Validate.Detail.BadByteRange" xml:space="preserve"><value>The signature byte range (/ByteRange) is invalid.</value></data>
+  <data name="Security.Validate.Detail.ContentsMismatch" xml:space="preserve"><value>The signature value does not match the signed byte range (possible manipulation).</value></data>
+  <data name="Security.Validate.Detail.BadToken" xml:space="preserve"><value>The time stamp token is damaged.</value></data>
+  <data name="Security.Validate.Detail.DocTimestamp" xml:space="preserve"><value>Document time stamp (RFC 3161).</value></data>
+  <data name="Security.Validate.Detail.TimestampInvalid" xml:space="preserve"><value>The embedded time stamp is invalid.</value></data>
+  <data name="Security.Validate.Detail.UnsupportedSubFilter" xml:space="preserve"><value>Unsupported signature format: {0}.</value></data>
+  <data name="Security.Validate.Detail.IntegrityOk" xml:space="preserve"><value>Integrity: the signed data has not been changed.</value></data>
+  <data name="Security.Validate.Detail.IntegrityFailed" xml:space="preserve"><value>Integrity: the signed data HAS BEEN CHANGED or the signature is damaged.</value></data>
+  <data name="Security.Validate.Detail.Covers" xml:space="preserve"><value>The signature covers the whole document.</value></data>
+  <data name="Security.Validate.Detail.ModifiedAfter" xml:space="preserve"><value>The document was changed after signing (later revisions exist).</value></data>
+  <data name="Security.Validate.Detail.NoCertificate" xml:space="preserve"><value>The signer's certificate is not included in the signature.</value></data>
+  <data name="Security.Validate.Detail.CertValid" xml:space="preserve"><value>The certificate was valid at signing time (valid {0} – {1}).</value></data>
+  <data name="Security.Validate.Detail.CertNotValid" xml:space="preserve"><value>The certificate was NOT valid at signing time (valid {0} – {1}).</value></data>
+  <data name="Security.Validate.Detail.Trusted" xml:space="preserve"><value>The certificate chain is trusted (Windows certificate store).</value></data>
+  <data name="Security.Validate.Detail.Untrusted" xml:space="preserve"><value>The signer's identity is unknown: the certificate is not trusted in the Windows certificate store (e.g. self-signed).</value></data>
+  <data name="Security.Validate.Detail.Timestamp" xml:space="preserve"><value>Time stamp: {0}.</value></data>
+  <data name="Security.Validate.Detail.Offline" xml:space="preserve"><value>Revocation (CRL/OCSP) was not checked – ZetPDF does not connect to the Internet during verification.</value></data>
+  <data name="Security.Compare.Kind.Inserted" xml:space="preserve"><value>Inserted</value></data>
+  <data name="Security.Compare.Kind.Deleted" xml:space="preserve"><value>Deleted</value></data>
+  <data name="Security.Compare.Kind.Changed" xml:space="preserve"><value>Changed</value></data>
+  <data name="Security.Compare.Graphic" xml:space="preserve"><value>Graphic difference</value></data>
+  <data name="Security.Compare.Report.Title" xml:space="preserve"><value>Document comparison report</value></data>
+  <data name="Security.Compare.Report.DocA" xml:space="preserve"><value>Old document: {0} ({1} pages)</value></data>
+  <data name="Security.Compare.Report.DocB" xml:space="preserve"><value>New document: {0} ({1} pages)</value></data>
+  <data name="Security.Compare.Report.Summary" xml:space="preserve"><value>Changes: {0} (inserted {1}, deleted {2}, changed {3})</value></data>
+  <data name="Security.Compare.Report.Item" xml:space="preserve"><value>{0}. {1} – page {2} / {3}</value></data>
+  <data name="Security.Compare.Column.Kind" xml:space="preserve"><value>Change</value></data>
+  <data name="Security.Compare.Column.PageA" xml:space="preserve"><value>Page (old)</value></data>
+  <data name="Security.Compare.Column.PageB" xml:space="preserve"><value>Page (new)</value></data>
+  <data name="Security.Compare.Column.Text" xml:space="preserve"><value>Text</value></data>
+  <data name="Security.Action.Distribute" xml:space="preserve"><value>Prepare for distribution</value></data>
+  <data name="Security.Action.Distribute.Description" xml:space="preserve"><value>Removes hidden data (metadata, comments, attachments, scripts), adds a watermark and a header and footer.</value></data>
+  <data name="Security.Action.Distribute.WatermarkText" xml:space="preserve"><value>CONFIDENTIAL</value></data>
+  <data name="Security.Action.Web" xml:space="preserve"><value>Optimize for the web</value></data>
+  <data name="Security.Action.Web.Description" xml:space="preserve"><value>Recompresses and downsamples images, removes unused objects and thumbnails.</value></data>
+  <data name="Security.Action.Archive" xml:space="preserve"><value>Archive</value></data>
+  <data name="Security.Action.Archive.Description" xml:space="preserve"><value>Fills in missing metadata and removes scripts. Note: conversion to PDF/A is not available in this version (no PDF/A validation and colour profile embedding).</value></data>
+  <data name="Security.Action.Step.Sanitize" xml:space="preserve"><value>Sanitize document</value></data>
+  <data name="Security.Action.Step.Watermark" xml:space="preserve"><value>Add watermark</value></data>
+  <data name="Security.Action.Step.HeaderFooter" xml:space="preserve"><value>Add header and footer</value></data>
+  <data name="Security.Action.Step.PageNumbers" xml:space="preserve"><value>Add page numbers</value></data>
+  <data name="Security.Action.Step.Optimize" xml:space="preserve"><value>Optimize</value></data>
+  <data name="Security.Action.Step.Flatten" xml:space="preserve"><value>Flatten annotations and fields</value></data>
+  <data name="Security.Action.Step.Ocr" xml:space="preserve"><value>Recognize text (OCR)</value></data>
+  <data name="Security.Action.Step.Encrypt" xml:space="preserve"><value>Protect with password</value></data>
+  <data name="Security.Action.Step.Metadata" xml:space="preserve"><value>Set metadata</value></data>
+  <data name="Security.Action.Error.BuiltInReadOnly" xml:space="preserve"><value>Built-in actions cannot be changed or deleted. Duplicate the action to modify it.</value></data>
+  <data name="Security.Action.Error.Encrypted" xml:space="preserve"><value>The file is password protected – remove the protection before processing.</value></data>
+  <data name="Security.Action.Error.NotAvailable" xml:space="preserve"><value>This step is not available in this version of ZetPDF (module not installed).</value></data>
+  <data name="Security.Action.Error.NoPassword" xml:space="preserve"><value>The "Protect with password" step needs a password.</value></data>
+  <data name="Security.Action.Error.UnknownStep" xml:space="preserve"><value>Unknown step type: {0}.</value></data>
 </root>

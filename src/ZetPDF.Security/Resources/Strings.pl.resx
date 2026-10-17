@@ -4,5 +4,66 @@
   <resheader name="version"><value>2.0</value></resheader>
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
-  <data name="Security.ModuleName" xml:space="preserve"><value>Zabezpieczenia i podpisy</value></data>
+  <data name="Security.ModuleName" xml:space="preserve"><value>Bezpieczeństwo i podpisy</value></data>
+  <data name="Security.Sign.Error.NoPrivateKey" xml:space="preserve"><value>Wybrany certyfikat nie ma klucza prywatnego i nie może służyć do podpisywania.</value></data>
+  <data name="Security.Sign.Error.NoCertificate" xml:space="preserve"><value>Wybierz identyfikator cyfrowy (certyfikat).</value></data>
+  <data name="Security.Sign.Appearance.SignedBy" xml:space="preserve"><value>Podpisano cyfrowo przez: {0}</value></data>
+  <data name="Security.Sign.Appearance.Date" xml:space="preserve"><value>Data: {0}</value></data>
+  <data name="Security.Sign.Appearance.Reason" xml:space="preserve"><value>Powód: {0}</value></data>
+  <data name="Security.Sign.Appearance.Location" xml:space="preserve"><value>Miejsce: {0}</value></data>
+  <data name="Security.Timestamp.Error.NoTsa" xml:space="preserve"><value>Nie ustawiono adresu serwera znacznika czasu (TSA). Wpisz go w Ustawieniach.</value></data>
+  <data name="Security.DigitalId.Error.NameRequired" xml:space="preserve"><value>Podaj imię i nazwisko.</value></data>
+  <data name="Security.DigitalId.Error.PasswordRequired" xml:space="preserve"><value>Podaj hasło do pliku identyfikatora cyfrowego.</value></data>
+  <data name="Security.Validate.Detail.Error" xml:space="preserve"><value>Nie można zweryfikować podpisu: {0}</value></data>
+  <data name="Security.Validate.Detail.BadByteRange" xml:space="preserve"><value>Zakres bajtów podpisu (/ByteRange) jest nieprawidłowy.</value></data>
+  <data name="Security.Validate.Detail.ContentsMismatch" xml:space="preserve"><value>Wartość podpisu nie odpowiada zakresowi podpisanych bajtów (możliwa manipulacja).</value></data>
+  <data name="Security.Validate.Detail.BadToken" xml:space="preserve"><value>Token znacznika czasu jest uszkodzony.</value></data>
+  <data name="Security.Validate.Detail.DocTimestamp" xml:space="preserve"><value>Znacznik czasu dokumentu (RFC 3161).</value></data>
+  <data name="Security.Validate.Detail.TimestampInvalid" xml:space="preserve"><value>Osadzony znacznik czasu jest nieprawidłowy.</value></data>
+  <data name="Security.Validate.Detail.UnsupportedSubFilter" xml:space="preserve"><value>Nieobsługiwany format podpisu: {0}.</value></data>
+  <data name="Security.Validate.Detail.IntegrityOk" xml:space="preserve"><value>Integralność: podpisane dane nie zostały zmienione.</value></data>
+  <data name="Security.Validate.Detail.IntegrityFailed" xml:space="preserve"><value>Integralność: podpisane dane ZOSTAŁY ZMIENIONE lub podpis jest uszkodzony.</value></data>
+  <data name="Security.Validate.Detail.Covers" xml:space="preserve"><value>Podpis obejmuje cały dokument.</value></data>
+  <data name="Security.Validate.Detail.ModifiedAfter" xml:space="preserve"><value>Dokument zmieniono po podpisaniu (istnieją późniejsze wersje).</value></data>
+  <data name="Security.Validate.Detail.NoCertificate" xml:space="preserve"><value>Podpis nie zawiera certyfikatu podpisującego.</value></data>
+  <data name="Security.Validate.Detail.CertValid" xml:space="preserve"><value>Certyfikat był ważny w chwili podpisu (ważny {0} – {1}).</value></data>
+  <data name="Security.Validate.Detail.CertNotValid" xml:space="preserve"><value>Certyfikat NIE był ważny w chwili podpisu (ważny {0} – {1}).</value></data>
+  <data name="Security.Validate.Detail.Trusted" xml:space="preserve"><value>Łańcuch certyfikatów jest zaufany (magazyn certyfikatów Windows).</value></data>
+  <data name="Security.Validate.Detail.Untrusted" xml:space="preserve"><value>Tożsamość podpisującego jest nieznana: certyfikat nie jest zaufany w magazynie Windows (np. podpis własny).</value></data>
+  <data name="Security.Validate.Detail.Timestamp" xml:space="preserve"><value>Znacznik czasu: {0}.</value></data>
+  <data name="Security.Validate.Detail.Offline" xml:space="preserve"><value>Nie sprawdzono unieważnienia (CRL/OCSP) – ZetPDF nie łączy się z Internetem podczas weryfikacji.</value></data>
+  <data name="Security.Compare.Kind.Inserted" xml:space="preserve"><value>Wstawiono</value></data>
+  <data name="Security.Compare.Kind.Deleted" xml:space="preserve"><value>Usunięto</value></data>
+  <data name="Security.Compare.Kind.Changed" xml:space="preserve"><value>Zmieniono</value></data>
+  <data name="Security.Compare.Graphic" xml:space="preserve"><value>Różnica graficzna</value></data>
+  <data name="Security.Compare.Report.Title" xml:space="preserve"><value>Raport porównania dokumentów</value></data>
+  <data name="Security.Compare.Report.DocA" xml:space="preserve"><value>Dokument stary: {0} (stron: {1})</value></data>
+  <data name="Security.Compare.Report.DocB" xml:space="preserve"><value>Dokument nowy: {0} (stron: {1})</value></data>
+  <data name="Security.Compare.Report.Summary" xml:space="preserve"><value>Zmiany: {0} (wstawiono {1}, usunięto {2}, zmieniono {3})</value></data>
+  <data name="Security.Compare.Report.Item" xml:space="preserve"><value>{0}. {1} – strona {2} / {3}</value></data>
+  <data name="Security.Compare.Column.Kind" xml:space="preserve"><value>Zmiana</value></data>
+  <data name="Security.Compare.Column.PageA" xml:space="preserve"><value>Strona (stary)</value></data>
+  <data name="Security.Compare.Column.PageB" xml:space="preserve"><value>Strona (nowy)</value></data>
+  <data name="Security.Compare.Column.Text" xml:space="preserve"><value>Tekst</value></data>
+  <data name="Security.Action.Distribute" xml:space="preserve"><value>Przygotuj do dystrybucji</value></data>
+  <data name="Security.Action.Distribute.Description" xml:space="preserve"><value>Usuwa ukryte dane (metadane, komentarze, załączniki, skrypty), dodaje znak wodny oraz nagłówek i stopkę.</value></data>
+  <data name="Security.Action.Distribute.WatermarkText" xml:space="preserve"><value>POUFNE</value></data>
+  <data name="Security.Action.Web" xml:space="preserve"><value>Zoptymalizuj dla Internetu</value></data>
+  <data name="Security.Action.Web.Description" xml:space="preserve"><value>Kompresuje i zmniejsza obrazy, usuwa nieużywane obiekty i miniatury.</value></data>
+  <data name="Security.Action.Archive" xml:space="preserve"><value>Archiwizuj</value></data>
+  <data name="Security.Action.Archive.Description" xml:space="preserve"><value>Uzupełnia brakujące metadane i usuwa skrypty. Uwaga: konwersja do PDF/A nie jest dostępna w tej wersji (brak walidacji PDF/A i osadzania profili kolorów).</value></data>
+  <data name="Security.Action.Step.Sanitize" xml:space="preserve"><value>Oczyść dokument</value></data>
+  <data name="Security.Action.Step.Watermark" xml:space="preserve"><value>Dodaj znak wodny</value></data>
+  <data name="Security.Action.Step.HeaderFooter" xml:space="preserve"><value>Dodaj nagłówek i stopkę</value></data>
+  <data name="Security.Action.Step.PageNumbers" xml:space="preserve"><value>Dodaj numerację stron</value></data>
+  <data name="Security.Action.Step.Optimize" xml:space="preserve"><value>Optymalizuj</value></data>
+  <data name="Security.Action.Step.Flatten" xml:space="preserve"><value>Spłaszcz komentarze i pola</value></data>
+  <data name="Security.Action.Step.Ocr" xml:space="preserve"><value>Rozpoznaj tekst (OCR)</value></data>
+  <data name="Security.Action.Step.Encrypt" xml:space="preserve"><value>Chroń hasłem</value></data>
+  <data name="Security.Action.Step.Metadata" xml:space="preserve"><value>Ustaw metadane</value></data>
+  <data name="Security.Action.Error.BuiltInReadOnly" xml:space="preserve"><value>Wbudowanych działań nie można zmieniać ani usuwać. Zduplikuj działanie, aby je zmodyfikować.</value></data>
+  <data name="Security.Action.Error.Encrypted" xml:space="preserve"><value>Plik jest chroniony hasłem – usuń zabezpieczenia przed przetwarzaniem.</value></data>
+  <data name="Security.Action.Error.NotAvailable" xml:space="preserve"><value>Ten krok nie jest dostępny w tej wersji ZetPDF (brak modułu).</value></data>
+  <data name="Security.Action.Error.NoPassword" xml:space="preserve"><value>Krok „Chroń hasłem” wymaga hasła.</value></data>
+  <data name="Security.Action.Error.UnknownStep" xml:space="preserve"><value>Nieznany typ kroku: {0}.</value></data>
 </root>

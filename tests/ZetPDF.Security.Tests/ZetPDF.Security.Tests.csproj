@@ -9,5 +9,7 @@
     <ProjectReference Include="..\ZetPDF.TestData\ZetPDF.TestData.csproj" />
     <ProjectReference Include="..\..\src\ZetPDF.Core\ZetPDF.Core.csproj" />
     <ProjectReference Include="..\..\src\ZetPDF.Security\ZetPDF.Security.csproj" />
+    <!-- PDFium tylko w testach: sprawdzamy, że pliki zaszyfrowane/podpisane przez ZetPDF otwiera inny silnik. -->
+    <ProjectReference Include="..\..\src\ZetPDF.Rendering\ZetPDF.Rendering.csproj" />
   </ItemGroup>
 </Project>
