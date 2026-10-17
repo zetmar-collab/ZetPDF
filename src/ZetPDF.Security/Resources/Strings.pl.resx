@@ -4,5 +4,333 @@
   <resheader name="version"><value>2.0</value></resheader>
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
-  <data name="Security.ModuleName" xml:space="preserve"><value>Zabezpieczenia i podpisy</value></data>
+  <data name="Security.ModuleName" xml:space="preserve"><value>Bezpieczeństwo i podpisy</value></data>
+  <data name="Security.Sign.Error.NoPrivateKey" xml:space="preserve"><value>Wybrany certyfikat nie ma klucza prywatnego i nie może służyć do podpisywania.</value></data>
+  <data name="Security.Sign.Error.NoCertificate" xml:space="preserve"><value>Wybierz identyfikator cyfrowy (certyfikat).</value></data>
+  <data name="Security.Sign.Appearance.SignedBy" xml:space="preserve"><value>Podpisano cyfrowo przez: {0}</value></data>
+  <data name="Security.Sign.Appearance.Date" xml:space="preserve"><value>Data: {0}</value></data>
+  <data name="Security.Sign.Appearance.Reason" xml:space="preserve"><value>Powód: {0}</value></data>
+  <data name="Security.Sign.Appearance.Location" xml:space="preserve"><value>Miejsce: {0}</value></data>
+  <data name="Security.Timestamp.Error.NoTsa" xml:space="preserve"><value>Nie ustawiono adresu serwera znacznika czasu (TSA). Wpisz go w Ustawieniach.</value></data>
+  <data name="Security.DigitalId.Error.NameRequired" xml:space="preserve"><value>Podaj imię i nazwisko.</value></data>
+  <data name="Security.DigitalId.Error.PasswordRequired" xml:space="preserve"><value>Podaj hasło do pliku identyfikatora cyfrowego.</value></data>
+  <data name="Security.Validate.Detail.Error" xml:space="preserve"><value>Nie można zweryfikować podpisu: {0}</value></data>
+  <data name="Security.Validate.Detail.BadByteRange" xml:space="preserve"><value>Zakres bajtów podpisu (/ByteRange) jest nieprawidłowy.</value></data>
+  <data name="Security.Validate.Detail.ContentsMismatch" xml:space="preserve"><value>Wartość podpisu nie odpowiada zakresowi podpisanych bajtów (możliwa manipulacja).</value></data>
+  <data name="Security.Validate.Detail.BadToken" xml:space="preserve"><value>Token znacznika czasu jest uszkodzony.</value></data>
+  <data name="Security.Validate.Detail.DocTimestamp" xml:space="preserve"><value>Znacznik czasu dokumentu (RFC 3161).</value></data>
+  <data name="Security.Validate.Detail.TimestampInvalid" xml:space="preserve"><value>Osadzony znacznik czasu jest nieprawidłowy.</value></data>
+  <data name="Security.Validate.Detail.UnsupportedSubFilter" xml:space="preserve"><value>Nieobsługiwany format podpisu: {0}.</value></data>
+  <data name="Security.Validate.Detail.IntegrityOk" xml:space="preserve"><value>Integralność: podpisane dane nie zostały zmienione.</value></data>
+  <data name="Security.Validate.Detail.IntegrityFailed" xml:space="preserve"><value>Integralność: podpisane dane ZOSTAŁY ZMIENIONE lub podpis jest uszkodzony.</value></data>
+  <data name="Security.Validate.Detail.Covers" xml:space="preserve"><value>Podpis obejmuje cały dokument.</value></data>
+  <data name="Security.Validate.Detail.ModifiedAfter" xml:space="preserve"><value>Dokument zmieniono po podpisaniu (istnieją późniejsze wersje).</value></data>
+  <data name="Security.Validate.Detail.NoCertificate" xml:space="preserve"><value>Podpis nie zawiera certyfikatu podpisującego.</value></data>
+  <data name="Security.Validate.Detail.CertValid" xml:space="preserve"><value>Certyfikat był ważny w chwili podpisu (ważny {0} – {1}).</value></data>
+  <data name="Security.Validate.Detail.CertNotValid" xml:space="preserve"><value>Certyfikat NIE był ważny w chwili podpisu (ważny {0} – {1}).</value></data>
+  <data name="Security.Validate.Detail.Trusted" xml:space="preserve"><value>Łańcuch certyfikatów jest zaufany (magazyn certyfikatów Windows).</value></data>
+  <data name="Security.Validate.Detail.Untrusted" xml:space="preserve"><value>Tożsamość podpisującego jest nieznana: certyfikat nie jest zaufany w magazynie Windows (np. podpis własny).</value></data>
+  <data name="Security.Validate.Detail.Timestamp" xml:space="preserve"><value>Znacznik czasu: {0}.</value></data>
+  <data name="Security.Validate.Detail.Offline" xml:space="preserve"><value>Nie sprawdzono unieważnienia (CRL/OCSP) – ZetPDF nie łączy się z Internetem podczas weryfikacji.</value></data>
+  <data name="Security.Compare.Kind.Inserted" xml:space="preserve"><value>Wstawiono</value></data>
+  <data name="Security.Compare.Kind.Deleted" xml:space="preserve"><value>Usunięto</value></data>
+  <data name="Security.Compare.Kind.Changed" xml:space="preserve"><value>Zmieniono</value></data>
+  <data name="Security.Compare.Graphic" xml:space="preserve"><value>Różnica graficzna</value></data>
+  <data name="Security.Compare.Report.Title" xml:space="preserve"><value>Raport porównania dokumentów</value></data>
+  <data name="Security.Compare.Report.DocA" xml:space="preserve"><value>Dokument stary: {0} (stron: {1})</value></data>
+  <data name="Security.Compare.Report.DocB" xml:space="preserve"><value>Dokument nowy: {0} (stron: {1})</value></data>
+  <data name="Security.Compare.Report.Summary" xml:space="preserve"><value>Zmiany: {0} (wstawiono {1}, usunięto {2}, zmieniono {3})</value></data>
+  <data name="Security.Compare.Report.Item" xml:space="preserve"><value>{0}. {1} – strona {2} / {3}</value></data>
+  <data name="Security.Compare.Column.Kind" xml:space="preserve"><value>Zmiana</value></data>
+  <data name="Security.Compare.Column.PageA" xml:space="preserve"><value>Strona (stary)</value></data>
+  <data name="Security.Compare.Column.PageB" xml:space="preserve"><value>Strona (nowy)</value></data>
+  <data name="Security.Compare.Column.Text" xml:space="preserve"><value>Tekst</value></data>
+  <data name="Security.Action.Distribute" xml:space="preserve"><value>Przygotuj do dystrybucji</value></data>
+  <data name="Security.Action.Distribute.Description" xml:space="preserve"><value>Usuwa ukryte dane (metadane, komentarze, załączniki, skrypty), dodaje znak wodny oraz nagłówek i stopkę.</value></data>
+  <data name="Security.Action.Distribute.WatermarkText" xml:space="preserve"><value>POUFNE</value></data>
+  <data name="Security.Action.Web" xml:space="preserve"><value>Zoptymalizuj dla Internetu</value></data>
+  <data name="Security.Action.Web.Description" xml:space="preserve"><value>Kompresuje i zmniejsza obrazy, usuwa nieużywane obiekty i miniatury.</value></data>
+  <data name="Security.Action.Archive" xml:space="preserve"><value>Archiwizuj</value></data>
+  <data name="Security.Action.Archive.Description" xml:space="preserve"><value>Uzupełnia brakujące metadane i usuwa skrypty. Uwaga: konwersja do PDF/A nie jest dostępna w tej wersji (brak walidacji PDF/A i osadzania profili kolorów).</value></data>
+  <data name="Security.Action.Step.Sanitize" xml:space="preserve"><value>Oczyść dokument</value></data>
+  <data name="Security.Action.Step.Watermark" xml:space="preserve"><value>Dodaj znak wodny</value></data>
+  <data name="Security.Action.Step.HeaderFooter" xml:space="preserve"><value>Dodaj nagłówek i stopkę</value></data>
+  <data name="Security.Action.Step.PageNumbers" xml:space="preserve"><value>Dodaj numerację stron</value></data>
+  <data name="Security.Action.Step.Optimize" xml:space="preserve"><value>Optymalizuj</value></data>
+  <data name="Security.Action.Step.Flatten" xml:space="preserve"><value>Spłaszcz komentarze i pola</value></data>
+  <data name="Security.Action.Step.Ocr" xml:space="preserve"><value>Rozpoznaj tekst (OCR)</value></data>
+  <data name="Security.Action.Step.Encrypt" xml:space="preserve"><value>Chroń hasłem</value></data>
+  <data name="Security.Action.Step.Metadata" xml:space="preserve"><value>Ustaw metadane</value></data>
+  <data name="Security.Action.Error.BuiltInReadOnly" xml:space="preserve"><value>Wbudowanych działań nie można zmieniać ani usuwać. Zduplikuj działanie, aby je zmodyfikować.</value></data>
+  <data name="Security.Action.Error.Encrypted" xml:space="preserve"><value>Plik jest chroniony hasłem – usuń zabezpieczenia przed przetwarzaniem.</value></data>
+  <data name="Security.Action.Error.NotAvailable" xml:space="preserve"><value>Ten krok nie jest dostępny w tej wersji ZetPDF (brak modułu).</value></data>
+  <data name="Security.Action.Error.NoPassword" xml:space="preserve"><value>Krok „Chroń hasłem” wymaga hasła.</value></data>
+  <data name="Security.Action.Error.UnknownStep" xml:space="preserve"><value>Nieznany typ kroku: {0}.</value></data>
+  <data name="Security.Compare.Title" xml:space="preserve"><value>Porównaj dokumenty</value></data>
+  <data name="Security.Compare.Old" xml:space="preserve"><value>Dokument stary:</value></data>
+  <data name="Security.Compare.New" xml:space="preserve"><value>Dokument nowy:</value></data>
+  <data name="Security.Compare.IgnoreCase" xml:space="preserve"><value>Ignoruj wielkość liter</value></data>
+  <data name="Security.Compare.Graphics" xml:space="preserve"><value>Porównaj także grafikę (obrazy stron)</value></data>
+  <data name="Security.Compare.Note" xml:space="preserve"><value>Tekst jest porównywany słowo po słowie. Różnice graficzne wykrywa porównanie obrazów stron (strony bez obrotu, tego samego rozmiaru).</value></data>
+  <data name="Security.Compare.Run" xml:space="preserve"><value>Porównaj</value></data>
+  <data name="Security.Compare.Error.Select" xml:space="preserve"><value>Wybierz oba dokumenty.</value></data>
+  <data name="Security.Compare.Error.Same" xml:space="preserve"><value>Wybierz dwa różne dokumenty.</value></data>
+  <data name="Security.Compare.Progress" xml:space="preserve"><value>Porównywanie dokumentów…</value></data>
+  <data name="Security.Compare.Window.Title" xml:space="preserve"><value>Wyniki porównania</value></data>
+  <data name="Security.Compare.Window.Old" xml:space="preserve"><value>Stary: {0} – strona {1}</value></data>
+  <data name="Security.Compare.Window.New" xml:space="preserve"><value>Nowy: {0} – strona {1}</value></data>
+  <data name="Security.Compare.Changes" xml:space="preserve"><value>Zmiany</value></data>
+  <data name="Security.Compare.NoChanges" xml:space="preserve"><value>Nie znaleziono różnic.</value></data>
+  <data name="Security.Compare.Previous" xml:space="preserve"><value>Poprzednia</value></data>
+  <data name="Security.Compare.Next" xml:space="preserve"><value>Następna</value></data>
+  <data name="Security.Compare.ReportButton" xml:space="preserve"><value>Raport…</value></data>
+  <data name="Security.Compare.ReportFileName" xml:space="preserve"><value>raport porównania</value></data>
+  <data name="Security.Compare.ReportSaved" xml:space="preserve"><value>Zapisano raport: {0}</value></data>
+  <data name="Security.DigitalId.Title" xml:space="preserve"><value>Identyfikatory cyfrowe</value></data>
+  <data name="Security.DigitalId.Intro" xml:space="preserve"><value>Certyfikaty z kluczem prywatnym z magazynu Windows (Bieżący użytkownik\Osobisty) oraz pliki identyfikatorów (PFX/P12) utworzone lub zaimportowane w ZetPDF.</value></data>
+  <data name="Security.DigitalId.Create" xml:space="preserve"><value>Utwórz…</value></data>
+  <data name="Security.DigitalId.Import" xml:space="preserve"><value>Importuj PFX…</value></data>
+  <data name="Security.DigitalId.Delete" xml:space="preserve"><value>Usuń plik</value></data>
+  <data name="Security.DigitalId.DeleteConfirm" xml:space="preserve"><value>Usunąć plik identyfikatora „{0}”? Dokumenty podpisane tym identyfikatorem pozostaną ważne, ale nie będzie można już nim podpisywać.</value></data>
+  <data name="Security.DigitalId.Empty" xml:space="preserve"><value>Brak identyfikatorów. Utwórz identyfikator z podpisem własnym lub zaimportuj plik PFX.</value></data>
+  <data name="Security.DigitalId.Detail.Subject" xml:space="preserve"><value>Podmiot: {0}</value></data>
+  <data name="Security.DigitalId.Detail.Issuer" xml:space="preserve"><value>Wystawca: {0}</value></data>
+  <data name="Security.DigitalId.Detail.Validity" xml:space="preserve"><value>Ważny: {0}</value></data>
+  <data name="Security.DigitalId.Detail.Thumbprint" xml:space="preserve"><value>Odcisk: {0}</value></data>
+  <data name="Security.DigitalId.Detail.Store" xml:space="preserve"><value>Położenie: magazyn certyfikatów Windows</value></data>
+  <data name="Security.DigitalId.Detail.File" xml:space="preserve"><value>Plik PFX (chroniony hasłem): {0}</value></data>
+  <data name="Security.DigitalId.Create.Title" xml:space="preserve"><value>Utwórz identyfikator z podpisem własnym</value></data>
+  <data name="Security.DigitalId.Create.Button" xml:space="preserve"><value>Utwórz</value></data>
+  <data name="Security.DigitalId.Create.Note" xml:space="preserve"><value>Identyfikator z podpisem własnym nadaje się do testów i użytku wewnętrznego. Inne osoby zobaczą podpisującego jako „nieznanego”, dopóki nie zaufają Twojemu certyfikatowi.</value></data>
+  <data name="Security.DigitalId.Name" xml:space="preserve"><value>Imię i nazwisko:</value></data>
+  <data name="Security.DigitalId.Organization" xml:space="preserve"><value>Organizacja:</value></data>
+  <data name="Security.DigitalId.Email" xml:space="preserve"><value>E-mail:</value></data>
+  <data name="Security.DigitalId.Years" xml:space="preserve"><value>Ważność (lata):</value></data>
+  <data name="Security.DigitalId.Password" xml:space="preserve"><value>Hasło pliku:</value></data>
+  <data name="Security.FileFilter.Pfx" xml:space="preserve"><value>Pliki identyfikatorów (*.pfx, *.p12)</value></data>
+  <data name="Security.FileFilter.Html" xml:space="preserve"><value>Raport HTML (*.html)</value></data>
+  <data name="Security.FileFilter.Text" xml:space="preserve"><value>Raport tekstowy (*.txt)</value></data>
+  <data name="Security.Method.None" xml:space="preserve"><value>Brak</value></data>
+  <data name="Security.Method.Rc4_40" xml:space="preserve"><value>RC4 40-bitowe</value></data>
+  <data name="Security.Method.Rc4_128" xml:space="preserve"><value>RC4 128-bitowe</value></data>
+  <data name="Security.Method.Aes128" xml:space="preserve"><value>AES 128-bitowe</value></data>
+  <data name="Security.Method.Aes256" xml:space="preserve"><value>AES 256-bitowe</value></data>
+  <data name="Security.Method.Unknown" xml:space="preserve"><value>Nieznana</value></data>
+  <data name="Security.Perm.All" xml:space="preserve"><value>Wszystko dozwolone</value></data>
+  <data name="Security.Perm.None" xml:space="preserve"><value>Nic niedozwolone</value></data>
+  <data name="Security.Perm.Print" xml:space="preserve"><value>drukowanie</value></data>
+  <data name="Security.Perm.PrintHighQuality" xml:space="preserve"><value>drukowanie w wysokiej jakości</value></data>
+  <data name="Security.Perm.ModifyContent" xml:space="preserve"><value>edycja</value></data>
+  <data name="Security.Perm.CopyContent" xml:space="preserve"><value>kopiowanie</value></data>
+  <data name="Security.Perm.Annotate" xml:space="preserve"><value>komentowanie</value></data>
+  <data name="Security.Perm.FillForms" xml:space="preserve"><value>wypełnianie formularzy i podpisywanie</value></data>
+  <data name="Security.Perm.ExtractForAccessibility" xml:space="preserve"><value>ułatwienia dostępu</value></data>
+  <data name="Security.Perm.AssembleDocument" xml:space="preserve"><value>składanie i wyodrębnianie stron</value></data>
+  <data name="Security.Status.Valid" xml:space="preserve"><value>Podpis jest ważny</value></data>
+  <data name="Security.Status.ValidButModifiedAfter" xml:space="preserve"><value>Podpis jest ważny, ale dokument zmieniono po podpisaniu</value></data>
+  <data name="Security.Status.Invalid" xml:space="preserve"><value>Podpis jest NIEWAŻNY</value></data>
+  <data name="Security.Status.UnknownSigner" xml:space="preserve"><value>Ważność podpisu nieznana: tożsamość podpisującego nie jest zaufana</value></data>
+  <data name="Security.Status.Error" xml:space="preserve"><value>Nie można zweryfikować podpisu</value></data>
+  <data name="Security.Enum.Left" xml:space="preserve"><value>Do lewej</value></data>
+  <data name="Security.Enum.Center" xml:space="preserve"><value>Do środka</value></data>
+  <data name="Security.Enum.Right" xml:space="preserve"><value>Do prawej</value></data>
+  <data name="Security.Enum.Top" xml:space="preserve"><value>U góry</value></data>
+  <data name="Security.Enum.Middle" xml:space="preserve"><value>Pośrodku</value></data>
+  <data name="Security.Enum.Bottom" xml:space="preserve"><value>U dołu</value></data>
+  <data name="Security.Owner.Title" xml:space="preserve"><value>Hasło uprawnień</value></data>
+  <data name="Security.Owner.Needed" xml:space="preserve"><value>Zmiana zabezpieczeń wymaga hasła uprawnień (właściciela). Podaj je, aby ponownie otworzyć dokument z pełnymi uprawnieniami.</value></data>
+  <data name="Security.Owner.NotPossible" xml:space="preserve"><value>Zabezpieczenia można zmienić tylko przy użyciu hasła uprawnień dla dokumentu zapisanego na dysku.</value></data>
+  <data name="Security.Owner.DiscardChanges" xml:space="preserve"><value>Dokument zostanie ponownie otwarty z hasłem uprawnień, a niezapisane zmiany zostaną utracone. Kontynuować?</value></data>
+  <data name="Security.Panel.Title" xml:space="preserve"><value>Podpisy</value></data>
+  <data name="Security.Panel.Validate" xml:space="preserve"><value>Weryfikuj wszystkie</value></data>
+  <data name="Security.Panel.Sign" xml:space="preserve"><value>Podpisz…</value></data>
+  <data name="Security.Panel.Validating" xml:space="preserve"><value>Weryfikowanie podpisów…</value></data>
+  <data name="Security.Panel.NoDocument" xml:space="preserve"><value>Brak otwartego dokumentu.</value></data>
+  <data name="Security.Panel.NoSignatures" xml:space="preserve"><value>Dokument nie zawiera podpisów.</value></data>
+  <data name="Security.Panel.Count" xml:space="preserve"><value>Podpisy: {0}</value></data>
+  <data name="Security.Panel.ModifiedNote" xml:space="preserve"><value>Dokument ma niezapisane zmiany – weryfikowana jest bieżąca wersja (edycja unieważnia podpisy).</value></data>
+  <data name="Security.Panel.Error" xml:space="preserve"><value>Weryfikacja nie powiodła się: {0}</value></data>
+  <data name="Security.Panel.SignedAt" xml:space="preserve"><value>Podpisano: {0}</value></data>
+  <data name="Security.Panel.Issuer" xml:space="preserve"><value>Wystawca: {0}</value></data>
+  <data name="Security.Panel.Page" xml:space="preserve"><value>Strona: {0}</value></data>
+  <data name="Security.Panel.Details" xml:space="preserve"><value>Szczegóły</value></data>
+  <data name="Security.Panel.GoTo" xml:space="preserve"><value>Kliknij, aby przejść do podpisu</value></data>
+  <data name="Security.Properties.Title" xml:space="preserve"><value>Właściwości zabezpieczeń</value></data>
+  <data name="Security.Properties.FileGroup" xml:space="preserve"><value>Plik (przy otwarciu)</value></data>
+  <data name="Security.Properties.SaveGroup" xml:space="preserve"><value>Stosowane przy zapisie</value></data>
+  <data name="Security.Properties.EffectiveGroup" xml:space="preserve"><value>Twoje uprawnienia w ZetPDF</value></data>
+  <data name="Security.Properties.Method" xml:space="preserve"><value>Szyfrowanie:</value></data>
+  <data name="Security.Properties.OpenedWith" xml:space="preserve"><value>Otwarto przy użyciu:</value></data>
+  <data name="Security.Properties.OpenedOwner" xml:space="preserve"><value>hasła uprawnień (właściciela)</value></data>
+  <data name="Security.Properties.OpenedUser" xml:space="preserve"><value>hasła otwierania (użytkownika)</value></data>
+  <data name="Security.Properties.OpenedNoPassword" xml:space="preserve"><value>bez hasła</value></data>
+  <data name="Security.Properties.FilePermissions" xml:space="preserve"><value>Uprawnienia:</value></data>
+  <data name="Security.Properties.OpenPassword" xml:space="preserve"><value>Hasło otwierania:</value></data>
+  <data name="Security.Properties.Yes" xml:space="preserve"><value>tak</value></data>
+  <data name="Security.Properties.No" xml:space="preserve"><value>nie</value></data>
+  <data name="Security.Protect.Title" xml:space="preserve"><value>Ochrona hasłem</value></data>
+  <data name="Security.Protect.OpenGroup" xml:space="preserve"><value>Otwieranie dokumentu</value></data>
+  <data name="Security.Protect.RequireOpen" xml:space="preserve"><value>Wymagaj hasła do otwarcia dokumentu</value></data>
+  <data name="Security.Protect.Password" xml:space="preserve"><value>Hasło:</value></data>
+  <data name="Security.Protect.Confirm" xml:space="preserve"><value>Potwierdź hasło:</value></data>
+  <data name="Security.Protect.PermGroup" xml:space="preserve"><value>Uprawnienia</value></data>
+  <data name="Security.Protect.Restrict" xml:space="preserve"><value>Ogranicz edycję i drukowanie (hasło uprawnień)</value></data>
+  <data name="Security.Protect.OwnerPassword" xml:space="preserve"><value>Hasło uprawnień:</value></data>
+  <data name="Security.Protect.Printing" xml:space="preserve"><value>Dozwolone drukowanie:</value></data>
+  <data name="Security.Protect.Print.None" xml:space="preserve"><value>Brak</value></data>
+  <data name="Security.Protect.Print.Low" xml:space="preserve"><value>Niska rozdzielczość</value></data>
+  <data name="Security.Protect.Print.High" xml:space="preserve"><value>Wysoka rozdzielczość</value></data>
+  <data name="Security.Protect.Perm.Modify" xml:space="preserve"><value>Zezwalaj na edycję treści</value></data>
+  <data name="Security.Protect.Perm.Copy" xml:space="preserve"><value>Zezwalaj na kopiowanie tekstu i obrazów</value></data>
+  <data name="Security.Protect.Perm.Annotate" xml:space="preserve"><value>Zezwalaj na komentowanie</value></data>
+  <data name="Security.Protect.Perm.FillForms" xml:space="preserve"><value>Zezwalaj na wypełnianie formularzy i podpisywanie</value></data>
+  <data name="Security.Protect.Perm.Assemble" xml:space="preserve"><value>Zezwalaj na wstawianie, usuwanie, obracanie i wyodrębnianie stron</value></data>
+  <data name="Security.Protect.Perm.Accessibility" xml:space="preserve"><value>Zezwalaj na dostęp do tekstu dla czytników ekranu</value></data>
+  <data name="Security.Protect.Method" xml:space="preserve"><value>Szyfrowanie:</value></data>
+  <data name="Security.Protect.Method.Aes256" xml:space="preserve"><value>AES 256-bitowe (zalecane)</value></data>
+  <data name="Security.Protect.Method.Aes128" xml:space="preserve"><value>AES 128-bitowe (zgodne z Acrobat 7 i nowszymi)</value></data>
+  <data name="Security.Protect.AppliedOnSave" xml:space="preserve"><value>Zabezpieczenia zostaną zastosowane przy zapisie dokumentu. Uwaga: uprawnienia respektuje ZetPDF i większość czytników PDF, ale nie gwarantują ochrony przed każdym programem.</value></data>
+  <data name="Security.Protect.Error.NothingSelected" xml:space="preserve"><value>Wybierz co najmniej jedną opcję: hasło otwierania lub hasło uprawnień.</value></data>
+  <data name="Security.Protect.Error.Empty" xml:space="preserve"><value>Hasło nie może być puste.</value></data>
+  <data name="Security.Protect.Error.Mismatch" xml:space="preserve"><value>Hasła nie są zgodne.</value></data>
+  <data name="Security.Protect.Error.SamePasswords" xml:space="preserve"><value>Hasło otwierania i hasło uprawnień muszą być różne.</value></data>
+  <data name="Security.Protect.Error.Aes128Chars" xml:space="preserve"><value>AES 128-bitowe obsługuje w hasłach tylko znaki łacińskie (bez liter takich jak ą, ę, ł). Użyj AES 256-bitowego albo zmień hasło.</value></data>
+  <data name="Security.Protect.Done" xml:space="preserve"><value>Ochrona hasłem zostanie zastosowana przy zapisie dokumentu.</value></data>
+  <data name="Security.Remove.Confirm" xml:space="preserve"><value>Usunąć ochronę hasłem i ograniczenia uprawnień? Zmiana zostanie zastosowana przy zapisie dokumentu.</value></data>
+  <data name="Security.Remove.NoSecurity" xml:space="preserve"><value>Dokument nie jest chroniony.</value></data>
+  <data name="Security.Remove.Done" xml:space="preserve"><value>Zabezpieczenia zostaną usunięte przy zapisie dokumentu.</value></data>
+  <data name="Security.Sign.Title" xml:space="preserve"><value>Podpisz cyfrowo</value></data>
+  <data name="Security.Sign.IdentityGroup" xml:space="preserve"><value>Identyfikator cyfrowy</value></data>
+  <data name="Security.Sign.Identity" xml:space="preserve"><value>Podpisz jako:</value></data>
+  <data name="Security.Sign.PfxPassword" xml:space="preserve"><value>Hasło PFX:</value></data>
+  <data name="Security.Sign.BrowsePfx" xml:space="preserve"><value>Plik PFX…</value></data>
+  <data name="Security.Sign.CreateId" xml:space="preserve"><value>Nowy…</value></data>
+  <data name="Security.Sign.DetailsGroup" xml:space="preserve"><value>Szczegóły podpisu</value></data>
+  <data name="Security.Sign.ReasonLabel" xml:space="preserve"><value>Powód:</value></data>
+  <data name="Security.Sign.LocationLabel" xml:space="preserve"><value>Miejsce:</value></data>
+  <data name="Security.Sign.ContactLabel" xml:space="preserve"><value>Kontakt:</value></data>
+  <data name="Security.Sign.Reason.Approve" xml:space="preserve"><value>Zatwierdzam ten dokument</value></data>
+  <data name="Security.Sign.Reason.Author" xml:space="preserve"><value>Jestem autorem tego dokumentu</value></data>
+  <data name="Security.Sign.Reason.Reviewed" xml:space="preserve"><value>Przejrzałem ten dokument</value></data>
+  <data name="Security.Sign.Reason.Agree" xml:space="preserve"><value>Akceptuję warunki określone w tym dokumencie</value></data>
+  <data name="Security.Sign.AppearanceGroup" xml:space="preserve"><value>Wygląd</value></data>
+  <data name="Security.Sign.Invisible" xml:space="preserve"><value>Podpis niewidoczny</value></data>
+  <data name="Security.Sign.ShowName" xml:space="preserve"><value>Imię i nazwisko</value></data>
+  <data name="Security.Sign.ShowDate" xml:space="preserve"><value>Data</value></data>
+  <data name="Security.Sign.ShowReason" xml:space="preserve"><value>Powód</value></data>
+  <data name="Security.Sign.ShowLocation" xml:space="preserve"><value>Miejsce</value></data>
+  <data name="Security.Sign.Image" xml:space="preserve"><value>Obraz:</value></data>
+  <data name="Security.Sign.TsaGroup" xml:space="preserve"><value>Znacznik czasu</value></data>
+  <data name="Security.Sign.UseTsa" xml:space="preserve"><value>Dodaj znacznik czasu z serwera znacznika czasu (połączenie z Internetem)</value></data>
+  <data name="Security.Sign.TsaInfo" xml:space="preserve"><value>Serwer: {0}</value></data>
+  <data name="Security.Sign.TsaNotConfigured" xml:space="preserve"><value>Nie ustawiono serwera znacznika czasu (Ustawienia). Bez niego ZetPDF nie łączy się z siecią.</value></data>
+  <data name="Security.Sign.SaveNote" xml:space="preserve"><value>Podpisany dokument zostanie zapisany do wskazanego pliku (podpis jest ostatnią operacją – późniejsze zmiany unieważniłyby podpis).</value></data>
+  <data name="Security.Sign.SignButton" xml:space="preserve"><value>Podpisz</value></data>
+  <data name="Security.Sign.Error.PfxPassword" xml:space="preserve"><value>Złe hasło PFX lub uszkodzony plik.</value></data>
+  <data name="Security.Sign.Error.Expired" xml:space="preserve"><value>Certyfikat wygasł lub nie jest jeszcze ważny.</value></data>
+  <data name="Security.Sign.Draw" xml:space="preserve"><value>Przeciągnij prostokąt w miejscu podpisu (Esc – anuluj).</value></data>
+  <data name="Security.Sign.DrawOrPick" xml:space="preserve"><value>Przeciągnij prostokąt albo kliknij puste pole podpisu (Esc – anuluj).</value></data>
+  <data name="Security.Sign.SaveTitle" xml:space="preserve"><value>Zapisz podpisany dokument jako</value></data>
+  <data name="Security.Sign.FileSuffix" xml:space="preserve"><value>_podpisany</value></data>
+  <data name="Security.Sign.Progress" xml:space="preserve"><value>Podpisywanie dokumentu…</value></data>
+  <data name="Security.Sign.Done" xml:space="preserve"><value>Dokument został podpisany i zapisany.</value></data>
+  <data name="Security.Timestamp.Confirm" xml:space="preserve"><value>ZetPDF połączy się z serwerem znacznika czasu {0} i wyśle tylko skrót dokumentu (nie jego treść). Kontynuować?</value></data>
+  <data name="Security.Timestamp.FileSuffix" xml:space="preserve"><value>_znacznik_czasu</value></data>
+  <data name="Security.Timestamp.Progress" xml:space="preserve"><value>Dodawanie znacznika czasu dokumentu…</value></data>
+  <data name="Security.Timestamp.Done" xml:space="preserve"><value>Znacznik czasu dokumentu został dodany i zapisany.</value></data>
+  <data name="Security.Wizard.Title" xml:space="preserve"><value>Kreator działań</value></data>
+  <data name="Security.Wizard.Actions" xml:space="preserve"><value>Działania</value></data>
+  <data name="Security.Wizard.New" xml:space="preserve"><value>Nowe</value></data>
+  <data name="Security.Wizard.Duplicate" xml:space="preserve"><value>Duplikuj</value></data>
+  <data name="Security.Wizard.Delete" xml:space="preserve"><value>Usuń</value></data>
+  <data name="Security.Wizard.DeleteConfirm" xml:space="preserve"><value>Usunąć działanie „{0}”?</value></data>
+  <data name="Security.Wizard.Name" xml:space="preserve"><value>Nazwa:</value></data>
+  <data name="Security.Wizard.Description" xml:space="preserve"><value>Opis:</value></data>
+  <data name="Security.Wizard.BuiltInNote" xml:space="preserve"><value>Działanie wbudowane – zduplikuj je, aby zmienić kroki.</value></data>
+  <data name="Security.Wizard.Steps" xml:space="preserve"><value>Kroki</value></data>
+  <data name="Security.Wizard.StepType" xml:space="preserve"><value>Typ kroku</value></data>
+  <data name="Security.Wizard.Up" xml:space="preserve"><value>W górę</value></data>
+  <data name="Security.Wizard.Down" xml:space="preserve"><value>W dół</value></data>
+  <data name="Security.Wizard.Parameters" xml:space="preserve"><value>Parametry kroku</value></data>
+  <data name="Security.Wizard.RunGroup" xml:space="preserve"><value>Uruchom na plikach</value></data>
+  <data name="Security.Wizard.Files" xml:space="preserve"><value>Pliki</value></data>
+  <data name="Security.Wizard.AddFiles" xml:space="preserve"><value>Dodaj pliki…</value></data>
+  <data name="Security.Wizard.AddFolder" xml:space="preserve"><value>Dodaj folder…</value></data>
+  <data name="Security.Wizard.Clear" xml:space="preserve"><value>Wyczyść</value></data>
+  <data name="Security.Wizard.Output" xml:space="preserve"><value>Folder wyjściowy:</value></data>
+  <data name="Security.Wizard.Suffix" xml:space="preserve"><value>Przyrostek nazwy pliku:</value></data>
+  <data name="Security.Wizard.Overwrite" xml:space="preserve"><value>Nadpisuj istniejące pliki (także oryginały w folderze wyjściowym)</value></data>
+  <data name="Security.Wizard.OverwriteConfirm" xml:space="preserve"><value>Istniejące pliki – także oryginalne dokumenty, jeśli folder wyjściowy jest ich folderem – zostaną zastąpione. Kontynuować?</value></data>
+  <data name="Security.Wizard.Run" xml:space="preserve"><value>Uruchom</value></data>
+  <data name="Security.Wizard.Running" xml:space="preserve"><value>Wykonywanie: {0}</value></data>
+  <data name="Security.Wizard.Cancelled" xml:space="preserve"><value>Działanie anulowano. Pliki już przetworzone pozostają w folderze wyjściowym.</value></data>
+  <data name="Security.Wizard.Report" xml:space="preserve"><value>Przetworzono: {0}, błędy: {1}.</value></data>
+  <data name="Security.Wizard.Untitled" xml:space="preserve"><value>Nowe działanie</value></data>
+  <data name="Security.Wizard.CopyOf" xml:space="preserve"><value>{0} (kopia)</value></data>
+  <data name="Security.Wizard.UnsavedClose" xml:space="preserve"><value>Niektóre działania mają niezapisane zmiany. Zamknąć mimo to?</value></data>
+  <data name="Security.Wizard.Error.NoName" xml:space="preserve"><value>Podaj nazwę działania.</value></data>
+  <data name="Security.Wizard.Error.NoFiles" xml:space="preserve"><value>Dodaj pliki do przetworzenia.</value></data>
+  <data name="Security.Wizard.Error.NoOutput" xml:space="preserve"><value>Wybierz folder wyjściowy.</value></data>
+  <data name="Security.Wizard.Error.NoSteps" xml:space="preserve"><value>Działanie nie ma kroków.</value></data>
+  <data name="Security.Param.Metadata" xml:space="preserve"><value>Metadane</value></data>
+  <data name="Security.Param.Comments" xml:space="preserve"><value>Komentarze</value></data>
+  <data name="Security.Param.Attachments" xml:space="preserve"><value>Załączniki</value></data>
+  <data name="Security.Param.JavaScript" xml:space="preserve"><value>JavaScript</value></data>
+  <data name="Security.Param.HiddenLayers" xml:space="preserve"><value>Ukryte warstwy</value></data>
+  <data name="Security.Param.FormData" xml:space="preserve"><value>Dane formularzy</value></data>
+  <data name="Security.Param.ExternalLinks" xml:space="preserve"><value>Łącza zewnętrzne</value></data>
+  <data name="Security.Param.Thumbnails" xml:space="preserve"><value>Osadzone miniatury</value></data>
+  <data name="Security.Param.Text" xml:space="preserve"><value>Tekst</value></data>
+  <data name="Security.Param.Style" xml:space="preserve"><value>Styl tekstu</value></data>
+  <data name="Security.Param.ImageScale" xml:space="preserve"><value>Skala obrazu</value></data>
+  <data name="Security.Param.Opacity" xml:space="preserve"><value>Krycie (0–1)</value></data>
+  <data name="Security.Param.RotationDegrees" xml:space="preserve"><value>Obrót (stopnie)</value></data>
+  <data name="Security.Param.Horizontal" xml:space="preserve"><value>Położenie w poziomie</value></data>
+  <data name="Security.Param.Vertical" xml:space="preserve"><value>Położenie w pionie</value></data>
+  <data name="Security.Param.OffsetX" xml:space="preserve"><value>Przesunięcie w poziomie (pkt)</value></data>
+  <data name="Security.Param.OffsetY" xml:space="preserve"><value>Przesunięcie w pionie (pkt)</value></data>
+  <data name="Security.Param.PageRange" xml:space="preserve"><value>Strony (puste = wszystkie)</value></data>
+  <data name="Security.Param.BehindContent" xml:space="preserve"><value>Pod treścią strony</value></data>
+  <data name="Security.Param.FontFamily" xml:space="preserve"><value>Czcionka</value></data>
+  <data name="Security.Param.FontSize" xml:space="preserve"><value>Rozmiar czcionki</value></data>
+  <data name="Security.Param.Bold" xml:space="preserve"><value>Pogrubienie</value></data>
+  <data name="Security.Param.Italic" xml:space="preserve"><value>Kursywa</value></data>
+  <data name="Security.Param.Color" xml:space="preserve"><value>Kolor (#RRGGBB)</value></data>
+  <data name="Security.Param.HeaderLeft" xml:space="preserve"><value>Nagłówek – lewy</value></data>
+  <data name="Security.Param.HeaderCenter" xml:space="preserve"><value>Nagłówek – środek</value></data>
+  <data name="Security.Param.HeaderRight" xml:space="preserve"><value>Nagłówek – prawy</value></data>
+  <data name="Security.Param.FooterLeft" xml:space="preserve"><value>Stopka – lewa</value></data>
+  <data name="Security.Param.FooterCenter" xml:space="preserve"><value>Stopka – środek</value></data>
+  <data name="Security.Param.FooterRight" xml:space="preserve"><value>Stopka – prawa</value></data>
+  <data name="Security.Param.MarginLeft" xml:space="preserve"><value>Margines lewy (pkt)</value></data>
+  <data name="Security.Param.MarginRight" xml:space="preserve"><value>Margines prawy (pkt)</value></data>
+  <data name="Security.Param.MarginTop" xml:space="preserve"><value>Margines górny (pkt)</value></data>
+  <data name="Security.Param.MarginBottom" xml:space="preserve"><value>Margines dolny (pkt)</value></data>
+  <data name="Security.Param.DateFormat" xml:space="preserve"><value>Format daty</value></data>
+  <data name="Security.Param.StartPageNumber" xml:space="preserve"><value>Numer pierwszej strony</value></data>
+  <data name="Security.Param.Format" xml:space="preserve"><value>Format</value></data>
+  <data name="Security.Param.Margin" xml:space="preserve"><value>Margines (pkt)</value></data>
+  <data name="Security.Param.StartNumber" xml:space="preserve"><value>Numer początkowy</value></data>
+  <data name="Security.Param.RecompressImages" xml:space="preserve"><value>Kompresuj ponownie obrazy</value></data>
+  <data name="Security.Param.JpegQuality" xml:space="preserve"><value>Jakość JPEG (1–100)</value></data>
+  <data name="Security.Param.MaxImageDpi" xml:space="preserve"><value>Maksymalna rozdzielczość obrazów (DPI, 0 = bez zmian)</value></data>
+  <data name="Security.Param.RemoveUnusedObjects" xml:space="preserve"><value>Usuń nieużywane obiekty</value></data>
+  <data name="Security.Param.CompressStreams" xml:space="preserve"><value>Kompresuj strumienie</value></data>
+  <data name="Security.Param.RemoveEmbeddedThumbnails" xml:space="preserve"><value>Usuń osadzone miniatury</value></data>
+  <data name="Security.Param.RemoveMetadata" xml:space="preserve"><value>Usuń metadane</value></data>
+  <data name="Security.Param.Annotations" xml:space="preserve"><value>Komentarze</value></data>
+  <data name="Security.Param.FormFields" xml:space="preserve"><value>Pola formularza</value></data>
+  <data name="Security.Param.KeepLinks" xml:space="preserve"><value>Zachowaj łącza</value></data>
+  <data name="Security.Param.Languages" xml:space="preserve"><value>Języki (np. pol+eng)</value></data>
+  <data name="Security.Param.Dpi" xml:space="preserve"><value>Rozdzielczość (DPI)</value></data>
+  <data name="Security.Param.SkipPagesWithText" xml:space="preserve"><value>Pomiń strony, które mają już tekst</value></data>
+  <data name="Security.Param.SuspectThreshold" xml:space="preserve"><value>Próg podejrzanych słów (0–100)</value></data>
+  <data name="Security.Param.Method" xml:space="preserve"><value>Szyfrowanie</value></data>
+  <data name="Security.Param.Permissions" xml:space="preserve"><value>Uprawnienia</value></data>
+  <data name="Security.Param.Title" xml:space="preserve"><value>Tytuł ({file} = nazwa pliku)</value></data>
+  <data name="Security.Param.Author" xml:space="preserve"><value>Autor</value></data>
+  <data name="Security.Param.Subject" xml:space="preserve"><value>Temat</value></data>
+  <data name="Security.Param.Keywords" xml:space="preserve"><value>Słowa kluczowe</value></data>
+  <data name="Security.Param.Creator" xml:space="preserve"><value>Aplikacja tworząca</value></data>
+  <data name="Security.Param.OnlyIfEmpty" xml:space="preserve"><value>Uzupełnij tylko puste pola</value></data>
 </root>
