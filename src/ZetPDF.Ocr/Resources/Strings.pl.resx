@@ -5,4 +5,6 @@
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <data name="Ocr.ModuleName" xml:space="preserve"><value>Rozpoznawanie tekstu (OCR)</value></data>
+  <data name="Ocr.Progress.Page" xml:space="preserve"><value>Rozpoznawanie strony {0} (stron: {1})…</value></data>
+  <data name="Ocr.Progress.Done" xml:space="preserve"><value>Rozpoznawanie zakończone.</value></data>
 </root>
