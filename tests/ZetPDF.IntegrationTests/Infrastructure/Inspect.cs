@@ -35,6 +35,12 @@ internal static class Inspect
         return sb.ToString();
     }
 
+    /// <summary>Tekst PdfPig lub pusty, gdy PdfPig nie otwiera pliku (np. zaszyfrowanego bez hasła).</summary>
+    public static string PigTextSafe(byte[] pdf)
+    {
+        try { return PigText(pdf); } catch (Exception) { return string.Empty; }
+    }
+
     public static string PigPageText(byte[] pdf, int pageIndex)
     {
         using var d = PigDocument.Open(pdf);
