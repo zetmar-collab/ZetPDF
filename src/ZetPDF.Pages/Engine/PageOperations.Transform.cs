@@ -173,7 +173,10 @@ public sealed partial class PageOperations
             return PdfIo.Save(doc);
         }, ct);
 
-    /// <summary>Normalny wygląd adnotacji (/AP /N, ze stanem /AS dla pól wyboru) lub null.</summary>
+    /// <summary>
+    /// Normalny wygląd adnotacji (/AP /N, ze stanem /AS dla pól wyboru/opcji) lub null. Brak /AS (niezgodne z normą,
+    /// ale spotykane) – stan z wartości pola /V (dziedziczonej z rodzica); stan bez wyglądu (np. /Off) = nic nie rysujemy.
+    /// </summary>
     internal static PdfDictionary? Appearance(PdfDictionary annot)
     {
         if (PdfIo.GetDict(annot, "/AP") is not { } ap) return null;
@@ -181,7 +184,7 @@ public sealed partial class PageOperations
         if (n is PdfDictionary nd && nd.Stream is not null) return nd;
         if (n is PdfDictionary states)
         {
-            var state = PdfIo.GetName(annot, "/AS");
+            var state = PdfIo.GetName(annot, "/AS") ?? (Inherited(annot, "/V") as PdfName)?.Value;
             if (state is not null && PdfIo.Resolve(states.Elements[state]) is PdfDictionary sd && sd.Stream is not null) return sd;
         }
         return null;
