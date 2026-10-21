@@ -379,4 +379,29 @@ Usunąć go z listy ostatnich plików?</value></data>
   <data name="Shell.Encryption.Aes128" xml:space="preserve"><value>AES-128</value></data>
   <data name="Shell.Encryption.Aes256" xml:space="preserve"><value>AES-256</value></data>
   <data name="Shell.Encryption.Unknown" xml:space="preserve"><value>o nieznanej metodzie</value></data>
+  <data name="Cmd.Measure.Distance" xml:space="preserve"><value>Odległość</value></data>
+  <data name="Cmd.Measure.Perimeter" xml:space="preserve"><value>Obwód</value></data>
+  <data name="Cmd.Measure.Area" xml:space="preserve"><value>Pole powierzchni</value></data>
+  <data name="Cmd.Measure.Scale" xml:space="preserve"><value>Skala i kalibracja</value></data>
+  <data name="Cmd.Measure.Export" xml:space="preserve"><value>Eksportuj pomiary</value></data>
+  <data name="Cmd.Measure.Calculator" xml:space="preserve"><value>Kalkulator księgowy</value></data>
+  <data name="Cmd.Form.BarcodeField" xml:space="preserve"><value>Pole kodu kreskowego</value></data>
+  <data name="Cmd.Form.JavaScript" xml:space="preserve"><value>Skrypty formularza</value></data>
+  <data name="Cmd.Read.Activate" xml:space="preserve"><value>Aktywuj czytanie</value></data>
+  <data name="Cmd.Read.CurrentPage" xml:space="preserve"><value>Przeczytaj bieżącą stronę</value></data>
+  <data name="Cmd.Read.FromPage" xml:space="preserve"><value>Czytaj od bieżącej strony</value></data>
+  <data name="Cmd.Read.Pause" xml:space="preserve"><value>Pauza</value></data>
+  <data name="Cmd.Read.Stop" xml:space="preserve"><value>Zatrzymaj</value></data>
+  <data name="Cmd.View.ParallelView" xml:space="preserve"><value>Widok równoległy</value></data>
+  <data name="Cmd.View.SyncScroll" xml:space="preserve"><value>Synchronizuj widoki</value></data>
+  <data name="Cmd.Access.FullCheck" xml:space="preserve"><value>Pełne sprawdzenie</value></data>
+  <data name="Cmd.Access.Report" xml:space="preserve"><value>Raport ułatwień dostępu</value></data>
+  <data name="Cmd.Access.SetProperties" xml:space="preserve"><value>Tytuł, język i tekst alternatywny</value></data>
+  <data name="Cmd.Index.BuildFolder" xml:space="preserve"><value>Indeks pełnotekstowy folderu</value></data>
+  <data name="Cmd.Index.Search" xml:space="preserve"><value>Wyszukiwanie zaawansowane</value></data>
+  <data name="Ribbon.Group.Comment.Measure" xml:space="preserve"><value>Pomiary</value></data>
+  <data name="Ribbon.Group.View.Read" xml:space="preserve"><value>Czytanie na głos</value></data>
+  <data name="Ribbon.Tab.Accessibility" xml:space="preserve"><value>Ułatwienia dostępu</value></data>
+  <data name="Ribbon.Group.Access.Check" xml:space="preserve"><value>Sprawdzanie</value></data>
+  <data name="Ribbon.Group.Access.Read" xml:space="preserve"><value>Czytanie na głos</value></data>
 </root>

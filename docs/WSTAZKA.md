@@ -152,6 +152,12 @@
 | `Comment.Drawing` Rysowanie | `Comment.Pencil` | Ołówek | Pencil | Annotations (annotations-forms) | Toggle | Shift+P |  |
 | `Comment.Stamps` Stemple | `Comment.Stamp` | Stempel | Stamp | Annotations (annotations-forms) | Menu |  | K |
 | `Comment.Stamps` Stemple | `Comment.CustomStamp` | Stempel z obrazu | Stamp from Image | Annotations (annotations-forms) | Button |  |  |
+| `Comment.Measure` Pomiary | `Measure.Distance` | Odległość | Distance | Annotations (annotations-forms) | Toggle |  |  |
+| `Comment.Measure` Pomiary | `Measure.Perimeter` | Obwód | Perimeter | Annotations (annotations-forms) | Toggle |  |  |
+| `Comment.Measure` Pomiary | `Measure.Area` | Pole powierzchni | Area | Annotations (annotations-forms) | Toggle |  |  |
+| `Comment.Measure` Pomiary | `Measure.Scale` | Skala i kalibracja | Scale & Calibration | Annotations (annotations-forms) | Button |  |  |
+| `Comment.Measure` Pomiary | `Measure.Export` | Eksportuj pomiary | Export Measurements | Annotations (annotations-forms) | Button |  |  |
+| `Comment.Measure` Pomiary | `Measure.Calculator` | Kalkulator księgowy | Accounting Calculator | Annotations (annotations-forms) | Button |  |  |
 | `Comment.Manage` Zarządzanie | `Comment.Import` | Importuj komentarze | Import Comments | Annotations (annotations-forms) | Button |  |  |
 | `Comment.Manage` Zarządzanie | `Comment.ExportAll` | Eksportuj komentarze | Export Comments | Annotations (annotations-forms) | Button | Ctrl+L |  |
 | `Comment.Manage` Zarządzanie | `Comment.ShowAll` | Pokaż wszystkie komentarze | Show All Comments | Annotations (annotations-forms) | Button | Ctrl+D8 |  |
@@ -179,7 +185,16 @@
 | `View.Find` Wyszukiwanie | `Nav.Find` | Znajdź | Find | Viewer (renderer-viewer) | Button | Ctrl+F |  |
 | `View.Find` Wyszukiwanie | `Nav.FindNext` | Znajdź następny | Find Next | Viewer (renderer-viewer) | Button | F3 |  |
 | `View.Find` Wyszukiwanie | `Nav.FindPrevious` | Znajdź poprzedni | Find Previous | Viewer (renderer-viewer) | Button | Shift+F3 |  |
+| `View.Find` Wyszukiwanie | `Index.Search` | Wyszukiwanie zaawansowane | Advanced Search | Editing (edit-convert-ocr) | Button | Ctrl+Shift+F |  |
+| `View.Find` Wyszukiwanie | `Index.BuildFolder` | Indeks pełnotekstowy folderu | Full-text Index of Folder | Editing (edit-convert-ocr) | Button |  |  |
 | `View.Compare` Porównanie | `Compare.Start` | Porównaj dokumenty | Compare Documents | Security (security-signatures) | Button |  |  |
+| `View.Compare` Porównanie | `View.ParallelView` | Widok równoległy | Parallel View | Viewer (renderer-viewer) | Toggle |  |  |
+| `View.Compare` Porównanie | `View.SyncScroll` | Synchronizuj widoki | Synchronize Views | Viewer (renderer-viewer) | Toggle |  |  |
+| `View.Read` Czytanie na głos | `Read.Activate` | Aktywuj czytanie | Activate Read Aloud | Viewer (renderer-viewer) | Toggle | Ctrl+Shift+Y |  |
+| `View.Read` Czytanie na głos | `Read.CurrentPage` | Przeczytaj bieżącą stronę | Read Current Page | Viewer (renderer-viewer) | Button | Ctrl+Shift+V |  |
+| `View.Read` Czytanie na głos | `Read.FromPage` | Czytaj od bieżącej strony | Read from Current Page | Viewer (renderer-viewer) | Button | Ctrl+Shift+B |  |
+| `View.Read` Czytanie na głos | `Read.Pause` | Pauza | Pause | Viewer (renderer-viewer) | Button | Ctrl+Shift+P |  |
+| `View.Read` Czytanie na głos | `Read.Stop` | Zatrzymaj | Stop | Viewer (renderer-viewer) | Button | Ctrl+Shift+E |  |
 | `View.Panels` Panele | `View.TogglePanel` | Panel boczny | Side Panel | Shell (ui-shell) | Toggle | F4 |  |
 | `View.Panels` Panele | `View.PanelThumbnails` | Miniatury | Thumbnails | Shell (ui-shell) | Button |  |  |
 | `View.Panels` Panele | `View.PanelBookmarks` | Zakładki | Bookmarks | Shell (ui-shell) | Button |  |  |
@@ -200,9 +215,11 @@
 | `Form.Fields` Pola formularza | `Form.Button` | Przycisk | Button | Annotations (annotations-forms) | Toggle |  |  |
 | `Form.Fields` Pola formularza | `Form.SignatureField` | Pole podpisu | Signature Field | Annotations (annotations-forms) | Toggle |  |  |
 | `Form.Fields` Pola formularza | `Form.DateField` | Pole daty | Date Field | Annotations (annotations-forms) | Toggle |  |  |
+| `Form.Fields` Pola formularza | `Form.BarcodeField` | Pole kodu kreskowego | Barcode Field | Annotations (annotations-forms) | Toggle |  |  |
 | `Form.Design` Projektowanie | `Tool.SelectAnnotation` | Wybierz adnotację | Select Annotation | Annotations (annotations-forms) | Toggle |  | R |
 | `Form.Design` Projektowanie | `Form.TabOrder` | Kolejność tabulacji | Tab Order | Annotations (annotations-forms) | Button |  |  |
 | `Form.Design` Projektowanie | `Form.HighlightFields` | Wyróżnij pola | Highlight Fields | Annotations (annotations-forms) | Toggle |  |  |
+| `Form.Design` Projektowanie | `Form.JavaScript` | Skrypty formularza | Form Scripts | Annotations (annotations-forms) | Button |  |  |
 | `Form.Data` Dane | `Form.ImportData` | Importuj dane | Import Data | Annotations (annotations-forms) | Button |  |  |
 | `Form.Data` Dane | `Form.ExportData` | Eksportuj dane | Export Data | Annotations (annotations-forms) | Button |  |  |
 | `Form.Data` Dane | `Form.Reset` | Resetuj formularz | Reset Form | Annotations (annotations-forms) | Button |  |  |
@@ -224,6 +241,19 @@
 | `Protect.Signatures` Podpisy | `Sign.Validate` | Weryfikuj podpisy | Validate Signatures | Security (security-signatures) | Button |  |  |
 | `Protect.Signatures` Podpisy | `Sign.Timestamp` | Znacznik czasu dokumentu | Document Timestamp | Security (security-signatures) | Button |  |  |
 | `Protect.Signatures` Podpisy | `Sign.DigitalIds` | Identyfikatory cyfrowe | Digital IDs | Security (security-signatures) | Button |  |  |
+
+## Karta `Accessibility` – Ułatwienia dostępu / Accessibility
+
+| Grupa | Id polecenia | PL | EN | Moduł (agent) | Rodzaj | Skrót | Klawisz |
+|---|---|---|---|---|---|---|---|
+| `Access.Check` Sprawdzanie | `Access.FullCheck` | Pełne sprawdzenie | Full Check | Editing (edit-convert-ocr) | Button |  |  |
+| `Access.Check` Sprawdzanie | `Access.Report` | Raport ułatwień dostępu | Accessibility Report | Editing (edit-convert-ocr) | Button |  |  |
+| `Access.Check` Sprawdzanie | `Access.SetProperties` | Tytuł, język i tekst alternatywny | Title, Language & Alt Text | Editing (edit-convert-ocr) | Button |  |  |
+| `Access.Read` Czytanie na głos | `Read.Activate` | Aktywuj czytanie | Activate Read Aloud | Viewer (renderer-viewer) | Toggle | Ctrl+Shift+Y |  |
+| `Access.Read` Czytanie na głos | `Read.CurrentPage` | Przeczytaj bieżącą stronę | Read Current Page | Viewer (renderer-viewer) | Button | Ctrl+Shift+V |  |
+| `Access.Read` Czytanie na głos | `Read.FromPage` | Czytaj od bieżącej strony | Read from Current Page | Viewer (renderer-viewer) | Button | Ctrl+Shift+B |  |
+| `Access.Read` Czytanie na głos | `Read.Pause` | Pauza | Pause | Viewer (renderer-viewer) | Button | Ctrl+Shift+P |  |
+| `Access.Read` Czytanie na głos | `Read.Stop` | Zatrzymaj | Stop | Viewer (renderer-viewer) | Button | Ctrl+Shift+E |  |
 
 ## Karta `Help` – Pomoc / Help
 
@@ -272,10 +302,10 @@
 | Moduł | Agent | Liczba |
 |---|---|---|
 | Shell | ui-shell | 25 |
-| Viewer | renderer-viewer | 30 |
+| Viewer | renderer-viewer | 37 |
 | Pages | pages-engine | 40 |
-| Annotations | annotations-forms | 48 |
-| Editing | edit-convert-ocr | 24 |
+| Annotations | annotations-forms | 56 |
+| Editing | edit-convert-ocr | 29 |
 | Security | security-signatures | 13 |
 
-Razem: 180 poleceń, 11 kart, 41 grup.
+Razem: 200 poleceń, 12 kart, 45 grup.

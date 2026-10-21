@@ -226,6 +226,32 @@ cmd("Help.Licenses", SHELL, "", "", B, "E8F1", "Licencje bibliotek", "Third-part
 cmd("Help.OpenLogFolder", SHELL, "", "", B, "E838", "Folder dziennika", "Log Folder")
 cmd("Help.About", SHELL, "", "", B, "E946", "O programie", "About")
 
+# ---- Etap 3: pomiary, kalkulator, kod kreskowy, JavaScript (annotations-forms)
+cmd("Measure.Distance", ANNOT, "", "", T, "ED5E", "Odległość", "Distance")
+cmd("Measure.Perimeter", ANNOT, "", "", T, "E879", "Obwód", "Perimeter")
+cmd("Measure.Area", ANNOT, "", "", T, "E739", "Pole powierzchni", "Area")
+cmd("Measure.Scale", ANNOT, "", "", B, "E9A6", "Skala i kalibracja", "Scale & Calibration")
+cmd("Measure.Export", ANNOT, "", "", B, "EDE1", "Eksportuj pomiary", "Export Measurements")
+cmd("Measure.Calculator", ANNOT, "", "", B, "E8EF", "Kalkulator księgowy", "Accounting Calculator")
+cmd("Form.BarcodeField", ANNOT, "", "", T, "ED14", "Pole kodu kreskowego", "Barcode Field")
+cmd("Form.JavaScript", ANNOT, "", "", B, "E943", "Skrypty formularza", "Form Scripts")
+
+# ---- Etap 3: czytanie na głos, widok równoległy (renderer-viewer)
+cmd("Read.Activate", VIEWER, "Ctrl+Shift+Y", "", T, "E767", "Aktywuj czytanie", "Activate Read Aloud")
+cmd("Read.CurrentPage", VIEWER, "Ctrl+Shift+V", "", B, "E768", "Przeczytaj bieżącą stronę", "Read Current Page")
+cmd("Read.FromPage", VIEWER, "Ctrl+Shift+B", "", B, "E768", "Czytaj od bieżącej strony", "Read from Current Page")
+cmd("Read.Pause", VIEWER, "Ctrl+Shift+P", "", B, "E769", "Pauza", "Pause")
+cmd("Read.Stop", VIEWER, "Ctrl+Shift+E", "", B, "E71A", "Zatrzymaj", "Stop")
+cmd("View.ParallelView", VIEWER, "", "", T, "E89A", "Widok równoległy", "Parallel View")
+cmd("View.SyncScroll", VIEWER, "", "", T, "E895", "Synchronizuj widoki", "Synchronize Views")
+
+# ---- Etap 3: ułatwienia dostępu, indeks pełnotekstowy (edit-convert-ocr)
+cmd("Access.FullCheck", EDIT, "", "", B, "E776", "Pełne sprawdzenie", "Full Check")
+cmd("Access.Report", EDIT, "", "", B, "E9F9", "Raport ułatwień dostępu", "Accessibility Report")
+cmd("Access.SetProperties", EDIT, "", "", B, "E946", "Tytuł, język i tekst alternatywny", "Title, Language & Alt Text")
+cmd("Index.BuildFolder", EDIT, "", "", B, "E8B7", "Indeks pełnotekstowy folderu", "Full-text Index of Folder")
+cmd("Index.Search", EDIT, "Ctrl+Shift+F", "", B, "E721", "Wyszukiwanie zaawansowane", "Advanced Search")
+
 # Menu: dzieci poleceń typu Menu (rozwijane)
 MENUS = {
     "Stamp.Watermark": ["Stamp.Watermark.Add", "Stamp.Watermark.Update", "Stamp.Watermark.RemoveAll"],
@@ -267,19 +293,21 @@ TABS = [
         ("Comment.Text", "Notatki i tekst", "Notes & Text", ["Comment.Note", "Comment.Typewriter", "Comment.TextBox", "Comment.Callout"]),
         ("Comment.Drawing", "Rysowanie", "Drawing", ["Comment.Rectangle", "Comment.Oval", "Comment.Line", "Comment.Arrow", "Comment.Polygon", "Comment.Polyline", "Comment.Pencil"]),
         ("Comment.Stamps", "Stemple", "Stamps", ["Comment.Stamp", "Comment.CustomStamp"]),
+        ("Comment.Measure", "Pomiary", "Measure", ["Measure.Distance", "Measure.Perimeter", "Measure.Area", "Measure.Scale", "Measure.Export", "Measure.Calculator"]),
         ("Comment.Manage", "Zarządzanie", "Manage", ["Comment.Import", "Comment.ExportAll", "Comment.ShowAll", "Comment.HideAll", "Comment.DeleteAll", "View.PanelComments"]),
     ]),
     ("View", False, "Widok", "View", [
         ("View.Layout", "Układ stron", "Page Layout", ["View.SinglePage", "View.Continuous", "View.TwoPages", "View.TwoPagesContinuous"]),
         ("View.Mode", "Tryb", "Mode", ["View.ReadingMode", "View.FullScreen", "View.RotateLeft", "View.RotateRight"]),
         ("View.Navigation", "Nawigacja", "Navigation", ["Nav.GoToPage", "Nav.FirstPage", "Nav.PreviousPage", "Nav.NextPage", "Nav.LastPage"]),
-        ("View.Find", "Wyszukiwanie", "Find", ["Nav.Find", "Nav.FindNext", "Nav.FindPrevious"]),
-        ("View.Compare", "Porównanie", "Compare", ["Compare.Start"]),
+        ("View.Find", "Wyszukiwanie", "Find", ["Nav.Find", "Nav.FindNext", "Nav.FindPrevious", "Index.Search", "Index.BuildFolder"]),
+        ("View.Compare", "Porównanie", "Compare", ["Compare.Start", "View.ParallelView", "View.SyncScroll"]),
+        ("View.Read", "Czytanie na głos", "Read Aloud", ["Read.Activate", "Read.CurrentPage", "Read.FromPage", "Read.Pause", "Read.Stop"]),
         ("View.Panels", "Panele", "Panels", ["View.TogglePanel", "View.PanelThumbnails", "View.PanelBookmarks", "View.PanelComments", "View.PanelAttachments", "View.PanelSignatures", "View.ToggleRibbon"]),
     ]),
     ("Form", False, "Formularz", "Form", [
-        ("Form.Fields", "Pola formularza", "Form Fields", ["Form.TextField", "Form.CheckBox", "Form.RadioButton", "Form.ComboBox", "Form.ListBox", "Form.Button", "Form.SignatureField", "Form.DateField"]),
-        ("Form.Design", "Projektowanie", "Design", ["Tool.SelectAnnotation", "Form.TabOrder", "Form.HighlightFields"]),
+        ("Form.Fields", "Pola formularza", "Form Fields", ["Form.TextField", "Form.CheckBox", "Form.RadioButton", "Form.ComboBox", "Form.ListBox", "Form.Button", "Form.SignatureField", "Form.DateField", "Form.BarcodeField"]),
+        ("Form.Design", "Projektowanie", "Design", ["Tool.SelectAnnotation", "Form.TabOrder", "Form.HighlightFields", "Form.JavaScript"]),
         ("Form.Data", "Dane", "Data", ["Form.ImportData", "Form.ExportData", "Form.Reset"]),
     ]),
     ("Protect", False, "Ochrona", "Protect", [
@@ -287,6 +315,10 @@ TABS = [
         ("Protect.Redaction", "Redakcja", "Redaction", ["Redact.MarkText", "Redact.MarkArea", "Redact.SearchAndRedact", "Redact.Apply"]),
         ("Protect.HiddenData", "Ukryte dane", "Hidden Data", ["Sanitize.Document"]),
         ("Protect.Signatures", "Podpisy", "Signatures", ["FillSign.Open", "Sign.PlaceSignature", "Sign.Validate", "Sign.Timestamp", "Sign.DigitalIds"]),
+    ]),
+    ("Accessibility", False, "Ułatwienia dostępu", "Accessibility", [
+        ("Access.Check", "Sprawdzanie", "Check", ["Access.FullCheck", "Access.Report", "Access.SetProperties"]),
+        ("Access.Read", "Czytanie na głos", "Read Aloud", ["Read.Activate", "Read.CurrentPage", "Read.FromPage", "Read.Pause", "Read.Stop"]),
     ]),
     ("Help", False, "Pomoc", "Help", [
         ("Help.Main", "Pomoc", "Help", ["Help.Shortcuts", "Help.Licenses", "Help.OpenLogFolder", "Help.About"]),

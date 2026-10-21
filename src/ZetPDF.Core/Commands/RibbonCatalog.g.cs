@@ -185,6 +185,26 @@ public static partial class RibbonCatalog
         new("Help.Licenses", FeatureModuleId.Shell, CommandKind.Button, "\uE8F1", "", ""),
         new("Help.OpenLogFolder", FeatureModuleId.Shell, CommandKind.Button, "\uE838", "", ""),
         new("Help.About", FeatureModuleId.Shell, CommandKind.Button, "\uE946", "", ""),
+        new("Measure.Distance", FeatureModuleId.Annotations, CommandKind.Toggle, "\uED5E", "", ""),
+        new("Measure.Perimeter", FeatureModuleId.Annotations, CommandKind.Toggle, "\uE879", "", ""),
+        new("Measure.Area", FeatureModuleId.Annotations, CommandKind.Toggle, "\uE739", "", ""),
+        new("Measure.Scale", FeatureModuleId.Annotations, CommandKind.Button, "\uE9A6", "", ""),
+        new("Measure.Export", FeatureModuleId.Annotations, CommandKind.Button, "\uEDE1", "", ""),
+        new("Measure.Calculator", FeatureModuleId.Annotations, CommandKind.Button, "\uE8EF", "", ""),
+        new("Form.BarcodeField", FeatureModuleId.Annotations, CommandKind.Toggle, "\uED14", "", ""),
+        new("Form.JavaScript", FeatureModuleId.Annotations, CommandKind.Button, "\uE943", "", ""),
+        new("Read.Activate", FeatureModuleId.Viewer, CommandKind.Toggle, "\uE767", "Ctrl+Shift+Y", ""),
+        new("Read.CurrentPage", FeatureModuleId.Viewer, CommandKind.Button, "\uE768", "Ctrl+Shift+V", ""),
+        new("Read.FromPage", FeatureModuleId.Viewer, CommandKind.Button, "\uE768", "Ctrl+Shift+B", ""),
+        new("Read.Pause", FeatureModuleId.Viewer, CommandKind.Button, "\uE769", "Ctrl+Shift+P", ""),
+        new("Read.Stop", FeatureModuleId.Viewer, CommandKind.Button, "\uE71A", "Ctrl+Shift+E", ""),
+        new("View.ParallelView", FeatureModuleId.Viewer, CommandKind.Toggle, "\uE89A", "", ""),
+        new("View.SyncScroll", FeatureModuleId.Viewer, CommandKind.Toggle, "\uE895", "", ""),
+        new("Access.FullCheck", FeatureModuleId.Editing, CommandKind.Button, "\uE776", "", ""),
+        new("Access.Report", FeatureModuleId.Editing, CommandKind.Button, "\uE9F9", "", ""),
+        new("Access.SetProperties", FeatureModuleId.Editing, CommandKind.Button, "\uE946", "", ""),
+        new("Index.BuildFolder", FeatureModuleId.Editing, CommandKind.Button, "\uE8B7", "", ""),
+        new("Index.Search", FeatureModuleId.Editing, CommandKind.Button, "\uE721", "Ctrl+Shift+F", ""),
     };
 
     private static RibbonTabDescriptor[] CreateTabs() => new RibbonTabDescriptor[]
@@ -224,6 +244,7 @@ public static partial class RibbonCatalog
             new("Comment.Text", new[] { "Comment.Note", "Comment.Typewriter", "Comment.TextBox", "Comment.Callout" }),
             new("Comment.Drawing", new[] { "Comment.Rectangle", "Comment.Oval", "Comment.Line", "Comment.Arrow", "Comment.Polygon", "Comment.Polyline", "Comment.Pencil" }),
             new("Comment.Stamps", new[] { "Comment.Stamp", "Comment.CustomStamp" }),
+            new("Comment.Measure", new[] { "Measure.Distance", "Measure.Perimeter", "Measure.Area", "Measure.Scale", "Measure.Export", "Measure.Calculator" }),
             new("Comment.Manage", new[] { "Comment.Import", "Comment.ExportAll", "Comment.ShowAll", "Comment.HideAll", "Comment.DeleteAll", "View.PanelComments" }),
         }),
         new("View", false, new RibbonGroupDescriptor[]
@@ -231,14 +252,15 @@ public static partial class RibbonCatalog
             new("View.Layout", new[] { "View.SinglePage", "View.Continuous", "View.TwoPages", "View.TwoPagesContinuous" }),
             new("View.Mode", new[] { "View.ReadingMode", "View.FullScreen", "View.RotateLeft", "View.RotateRight" }),
             new("View.Navigation", new[] { "Nav.GoToPage", "Nav.FirstPage", "Nav.PreviousPage", "Nav.NextPage", "Nav.LastPage" }),
-            new("View.Find", new[] { "Nav.Find", "Nav.FindNext", "Nav.FindPrevious" }),
-            new("View.Compare", new[] { "Compare.Start" }),
+            new("View.Find", new[] { "Nav.Find", "Nav.FindNext", "Nav.FindPrevious", "Index.Search", "Index.BuildFolder" }),
+            new("View.Compare", new[] { "Compare.Start", "View.ParallelView", "View.SyncScroll" }),
+            new("View.Read", new[] { "Read.Activate", "Read.CurrentPage", "Read.FromPage", "Read.Pause", "Read.Stop" }),
             new("View.Panels", new[] { "View.TogglePanel", "View.PanelThumbnails", "View.PanelBookmarks", "View.PanelComments", "View.PanelAttachments", "View.PanelSignatures", "View.ToggleRibbon" }),
         }),
         new("Form", false, new RibbonGroupDescriptor[]
         {
-            new("Form.Fields", new[] { "Form.TextField", "Form.CheckBox", "Form.RadioButton", "Form.ComboBox", "Form.ListBox", "Form.Button", "Form.SignatureField", "Form.DateField" }),
-            new("Form.Design", new[] { "Tool.SelectAnnotation", "Form.TabOrder", "Form.HighlightFields" }),
+            new("Form.Fields", new[] { "Form.TextField", "Form.CheckBox", "Form.RadioButton", "Form.ComboBox", "Form.ListBox", "Form.Button", "Form.SignatureField", "Form.DateField", "Form.BarcodeField" }),
+            new("Form.Design", new[] { "Tool.SelectAnnotation", "Form.TabOrder", "Form.HighlightFields", "Form.JavaScript" }),
             new("Form.Data", new[] { "Form.ImportData", "Form.ExportData", "Form.Reset" }),
         }),
         new("Protect", false, new RibbonGroupDescriptor[]
@@ -247,6 +269,11 @@ public static partial class RibbonCatalog
             new("Protect.Redaction", new[] { "Redact.MarkText", "Redact.MarkArea", "Redact.SearchAndRedact", "Redact.Apply" }),
             new("Protect.HiddenData", new[] { "Sanitize.Document" }),
             new("Protect.Signatures", new[] { "FillSign.Open", "Sign.PlaceSignature", "Sign.Validate", "Sign.Timestamp", "Sign.DigitalIds" }),
+        }),
+        new("Accessibility", false, new RibbonGroupDescriptor[]
+        {
+            new("Access.Check", new[] { "Access.FullCheck", "Access.Report", "Access.SetProperties" }),
+            new("Access.Read", new[] { "Read.Activate", "Read.CurrentPage", "Read.FromPage", "Read.Pause", "Read.Stop" }),
         }),
         new("Help", false, new RibbonGroupDescriptor[]
         {

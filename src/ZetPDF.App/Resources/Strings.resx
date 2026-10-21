@@ -379,4 +379,29 @@ Remove it from the recent files list?</value></data>
   <data name="Shell.Encryption.Aes128" xml:space="preserve"><value>AES-128</value></data>
   <data name="Shell.Encryption.Aes256" xml:space="preserve"><value>AES-256</value></data>
   <data name="Shell.Encryption.Unknown" xml:space="preserve"><value>of an unknown type</value></data>
+  <data name="Cmd.Measure.Distance" xml:space="preserve"><value>Distance</value></data>
+  <data name="Cmd.Measure.Perimeter" xml:space="preserve"><value>Perimeter</value></data>
+  <data name="Cmd.Measure.Area" xml:space="preserve"><value>Area</value></data>
+  <data name="Cmd.Measure.Scale" xml:space="preserve"><value>Scale &amp; Calibration</value></data>
+  <data name="Cmd.Measure.Export" xml:space="preserve"><value>Export Measurements</value></data>
+  <data name="Cmd.Measure.Calculator" xml:space="preserve"><value>Accounting Calculator</value></data>
+  <data name="Cmd.Form.BarcodeField" xml:space="preserve"><value>Barcode Field</value></data>
+  <data name="Cmd.Form.JavaScript" xml:space="preserve"><value>Form Scripts</value></data>
+  <data name="Cmd.Read.Activate" xml:space="preserve"><value>Activate Read Aloud</value></data>
+  <data name="Cmd.Read.CurrentPage" xml:space="preserve"><value>Read Current Page</value></data>
+  <data name="Cmd.Read.FromPage" xml:space="preserve"><value>Read from Current Page</value></data>
+  <data name="Cmd.Read.Pause" xml:space="preserve"><value>Pause</value></data>
+  <data name="Cmd.Read.Stop" xml:space="preserve"><value>Stop</value></data>
+  <data name="Cmd.View.ParallelView" xml:space="preserve"><value>Parallel View</value></data>
+  <data name="Cmd.View.SyncScroll" xml:space="preserve"><value>Synchronize Views</value></data>
+  <data name="Cmd.Access.FullCheck" xml:space="preserve"><value>Full Check</value></data>
+  <data name="Cmd.Access.Report" xml:space="preserve"><value>Accessibility Report</value></data>
+  <data name="Cmd.Access.SetProperties" xml:space="preserve"><value>Title, Language &amp; Alt Text</value></data>
+  <data name="Cmd.Index.BuildFolder" xml:space="preserve"><value>Full-text Index of Folder</value></data>
+  <data name="Cmd.Index.Search" xml:space="preserve"><value>Advanced Search</value></data>
+  <data name="Ribbon.Group.Comment.Measure" xml:space="preserve"><value>Measure</value></data>
+  <data name="Ribbon.Group.View.Read" xml:space="preserve"><value>Read Aloud</value></data>
+  <data name="Ribbon.Tab.Accessibility" xml:space="preserve"><value>Accessibility</value></data>
+  <data name="Ribbon.Group.Access.Check" xml:space="preserve"><value>Check</value></data>
+  <data name="Ribbon.Group.Access.Read" xml:space="preserve"><value>Read Aloud</value></data>
 </root>

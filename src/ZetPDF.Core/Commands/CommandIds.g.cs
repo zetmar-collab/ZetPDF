@@ -142,6 +142,10 @@ public static class CommandIds
         public const string PanelAttachments = "View.PanelAttachments";
         /// <summary>Podpisy / Signatures – moduł Shell.</summary>
         public const string PanelSignatures = "View.PanelSignatures";
+        /// <summary>Widok równoległy / Parallel View – moduł Viewer.</summary>
+        public const string ParallelView = "View.ParallelView";
+        /// <summary>Synchronizuj widoki / Synchronize Views – moduł Viewer.</summary>
+        public const string SyncScroll = "View.SyncScroll";
     }
 
     public static class Nav
@@ -358,6 +362,10 @@ public static class CommandIds
         public const string ExportData = "Form.ExportData";
         /// <summary>Resetuj formularz / Reset Form – moduł Annotations.</summary>
         public const string Reset = "Form.Reset";
+        /// <summary>Pole kodu kreskowego / Barcode Field – moduł Annotations.</summary>
+        public const string BarcodeField = "Form.BarcodeField";
+        /// <summary>Skrypty formularza / Form Scripts – moduł Annotations.</summary>
+        public const string JavaScript = "Form.JavaScript";
     }
 
     public static class FillSign
@@ -442,6 +450,54 @@ public static class CommandIds
         public const string OpenLogFolder = "Help.OpenLogFolder";
         /// <summary>O programie / About – moduł Shell.</summary>
         public const string About = "Help.About";
+    }
+
+    public static class Measure
+    {
+        /// <summary>Odległość / Distance – moduł Annotations.</summary>
+        public const string Distance = "Measure.Distance";
+        /// <summary>Obwód / Perimeter – moduł Annotations.</summary>
+        public const string Perimeter = "Measure.Perimeter";
+        /// <summary>Pole powierzchni / Area – moduł Annotations.</summary>
+        public const string Area = "Measure.Area";
+        /// <summary>Skala i kalibracja / Scale &amp; Calibration – moduł Annotations.</summary>
+        public const string Scale = "Measure.Scale";
+        /// <summary>Eksportuj pomiary / Export Measurements – moduł Annotations.</summary>
+        public const string Export = "Measure.Export";
+        /// <summary>Kalkulator księgowy / Accounting Calculator – moduł Annotations.</summary>
+        public const string Calculator = "Measure.Calculator";
+    }
+
+    public static class Read
+    {
+        /// <summary>Aktywuj czytanie / Activate Read Aloud – moduł Viewer.</summary>
+        public const string Activate = "Read.Activate";
+        /// <summary>Przeczytaj bieżącą stronę / Read Current Page – moduł Viewer.</summary>
+        public const string CurrentPage = "Read.CurrentPage";
+        /// <summary>Czytaj od bieżącej strony / Read from Current Page – moduł Viewer.</summary>
+        public const string FromPage = "Read.FromPage";
+        /// <summary>Pauza / Pause – moduł Viewer.</summary>
+        public const string Pause = "Read.Pause";
+        /// <summary>Zatrzymaj / Stop – moduł Viewer.</summary>
+        public const string Stop = "Read.Stop";
+    }
+
+    public static class Access
+    {
+        /// <summary>Pełne sprawdzenie / Full Check – moduł Editing.</summary>
+        public const string FullCheck = "Access.FullCheck";
+        /// <summary>Raport ułatwień dostępu / Accessibility Report – moduł Editing.</summary>
+        public const string Report = "Access.Report";
+        /// <summary>Tytuł, język i tekst alternatywny / Title, Language &amp; Alt Text – moduł Editing.</summary>
+        public const string SetProperties = "Access.SetProperties";
+    }
+
+    public static class Index
+    {
+        /// <summary>Indeks pełnotekstowy folderu / Full-text Index of Folder – moduł Editing.</summary>
+        public const string BuildFolder = "Index.BuildFolder";
+        /// <summary>Wyszukiwanie zaawansowane / Advanced Search – moduł Editing.</summary>
+        public const string Search = "Index.Search";
     }
 
 }
