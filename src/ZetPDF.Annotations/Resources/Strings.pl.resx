@@ -255,4 +255,43 @@
   <data name="Annot.Barcode.Fields" xml:space="preserve"><value>Pola do zakodowania:</value></data>
   <data name="Annot.Barcode.NoFields" xml:space="preserve"><value>Formularz nie ma jeszcze pól danych – zakodowane zostaną wszystkie pola dodane później.</value></data>
   <data name="Annot.Undo.Barcode" xml:space="preserve"><value>Pole kodu kreskowego</value></data>
+  <data name="Annot.Script.Title" xml:space="preserve"><value>Skrypty formularza</value></data>
+  <data name="Annot.Script.Policy" xml:space="preserve"><value>Wykonywanie skryptów formularza w tym dokumencie</value></data>
+  <data name="Annot.Script.Policy.Off" xml:space="preserve"><value>Wyłączone – nie wykonuj żadnych skryptów</value></data>
+  <data name="Annot.Script.Policy.AfOnly" xml:space="preserve"><value>Tylko wbudowane obliczenia i formaty (funkcje AF*) – zalecane</value></data>
+  <data name="Annot.Script.Policy.All" xml:space="preserve"><value>Dowolny JavaScript pól (obliczanie, format, walidacja, naciśnięcie klawisza)</value></data>
+  <data name="Annot.Script.Policy.Info" xml:space="preserve"><value>Skrypty działają w piaskownicy bez dostępu do plików, sieci i systemu, z limitem czasu i pamięci. Skrypty dokumentu (przy otwarciu, akcje dokumentu) nigdy nie są wykonywane.</value></data>
+  <data name="Annot.Script.Policy.Confirm" xml:space="preserve"><value>Wykonywać dowolny JavaScript z pól tego dokumentu? Zezwól tylko dla dokumentów z zaufanego źródła.</value></data>
+  <data name="Annot.Script.Policy.Status.Off" xml:space="preserve"><value>Skrypty formularza są wyłączone dla tego dokumentu.</value></data>
+  <data name="Annot.Script.Policy.Status.AfOnly" xml:space="preserve"><value>Skrypty formularza: tylko wbudowane obliczenia i formaty.</value></data>
+  <data name="Annot.Script.Policy.Status.All" xml:space="preserve"><value>Skrypty formularza: dowolny JavaScript pól jest dozwolony dla tego dokumentu.</value></data>
+  <data name="Annot.Script.Recalculate" xml:space="preserve"><value>Przelicz teraz</value></data>
+  <data name="Annot.Script.NewForField" xml:space="preserve"><value>Skrypt dla pola:</value></data>
+  <data name="Annot.Script.Trigger" xml:space="preserve"><value>Zdarzenie</value></data>
+  <data name="Annot.Script.Trigger.Keystroke" xml:space="preserve"><value>Naciśnięcie klawisza</value></data>
+  <data name="Annot.Script.Trigger.Format" xml:space="preserve"><value>Format</value></data>
+  <data name="Annot.Script.Trigger.Validate" xml:space="preserve"><value>Walidacja</value></data>
+  <data name="Annot.Script.Trigger.Calculate" xml:space="preserve"><value>Obliczanie</value></data>
+  <data name="Annot.Script.ButtonAction" xml:space="preserve"><value>Akcja przycisku (nie wykonywana)</value></data>
+  <data name="Annot.Script.Edit" xml:space="preserve"><value>Edytuj</value></data>
+  <data name="Annot.Script.Save" xml:space="preserve"><value>Zapisz skrypt</value></data>
+  <data name="Annot.Script.Delete" xml:space="preserve"><value>Usuń skrypt</value></data>
+  <data name="Annot.Script.Code" xml:space="preserve"><value>Kod skryptu</value></data>
+  <data name="Annot.Script.None" xml:space="preserve"><value>Dokument nie zawiera skryptów.</value></data>
+  <data name="Annot.Script.DocNamed" xml:space="preserve"><value>Skrypt dokumentu: {0} (nie wykonywany)</value></data>
+  <data name="Annot.Script.OpenAction" xml:space="preserve"><value>Wykonywany przy otwarciu (nie wykonywany)</value></data>
+  <data name="Annot.Script.DocAction" xml:space="preserve"><value>Akcja dokumentu: {0} (nie wykonywana)</value></data>
+  <data name="Annot.Script.Note.AfOnly" xml:space="preserve"><value>Używa tylko funkcji wbudowanych – działa przy ustawieniu zalecanym.</value></data>
+  <data name="Annot.Script.Note.Custom" xml:space="preserve"><value>Własny JavaScript – działa tylko po zezwoleniu na dowolny JavaScript pól.</value></data>
+  <data name="Annot.Script.Note.NotExecuted" xml:space="preserve"><value>Tylko podgląd – ZetPDF nie wykonuje skryptów dokumentu.</value></data>
+  <data name="Annot.Script.Note.New" xml:space="preserve"><value>Nowy skrypt – zapisz, aby dodać go do pola.</value></data>
+  <data name="Annot.Script.Rejected" xml:space="preserve"><value>Wartość odrzucona przez skrypt pola: {0}.</value></data>
+  <data name="Annot.Script.Errors" xml:space="preserve"><value>Przerwano skrypty formularza ({0}): {1}</value></data>
+  <data name="Annot.Script.Alert" xml:space="preserve"><value>Komunikat formularza: {0}</value></data>
+  <data name="Annot.Script.Alert.Number" xml:space="preserve"><value>Wartość musi być liczbą.</value></data>
+  <data name="Annot.Script.Alert.Range" xml:space="preserve"><value>Wartość jest poza dozwolonym zakresem.</value></data>
+  <data name="Annot.Script.Alert.Date" xml:space="preserve"><value>Wartość nie jest poprawną datą.</value></data>
+  <data name="Annot.Script.Alert.Format" xml:space="preserve"><value>Wartość nie pasuje do wymaganego formatu.</value></data>
+  <data name="Annot.Undo.FormScript" xml:space="preserve"><value>Skrypt formularza</value></data>
+  <data name="Annot.Undo.FormRecalculate" xml:space="preserve"><value>Przeliczenie formularza</value></data>
 </root>

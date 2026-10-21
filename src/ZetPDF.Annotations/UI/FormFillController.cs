@@ -168,9 +168,15 @@ internal sealed class FormFillController
         await ActivateAsync(view, target.FullName, null);
     }
 
-    private Task<bool> SetAsync(IPdfDocumentSession session, string name, string value) =>
-        _ctx.RunAsync(session, "Annot.Undo.FormFill", (pdf, ct) => _ctx.Forms.SetValuesAsync(pdf, new Dictionary<string, string> { [name] = value }, ct),
+    private async Task<bool> SetAsync(IPdfDocumentSession session, string name, string value)
+    {
+        var report = new Forms.Scripting.ScriptReport();
+        var policy = _ctx.ScriptPolicyFor(session);
+        bool ok = await _ctx.RunAsync(session, "Annot.Undo.FormFill", (pdf, ct) => _ctx.Forms.SetValuesAsync(pdf, new Dictionary<string, string> { [name] = value }, policy, report, ct),
             DocumentChangeKind.FormFields, DocumentPermissions.FillForms);
+        _ctx.ShowScriptReport(report);
+        return ok;
+    }
 
     private async Task PressButtonAsync(IPdfDocumentSession session, string name)
     {
@@ -178,7 +184,8 @@ internal sealed class FormFillController
         switch (spec.ButtonAction)
         {
             case FormButtonAction.ResetForm:
-                await _ctx.RunAsync(session, "Annot.Undo.FormReset", (pdf, ct) => _ctx.Forms.ResetAsync(pdf, null, ct), DocumentChangeKind.FormFields, DocumentPermissions.FillForms);
+                var policy = _ctx.ScriptPolicyFor(session);
+                await _ctx.RunAsync(session, "Annot.Undo.FormReset", (pdf, ct) => _ctx.Forms.ResetAsync(pdf, null, policy, ct), DocumentChangeKind.FormFields, DocumentPermissions.FillForms);
                 break;
             case FormButtonAction.OpenUrl when Uri.TryCreate(spec.ButtonUrl, UriKind.Absolute, out var uri) && uri.Scheme is "http" or "https" or "mailto":
                 if (_ctx.Dialogs?.Confirm(_ctx.Loc.Format("Annot.Form.OpenUrlConfirm", uri.AbsoluteUri)) == true)

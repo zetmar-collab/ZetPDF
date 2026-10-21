@@ -8,6 +8,7 @@
     <ProjectReference Include="..\ZetPDF.Core\ZetPDF.Core.csproj" />
     <PackageReference Include="PdfPig" Version="$(PdfPigVersion)" />
     <PackageReference Include="ZXing.Net" Version="0.16.11" />
+    <PackageReference Include="Jint" Version="4.16.4" />
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="ZetPDF.Annotations.Tests" />

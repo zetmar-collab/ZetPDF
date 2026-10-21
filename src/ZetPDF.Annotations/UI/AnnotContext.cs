@@ -110,6 +110,24 @@ internal sealed class AnnotContext
         return null;
     }
 
+    // ------------------------------------------------------------------ skrypty formularza (ustawienie dokumentu, nie w pliku)
+
+    private readonly Dictionary<Guid, ZetPDF.Annotations.Forms.Scripting.ScriptPolicy> _scriptPolicies = new();
+
+    public ZetPDF.Annotations.Forms.Scripting.ScriptPolicy ScriptPolicyFor(IPdfDocumentSession session) =>
+        _scriptPolicies.TryGetValue(session.Id, out var p) ? p : ZetPDF.Annotations.Forms.Scripting.ScriptPolicy.AfOnly;
+
+    public void SetScriptPolicy(IPdfDocumentSession session, ZetPDF.Annotations.Forms.Scripting.ScriptPolicy policy) => _scriptPolicies[session.Id] = policy;
+
+    /// <summary>Komunikaty skryptów (app.alert, błędy, odrzucone wartości) – w pasku stanu, bez okien wyskakujących.</summary>
+    public void ShowScriptReport(ZetPDF.Annotations.Forms.Scripting.ScriptReport report)
+    {
+        if (report.Rejected.Count > 0)
+            Shell?.SetStatus(Loc.Format("Annot.Script.Rejected", string.Join(", ", report.Rejected.Distinct())) + (report.Alerts.Count > 0 ? " " + report.Alerts[0] : ""));
+        else if (report.Errors.Count > 0) Shell?.SetStatus(Loc.Format("Annot.Script.Errors", report.Errors.Count, report.Errors[0]));
+        else if (report.Alerts.Count > 0) Shell?.SetStatus(Loc.Format("Annot.Script.Alert", report.Alerts[^1]));
+    }
+
     // ------------------------------------------------------------------ skala pomiarów
 
     private readonly Dictionary<(Guid, int), (long Version, Task<Measure.MeasureScale?> Task)> _scales = new();

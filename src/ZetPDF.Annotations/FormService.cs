@@ -1,4 +1,5 @@
 using ZetPDF.Annotations.Forms;
+using ZetPDF.Annotations.Forms.Scripting;
 using ZetPDF.Core.Contracts;
 using ZetPDF.Core.Documents;
 using ZetPDF.Core.Localization;
@@ -25,17 +26,48 @@ public sealed class FormService : IFormService
     internal Task<FormFieldSpec> DescribeAsync(byte[] pdf, string fullName, CancellationToken ct = default) =>
         Task.Run(() => PdfSharpEdit.Read(pdf, doc => FormEngine.Describe(doc, fullName)), ct);
 
+    /// <summary>Ustawia wartości; skrypty pól wg polityki domyślnej (tylko wbudowane funkcje AF*: obliczenia, formaty, walidacja).</summary>
     public Task<byte[]> SetValuesAsync(byte[] pdf, IReadOnlyDictionary<string, string> values, CancellationToken ct = default) =>
+        SetValuesAsync(pdf, values, ScriptPolicy.AfOnly, null, ct);
+
+    /// <summary>Ustawia wartości z wykonaniem skryptów pól wg polityki dokumentu; raport (komunikaty, błędy) – opcjonalnie.</summary>
+    public Task<byte[]> SetValuesAsync(byte[] pdf, IReadOnlyDictionary<string, string> values, ScriptPolicy policy, ScriptReport? report, CancellationToken ct = default) =>
         PdfSharpEdit.ModifyAsync(pdf, doc =>
         {
-            var fields = FieldTree.Terminals(doc).GroupBy(f => f.FullName).ToDictionary(g => g.Key, g => g.First(), StringComparer.Ordinal);
-            foreach (var (name, value) in values)
-                if (fields.TryGetValue(name, out var f)) FormEngine.SetValue(doc, f, value ?? string.Empty);
-            FormEngine.RefreshAppearances(doc);
+            var display = FormCalculation.Apply(doc, values, policy, report ?? new ScriptReport(), ct);
+            FormEngine.RefreshAppearances(doc, display);
+        }, ct);
+
+    /// <summary>Przelicza obliczenia i formaty wszystkich pól (bez zmiany wartości wpisanych).</summary>
+    public Task<byte[]> RecalculateAsync(byte[] pdf, ScriptPolicy policy, ScriptReport? report = null, CancellationToken ct = default) =>
+        PdfSharpEdit.ModifyAsync(pdf, doc =>
+        {
+            var display = FormCalculation.Apply(doc, null, policy, report ?? new ScriptReport(), ct);
+            FormEngine.RefreshAppearances(doc, display);
         }, ct);
 
     public Task<byte[]> ResetAsync(byte[] pdf, IReadOnlyList<string>? fieldNames = null, CancellationToken ct = default) =>
-        PdfSharpEdit.ModifyAsync(pdf, doc => FormEngine.Reset(doc, fieldNames), ct);
+        ResetAsync(pdf, fieldNames, ScriptPolicy.AfOnly, ct);
+
+    public Task<byte[]> ResetAsync(byte[] pdf, IReadOnlyList<string>? fieldNames, ScriptPolicy policy, CancellationToken ct = default) =>
+        PdfSharpEdit.ModifyAsync(pdf, doc =>
+        {
+            FormEngine.Reset(doc, fieldNames);
+            var display = FormCalculation.Apply(doc, null, policy, new ScriptReport(), ct);
+            FormEngine.RefreshAppearances(doc, display);
+        }, ct);
+
+    /// <summary>Skrypty JavaScript dokumentu i pól (podgląd w oknie Skrypty formularza).</summary>
+    public Task<IReadOnlyList<FormScriptInfo>> GetScriptsAsync(byte[] pdf, CancellationToken ct = default) =>
+        Task.Run<IReadOnlyList<FormScriptInfo>>(() => PdfSharpEdit.Read(pdf, FormScripts.List), ct);
+
+    /// <summary>Ustawia (pusty kod – usuwa) skrypt zdarzenia pola: Keystroke, Format, Validate, Calculate (/CO).</summary>
+    public Task<byte[]> SetFieldScriptAsync(byte[] pdf, string fullName, ScriptTrigger trigger, string? code, CancellationToken ct = default) =>
+        PdfSharpEdit.ModifyAsync(pdf, doc =>
+        {
+            var f = FieldTree.Find(doc, fullName) ?? throw new KeyNotFoundException("Field not found: " + fullName).WithMessageKey("Annot.Error.FieldNotFound", fullName);
+            FormScripts.SetFieldScript(doc, f, trigger, code);
+        }, ct);
 
     public Task<byte[]> CreateFieldAsync(byte[] pdf, FormFieldSpec spec, CancellationToken ct = default) =>
         PdfSharpEdit.ModifyAsync(pdf, doc => FormEngine.Create(doc, spec), ct);

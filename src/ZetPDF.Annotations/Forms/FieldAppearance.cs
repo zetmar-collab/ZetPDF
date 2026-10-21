@@ -23,6 +23,8 @@ internal static class FieldAppearance
     public static void Build(PdfDocument doc, FieldNode field, bool forceStates = false, string? displayText = null)
     {
         var kind = field.Kind;
+        // podpisane pole podpisu: wygląd należy do podpisu – nie nadpisujemy
+        if (kind == FormFieldKind.Signature && field.Inherited("/V") is PdfDictionary) return;
         foreach (var w in field.Widgets)
         {
             switch (kind)

@@ -67,6 +67,12 @@ public class ModuleUiTests
             _ = new FieldPropertiesDialog(loc, new FormFieldSpec { Kind = FormFieldKind.PushButton, Name = "b", PageIndex = 0, Rect = new(0, 0, 10, 10) }, _ => false);
             _ = new TabOrderDialog(loc, 0, new[] { new FormFieldInfo { FullName = "a", Kind = FormFieldKind.Text, PageIndex = 0, Rect = new(0, 0, 1, 1) } });
             _ = new SignatureDialog(loc, null, "Jan");
+            _ = new ScaleDialog(loc, new Measure.MeasureScale(1, "cm", 2, "m"), 0, 3);
+            _ = new CalibrateDialog(loc, 100, "m");
+            _ = new BarcodeFieldDialog(loc, new Forms.BarcodeOptions(), new[] { "a", "b" });
+            _ = new CalculatorWindow(loc, () => null, _ => { });
+            _ = new FormScriptsDialog(loc, null, new[] { new Forms.Scripting.FormScriptInfo("C", "C", "AFSimple_Calculate(\"SUM\", new Array(\"A\"));"), new Forms.Scripting.FormScriptInfo(null, "OpenAction", "app.alert(1)") },
+                new[] { "A", "C" }, Forms.Scripting.ScriptPolicy.AfOnly, (_, _, _) => Task.FromResult<IReadOnlyList<Forms.Scripting.FormScriptInfo>?>(null), _ => Task.CompletedTask);
         });
     }
 

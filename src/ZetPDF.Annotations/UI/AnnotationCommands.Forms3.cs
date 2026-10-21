@@ -80,7 +80,33 @@ internal sealed partial class AnnotationCommands
             _ctx.Selection = new SelectedItem(s, null, spec.Name, page, rect);
     }
 
-    private void RegisterScripts()
+    private void RegisterScripts() =>
+        _registry.Register(CommandIds.Form.JavaScript, Doc(FormScriptsAsync, DocumentPermissions.None));
+
+    private async Task FormScriptsAsync(IPdfDocumentSession s)
     {
+        var bytes = s.Current.GetBytes();
+        var scripts = await _ctx.Forms.GetScriptsAsync(bytes);
+        var fields = (await _ctx.Forms.GetFieldsAsync(bytes))
+            .Where(f => f.Kind is not (FormFieldKind.PushButton or FormFieldKind.Signature)).Select(f => f.FullName).Distinct().ToList();
+        bool canEdit = s.Can(DocumentPermissions.ModifyContent);
+        var dlg = new FormScriptsDialog(_loc, Dialogs, scripts, canEdit ? fields : Array.Empty<string>(), _ctx.ScriptPolicyFor(s),
+            async (field, trigger, code) =>
+            {
+                if (!await _ctx.RunAsync(s, "Annot.Undo.FormScript", (pdf, ct) => _ctx.Forms.SetFieldScriptAsync(pdf, field, trigger, code, ct),
+                        DocumentChangeKind.FormFields, DocumentPermissions.ModifyContent)) return null;
+                return await _ctx.Forms.GetScriptsAsync(s.Current.GetBytes());
+            },
+            async policy =>
+            {
+                _ctx.SetScriptPolicy(s, policy);
+                var report = new Forms.Scripting.ScriptReport();
+                await _ctx.RunAsync(s, "Annot.Undo.FormRecalculate", (pdf, ct) => _ctx.Forms.RecalculateAsync(pdf, policy, report, ct),
+                    DocumentChangeKind.FormFields, DocumentPermissions.FillForms);
+                _ctx.ShowScriptReport(report);
+            });
+        Ui.Show(Dialogs, dlg);
+        _ctx.SetScriptPolicy(s, dlg.Policy);
+        _ctx.Shell?.SetStatus(_loc["Annot.Script.Policy.Status." + dlg.Policy]);
     }
 }
