@@ -167,4 +167,23 @@ public class AccessibilityTests
         Assert.Contains("[Sprawdź ręcznie] Logiczna kolejność odczytu", txt);
         Assert.DoesNotContain("[Edit.", txt);
     }
+
+    [Fact]
+    public async Task Html_report_escapes_title_and_language_from_document()
+    {
+        var pdf = PdfSharpEdit.Modify(SamplePdfFactory.Text(1), d =>
+        {
+            d.Info.Title = "<script>alert('tytuł')</script>";
+            d.Internals.Catalog.Elements.SetString("/Lang", "\"><img src=x onerror=alert(1)>");
+        });
+        var loc = new Core.Localization.LocalizationService();
+        loc.RegisterResources(EditingModule.Strings);
+        loc.SetCulture(System.Globalization.CultureInfo.GetCultureInfo("pl"));
+        var report = await Service.CheckAsync(pdf);
+        Assert.Equal(AccessCheckStatus.Passed, report[AccessRule.DocTitle].Status);
+        var html = AccessibilityService.BuildReport(report, loc, "<script>x</script>.pdf", html: true);
+        Assert.DoesNotContain("<script", html);
+        Assert.DoesNotContain("<img", html);
+        Assert.Contains("&lt;script&gt;alert(&#39;tytuł&#39;)&lt;/script&gt;", html.Replace("'", "&#39;"));
+    }
 }

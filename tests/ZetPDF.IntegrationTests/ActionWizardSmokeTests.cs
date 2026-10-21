@@ -19,6 +19,7 @@ public class ActionWizardSmokeTests
         var s = new ServiceCollection();
         s.AddZetPdfCore(new AppPaths(TestPaths.NewDirectory()));
         foreach (var m in ZetPDF.App.ModuleCatalog.CreateAll()) m.ConfigureServices(s);
+        s.AddSingleton<ZetPDF.Viewer.ReadAloud.ISpeechEngineFactory, ZetPDF.Viewer.ReadAloud.SilentSpeechEngineFactory>(); // bez dźwięku w testach
         return s.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true });
     }
 

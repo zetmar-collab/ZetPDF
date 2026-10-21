@@ -16,25 +16,105 @@ internal static class AcroJsPrelude
 
     public const string Source = """
 (function () {
-  // Ograniczenia pojedynczych dużych alokacji (limit pamięci Jint jest sprawdzany dopiero między instrukcjami)
+  // Ograniczenia pojedynczych dużych alokacji (limit pamięci Jint jest sprawdzany dopiero między instrukcjami).
+  // Funkcje wbudowane przechwycone tutaj – skrypt nie może ich podmienić (np. Math.floor), a argumenty są
+  // zamieniane na liczby/łańcuchy RAZ (valueOf/toString/getter length nie mogą zwrócić innej wartości przy drugim odczycie).
   var MAXS = 1048576, MAXA = 100000;
+  var floor = Math.floor, min = Math.min, num = Number, str = String, apply = Function.prototype.apply;
   var rep = String.prototype.repeat, ps = String.prototype.padStart, pe = String.prototype.padEnd;
-  var jn = Array.prototype.join, fl = Array.prototype.fill;
+  var sconcat = String.prototype.concat, srepl = String.prototype.replace, sreplAll = String.prototype.replaceAll;
+  var jn = Array.prototype.join, fl = Array.prototype.fill, push = Array.prototype.push;
+  var jsonStr = JSON.stringify, isArr = Array.isArray, keys = Object.keys;
   function lim(n) { if (!(n <= MAXS)) throw new RangeError("ZetPDF limit: string too long"); }
   function limA(n) { if (!(n <= MAXA)) throw new RangeError("ZetPDF limit: array too long"); }
+  function int(v) { var n = floor(num(v)); return n === n ? n : 0; }
   function def(o, k, f) { Object.defineProperty(o, k, { value: f, writable: false, configurable: false, enumerable: false }); }
-  def(String.prototype, "repeat", function (c) { var n = Math.floor(Number(c) || 0); if (n > 0) lim(String(this).length * n); return rep.call(this, c); });
-  def(String.prototype, "padStart", function (n, f) { lim(Math.floor(Number(n) || 0)); return ps.call(this, n, f); });
-  def(String.prototype, "padEnd", function (n, f) { lim(Math.floor(Number(n) || 0)); return pe.call(this, n, f); });
+  function strs(a, len) { var out = new Array(len), t = 0; for (var i = 0; i < len; i++) { var e = a[i]; out[i] = e === null || e === undefined ? "" : str(e); t += out[i].length; lim(t); } return out; }
+  def(String.prototype, "repeat", function (c) { var s = str(this), n = int(c); if (n > 0) lim(s.length * n); return rep.call(s, n); });
+  def(String.prototype, "padStart", function (n, f) { var k = int(n); lim(k); return ps.call(str(this), k, f === undefined ? undefined : str(f)); });
+  def(String.prototype, "padEnd", function (n, f) { var k = int(n); lim(k); return pe.call(str(this), k, f === undefined ? undefined : str(f)); });
+  def(String.prototype, "concat", function () {
+    var s = str(this), len = arguments.length; limA(len);
+    var parts = strs(arguments, len), t = s.length;
+    for (var i = 0; i < len; i++) { t += parts[i].length; lim(t); }
+    return apply.call(sconcat, s, parts);
+  });
+  function safeReplace(orig, all) {
+    return function (pattern, replacement) {
+      var s = str(this);
+      // wyrażenie regularne (albo obiekt z własnym Symbol.replace) – liczba trafień do s.length + 1 niezależnie od flagi
+      // (właściwość global może być getterem zwracającym co innego przy drugim odczycie)
+      var matches = !all && typeof pattern === "string" ? 1 : s.length + 1;
+      if (typeof replacement === "function") {
+        var f = replacement, total = s.length;
+        return orig.call(s, pattern, function () { var r = str(apply.call(f, undefined, arguments)); total += r.length; lim(total); return r; });
+      }
+      var r = str(replacement), dollars = 0;
+      for (var i = 0; i < r.length; i++) if (r.charCodeAt(i) === 36) dollars++;
+      // górne oszacowanie: każde trafienie zastąpione tekstem r, w którym każde $… może wstawić co najwyżej cały łańcuch
+      lim(s.length + matches * (r.length + dollars * s.length));
+      return orig.call(s, pattern, r);
+    };
+  }
+  def(String.prototype, "replace", safeReplace(srepl, false));
+  if (sreplAll) def(String.prototype, "replaceAll", safeReplace(sreplAll, true));
   def(Array.prototype, "join", function (sep) {
     var len = this.length >>> 0;
     limA(len);
-    var s = sep === undefined ? 1 : String(sep).length, total = len > 0 ? (len - 1) * s : 0;
-    lim(total);
-    for (var i = 0; i < len; i++) { var e = this[i]; if (e !== null && e !== undefined) { total += String(e).length; lim(total); } }
-    return jn.call(this, sep);
+    var sp = sep === undefined ? "," : str(sep);
+    lim(len > 0 ? (len - 1) * sp.length : 0);
+    var parts = strs(this, len), t = len > 0 ? (len - 1) * sp.length : 0;
+    for (var i = 0; i < len; i++) { t += parts[i].length; lim(t); }
+    return jn.call(parts, sp);
   });
-  def(Array.prototype, "fill", function () { limA(this.length >>> 0); return fl.apply(this, arguments); });
+  def(Array.prototype, "toLocaleString", function () {
+    var len = this.length >>> 0; limA(len);
+    var parts = new Array(len), t = 0;
+    for (var i = 0; i < len; i++) { var e = this[i]; parts[i] = e === null || e === undefined ? "" : str(e.toLocaleString()); t += parts[i].length + 1; lim(t); }
+    return jn.call(parts, ",");
+  });
+  def(Array.prototype, "fill", function () { limA(this.length >>> 0); return apply.call(fl, this, arguments); });
+  // JSON.stringify: najpierw kopia z samych wartości prostych (toJSON, gettery i replacer wywołane raz) z oszacowaniem
+  // rozmiaru wyniku, dopiero potem oryginał na kopii
+  def(JSON, "stringify", function (value, replacer, space) {
+    var gap = typeof space === "number" ? min(10, int(space)) : (typeof space === "string" ? space.substring(0, 10).length : 0);
+    var allow = null, fn = typeof replacer === "function" ? replacer : null;
+    if (isArr(replacer)) { allow = {}; for (var i = 0; i < replacer.length; i++) allow["$" + str(replacer[i])] = true; }
+    var total = 0, nodes = 0;
+    function add(n) { total += n; lim(total); }
+    function walk(holder, key, v, depth) {
+      if (++nodes > MAXA) throw new RangeError("ZetPDF limit: object too large");
+      if (v !== null && typeof v === "object" && typeof v.toJSON === "function") v = v.toJSON(key);
+      if (fn) v = fn.call(holder, key, v);
+      if (v === null) { add(4); return null; }
+      var t = typeof v;
+      if (t === "string") { add(v.length * 6 + 2); return v; }
+      if (t === "number" || t === "boolean") { add(25); return v; }
+      if (t === "bigint" || t === "undefined" || t === "function" || t === "symbol") { if (t === "bigint") throw new TypeError("BigInt"); return undefined; }
+      if (v instanceof Number || v instanceof Boolean) { add(25); return v.valueOf(); }
+      if (v instanceof String) { var sv = str(v); add(sv.length * 6 + 2); return sv; }
+      add(2 + gap * depth);
+      if (isArr(v)) {
+        var len = v.length >>> 0; limA(len);
+        var out = [];
+        for (var j = 0; j < len; j++) { var w = walk(v, str(j), v[j], depth + 1); push.call(out, w === undefined ? null : w); add(2 + gap * (depth + 1)); }
+        return out;
+      }
+      var o = {}, ks = keys(v);
+      for (var k = 0; k < ks.length; k++) {
+        if (allow && !allow["$" + ks[k]]) continue;
+        var x = walk(v, ks[k], v[ks[k]], depth + 1);
+        if (x !== undefined) { o[ks[k]] = x; add(ks[k].length * 6 + 4 + gap * (depth + 1)); }
+      }
+      return o;
+    }
+    var snap = walk({ "": value }, "", value, 0);
+    return snap === undefined ? undefined : jsonStr(snap, null, gap > 0 ? (typeof space === "string" ? space.substring(0, 10) : gap) : undefined);
+  });
+  // bufory binarne i tablice typowane nie są potrzebne skryptom pól, a omijają limit rozmiaru tablic
+  var bin = ["ArrayBuffer", "SharedArrayBuffer", "DataView", "Atomics", "Int8Array", "Uint8Array", "Uint8ClampedArray", "Int16Array", "Uint16Array",
+    "Int32Array", "Uint32Array", "Float16Array", "Float32Array", "Float64Array", "BigInt64Array", "BigUint64Array", "WeakRef", "FinalizationRegistry"];
+  for (var b = 0; b < bin.length; b++) { try { delete globalThis[bin[b]]; } catch (e) { } }
 })();
 function __str(v) { var s = v === null || v === undefined ? "" : String(v); if (s.length > 1048576) throw new RangeError("ZetPDF limit: value too long"); return s; }
 var event = { value: "", rc: true, willCommit: true, change: "", changeEx: "", name: "", type: "Field", target: null, targetName: "", selStart: 0, selEnd: 0, modifier: false, shift: false };

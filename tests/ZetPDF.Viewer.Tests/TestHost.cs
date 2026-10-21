@@ -64,6 +64,7 @@ internal sealed class ViewerHost : IDisposable
         s.AddZetPdfCore(new AppPaths(TestPaths.NewDirectory()));
         new ZetPDF.Rendering.RenderingModule().ConfigureServices(s);
         new ViewerModule().ConfigureServices(s);
+        s.AddSingleton<ZetPDF.Viewer.ReadAloud.ISpeechEngineFactory, ZetPDF.Viewer.ReadAloud.SilentSpeechEngineFactory>(); // bez dźwięku w testach
         extra?.Invoke(s);
         Services = s.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true });
         if (initialize)

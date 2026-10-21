@@ -131,4 +131,19 @@ public class CompareTests
         var txt = CompareService.BuildText(r, new CultureInfo("pl"));
         Assert.Contains(SecurityModule.Strings.GetString("Security.Compare.Kind.Inserted", new CultureInfo("pl"))!, txt);
     }
+
+    [Fact]
+    public async Task Html_report_escapes_document_text_and_names()
+    {
+        var a = Pdf(new[] { "Wstep <b>pogrubiony</b> tekst." });
+        var b = Pdf(new[] { "Wstep <script>alert(1)</script> tekst." });
+        var r = await new CompareService().CompareAsync(a, "<img src=x onerror=alert(1)>.pdf", b, "b\"><script>.pdf", new CompareOptions());
+        Assert.NotEmpty(r.Changes);
+        var html = CompareService.BuildHtml(r, CultureInfo.GetCultureInfo("pl"));
+        Assert.DoesNotContain("<script", html);
+        Assert.DoesNotContain("<img", html);
+        Assert.DoesNotContain("<b>", html);
+        Assert.Contains("&lt;script&gt;", html);
+        Assert.Contains("&lt;img src=x onerror=alert(1)&gt;.pdf", html);
+    }
 }

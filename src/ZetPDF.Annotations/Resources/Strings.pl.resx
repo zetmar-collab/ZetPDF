@@ -297,4 +297,5 @@
   <data name="Annot.Script.Budget" xml:space="preserve"><value>Skrypty formularza trwały zbyt długo – pozostałe skrypty pominięto (limit: 2 s i 1000 zdarzeń na zmianę).</value></data>
   <data name="Annot.Script.AutoDisabled" xml:space="preserve"><value>Skrypty formularza w tym dokumencie wielokrotnie przekroczyły limity i zostały wyłączone. Można je włączyć ponownie w Formularz &gt; Skrypty formularza.</value></data>
   <data name="Annot.Script.FieldTrigger" xml:space="preserve"><value>{0} – {1}</value></data>
+  <data name="Annot.Script.TooLong" xml:space="preserve"><value>Skrypt jest za długi (limit: 256 KB) – nie został uruchomiony.</value></data>
 </root>

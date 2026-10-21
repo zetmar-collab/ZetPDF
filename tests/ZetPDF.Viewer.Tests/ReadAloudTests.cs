@@ -184,4 +184,33 @@ public class ReadAloudTests
             Assert.True(wave.Length > 10000, $"wave {wave.Length}");
         }
     });
+
+    [Fact]
+    public void Silent_engine_synthesizes_with_word_progress_without_audio_device() => Sta.Run(async () =>
+    {
+        SystemSpeechEngine engine;
+        try { engine = SystemSpeechEngine.CreateSilent(); }
+        catch (Exception ex) when (ex is PlatformNotSupportedException or InvalidOperationException or System.Runtime.InteropServices.COMException)
+        {
+            return; // brak SAPI
+        }
+        using (engine)
+        {
+            if (engine.Voices.Count == 0) return;
+            int words = 0;
+            bool ended = false;
+            engine.WordStarted += (_, _) => words++;
+            engine.Ended += (_, e) => ended = !e.Cancelled;
+            engine.Speak("Zażółć gęślą jaźń.");
+            await Sta.WaitFor(() => ended, 30000, "silent speech completed");
+            Assert.True(words >= 2, $"words: {words}");
+        }
+    });
+
+    [Fact]
+    public void Test_host_uses_silent_speech_factory()
+    {
+        using var host = new ViewerHost(initialize: false);
+        Assert.IsType<SilentSpeechEngineFactory>(host.Services.GetRequiredService<ISpeechEngineFactory>());
+    }
 }

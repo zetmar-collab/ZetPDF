@@ -78,6 +78,8 @@ internal sealed class ScriptRunner
     public const int MaxStatements = 250_000;
     public const long MemoryLimit = 16 * 1024 * 1024;
     public const int MaxRecursion = 64;
+    /// <summary>Maks. długość kodu jednego skryptu (znaki) – ogromny literał nie jest nawet parsowany.</summary>
+    public const int MaxCodeLength = 256 * 1024;
 
     private static readonly Lazy<Prepared<Acornima.Ast.Script>> Prelude = new(() => Engine.PrepareScript(AcroJsPrelude.Source, "zetpdf-acroform.js"));
 
@@ -157,6 +159,12 @@ internal sealed class ScriptRunner
             _report.Skipped++;
             return null;
         }
+        if (code.Length > MaxCodeLength)
+        {
+            _report.LimitHits++;
+            if (_report.Errors.Count < 50) _report.Errors.Add($"{fieldName} [{trigger}]: {_localize("Annot.Script.TooLong")}");
+            return null;
+        }
         try
         {
             var engine = CreateEngine(remaining < Timeout ? remaining : Timeout);
@@ -169,8 +177,10 @@ internal sealed class ScriptRunner
             ev.Set("target", engine.Evaluate("new Field(" + System.Text.Json.JsonSerializer.Serialize(fieldName) + ")"));
             engine.Execute(code, "field:" + fieldName + ":" + trigger);
             var result = engine.Evaluate("[__str(event.value), event.rc !== false]").AsArray();
+            var text = result[0].AsString();
+            if (text.Length > AcroJsPrelude.MaxStringLength) throw new InvalidOperationException("ZetPDF limit: value too long");
             _report.Executed++;
-            return (result[1].AsBoolean(), result[0].AsString());
+            return (result[1].AsBoolean(), text);
         }
         catch (OperationCanceledException) { throw; }
         catch (OutOfMemoryException ex)

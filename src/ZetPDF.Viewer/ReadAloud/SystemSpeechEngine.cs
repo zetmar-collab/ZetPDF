@@ -17,10 +17,13 @@ public sealed class SystemSpeechEngine : ISpeechEngine
     private bool _disposed;
 
     /// <param name="waveOutput">Strumień WAV zamiast głośnika (testy bez dźwięku); null = domyślne urządzenie audio.</param>
-    public SystemSpeechEngine(Stream? waveOutput = null)
+    public SystemSpeechEngine(Stream? waveOutput = null) : this(waveOutput, silent: false) { }
+
+    private SystemSpeechEngine(Stream? waveOutput, bool silent)
     {
         _context = SynchronizationContext.Current;
-        if (waveOutput is not null) _synth.SetOutputToWaveStream(waveOutput);
+        if (silent) _synth.SetOutputToNull();
+        else if (waveOutput is not null) _synth.SetOutputToWaveStream(waveOutput);
         _synth.SpeakProgress += OnProgress;
         _synth.SpeakCompleted += OnCompleted;
         Voices = _synth.GetInstalledVoices()
@@ -28,6 +31,9 @@ public sealed class SystemSpeechEngine : ISpeechEngine
             .Select(v => new SpeechVoice(v.VoiceInfo.Name, v.VoiceInfo.Culture))
             .ToList();
     }
+
+    /// <summary>Silnik bez dźwięku: synteza i zdarzenia jak zwykle, wyjście do pustego urządzenia.</summary>
+    public static SystemSpeechEngine CreateSilent() => new(null, silent: true);
 
     public IReadOnlyList<SpeechVoice> Voices { get; }
 

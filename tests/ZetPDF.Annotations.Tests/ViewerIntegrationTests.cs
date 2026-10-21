@@ -57,6 +57,7 @@ public class ViewerIntegrationTests
         new ZetPDF.Rendering.RenderingModule().ConfigureServices(s);
         new ZetPDF.Viewer.ViewerModule().ConfigureServices(s);
         new AnnotationsModule().ConfigureServices(s);
+        s.AddSingleton<ZetPDF.Viewer.ReadAloud.ISpeechEngineFactory, ZetPDF.Viewer.ReadAloud.SilentSpeechEngineFactory>(); // bez dźwięku w testach
         var sp = s.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true });
         new ZetPDF.Rendering.RenderingModule().Initialize(sp);
         new ZetPDF.Viewer.ViewerModule().Initialize(sp);

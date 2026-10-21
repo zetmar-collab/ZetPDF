@@ -22,6 +22,7 @@ public class SkeletonIntegrationTests
         var s = new ServiceCollection();
         s.AddZetPdfCore(new AppPaths(TestPaths.NewDirectory()));
         foreach (var m in modules) m.ConfigureServices(s);
+        s.AddSingleton<ZetPDF.Viewer.ReadAloud.ISpeechEngineFactory, ZetPDF.Viewer.ReadAloud.SilentSpeechEngineFactory>(); // bez dźwięku w testach
         return s.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true });
     }
 
@@ -42,6 +43,15 @@ public class SkeletonIntegrationTests
     {
         using var sp = BuildAll(out _);
         Assert.NotNull(sp.GetService(contract));
+    }
+
+    [Fact]
+    public void Integration_hosts_never_speak_to_audio_device()
+    {
+        using var host = new ZetPDF.IntegrationTests.Infrastructure.TestHost();
+        Assert.IsType<ZetPDF.Viewer.ReadAloud.SilentSpeechEngineFactory>(host.Get<ZetPDF.Viewer.ReadAloud.ISpeechEngineFactory>());
+        using var sp = BuildAll(out _);
+        Assert.IsType<ZetPDF.Viewer.ReadAloud.SilentSpeechEngineFactory>(sp.GetRequiredService<ZetPDF.Viewer.ReadAloud.ISpeechEngineFactory>());
     }
 
     [Fact]

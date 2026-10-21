@@ -58,3 +58,13 @@ public sealed class SystemSpeechEngineFactory : ISpeechEngineFactory
 {
     public ISpeechEngine Create() => new SystemSpeechEngine();
 }
+
+/// <summary>
+/// Fabryka bez dźwięku: prawdziwy System.Speech (synteza, zdarzenia słów, koniec wypowiedzi), ale wyjście
+/// skierowane do pustego urządzenia (<c>SetOutputToNull</c>) – dla testów z pełnym kontenerem usług i trybu
+/// diagnostycznego exe. Nic nie trafia do głośników.
+/// </summary>
+public sealed class SilentSpeechEngineFactory : ISpeechEngineFactory
+{
+    public ISpeechEngine Create() => SystemSpeechEngine.CreateSilent();
+}

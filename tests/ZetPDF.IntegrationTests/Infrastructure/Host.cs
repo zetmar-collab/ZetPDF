@@ -27,6 +27,7 @@ internal sealed class TestHost : IDisposable
             s.AddSingleton<IShellService>(Shell);
         }
         foreach (var m in ZetPDF.App.ModuleCatalog.CreateAll()) m.ConfigureServices(s);
+        s.AddSingleton<ZetPDF.Viewer.ReadAloud.ISpeechEngineFactory, ZetPDF.Viewer.ReadAloud.SilentSpeechEngineFactory>(); // bez dźwięku w testach
         Services = s.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true });
         if (initializeModules)
             foreach (var m in ZetPDF.App.ModuleCatalog.CreateAll()) m.Initialize(Services);

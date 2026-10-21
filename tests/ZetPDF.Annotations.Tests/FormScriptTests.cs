@@ -115,6 +115,93 @@ public class FormScriptTests
         Assert.Equal("1", await ValueAsync(result, "A"));
     }
 
+    /// <summary>
+    /// Ataki z kontroli etapu 3 (recenzent): podmiana funkcji używanych przez ograniczenia, valueOf/getter zwracający
+    /// inną wartość przy drugim odczycie, wzmacniacze alokacji poza repeat/pad/join, bufory binarne, konstruktor
+    /// Function przez prototyp, getter event.value z pętlą, rekurencja w getterze, ogromny literał.
+    /// </summary>
+    [Theory]
+    [InlineData("Math.floor = function () { return 0; }; event.value = 'x'.repeat(3e8).length;")]
+    [InlineData("Number = function () { return 1; }; event.value = 'x'.padEnd(3e8).length;")]
+    [InlineData("var c = 0; event.value = 'x'.padStart({ valueOf: function () { return c++ ? 3e8 : 1; } }).length; if (event.value < 3e8) throw 'ok';")]
+    [InlineData("var c = 0; event.value = Array.prototype.join.call({ get length() { return c++ ? 3e8 : 1; } }).length; if (event.value < 3e8) throw 'ok';")]
+    [InlineData("var s = 'x'.repeat(1e6); event.value = s.replace(/x/g, s.substring(0, 1000)).length;")]
+    [InlineData("var s = 'x'.repeat(1e6); event.value = s.replaceAll('x', 'abcdefgh').length;")]
+    [InlineData("var s = 'x'.repeat(1e6), re = /x/, c = 0; Object.defineProperty(re, 'global', { get: function () { return c++ > 0; } }); event.value = s.replace(re, 'abcdefgh').length;")]
+    [InlineData("var s = 'x'.repeat(1e6); event.value = s.replace(/x/g, function () { return 'abcdefghij'; }).length;")]
+    [InlineData("var s = 'x'.repeat(1e6); event.value = s.concat.apply(s, Array(1000).fill(s)).length;")]
+    [InlineData("var s = 'x'.repeat(1e6); event.value = Array(1000).fill(s).toLocaleString().length;")]
+    [InlineData("var s = 'x'.repeat(1e6); event.value = JSON.stringify(Array(1000).fill(s)).length;")]
+    [InlineData("event.value = new ArrayBuffer(1e9).byteLength;")]
+    [InlineData("event.value = new Uint8Array(1e9).length;")]
+    [InlineData("event.value = (function () { }).constructor('return 1')();")]
+    [InlineData("event.value = this.constructor.constructor('return this')();")]
+    [InlineData("event.value = Object.getPrototypeOf(function* () { }).constructor('yield 1')().next().value;")]
+    [InlineData("Object.defineProperty(event, 'value', { get: function () { while (true) { } } });")]
+    [InlineData("var o = { get x() { return this.x; } }; event.value = o.x;")]
+    public void Sandbox_attacks_end_as_script_errors_quickly(string script)
+    {
+        var host = new MemoryHost();
+        var report = new ScriptReport();
+        var sw = Stopwatch.StartNew();
+        var r = new ScriptRunner(host, report, k => k, CancellationToken.None).RunEvent(script, "C", "1", "Calculate");
+        Assert.Null(r);
+        Assert.NotEmpty(report.Errors);
+        Assert.True(sw.Elapsed < TimeSpan.FromSeconds(5), sw.Elapsed.ToString());
+        Assert.Equal("", host.Get("C"));
+    }
+
+    [Theory]
+    [InlineData("String.prototype.repeat = function () { return 'hacked'; }; event.value = 'ab'.repeat(2);", "abab")]
+    [InlineData("event.value = '12345678'.replace(/(\\d)(?=(\\d{3})+$)/g, '$1 ');", "12 345 678")]
+    [InlineData("event.value = 'a-b-c'.replaceAll('-', '+') + ['x', 1, null].join('|') + 'q'.concat(1, 2);", "a+b+cx|1|q12")]
+    [InlineData("event.value = JSON.stringify({ a: [1, 'x', { b: null }], c: true, d: undefined });", "{\"a\":[1,\"x\",{\"b\":null}],\"c\":true}")]
+    [InlineData("event.value = JSON.stringify({ a: 1, b: 2 }, ['b']) + JSON.stringify([new Date(0)]);", "{\"b\":2}[\"1970-01-01T00:00:00.000Z\"]")]
+    [InlineData("event.value = typeof ArrayBuffer + typeof Uint8Array + typeof DataView;", "undefinedundefinedundefined")]
+    public void Hardened_builtins_keep_normal_behaviour(string script, string expected)
+    {
+        var host = new MemoryHost();
+        var report = new ScriptReport();
+        var r = new ScriptRunner(host, report, k => k, CancellationToken.None).RunEvent(script, "C", "1", "Calculate");
+        Assert.Empty(report.Errors);
+        Assert.Equal(expected, r!.Value.Value);
+    }
+
+    [Fact]
+    public void Prototype_pollution_does_not_leak_to_the_next_script()
+    {
+        var host = new MemoryHost();
+        var report = new ScriptReport();
+        var runner = new ScriptRunner(host, report, k => k, CancellationToken.None);
+        runner.RunEvent("Object.prototype.polluted = 'yes'; String.prototype.trim = function () { return 'evil'; }; event.value = 'a';", "C", "", "Calculate");
+        var r = runner.RunEvent("event.value = typeof ({}).polluted + ' ' + '  x '.trim();", "C", "", "Calculate");
+        Assert.Empty(report.Errors);
+        Assert.Equal("undefined x", r!.Value.Value);
+    }
+
+    [Fact]
+    public void Huge_script_literal_is_not_parsed()
+    {
+        var host = new MemoryHost();
+        var report = new ScriptReport();
+        var code = "event.value = '" + new string('x', 5_000_000) + "';";
+        var sw = Stopwatch.StartNew();
+        var r = new ScriptRunner(host, report, k => k, CancellationToken.None).RunEvent(code, "C", "", "Calculate");
+        Assert.Null(r);
+        Assert.Single(report.Errors);
+        Assert.True(report.HitLimits);
+        Assert.True(sw.Elapsed < TimeSpan.FromSeconds(1), sw.Elapsed.ToString());
+    }
+
+    private sealed class MemoryHost : IScriptFieldHost
+    {
+        private readonly Dictionary<string, string> _v = new() { ["C"] = "" };
+        public bool Has(string name) => _v.ContainsKey(name);
+        public string Get(string name) => _v[name];
+        public void Set(string name, string value) => _v[name] = value;
+        public IEnumerable<string> AllNames() => _v.Keys;
+    }
+
     [Fact]
     public async Task Infinite_loops_in_many_fields_are_limited_by_the_total_budget()
     {
