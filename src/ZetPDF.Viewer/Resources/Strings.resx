@@ -90,4 +90,27 @@ Open it?</value></data>
   <data name="Viewer.ZoomTo.Prompt" xml:space="preserve"><value>Zoom level (%):</value></data>
   <data name="Viewer.ZoomTo.Title" xml:space="preserve"><value>Zoom To</value></data>
   <data name="Viewer.Error.NoPagesToPrint" xml:space="preserve"><value>The range contains no pages to print.</value></data>
+  <data name="Viewer.Read.Title" xml:space="preserve"><value>Read Aloud</value></data>
+  <data name="Viewer.Read.Unavailable" xml:space="preserve"><value>Speech synthesis is not available on this computer (no SAPI voices installed).</value></data>
+  <data name="Viewer.Read.NoVoiceForLanguage" xml:space="preserve"><value>No installed voice for language {0} – reading with the default voice ({1}).</value></data>
+  <data name="Viewer.Read.EmptyPage" xml:space="preserve"><value>Page {0} has no text to read (scanned page? use OCR).</value></data>
+  <data name="Viewer.Read.Status" xml:space="preserve"><value>Reading page {0} of {1}…</value></data>
+  <data name="Viewer.Read.Voice" xml:space="preserve"><value>Voice:</value></data>
+  <data name="Viewer.Read.VoiceAuto" xml:space="preserve"><value>Automatic (document or interface language)</value></data>
+  <data name="Viewer.Read.Volume" xml:space="preserve"><value>Volume:</value></data>
+  <data name="Viewer.Read.Rate" xml:space="preserve"><value>Speed:</value></data>
+  <data name="Viewer.Read.Button.Page" xml:space="preserve"><value>Read current page (Ctrl+Shift+V)</value></data>
+  <data name="Viewer.Read.Button.FromPage" xml:space="preserve"><value>Read from current page to the end (Ctrl+Shift+B)</value></data>
+  <data name="Viewer.Read.Button.Pause" xml:space="preserve"><value>Pause / resume (Ctrl+Shift+P)</value></data>
+  <data name="Viewer.Read.Button.Stop" xml:space="preserve"><value>Stop (Ctrl+Shift+E)</value></data>
+  <data name="Viewer.Read.State.Speaking" xml:space="preserve"><value>Reading page {0} – voice: {1}</value></data>
+  <data name="Viewer.Read.State.Paused" xml:space="preserve"><value>Paused on page {0}</value></data>
+  <data name="Viewer.Read.State.Stopped" xml:space="preserve"><value>Ready. Choose a page and press Read.</value></data>
+  <data name="Viewer.Parallel.Title" xml:space="preserve"><value>Parallel View</value></data>
+  <data name="Viewer.Parallel.Choose" xml:space="preserve"><value>Document to show next to the current one:</value></data>
+  <data name="Viewer.Parallel.Layout" xml:space="preserve"><value>Layout:</value></data>
+  <data name="Viewer.Parallel.Horizontal" xml:space="preserve"><value>Side by side</value></data>
+  <data name="Viewer.Parallel.Vertical" xml:space="preserve"><value>One above the other</value></data>
+  <data name="Viewer.Parallel.NoOther" xml:space="preserve"><value>Open another document in a tab first – the parallel view shows two open documents side by side.</value></data>
+  <data name="Viewer.Parallel.Close" xml:space="preserve"><value>Close parallel view</value></data>
 </root>

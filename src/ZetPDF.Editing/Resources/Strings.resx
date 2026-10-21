@@ -193,4 +193,129 @@
   <data name="Edit.Error.Transform" xml:space="preserve"><value>This transformation cannot be applied (zero size).</value></data>
   <data name="Edit.Error.TextBlockNotFound" xml:space="preserve"><value>The text block no longer exists on the page (the document has changed).</value></data>
   <data name="Edit.Error.EmptySearch" xml:space="preserve"><value>Enter the text to find.</value></data>
+  <data name="Edit.Filter.Html" xml:space="preserve"><value>HTML document</value></data>
+  <data name="Edit.Undo.AccessFix" xml:space="preserve"><value>Accessibility fix</value></data>
+  <data name="Edit.Undo.AccessProperties" xml:space="preserve"><value>Accessibility properties</value></data>
+  <data name="Edit.Access.Panel.Title" xml:space="preserve"><value>Accessibility Check</value></data>
+  <data name="Edit.Access.Panel.Check" xml:space="preserve"><value>Check</value></data>
+  <data name="Edit.Access.Panel.FixAll" xml:space="preserve"><value>Fix all</value></data>
+  <data name="Edit.Access.Panel.Report" xml:space="preserve"><value>Report…</value></data>
+  <data name="Edit.Access.Panel.Fix" xml:space="preserve"><value>Fix</value></data>
+  <data name="Edit.Access.Panel.Explain" xml:space="preserve"><value>Explain</value></data>
+  <data name="Edit.Access.Panel.Hint" xml:space="preserve"><value>Run Full Check (Accessibility tab) to check the document.</value></data>
+  <data name="Edit.Access.Panel.NoDocument" xml:space="preserve"><value>No document is open.</value></data>
+  <data name="Edit.Access.Summary" xml:space="preserve"><value>Passed: {0}, failed: {1}, check manually: {2}</value></data>
+  <data name="Edit.Access.Status.Passed" xml:space="preserve"><value>Passed</value></data>
+  <data name="Edit.Access.Status.Failed" xml:space="preserve"><value>Failed</value></data>
+  <data name="Edit.Access.Status.Manual" xml:space="preserve"><value>Manual check</value></data>
+  <data name="Edit.Access.Rule.DocTitle" xml:space="preserve"><value>Document title</value></data>
+  <data name="Edit.Access.Rule.DisplayDocTitle" xml:space="preserve"><value>Title shown in title bar</value></data>
+  <data name="Edit.Access.Rule.Language" xml:space="preserve"><value>Document language</value></data>
+  <data name="Edit.Access.Rule.Tagged" xml:space="preserve"><value>Tagged PDF</value></data>
+  <data name="Edit.Access.Rule.StructureTree" xml:space="preserve"><value>Logical structure tree</value></data>
+  <data name="Edit.Access.Rule.FigureAltText" xml:space="preserve"><value>Alternative text for figures</value></data>
+  <data name="Edit.Access.Rule.TabOrder" xml:space="preserve"><value>Tab order</value></data>
+  <data name="Edit.Access.Rule.FieldDescriptions" xml:space="preserve"><value>Form field descriptions</value></data>
+  <data name="Edit.Access.Rule.TextPresence" xml:space="preserve"><value>Text content (not scanned images)</value></data>
+  <data name="Edit.Access.Rule.Bookmarks" xml:space="preserve"><value>Bookmarks</value></data>
+  <data name="Edit.Access.Rule.ReadingOrder" xml:space="preserve"><value>Logical reading order</value></data>
+  <data name="Edit.Access.Detail.NoTitle" xml:space="preserve"><value>The document has no title in its properties (Info/XMP).</value></data>
+  <data name="Edit.Access.Detail.Title" xml:space="preserve"><value>Title: {0}</value></data>
+  <data name="Edit.Access.Detail.DisplayDocTitle" xml:space="preserve"><value>Viewers show the title instead of the file name.</value></data>
+  <data name="Edit.Access.Detail.NoDisplayDocTitle" xml:space="preserve"><value>/DisplayDocTitle is not set – viewers show the file name.</value></data>
+  <data name="Edit.Access.Detail.NoLanguage" xml:space="preserve"><value>The document language (/Lang) is not set.</value></data>
+  <data name="Edit.Access.Detail.Language" xml:space="preserve"><value>Language: {0}</value></data>
+  <data name="Edit.Access.Detail.Tagged" xml:space="preserve"><value>The document is marked as tagged (/MarkInfo /Marked).</value></data>
+  <data name="Edit.Access.Detail.NotTagged" xml:space="preserve"><value>The document is not tagged – screen readers cannot recognize its structure.</value></data>
+  <data name="Edit.Access.Detail.StructTree" xml:space="preserve"><value>The structure tree (/StructTreeRoot) is present.</value></data>
+  <data name="Edit.Access.Detail.NoStructTree" xml:space="preserve"><value>There is no structure tree (/StructTreeRoot).</value></data>
+  <data name="Edit.Access.Detail.FiguresUntagged" xml:space="preserve"><value>The document has no tags – check manually whether images have alternative text.</value></data>
+  <data name="Edit.Access.Detail.NoFigures" xml:space="preserve"><value>No Figure elements in the structure.</value></data>
+  <data name="Edit.Access.Detail.FiguresOk" xml:space="preserve"><value>All {0} figures have alternative text.</value></data>
+  <data name="Edit.Access.Detail.FiguresMissing" xml:space="preserve"><value>{0} of {1} figures have no alternative text (/Alt).</value></data>
+  <data name="Edit.Access.Detail.NoAnnotations" xml:space="preserve"><value>No pages with annotations or form fields.</value></data>
+  <data name="Edit.Access.Detail.TabOrderOk" xml:space="preserve"><value>All {0} pages with annotations use structure order (/Tabs /S).</value></data>
+  <data name="Edit.Access.Detail.TabOrderMissing" xml:space="preserve"><value>{0} pages with annotations do not use structure tab order (/Tabs /S).</value></data>
+  <data name="Edit.Access.Detail.NoFields" xml:space="preserve"><value>The document has no form fields.</value></data>
+  <data name="Edit.Access.Detail.FieldsOk" xml:space="preserve"><value>All {0} form fields have a description (/TU).</value></data>
+  <data name="Edit.Access.Detail.FieldsMissing" xml:space="preserve"><value>{0} of {1} form fields have no description (/TU).</value></data>
+  <data name="Edit.Access.Detail.TextOk" xml:space="preserve"><value>All pages with images also contain text.</value></data>
+  <data name="Edit.Access.Detail.TextMissing" xml:space="preserve"><value>{0} pages look like scans without text (pages: {1}) – run OCR.</value></data>
+  <data name="Edit.Access.Detail.TextUnknown" xml:space="preserve"><value>The page content could not be analyzed – check manually.</value></data>
+  <data name="Edit.Access.Detail.BookmarksShort" xml:space="preserve"><value>The document has {0} pages – bookmarks are not required.</value></data>
+  <data name="Edit.Access.Detail.BookmarksOk" xml:space="preserve"><value>The document has bookmarks.</value></data>
+  <data name="Edit.Access.Detail.BookmarksMissing" xml:space="preserve"><value>The document has {0} pages but no bookmarks.</value></data>
+  <data name="Edit.Access.Detail.ReadingOrder" xml:space="preserve"><value>The reading order cannot be verified automatically – check it manually.</value></data>
+  <data name="Edit.Access.Detail.ReadingOrderTagged" xml:space="preserve"><value>Check manually that the tag order matches the visual reading order.</value></data>
+  <data name="Edit.Access.Explain.DocTitle" xml:space="preserve"><value>A title identifies the document for screen readers and in the window title. Fix sets the title in the document properties (Info and XMP, if present).</value></data>
+  <data name="Edit.Access.Explain.DisplayDocTitle" xml:space="preserve"><value>With /DisplayDocTitle the viewer shows the document title instead of the file name. Fix sets this option.</value></data>
+  <data name="Edit.Access.Explain.Language" xml:space="preserve"><value>The language (/Lang) lets screen readers choose the correct pronunciation. Fix sets the language you confirm (default: interface language).</value></data>
+  <data name="Edit.Access.Explain.Tagged" xml:space="preserve"><value>Tags describe headings, paragraphs, lists, tables and images. ZetPDF cannot add tags automatically – create the PDF with tags in the source application (e.g. Word: Save as PDF with document structure tags).</value></data>
+  <data name="Edit.Access.Explain.StructureTree" xml:space="preserve"><value>The structure tree holds the tags of a tagged PDF. Without it assistive technology reads the content in content-stream order.</value></data>
+  <data name="Edit.Access.Explain.FigureAltText" xml:space="preserve"><value>Every image that carries information needs a short alternative text. Enter it in Title, Language &amp; Alt Text (tagged documents only).</value></data>
+  <data name="Edit.Access.Explain.TabOrder" xml:space="preserve"><value>Tab order /Tabs /S makes keyboard navigation follow the document structure. Fix sets it on all pages with annotations.</value></data>
+  <data name="Edit.Access.Explain.FieldDescriptions" xml:space="preserve"><value>A field description (/TU, tooltip) is read by screen readers. Fix creates descriptions from the field names – review them afterwards.</value></data>
+  <data name="Edit.Access.Explain.TextPresence" xml:space="preserve"><value>Scanned pages contain only an image – screen readers cannot read them. Run OCR (Convert tab) to add a text layer.</value></data>
+  <data name="Edit.Access.Explain.Bookmarks" xml:space="preserve"><value>Documents longer than 20 pages should have bookmarks for navigation. Use Bookmarks from Headings or add them in the Bookmarks panel.</value></data>
+  <data name="Edit.Access.Explain.ReadingOrder" xml:space="preserve"><value>The logical reading order must be checked by a person, e.g. by reading the document with a screen reader or Read Aloud.</value></data>
+  <data name="Edit.Access.Report.Heading" xml:space="preserve"><value>Accessibility report</value></data>
+  <data name="Edit.Access.Report.Document" xml:space="preserve"><value>Document: {0}</value></data>
+  <data name="Edit.Access.Report.Date" xml:space="preserve"><value>Date: {0}</value></data>
+  <data name="Edit.Access.Report.Rule" xml:space="preserve"><value>Rule</value></data>
+  <data name="Edit.Access.Report.Status" xml:space="preserve"><value>Status</value></data>
+  <data name="Edit.Access.Report.Detail" xml:space="preserve"><value>Details</value></data>
+  <data name="Edit.Access.Report.Save" xml:space="preserve"><value>Save Accessibility Report</value></data>
+  <data name="Edit.Access.Report.FileSuffix" xml:space="preserve"><value>accessibility</value></data>
+  <data name="Edit.Access.Properties.Title" xml:space="preserve"><value>Title, Language &amp; Alternative Text</value></data>
+  <data name="Edit.Access.Properties.DocTitle" xml:space="preserve"><value>Title:</value></data>
+  <data name="Edit.Access.Properties.Language" xml:space="preserve"><value>Language:</value></data>
+  <data name="Edit.Access.Properties.LanguageHint" xml:space="preserve"><value>Language tag, e.g. pl-PL, en-US.</value></data>
+  <data name="Edit.Access.Properties.DisplayDocTitle" xml:space="preserve"><value>Show the title instead of the file name</value></data>
+  <data name="Edit.Access.Properties.Figures" xml:space="preserve"><value>Alternative text of figures:</value></data>
+  <data name="Edit.Access.Properties.NoFigures" xml:space="preserve"><value>The document has no tagged figures (Figure).</value></data>
+  <data name="Edit.Access.Properties.Figure" xml:space="preserve"><value>Figure {0} (page {1}):</value></data>
+  <data name="Edit.Access.Properties.InvalidLanguage" xml:space="preserve"><value>"{0}" is not a valid language tag.</value></data>
+  <data name="Edit.Access.Properties.EmptyTitle" xml:space="preserve"><value>Enter the document title.</value></data>
+  <data name="Edit.Filter.Csv" xml:space="preserve"><value>CSV file</value></data>
+  <data name="Edit.Index.Title" xml:space="preserve"><value>Full-text Index</value></data>
+  <data name="Edit.Index.ChooseFolder" xml:space="preserve"><value>Choose a folder with PDF files to index</value></data>
+  <data name="Edit.Index.Recursive" xml:space="preserve"><value>Index PDF files also in subfolders of
+{0}?
+
+Yes – with subfolders, No – this folder only.</value></data>
+  <data name="Edit.Index.Progress" xml:space="preserve"><value>Building full-text index…</value></data>
+  <data name="Edit.Index.Cancelled" xml:space="preserve"><value>Indexing cancelled – the files processed so far were saved.</value></data>
+  <data name="Edit.Index.Done" xml:space="preserve"><value>Index ready: {0} files ({1} indexed, {2} unchanged, {3} removed).</value></data>
+  <data name="Edit.Index.SkippedEncrypted" xml:space="preserve"><value>Skipped password-protected files ({0}): {1}</value></data>
+  <data name="Edit.Index.SkippedFailed" xml:space="preserve"><value>Skipped unreadable files ({0}): {1}</value></data>
+  <data name="Edit.Index.Missing" xml:space="preserve"><value>There is no index for folder {0}. Build it first.</value></data>
+  <data name="Edit.Index.FileMissing" xml:space="preserve"><value>The file no longer exists: {0}. Update the index.</value></data>
+  <data name="Edit.Index.HitStatus" xml:space="preserve"><value>{0} – page {1}</value></data>
+  <data name="Edit.Search.Title" xml:space="preserve"><value>Advanced Search</value></data>
+  <data name="Edit.Search.Query" xml:space="preserve"><value>Search for:</value></data>
+  <data name="Edit.Search.Find" xml:space="preserve"><value>Search</value></data>
+  <data name="Edit.Search.Scope" xml:space="preserve"><value>Where:</value></data>
+  <data name="Edit.Search.Scope.Current" xml:space="preserve"><value>Current document</value></data>
+  <data name="Edit.Search.Scope.Open" xml:space="preserve"><value>All open documents</value></data>
+  <data name="Edit.Search.Scope.Folder" xml:space="preserve"><value>Folder index:</value></data>
+  <data name="Edit.Search.BuildIndex" xml:space="preserve"><value>Build / update index…</value></data>
+  <data name="Edit.Search.IndexRecursive" xml:space="preserve"><value>{0} (with subfolders)</value></data>
+  <data name="Edit.Search.IndexBuilt" xml:space="preserve"><value>Updated: {0}</value></data>
+  <data name="Edit.Search.IgnoreDiacritics" xml:space="preserve"><value>Ignore diacritics (ą = a)</value></data>
+  <data name="Edit.Search.WholeWords" xml:space="preserve"><value>Whole words only</value></data>
+  <data name="Edit.Search.Results" xml:space="preserve"><value>Results</value></data>
+  <data name="Edit.Search.Searching" xml:space="preserve"><value>Searching…</value></data>
+  <data name="Edit.Search.NoResults" xml:space="preserve"><value>No results.</value></data>
+  <data name="Edit.Search.NoIndex" xml:space="preserve"><value>Choose a folder index or build one.</value></data>
+  <data name="Edit.Search.Count" xml:space="preserve"><value>{0} results in {1} files. Double-click a result to open it.</value></data>
+  <data name="Edit.Search.Limit" xml:space="preserve"><value>(showing the first {0})</value></data>
+  <data name="Edit.Search.Skipped" xml:space="preserve"><value>Skipped (password-protected, unreadable or without copy permission): {0}.</value></data>
+  <data name="Edit.Search.HitHeader" xml:space="preserve"><value>{0} – page {1}</value></data>
+  <data name="Edit.Search.Export" xml:space="preserve"><value>Export CSV…</value></data>
+  <data name="Edit.Search.ExportTitle" xml:space="preserve"><value>Export Search Results</value></data>
+  <data name="Edit.Search.ExportFileName" xml:space="preserve"><value>search results</value></data>
+  <data name="Edit.Search.Column.File" xml:space="preserve"><value>File</value></data>
+  <data name="Edit.Search.Column.Path" xml:space="preserve"><value>Path</value></data>
+  <data name="Edit.Search.Column.Page" xml:space="preserve"><value>Page</value></data>
+  <data name="Edit.Search.Column.Context" xml:space="preserve"><value>Context</value></data>
 </root>

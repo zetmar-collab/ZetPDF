@@ -14,3 +14,18 @@
 12. **Zaznaczanie tekstu**: prostokąty wierszy są osiowe w przestrzeni strony (tekst obrócony o kąt inny niż 0/90/180/270° dostaje prostokąt otaczający). Brak zaznaczania kolumnowego (Alt+przeciąganie).
 13. **Uszkodzone pliki**: PDFium próbuje naprawy – obcięty plik może otworzyć się z częścią stron zamiast błędu (wtedy dalsza edycja PDFsharp może się nie powieść).
 14. Zrzutu ekranu całej aplikacji nie wykonano (sesja pulpitu była zablokowana – zrzuty czarne); widok sprawdzono renderem okna z modułem Viewer do PNG (`scratch\view1.png`, `scratch\view2.png`) oraz uruchomieniem `ZetPDF.exe` z plikiem (proces odpowiada, dziennik bez błędów).
+
+## Etap 3
+
+### Czytanie na głos (Read.*)
+15. **Silnik: System.Speech 8.0.0 (SAPI 5, MIT)** – sprawdzone w publikacji single-file .NET 8 win-x64 (synteza, `SpeakProgress`, `SetOutputToWaveStream` działają), więc alternatywa WinRT (`Windows.Media.SpeechSynthesis`) nie była potrzebna. Używane są wyłącznie głosy SAPI zainstalowane lokalnie (bez sieci); głosy „OneCore” systemu Windows widoczne tylko w Ustawieniach (np. nowsze polskie głosy) nie są dostępne przez SAPI 5, jeśli nie mają rejestracji SAPI.
+16. Tekst strony pochodzi z PDFium w kolejności strumienia treści (linie), białe znaki są zwijane, przeniesienia z dywizem łączone. Dokumenty wielokolumnowe lub z nielogiczną kolejnością strumienia są czytane w tej kolejności (tagi struktury nie są używane). Strony bez tekstu (skany) są pomijane przy czytaniu do końca, a przy czytaniu jednej strony pojawia się komunikat (zalecenie OCR).
+17. Głos: wybrany przez użytkownika w panelu → zgodny z `/Lang` dokumentu → z językiem interfejsu → domyślny (komunikat na pasku stanu). Zmiana głosu, szybkości i głośności działa od następnej strony/wypowiedzi (SAPI nie zmienia głosu w trakcie wypowiedzi).
+18. Podświetlane jest słowo zgłoszone przez syntezator (`SpeakProgress`); niektóre głosy zgłaszają liczby/skróty jako kilka „słów” – podświetlenie może wtedy obejmować fragment. Widok przewija się do czytanego słowa także wtedy, gdy użytkownik przewinął gdzie indziej.
+19. Czytanie zatrzymuje się przy zamknięciu dokumentu i przy każdej zmianie dokumentu (edycja, Cofnij). Okno ustawień czytania (głos, głośność, szybkość) jest małym niemodalnym oknem narzędziowym (powłoka nie ma kontraktu na pływające panele); pokazuje się po włączeniu Aktywuj czytanie, jego zamknięcie wyłącza tryb czytania.
+20. Test integracyjny „każde polecenie” uruchamia też Read.CurrentPage z prawdziwym syntezatorem – na komputerze z głośnikami słychać chwilę czytania (test zatrzymuje je poleceniem Read.Stop).
+
+### Widok równoległy (View.ParallelView, View.SyncScroll)
+21. Host kart należy do powłoki, więc widok równoległy jest realizowany **wewnątrz widoku aktywnej karty**: obok (lub pod) stron dokumentu karty pojawia się drugi otwarty dokument (wybór z listy otwartych kart, układ obok siebie/jeden pod drugim, przesuwany rozdzielacz, nagłówek z nazwą i przyciskiem zamknięcia). Obsługiwane są **dwa** dokumenty (nie więcej).
+22. Drugi dokument ma własny uchwyt PDFium i jest tylko podglądem: zawsze działa narzędzie Ręka (bez zaznaczania, komentarzy, edycji), polecenia wstążki i panele dotyczą dokumentu karty. Przełączenie na inną kartę ukrywa parę razem z kartą; zamknięcie którejkolwiek karty zamyka widok równoległy.
+23. Synchronizacja przewija przyrostowo (o tę samą odległość w DIP) i kopiuje powiększenie oraz obrót widoku – przy dokumentach o różnych rozmiarach stron strony nie są dopasowywane numerami; na końcu krótszego dokumentu przewijanie zatrzymuje się na granicy.
