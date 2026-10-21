@@ -20,8 +20,22 @@ Uruchamianie
   - Język (polski/angielski) i motyw (jasny/ciemny/jak w systemie): Plik > Ustawienia (Ctrl+K), działa od razu.
   - Windows może przy pierwszym uruchomieniu pokazać ostrzeżenie SmartScreen (plik nie jest podpisany cyfrowo).
 
+Nowe w etapie 3 (dodatki)
+  - Pomiary: odległość, obwód, pole, skala i kalibracja, eksport CSV (Komentarz > Pomiary).
+  - Kalkulator księgowy: suma liczb z zaznaczonego tekstu (format polski), wstawienie wyniku na stronę.
+  - Pole kodu kreskowego/QR (QR, PDF417, DataMatrix) kodujące wartości pól formularza.
+  - JavaScript w formularzach (obliczenia, formaty, walidacja) w piaskownicy z limitami; domyślnie tylko
+    wbudowane funkcje AF*, dowolny skrypt dopiero po zgodzie (Formularz > Skrypty formularza). Skrypty dokumentu
+    (przy otwarciu) nigdy nie są wykonywane.
+  - Czytanie na głos (Ułatwienia dostępu > Czytanie na głos) – głosy SAPI zainstalowane w Windows, bez sieci.
+  - Sprawdzanie ułatwień dostępu (tytuł, język, tagi, tekst alternatywny i inne) z naprawą i raportem HTML/TXT.
+  - Widok równoległy dwóch dokumentów w jednej karcie (Widok > Porównanie), z synchronizacją przewijania.
+  - Indeks pełnotekstowy folderu i wyszukiwanie zaawansowane (Widok > Wyszukiwanie) z eksportem CSV;
+    indeks w %LOCALAPPDATA%\ZetPDF\index\ (pliki zaszyfrowane hasłem są pomijane).
+
 Gdzie są dane
   - Ustawienia:        %APPDATA%\ZetPDF\settings.json (podpisy, stempele, działania Kreatora – obok)
+  - Indeks folderów:  %LOCALAPPDATA%\ZetPDF\index\*.zidx
   - Dziennik (log):    %LOCALAPPDATA%\ZetPDF\logs\zetpdf-RRRRMMDD.log (przechowywany 14 dni)
   - Pliki tymczasowe:  %TEMP%\ZetPDF\<numer procesu>\ (usuwane przy zamknięciu programu)
   - Zmienna środowiskowa ZETPDF_HOME=<folder> przenosi wszystkie te foldery (np. wersja przenośna, testy).
@@ -65,8 +79,21 @@ How to run
   - Language (Polish/English) and theme (light/dark/system): File > Settings (Ctrl+K), applied immediately.
   - Windows SmartScreen may warn on first start (the file is not code-signed).
 
+New in stage 3 (add-ons)
+  - Measuring: distance, perimeter, area, scale and calibration, CSV export (Comment > Measure).
+  - Accounting calculator: sums numbers from the selected text (Polish format), inserts the result on the page.
+  - Barcode/QR field (QR, PDF417, DataMatrix) encoding form field values.
+  - JavaScript in forms (calculations, formats, validation) in a sandbox with limits; by default only built-in AF*
+    functions, any script only after consent (Form > Form Scripts). Document-level scripts are never run.
+  - Read Aloud (Accessibility > Read Aloud) – SAPI voices installed in Windows, no network.
+  - Accessibility check (title, language, tags, alternative text and more) with fixes and an HTML/TXT report.
+  - Parallel view of two documents in one tab (View > Compare), with synchronized scrolling.
+  - Full-text folder index and advanced search (View > Find) with CSV export; the index is stored in
+    %LOCALAPPDATA%\ZetPDF\index\ (password-protected files are skipped).
+
 Where data is stored
   - Settings:     %APPDATA%\ZetPDF\settings.json (signatures, stamps, Action Wizard actions next to it)
+  - Folder index: %LOCALAPPDATA%\ZetPDF\index\*.zidx
   - Log:          %LOCALAPPDATA%\ZetPDF\logs\zetpdf-YYYYMMDD.log (kept for 14 days)
   - Temp files:   %TEMP%\ZetPDF\<process id>\ (removed on exit)
   - Environment variable ZETPDF_HOME=<folder> relocates all of them (portable use, tests).

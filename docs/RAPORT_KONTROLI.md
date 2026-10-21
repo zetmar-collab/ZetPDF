@@ -1,5 +1,7 @@
 # ZetPDF 0.1.0-test – raport kontroli końcowej (recenzent)
 
+> Rozdziały 1–8: kontrola etapów 1 i 2. **Rozdział 9: kontrola etapu 3** (2026-10-21).
+
 - **Daty:** 2026-10-17 – 2026-10-21 (sesja przerywana limitem API; praca kontynuowana na tym samym stanie repozytorium).
 - **Punkt wyjścia:** `main`, commit 4b4b8e3. Commity recenzenta: efa7c60, 21c63e5, 7a47b0a, 5477b92, 137c769 i commit z tym raportem.
 - **Środowisko:** Windows 11 Home 10.0.26200 x64, .NET SDK 8.0.423. Przez większość kontroli **sesja Windows była zablokowana** (proces `LogonUI`, schowek niedostępny, zrzuty pulpitu czarne) – dlatego interfejs sprawdzałem w prawdziwym `ZetPDF.exe` przez tryby diagnostyczne renderujące okna w procesie, a nie klikaniem myszą. Niżej zawsze piszę, co zostało uruchomione w exe, a co tylko w testach.
@@ -128,3 +130,69 @@ Po każdej naprawie: build Release (0/0) i testy (końcowo 595/595 ×3).
 - Druku na fizycznej drukarce, serwera TSA, kart kryptograficznych.
 - Otwarcia plików ZetPDF w Edge/Acrobat (sprawdzono PDFium, PdfPig, MuPDF, pypdf, Windows.Data.Pdf).
 - Windows 10 (tylko Windows 11).
+
+---
+
+## 9. Etap 3 – kontrola końcowa (2026-10-21)
+
+- **Punkt wyjścia:** `main` f738a97 (etap 3 scalony: 686 testów, build 0/0). Zakres: `git diff c23d27f..f738a97` (78 plików, ok. 7700 wierszy) – pomiary, kalkulator księgowy, pole kodu kreskowego, JavaScript formularzy (Jint), czytanie na głos, widok równoległy, ułatwienia dostępu, indeks i wyszukiwanie zaawansowane.
+- **Środowisko:** jak wyżej (Windows 11, .NET SDK 8.0.423). Interfejs sprawdzany w prawdziwym exe trybami diagnostycznymi, bez klikania na pulpicie.
+- **Commity recenzenta:** 51018a4, de59869, adabc6e i commit z tym rozdziałem.
+
+### 9.1 Podsumowanie
+
+| Obszar | Wynik |
+|---|---|
+| Build Release (`--no-incremental`) | 0 błędów, 0 ostrzeżeń |
+| Testy | **752 / 752**, 0 pominiętych, 3 przebiegi z rzędu identyczne (było 686; +66 przypadków recenzenta) |
+| Publikacja | `dist\ZetPDF.exe` 91 301 274 B (ok. 87,1 MiB), `tools\publish\publish.ps1` (`-p:DebugType=None`); `dist\LICENSES\` – 12 plików (nowe: `Jint-LICENSE.txt`, `Acornima-LICENSE.txt`); `dist\README.txt` z opisem funkcji etapu 3 (pl/en) |
+| Test dymny exe (etap 3) | 4 pliki z folderu `scratch\etap3\Próbny folder – etap 3 ąę\`, `ZETPDF_HOME=…\home ąę`: formularz – **WYNIK: OK**; 500 stron – **OK**; AES-256 z `-pwd` – 1 „problem” = OCR wyszarzony bez uprawnienia (poprawnie, tak samo jak w etapie 1–2); uszkodzony – zlokalizowany komunikat, brak awarii. Każdy proces zakończył się sam (kod 0), brak wiszących procesów `ZetPDF`. Raporty: `docs\zrzuty\etap3-exe-smoke-*.txt` |
+| `--diag-screenshots` | 81 PNG (było 65): nowe – karta Ułatwienia dostępu z panelem wyników, panel wyszukiwania zaawansowanego, panel czytania – pl/en × jasny/ciemny; wybrane w `docs\zrzuty\etap3-*.png` |
+| Lokalizacja (`tools\check_localization.py`) | 1812 kluczy (w tym nowy `Annot.Script.TooLong`), każdy w pl i en, 0 błędów, 0 uwag |
+| Motywy (`tools\check_themes.py`) | brak nowych kolorów poza słownikami (te same 16 uzasadnionych wystąpień co po etapie 2; kolory w kodzie etapu 3 to wyłącznie kolory treści PDF – `PdfColor`); kontrast ≥ 4,5:1 (jasny 4,79, ciemny 5,78) |
+| Błędy znalezione i naprawione | 9 (tabela 9.3) |
+
+### 9.2 Co sprawdzono i jak
+
+- **Wątek UI, `.Result`/`.Wait()`:** grep w plikach etapu 3 – `.Result` tylko na zakończonych zadaniach (`IsCompletedSuccessfully`) i właściwościach okien; budowanie indeksu w `Task.Run` z postępem i anulowaniem; skrypty formularza poza wątkiem UI; `async void` tylko w obsłudze zdarzeń, z `try/catch` → `ShowError`.
+- **Uchwyty PDFium:** kod etapu 3 nie woła PDFium bezpośrednio (tylko warstwa renderująca). Widok równoległy tworzy drugi `DocumentView` i zwalnia go (`Dispose`) przy zamknięciu pary i przy zamknięciu którejkolwiek karty (`DocumentClosed`).
+- **Zapis plików:** raporty HTML/TXT, CSV wyników wyszukiwania i pomiarów – `IFileService.WriteAllBytesSafeAsync` (plik tymczasowy + podmiana); bezpośredni zapis tylko jako zapas bez usługi w DI. Plik indeksu – plik tymczasowy + `File.Move(overwrite)`.
+- **Ścieżki z polskimi znakami:** wszystkie uruchomienia exe na `…\Próbny folder – etap 3 ąę\…ąę.pdf` z `ZETPDF_HOME=…\home ąę`; „Zapisz jako … – zapisany przez exe.pdf” i ponowne otwarcie OK; testy indeksu na `Próbny folder – zażółć`.
+- **Sieć i sekrety:** grep `HttpClient|WebRequest|WebClient|Socket|Uri("http|Dns.|Process.Start` w plikach etapu 3 – brak nowych połączeń; jedyne `Process.Start` (formularze) to istniejące otwieranie łącza po potwierdzeniu. Jint bez modułów, `fetch`, `XMLHttpRequest`, `require`, `importNamespace` (test). System.Speech – tylko głosy lokalne.
+- **Raporty HTML:** raport ułatwień dostępu i raport porównania (etap 2) escapują `& < > "` w każdym tekście pochodzącym z dokumentu (tytuł, język, nazwy plików, słowa). Nowe testy: `<script>` w tytule, `/Lang` z `"><img onerror=…>`, nazwy plików z `<img …>` i `<script>` w porównywanych stronach – w wyniku brak `<script`/`<img`. Innych raportów HTML w programie nie ma (grep). **Bez błędów.**
+- **Eksporty CSV (cały program):** grep `csv` w `src` – trzy eksporty: pomiary i dane formularza (Annotations, `CsvText.Cell`: apostrof przed `= + - @ tab CR`, cytowanie przy `, ; tab " CR LF`) oraz wyniki wyszukiwania zaawansowanego (Editing, `FullTextIndex.CsvField`: ta sama neutralizacja, każde pole w cudzysłowie). Security, Pages, Kreator działań nie eksportują CSV. Testy `CsvInjectionTests` i `Csv_export_quotes_fields_and_neutralizes_formulas` zielone. **Bez błędów.**
+- **JavaScript w formularzach:** przegląd `ScriptRunner`, `AcroJsPrelude`, `FormCalculation`, `FormScripts` i własne ataki uruchomione w teście z pomiarem czasu i pamięci prywatnej procesu: konstruktor `Function` przez prototyp (także funkcji generatora), `eval`, zanieczyszczenie prototypów (nie przechodzi do kolejnego skryptu – każde zdarzenie ma nowy silnik), getter `event.value` z pętlą (limit instrukcji), rekurencja w getterze (limit rekursji), ogromny literał, podmiana funkcji używanych przez ograniczenia, `valueOf`/getter zwracające inną wartość przy drugim odczycie, wzmacniacze alokacji. Domyślna polityka „tylko AF*” dopuszcza wyłącznie wywołania znanych funkcji z literałami (wyrażenie regularne z limitem czasu). JavaScript dokumentu (`/OpenAction`, `/Names /JavaScript`, `/AA` katalogu) i przycisków nie jest nigdy wykonywany (`FormCalculation` czyta tylko `/AA` pól; test `Document_scripts_are_listed_but_not_executed`). `OutOfMemoryException` łapany i wyłącza skrypty dokumentu (istniejący test `Huge_allocations_are_script_errors_and_process_survives`). Wyniki – tabela 9.3 (R-13…R-15).
+- **Indeks:** polska ścieżka i plik zaszyfrowany pomijany (`tajne.pdf` w liście `Encrypted`) – istniejące testy; uszkodzony plik indeksu – nowy test z poprawnym GZip i błędnymi wartościami (R-16); indeks w `IAppPaths.LocalDataDirectory` (respektuje `ZETPDF_HOME`).
+- **Czytanie na głos:** test integracyjny „każde polecenie” wołał prawdziwy syntezator (R-12). W exe (tryb diagnostyczny, bez dźwięku): Aktywuj → Przeczytaj bieżącą stronę → stany `Stopped → Speaking → Stopped`, głos „Microsoft Paulina Desktop”, Zatrzymaj → `Stopped`; na pliku 500 stron „Czytaj od bieżącej strony” pozostawione w stanie `Speaking` → po zamknięciu dokumentów `Stopped`, okno zamknięte, proces zakończył się sam. `Get-Process ZetPDF` po wszystkich uruchomieniach – 0 procesów.
+- **Licencje:** `dotnet list package --include-transitive` (cała solucja) porównane z `docs\LICENCJE.md` – nowe w programie: ZXing.Net 0.16.11 (Apache-2.0), Jint 4.16.4 (BSD-2-Clause), Acornima 1.7.0 (BSD-3-Clause), System.Speech 8.0.0 (MIT); wszystkie permisywne, **brak AGPL/GPL**. System.Collections.Immutable i System.Reflection.Metadata – tylko projekty testowe. Okno O programie i `dist\LICENSES` uzupełnione (R-18).
+- **Ucięcia tekstu:** obejrzane zrzuty nowej karty i paneli (pl/en, jasny/ciemny) oraz okna z testu dymnego (kalkulator, Skrypty formularza, wybór widoku równoległego, widok równoległy). Znaleziona usterka R-17; innych ucięć nie stwierdziłem (przyciski panelu ułatwień dostępu zawijają się do drugiego wiersza w języku polskim – czytelne).
+
+### 9.3 Znalezione błędy i naprawy (etap 3)
+
+| # | Błąd | Jak znaleziony | Naprawa |
+|---|---|---|---|
+| R-12 | Testy z pełnym kontenerem usług (m.in. „każde polecenie wstążki”) używały prawdziwego syntezatora – na komputerze z głośnikami słychać było czytanie | zgłoszenie koordynatora, przegląd hostów testowych | `SilentSpeechEngineFactory` (System.Speech z `SetOutputToNull` – prawdziwa synteza i zdarzenia słów, bez dźwięku) rejestrowana w 5 kontenerach testowych i w trybach `--diag-*` exe; testy pilnują rejestracji |
+| R-13 | Piaskownica JS – obejścia limitu pamięci pojedynczych alokacji: `Math.floor = …` przed `'x'.repeat(3e8)` (600 MB, wynik zwrócony bez błędu), `s.replace(/x/g, tekst)` (1e9 znaków, 4,3 GB szczytowo, 3 s, bez błędu), `new Uint8Array(1e9)` i `ArrayBuffer` (1 GB, bez błędu), `concat`, `toLocaleString`, `JSON.stringify` (1–3 GB przed „Invalid string length”), `valueOf`/getter `length` zwracające inną wartość przy drugim odczycie, podmiana `Function.prototype.call/apply` i `Array` | własne ataki w teście z pomiarem pamięci procesu | funkcje wbudowane przechwycone i związane `bind` przy starcie, argumenty konwertowane raz, `replace`/`replaceAll` zawsze z własną funkcją (rozwinięcie wzorców `$` po stronie preludium + licznik długości), ograniczone `concat`, `toLocaleString`, `fill` (pętla w JS), usunięte `ArrayBuffer`, `SharedArrayBuffer`, `DataView`, `Atomics`, tablice typowane, `WeakRef`, `FinalizationRegistry`; wartość `event.value` > 1 MB odrzucana także w C# |
+| R-14 | Ogromny literał w skrypcie pola był parsowany bez limitu (czas i pamięć parsera są poza limitami wykonania Jint) | przegląd | kod > 256 KB nie jest uruchamiany (błąd skryptu, nowy klucz `Annot.Script.TooLong` pl/en) |
+| R-15 | W mojej pierwszej poprawce R-13 (zgłoszone przez automatyczny przegląd bezpieczeństwa koordynatora): `JSON.stringify` z ujemnym `space` zaniżał licznik, a `toJSON` dopisane do `Object.prototype` po sprawdzeniu kopii pozwalało natywnemu `stringify` wytworzyć dowolnie duży łańcuch | przegląd koordynatora | własny serializator JSON liczący każdy kawałek wyniku (natywny `JSON.stringify` tylko do cytowania prymitywnych łańcuchów), wcięcie 0..10, twardy limit długości wyniku; testy: ujemny `space` na dużym obiekcie, `Object.prototype.toJSON`/`Array.prototype.toJSON` – błąd limitu; zgodność z czystym Jint w 18 wyrażeniach |
+| R-16 | Uszkodzony plik indeksu (poprawny GZip, błędne wartości) wywracał wczytanie indeksu wyjątkiem `ArgumentOutOfRangeException` (zła data, ujemny licznik); licznik z pliku sterował wielkością alokacji | test recenzenta (3× czerwony przed poprawką) | walidacja liczników i stanu, pojemność list niezależna od pliku, łapane `ArgumentException`, `OverflowException`, `DecoderFallbackException` → indeks ignorowany i budowany od nowa |
+| R-17 | Panel czytania na głos ucinał polską etykietę „Automatycznie (język dokumentu lub interfejsu)” | zrzut z exe | szerokość panelu 340 → 380 px (zrzut po poprawce: pełny tekst) |
+| R-18 | Brak ZXing.Net, Jint, Acornima, System.Speech w oknie O programie i w `THIRD-PARTY-NOTICES.txt`; `LICENCJE.md` opisywał ZXing.Net jako nieużywany | porównanie z `dotnet list package` | wpisy w `ThirdPartyLibraries` (z tekstami licencji), `Jint-LICENSE.txt` (BSD-2, Sebastien Ros), `Acornima-LICENSE.txt` (BSD-3, Adam Simon + nota o kodzie acorn – MIT i Esprima .NET – BSD-3), THIRD-PARTY-NOTICES, LICENCJE.md; test |
+| R-19 | `--diag-smoke` i `--diag-screenshots` nie obejmowały etapu 3 | zadanie koordynatora | smoke: Access.FullCheck, Index.Search, Measure.Calculator, Form.JavaScript, View.ParallelView z drugim dokumentem (okno wyboru zatwierdzane OK), Read.Activate/CurrentPage/Stop/FromPage bez dźwięku, stan czytania po zamknięciu dokumentów; zrzuty: karta Ułatwienia dostępu z panelem, panel wyszukiwania, panel czytania |
+| R-20 | `docs\ograniczenia\renderer-viewer.md` pkt 20 i `edit-convert-ocr.md` (test dymny bez karty Ułatwienia dostępu) – nieaktualne | przegląd | zaktualizowane; `OGRANICZENIA.md` – nowy rozdz. 26 „Etap 3” |
+
+Po każdej naprawie: build Release 0/0 i testy (końcowo 752/752 ×3).
+
+### 9.4 Co nie działa lub działa z ograniczeniami (etap 3; pełna lista: `docs\OGRANICZENIA.md`, rozdz. 26)
+- JavaScript formularzy działa w procesie programu; po poprawkach R-13…R-15 pozostaje ryzyko szczątkowe: nieprzewidziana funkcja wbudowana Jint alokująca dużo pamięci w jednej instrukcji – tylko w trybie „dowolny JavaScript” (za zgodą użytkownika). Komunikaty błędów skryptów są techniczne, po angielsku.
+- Czytanie na głos: tylko głosy SAPI; tekst w kolejności strumienia treści (bez tagów).
+- Indeks: wyszukiwanie liniowe, bez OCR, bez aktualizacji w tle.
+- Ułatwienia dostępu: podzbiór PDF/UA, bez automatycznego tagowania.
+- Widok równoległy: dwa dokumenty, drugi tylko do podglądu.
+- Linie praw autorskich Jint/Acornima wzięte z metadanych pakietów (bez lat) – przed dystrybucją komercyjną porównać z plikami LICENSE repozytoriów (plików z sieci nie pobierano).
+
+### 9.5 Czego nie sprawdzono
+- Czytania na głos z dźwiękiem na głośnikach (świadomie – exe w trybie diagnostycznym i testy kierują mowę do pustego urządzenia; synteza, wybór głosu i zdarzenia słów sprawdzone).
+- Klikania myszą: rysowania pomiarów, okna skali i kalibracji, tworzenia pola kodu kreskowego, budowania indeksu z okna wyboru folderu, edycji skryptu w oknie Skrypty formularza, przeciągania rozdzielacza widoku równoległego (pokryte testami usług i budowy okien, nie pulpitem).
+- Odczytu kodów QR/PDF417 zewnętrznym skanerem (test dekoduje render PDFium przez ZXing).
+- Zgodności pomiarów i skryptów z innym czytnikiem (Acrobat) – brak w systemie.

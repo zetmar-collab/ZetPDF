@@ -136,3 +136,10 @@ Format: problem → decyzja → uzasadnienie. Decyzje oznaczone **[DO ZATWIERDZE
 
 - Etap 3 scalony w całości (2026-10-21): build 0/0, 686 testów zielonych. Do zrobienia: dopisać ZXing.Net, Jint, Acornima, System.Speech do okna O programie i dist\LICENSES; recenzja etapu 3; ponowna publikacja exe.
 
+## Wykonanie przez recenzenta – etap 3 (2026-10-21)
+- Mowa w testach: SilentSpeechEngineFactory (System.Speech, SetOutputToNull) we wszystkich kontenerach testowych i w trybach --diag-* exe – bez dźwięku (RAPORT_KONTROLI R-12).
+- Eskejpowanie HTML: raport ułatwień dostępu i raport porównania – poprawne; dodane testy z <script> w tytule i treści.
+- --diag-smoke rozszerzony o polecenia etapu 3, --diag-screenshots o kartę Ułatwienia dostępu i panele etapu 3.
+- ZXing.Net, Jint, Acornima, System.Speech dopisane do okna O programie i dist\LICENSES; exe opublikowany ponownie.
+- Piaskownica JavaScript utwardzona (R-13…R-15); uszkodzony plik indeksu (R-16); szczegóły w RAPORT_KONTROLI rozdz. 9.
+

@@ -8,6 +8,29 @@
   czytnikami (PdfPig, PDFium przez `PdfiumRenderer`, PDFsharp – słowniki, zdekodowane strumienie). Kod produkcyjny
   nie był zmieniany. Testy czerwone z powodu błędów w kodzie zostały czerwone.
 
+## 0a. Wynik końcowy po etapie 3 (recenzent, 2026-10-21, wieczór)
+
+Punkt wyjścia: `main` f738a97 (etap 3 scalony, 686 testów). `dotnet build ZetPDF.sln -c Release --no-incremental`: **0 błędów, 0 ostrzeżeń**. `dotnet test ZetPDF.sln -c Release --no-build` **3 razy z rzędu** – identyczny wynik:
+
+| Projekt | Łącznie | Zaliczone | Niezaliczone | Pominięte |
+|---|---:|---:|---:|---:|
+| ZetPDF.Core.Tests | 34 | 34 | 0 | 0 |
+| ZetPDF.Viewer.Tests | 64 | 64 | 0 | 0 |
+| ZetPDF.Pages.Tests | 33 | 33 | 0 | 0 |
+| ZetPDF.Annotations.Tests | 174 | 174 | 0 | 0 |
+| ZetPDF.Editing.Tests | 62 | 62 | 0 | 0 |
+| ZetPDF.Security.Tests | 32 | 32 | 0 | 0 |
+| ZetPDF.App.Tests | 86 | 86 | 0 | 0 |
+| ZetPDF.IntegrationTests | 267 | 267 | 0 | 0 |
+| **Razem** | **752** | **752** | **0** | **0** |
+
+Nowe/zmienione testy recenzenta (66 przypadków, szczegóły: `docs\RAPORT_KONTROLI.md`, rozdz. 9):
+- Mowa bez dźwięku: wszystkie kontenery usług w testach (`IntegrationTests\Infrastructure\Host.cs`, `SkeletonIntegrationTests`, `ActionWizardSmokeTests`, `Viewer.Tests\TestHost.cs`, `Annotations.Tests\ViewerIntegrationTests`) rejestrują `SilentSpeechEngineFactory`; testy `Integration_hosts_never_speak_to_audio_device`, `Test_host_uses_silent_speech_factory`, `Silent_engine_synthesizes_with_word_progress_without_audio_device`.
+- Piaskownica JavaScript: `FormScriptTests.Sandbox_attacks_end_as_script_errors_quickly` (26 ataków), `Hardened_builtins_keep_normal_behaviour` (8), `Prototype_pollution_does_not_leak_to_the_next_script`, `Huge_script_literal_is_not_parsed`; `ScriptSandboxBuiltinsTests.Hardened_builtins_match_native_jint` (18 wyrażeń porównanych z czystym Jint).
+- Raporty HTML: `AccessibilityTests.Html_report_escapes_title_and_language_from_document`, `CompareTests.Html_report_escapes_document_text_and_names`.
+- Indeks: `FullTextIndexTests.Index_file_with_valid_gzip_but_corrupt_values_is_ignored` (3 przypadki; przed poprawką 3× czerwony – `ArgumentOutOfRangeException`).
+- Licencje: `ShellSmokeTests.About_lists_stage3_libraries_with_license_texts` (4).
+
 ## 0. Wynik końcowy (recenzent końcowy, 2026-10-21)
 
 `dotnet build ZetPDF.sln -c Release --no-incremental`: **0 błędów, 0 ostrzeżeń**. `dotnet test ZetPDF.sln -c Release --no-build` uruchomiony **3 razy z rzędu** – za każdym razem identyczny wynik:

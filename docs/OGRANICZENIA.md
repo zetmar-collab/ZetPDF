@@ -1,6 +1,6 @@
 # ZetPDF 0.1.0-test – znane ograniczenia
 
-Dokument zbiorczy dla użytkownika i testera. Opisuje, czego program nie robi albo robi inaczej, niż można by się spodziewać, pogrupowane według funkcji z etapów 1 i 2. Szczegóły techniczne dla programistów są w plikach modułów `docs\ograniczenia\*.md`, uzasadnienia decyzji – w `docs\DECYZJE.md`.
+Dokument zbiorczy dla użytkownika i testera. Opisuje, czego program nie robi albo robi inaczej, niż można by się spodziewać, pogrupowane według funkcji z etapów 1 i 2; dodatki etapu 3 – rozdział 26. Szczegóły techniczne dla programistów są w plikach modułów `docs\ograniczenia\*.md`, uzasadnienia decyzji – w `docs\DECYZJE.md`.
 
 ## 0. Ogólne
 
@@ -168,3 +168,47 @@ Dokument zbiorczy dla użytkownika i testera. Opisuje, czego program nie robi al
 
 - `ZetPDF.exe` jest jednym plikiem (PDFium i Tesseract w środku). Natywne biblioteki są przy starcie rozpakowywane przez .NET do folderu tymczasowego użytkownika, dane OCR – do `%LOCALAPPDATA%\ZetPDF\ocr\`.
 - W `dist\LICENSES\` brakuje pełnych tekstów licencji FreeType, IJG, libpng i Unicode/ICU (komponenty PDFium) – trzeba je dołączyć z repozytorium pdfium-binaries przed dystrybucją komercyjną (`docs\LICENCJE.md`, sekcja 4).
+
+## 26. Etap 3 (dodatki)
+
+Zbiorczo z `docs\ograniczenia\annotations-forms.md` (pkt 17–25), `renderer-viewer.md` (pkt 15–23) i `edit-convert-ocr.md` (sekcje „Etap 3”), z wynikami kontroli recenzenta (`docs\RAPORT_KONTROLI.md`, rozdz. 9).
+
+### 26.1 Pomiary i skala
+- Pomiary (odległość, obwód, pole) zapisywane są jako adnotacje wymiarowe ze słownikiem `/Measure` i własnym wyglądem. Tylko skala prostoliniowa (ta sama w osi X i Y), bez kąta, promienia, pola koła, objętości i współrzędnych geograficznych. Skala strony – jeden obszar na całą stronę (obszary z innych programów są odczytywane, nie edytowane).
+- Etykieta jest pozioma (nie obraca się z linią); obrót strony nie jest uwzględniany przy jej rozmieszczeniu. Inny czytnik, który sam odtwarza wygląd, może pokazać pomiar inaczej. Eksport XFDF nie przenosi skali (pomiar wraca jako zwykła linia/wielokąt).
+- Kalibracja z jednego odcinka; jednostki: mm, cm, m, km, in, ft, yd, pt.
+
+### 26.2 Kalkulator księgowy
+- Okno modalne; liczby z zaznaczenia dodawane przy otwarciu (taśma zachowana do zamknięcia programu). Sumowane są wszystkie liczby z zaznaczenia (także np. numery pozycji). Przy niejednoznacznym „1,234”/„1.234” decyduje język interfejsu. Wynik wstawiany jako pole tekstowe (maszyna do pisania).
+
+### 26.3 Pole kodu kreskowego/QR
+- QR, PDF417, DataMatrix (ZXing.Net); dane z wybranych pól (tabulatory albo JSON), rysunek wektorowy w wyglądzie pola. Kod odświeża się tylko przy zmianach pól w ZetPDF – inny program go nie zaktualizuje (brak skryptu Acrobata). Zbyt dużo danych – przekreślona ramka.
+
+### 26.4 JavaScript w formularzach
+- Silnik Jint działa **w procesie programu** w piaskownicy (bez dostępu do CLR, plików, sieci, `eval`, `new Function`). Limity na skrypt: 750 ms, 250 000 instrukcji, 16 MB, rekursja 64, tablice 100 000, wyrażenia regularne 200 ms, łańcuchy z funkcji wbudowanych do 1 MB, kod do 256 KB; łącznie na zmianę 2 s i 1000 zdarzeń. Po powtarzanych przekroczeniach lub braku pamięci skrypty dokumentu wyłączają się.
+- **Domyślnie** wykonywane są tylko wywołania wbudowanych funkcji AF* z literałami; dowolny JavaScript pól – po zgodzie użytkownika (ustawienie dokumentu, niezapisywane). JavaScript dokumentu (przy otwarciu, akcje dokumentu) i skrypty przycisków **nigdy** nie są wykonywane – tylko podgląd.
+- Obsługiwane zdarzenia pól: naciśnięcie klawisza (tylko przy zatwierdzeniu wartości), walidacja, obliczenie (kolejność `/CO`), format (tylko tekst wyświetlany). Minimalne API Acrobata (`event`, `getField`, `app.alert` → pasek stanu, wybrane funkcje AF*); brak m.in. `util.printf`, `AFTime_*`, `resetForm/submitForm/print`, akcji myszy.
+- Kontrola recenzenta znalazła i naprawiła obejścia limitów pamięci (do kilku GB w jednej instrukcji); ryzyko szczątkowe – nieprzewidziana funkcja wbudowana Jint – dotyczy tylko trybu „dowolny JavaScript”. Pełna izolacja wymagałaby osobnego procesu.
+- Komunikaty błędów skryptów (w raporcie skryptów) zawierają techniczny tekst silnika po angielsku (np. „ZetPDF limit: string too long”, komunikaty Jint) – są przeznaczone dla autora formularza.
+
+### 26.5 Czytanie na głos
+- System.Speech (SAPI 5): tylko głosy SAPI zainstalowane lokalnie (głosy „OneCore” widoczne tylko w Ustawieniach Windows mogą być niedostępne). Tekst z PDFium w kolejności strumienia treści – dokumenty wielokolumnowe czytane w tej kolejności, tagi nie są używane; skany pomijane.
+- Zmiana głosu/szybkości/głośności działa od następnej wypowiedzi. Podświetlane jest słowo zgłoszone przez syntezator (liczby/skróty mogą być dzielone).
+- Czytanie zatrzymuje się przy zamknięciu dokumentu, przy każdej zmianie dokumentu i przy zamknięciu programu (sprawdzone w exe na pliku 500 stron: czytanie do końca pozostawione włączone → zatrzymane po zamknięciu dokumentów, proces zakończył się sam).
+- Panel ustawień czytania to małe niemodalne okno; jego zamknięcie wyłącza tryb czytania.
+
+### 26.6 Widok równoległy
+- Realizowany wewnątrz widoku aktywnej karty; tylko **dwa** dokumenty; drugi – tylko podgląd (narzędzie Ręka, bez edycji). Zamknięcie którejkolwiek karty zamyka widok równoległy. Synchronizacja przewija o tę samą odległość (bez dopasowania numerów stron przy różnych rozmiarach).
+
+### 26.7 Sprawdzanie ułatwień dostępu
+- Podzbiór PDF/UA: tytuł, wyświetlanie tytułu, język, tagi, drzewo struktury, tekst alternatywny figur, kolejność tabulacji, opisy pól, obecność tekstu, zakładki; kolejność odczytu zawsze „sprawdź ręcznie”. Brak m.in. tabel, list, nagłówków, kontrastu, czcionek, artefaktów, zgodności drzewa struktury z treścią.
+- Automatyczna naprawa tylko: tytuł i język (wartości potwierdzane w oknie), wyświetlanie tytułu, kolejność tabulacji, opisy pól. Tagowanie, kolejność odczytu, skany – nie. Tekst alternatywny – ręcznie, tylko w dokumentach otagowanych.
+- Raport HTML/TXT w języku interfejsu; tekst z dokumentu (tytuł, nazwa pliku) jest escapowany w HTML (test z `<script>` w tytule).
+
+### 26.8 Indeks pełnotekstowy i wyszukiwanie zaawansowane
+- Własny magazyn tekstu (GZip) zamiast SQLite FTS5 (brak natywnych bibliotek w jednym pliku exe). Wyszukiwanie liniowe – przy dziesiątkach tysięcy stron wolniejsze, cały tekst indeksu w pamięci na czas wyszukiwania. Limit 2000 wyników.
+- Tekst z PdfPig bez OCR (skany niewyszukiwalne); frazy przeniesione z dywizem nie są odnajdywane. Indeks aktualizowany ręcznie (brak aktualizacji w tle) i bez usuwania z UI. Pliki zaszyfrowane hasłem otwarcia i nieczytelne są pomijane (lista w komunikacie). Uszkodzony plik indeksu jest ignorowany i budowany od nowa.
+- Eksport CSV wyników: separator listy kultury, pola w cudzysłowie, neutralizacja formuł (apostrof przed `=`, `+`, `-`, `@`, tabulatorem, CR). Ta sama ochrona dotyczy eksportu pomiarów i danych formularza do CSV.
+
+### 26.9 Wspólne
+- Okna i panele etapu 3 nie były klikane myszą na pulpicie; sprawdzono je testami (budowa okien, polecenia), testem dymnym exe (`--diag-smoke`: Access.FullCheck, Index.Search, Measure.Calculator, Form.JavaScript, View.ParallelView z drugim dokumentem, Read.Activate/CurrentPage/Stop/FromPage bez dźwięku) i zrzutami (`--diag-screenshots`). Nie sprawdzono w exe: rysowania pomiarów myszą, okna skali/kalibracji, tworzenia pola kodu kreskowego, budowania indeksu z okna wyboru folderu, czytania z dźwiękiem na głośnikach.

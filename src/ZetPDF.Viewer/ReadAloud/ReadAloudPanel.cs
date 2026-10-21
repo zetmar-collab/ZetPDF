@@ -25,7 +25,7 @@ internal sealed class ReadAloudPanel : Window
         _loc = loc;
         _registry = registry;
         this.Loc(TitleProperty, loc, "Viewer.Read.Title");
-        Width = 340;
+        Width = 380; // pełna polska etykieta „Automatycznie (język dokumentu lub interfejsu)” w polu głosu (recenzent)
         SizeToContent = SizeToContent.Height;
         ResizeMode = ResizeMode.NoResize;
         WindowStyle = WindowStyle.ToolWindow;
