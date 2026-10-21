@@ -17,6 +17,9 @@ Stan: 17.10.2026, recenzent końcowy. Źródło listy: `dotnet list <projekt> pa
 | tessdata_fast `pol.traineddata`, `eng.traineddata` | main (16.10.2026) | Apache-2.0 | `src\ZetPDF.Ocr\tessdata\` (osadzone) | plik `LICENSE` obok danych |
 | Fluent.Ribbon | 11.0.2 | MIT | App | licencja z pliku w pakiecie |
 | System.Speech | 8.0.0 | MIT | Viewer (czytanie na głos, etap 3) | SAPI 5 z Windows; głosy lokalne, bez sieci |
+| ZXing.Net | 0.16.11 | Apache-2.0 | Annotations (pole kodu kreskowego, etap 3) | QR, PDF417, DataMatrix |
+| Jint | 4.16.4 | BSD-2-Clause | Annotations (JavaScript formularzy, etap 3) | bez dostępu do CLR; limity czasu, pamięci, rekursji |
+| Acornima | 1.7.0 | BSD-3-Clause | przechodnio przez Jint | parser JavaScript |
 | ControlzEx | 7.0.3 | MIT | App (przez Fluent.Ribbon) | |
 | Microsoft.Xaml.Behaviors.Wpf | 1.1.135 | MIT | App (przez ControlzEx) | |
 | CommunityToolkit.Mvvm | 8.4.2 | MIT | Core | |

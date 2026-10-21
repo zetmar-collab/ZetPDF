@@ -133,3 +133,6 @@ Format: problem → decyzja → uzasadnienie. Decyzje oznaczone **[DO ZATWIERDZE
 - D-26: wyszukiwanie zaawansowane i sprawdzanie ułatwień dostępu jako panele boczne (Panel.AdvancedSearch 70, Panel.Accessibility 60).
 - Eksporty CSV: neutralizacja formuł (apostrof przed = + - @ tab CR) i cytowanie wartości z , ; tab – wymagane we wszystkich eksportach CSV (po dwóch zgłoszeniach przeglądu bezpieczeństwa).
 - Do recenzji etapu 3: test integracyjny „każde polecenie” odtwarza dźwięk przez prawdziwy syntezator (Read.CurrentPage) – w testach mowa ma iść do strumienia/atrapy; sprawdzić eskejpowanie HTML w raportach (porównanie, ułatwienia dostępu); dopisać nowe karty do --diag-smoke.
+
+- Etap 3 scalony w całości (2026-10-21): build 0/0, 686 testów zielonych. Do zrobienia: dopisać ZXing.Net, Jint, Acornima, System.Speech do okna O programie i dist\LICENSES; recenzja etapu 3; ponowna publikacja exe.
+
