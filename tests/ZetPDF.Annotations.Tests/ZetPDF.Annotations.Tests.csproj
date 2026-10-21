@@ -13,5 +13,6 @@
     <ProjectReference Include="..\..\src\ZetPDF.Viewer\ZetPDF.Viewer.csproj" />
     <ProjectReference Include="..\..\src\ZetPDF.Annotations\ZetPDF.Annotations.csproj" />
     <PackageReference Include="PdfPig" Version="$(PdfPigVersion)" />
+    <PackageReference Include="ZXing.Net" Version="0.16.11" />
   </ItemGroup>
 </Project>

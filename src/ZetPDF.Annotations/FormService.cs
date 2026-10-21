@@ -1,6 +1,7 @@
 using ZetPDF.Annotations.Forms;
 using ZetPDF.Core.Contracts;
 using ZetPDF.Core.Documents;
+using ZetPDF.Core.Localization;
 
 namespace ZetPDF.Annotations;
 
@@ -38,6 +39,36 @@ public sealed class FormService : IFormService
 
     public Task<byte[]> CreateFieldAsync(byte[] pdf, FormFieldSpec spec, CancellationToken ct = default) =>
         PdfSharpEdit.ModifyAsync(pdf, doc => FormEngine.Create(doc, spec), ct);
+
+    /// <summary>
+    /// Pole kodu kreskowego (QR/PDF417/DataMatrix) kodujące wybrane pola: pole tekstowe tylko do odczytu, dane w /V,
+    /// symbol w /AP. Odświeżane przy każdej zmianie wartości pól.
+    /// </summary>
+    public Task<byte[]> CreateBarcodeFieldAsync(byte[] pdf, FormFieldSpec spec, BarcodeOptions options, CancellationToken ct = default) =>
+        PdfSharpEdit.ModifyAsync(pdf, doc =>
+        {
+            FormEngine.Create(doc, spec with { Kind = FormFieldKind.Text, ReadOnly = true, Multiline = false, DefaultValue = string.Empty });
+            var node = FieldTree.Find(doc, spec.Name)!;
+            BarcodeEngine.Write(doc, node, options);
+            if (node.Widgets.FirstOrDefault() is { } w && Pdf.PdfLow.Dict(w, "/MK") is { } mk) mk.Elements.Remove("/BC");
+            BarcodeEngine.UpdateAll(doc);
+        }, ct);
+
+    /// <summary>Ustawienia pola kodu kreskowego albo null, gdy pole nim nie jest.</summary>
+    public Task<BarcodeOptions?> GetBarcodeOptionsAsync(byte[] pdf, string fullName, CancellationToken ct = default) =>
+        Task.Run(() => PdfSharpEdit.Read(pdf, doc => FieldTree.Find(doc, fullName) is { } f ? BarcodeEngine.Options(f) : null), ct);
+
+    /// <summary>Pola, które mogą być źródłem danych kodu (bez przycisków, podpisów i pól kodu).</summary>
+    internal Task<List<string>> GetBarcodeSourceNamesAsync(byte[] pdf, CancellationToken ct = default) =>
+        Task.Run(() => PdfSharpEdit.Read(pdf, doc => BarcodeEngine.Sources(FieldTree.Terminals(doc), new BarcodeOptions()).Select(f => f.FullName).Distinct().ToList()), ct);
+
+    public Task<byte[]> SetBarcodeOptionsAsync(byte[] pdf, string fullName, BarcodeOptions options, CancellationToken ct = default) =>
+        PdfSharpEdit.ModifyAsync(pdf, doc =>
+        {
+            var f = FieldTree.Find(doc, fullName) ?? throw new KeyNotFoundException("Field not found: " + fullName).WithMessageKey("Annot.Error.FieldNotFound", fullName);
+            BarcodeEngine.Write(doc, f, options);
+            BarcodeEngine.UpdateAll(doc);
+        }, ct);
 
     public Task<byte[]> UpdateFieldAsync(byte[] pdf, string fullName, FormFieldSpec spec, CancellationToken ct = default) =>
         PdfSharpEdit.ModifyAsync(pdf, doc => FormEngine.Update(doc, fullName, spec), ct);

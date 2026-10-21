@@ -243,4 +243,16 @@
   <data name="Annot.Calc.FromDocument" xml:space="preserve"><value>Number taken from the document</value></data>
   <data name="Annot.Calc.NoDocument" xml:space="preserve"><value>Open a document that can be commented on.</value></data>
   <data name="Annot.Calc.InsertHint" xml:space="preserve"><value>Click on the page where the result should be inserted.</value></data>
+  <data name="Annot.Barcode.Title" xml:space="preserve"><value>Barcode Field</value></data>
+  <data name="Annot.Barcode.Symbology" xml:space="preserve"><value>Symbology:</value></data>
+  <data name="Annot.Barcode.Sym.QrCode" xml:space="preserve"><value>QR Code</value></data>
+  <data name="Annot.Barcode.Sym.Pdf417" xml:space="preserve"><value>PDF417</value></data>
+  <data name="Annot.Barcode.Sym.DataMatrix" xml:space="preserve"><value>Data Matrix</value></data>
+  <data name="Annot.Barcode.Format" xml:space="preserve"><value>Data format:</value></data>
+  <data name="Annot.Barcode.Fmt.TabDelimited" xml:space="preserve"><value>Tab-delimited</value></data>
+  <data name="Annot.Barcode.Fmt.Json" xml:space="preserve"><value>JSON</value></data>
+  <data name="Annot.Barcode.IncludeNames" xml:space="preserve"><value>Field names in the first line</value></data>
+  <data name="Annot.Barcode.Fields" xml:space="preserve"><value>Fields to encode:</value></data>
+  <data name="Annot.Barcode.NoFields" xml:space="preserve"><value>The form has no data fields yet – all fields added later will be encoded.</value></data>
+  <data name="Annot.Undo.Barcode" xml:space="preserve"><value>Barcode field</value></data>
 </root>

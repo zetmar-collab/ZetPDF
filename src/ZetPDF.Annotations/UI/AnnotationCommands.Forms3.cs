@@ -58,6 +58,26 @@ internal sealed partial class AnnotationCommands
 
     private void RegisterBarcode()
     {
+        var tool = new DragTool(_ctx, CommandIds.Form.BarcodeField, DragShape.Rectangle, CreateBarcodeAsync, new Size(120, 120));
+        Tool(tool, DocumentPermissions.ModifyContent);
+    }
+
+    private async Task CreateBarcodeAsync(IPdfDocumentSession s, int page, PdfPoint a, PdfPoint b)
+    {
+        _ctx.Tools?.ActivateDefault();
+        var rect = PdfRect.FromPoints(a, b);
+        var bytes = s.Current.GetBytes();
+        var sources = await _ctx.Forms.GetBarcodeSourceNamesAsync(bytes);
+        var dlg = new BarcodeFieldDialog(_loc, new Forms.BarcodeOptions(), sources);
+        if (Ui.Show(Dialogs, dlg) != true) return;
+        var options = dlg.Result;
+        var existing = (await _ctx.Forms.GetFieldsAsync(bytes)).Select(f => f.FullName).ToHashSet(StringComparer.Ordinal);
+        int n = 1;
+        while (existing.Contains("Barcode" + n)) n++;
+        var spec = new FormFieldSpec { Kind = FormFieldKind.Text, Name = "Barcode" + n, PageIndex = page, Rect = rect, Tooltip = _loc["Cmd.Form.BarcodeField"] };
+        if (await _ctx.RunAsync(s, "Annot.Undo.Barcode", (pdf, ct) => _ctx.Forms.CreateBarcodeFieldAsync(pdf, spec, options, ct),
+                DocumentChangeKind.FormFields | DocumentChangeKind.Annotations, DocumentPermissions.ModifyContent, new[] { page }))
+            _ctx.Selection = new SelectedItem(s, null, spec.Name, page, rect);
     }
 
     private void RegisterScripts()
