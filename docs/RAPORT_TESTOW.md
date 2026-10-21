@@ -8,7 +8,28 @@
   czytnikami (PdfPig, PDFium przez `PdfiumRenderer`, PDFsharp – słowniki, zdekodowane strumienie). Kod produkcyjny
   nie był zmieniany. Testy czerwone z powodu błędów w kodzie zostały czerwone.
 
-## 1. Wyniki
+## 0. Wynik końcowy (recenzent końcowy, 2026-10-21)
+
+`dotnet build ZetPDF.sln -c Release --no-incremental`: **0 błędów, 0 ostrzeżeń**. `dotnet test ZetPDF.sln -c Release --no-build` uruchomiony **3 razy z rzędu** – za każdym razem identyczny wynik:
+
+| Projekt | Łącznie | Zaliczone | Niezaliczone | Pominięte |
+|---|---:|---:|---:|---:|
+| ZetPDF.Core.Tests | 34 | 34 | 0 | 0 |
+| ZetPDF.Viewer.Tests | 54 | 54 | 0 | 0 |
+| ZetPDF.Pages.Tests | 33 | 33 | 0 | 0 |
+| ZetPDF.Annotations.Tests | 50 | 50 | 0 | 0 |
+| ZetPDF.Editing.Tests | 45 | 45 | 0 | 0 |
+| ZetPDF.Security.Tests | 31 | 31 | 0 | 0 |
+| ZetPDF.App.Tests | 82 | 82 | 0 | 0 |
+| ZetPDF.IntegrationTests | 266 | 266 | 0 | 0 |
+| **Razem** | **595** | **595** | **0** | **0** |
+
+Zmiany recenzenta w testach (szczegóły: `docs\RAPORT_KONTROLI.md`):
+- B-1 i B-2 (czerwone w raporcie poniżej) naprawione przed kontrolą (commit 4b4b8e3) – testy zielone.
+- Testy schowka (`Copy_selected_text_with_polish_characters_to_clipboard`, `Snapshot_tool_copies_selected_area_to_clipboard_at_high_resolution`) przeniesione z `EdgeCaseTests` do nowej klasy `ClipboardTests` w `SequentialCollection` (przegląd wszystkich poleceń wstążki w `RibbonCommandTests` wykonuje m.in. „Ze schowka” równolegle). Asercje bez zmian. Przyczyna wcześniejszej „niestabilności”: przy **zablokowanej sesji Windows** `OpenClipboard` zwraca `CLIPBRD_E_CANT_OPEN` przez cały czas (sprawdzone: obecny proces `LogonUI`, także `Clipboard.Clear()` z PowerShella zawodzi). Atrybut `[ClipboardFact]` w takiej sytuacji jawnie POMIJA test z podaniem przyczyny (zamiast fałszywego zaliczenia); przy dostępnym schowku test działa normalnie i ponawia operacje przy chwilowej blokadzie schowka. W 3 przebiegach końcowych (sesja odblokowana) oba testy wykonały się i przeszły; w przebiegu przy zablokowanej sesji były 2 pominięte.
+- Nowe: `OwnerOnlyProtectionTests` (7 – D-23 i D-22), `LocalizedErrorTests` (7 – O-3).
+
+## 1. Wyniki (raport testera z 2026-10-17)
 
 | Projekt | Łącznie | Zaliczone | Niezaliczone | Pominięte |
 |---|---:|---:|---:|---:|
