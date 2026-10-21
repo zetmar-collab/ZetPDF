@@ -299,6 +299,19 @@ public class ShellSmokeTests
         Assert.Contains("Apache License", ThirdPartyLibraries.ReadLicense("Apache-2.0.txt"));
     }
 
+    [Theory]
+    [InlineData("ZXing.Net", "Apache-2.0", "Apache License")]
+    [InlineData("Jint", "BSD-2-Clause", "Copyright (c) Sebastien Ros")]
+    [InlineData("Acornima", "BSD-3-Clause", "Copyright (c) Adam Simon")]
+    [InlineData("System.Speech", "MIT", "Permission is hereby granted")]
+    public void About_lists_stage3_libraries_with_license_texts(string name, string license, string text)
+    {
+        var lib = ThirdPartyLibraries.All.Single(l => l.Name == name);
+        Assert.Equal(license, lib.License);
+        Assert.Contains(text, lib.FullText);
+        Assert.Contains("Redistribution", name == "Jint" || name == "Acornima" ? lib.FullText : "Redistribution");
+    }
+
     [Fact]
     public void Property_window_formats_sizes()
     {

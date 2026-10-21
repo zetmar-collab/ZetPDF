@@ -21,6 +21,12 @@ Tesseract .NET wrapper (Charles Weld)       5.2.0        Apache-2.0        Apach
 Tesseract OCR engine                        5.x          Apache-2.0        Apache-2.0.txt
 Leptonica                                   1.82         BSD-2-Clause      BSD-2-Clause.txt
 tessdata_fast pol, eng                      main         Apache-2.0        tessdata-LICENSE.txt
+ZXing.Net (Michael Jahn)                    0.16.11      Apache-2.0        Apache-2.0.txt
+Jint (Sebastien Ros)                        4.16.4       BSD-2-Clause      Jint-LICENSE.txt
+Acornima (Adam Simon)                       1.7.0        BSD-3-Clause      Acornima-LICENSE.txt
+  + acorn (Marijn Haverbeke and contributors)            MIT               notice in Acornima-LICENSE.txt
+  + Esprima .NET (Sebastien Ros)                         BSD-3-Clause      notice in Acornima-LICENSE.txt
+System.Speech (Microsoft)                   8.0.0        MIT               MIT.txt
 Fluent.Ribbon                               11.0.2       MIT               Fluent.Ribbon-License.txt
 ControlzEx                                  7.0.3        MIT               MIT.txt
 Microsoft.Xaml.Behaviors.Wpf                1.1.135      MIT               MIT.txt
@@ -32,6 +38,9 @@ System.Text.Json, System.IO.Packaging,      8.0.x/4.7.0  MIT               MIT.t
 System.Reflection.Emit
 DocumentFormat.OpenXml (+ Framework)        3.5.1        MIT               MIT.txt
 .NET 8 runtime and WPF                      8.0.x        MIT               MIT.txt
+
+Copyright lines of Jint and Acornima follow the package metadata (.nuspec); before commercial distribution compare
+them with the LICENSE files of the GitHub repositories (exact years) – the packages do not contain these files.
 
 (*) The full license texts of FreeType (FTL), IJG, libpng-2.0 and Unicode/ICU are NOT included in this test build.
     Before commercial distribution add the LICENSE file of https://github.com/bblanchon/pdfium-binaries

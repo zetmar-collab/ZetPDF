@@ -1,6 +1,6 @@
 # Licencje bibliotek ZetPDF
 
-Stan: 17.10.2026, recenzent końcowy. Źródło listy: `dotnet list <projekt> package --include-transitive` dla **wszystkich projektów `src\`** (sumarycznie) i osobno dla projektów `tests\`. Licencje odczytane z plików `.nuspec` pakietów w `%USERPROFILE%\.nuget\packages` (element `<license>`), dla Fluent.Ribbon – z pliku `license/License.txt` w pakiecie.
+Stan: 17.10.2026, recenzent końcowy; uzupełnienie etapu 3: 21.10.2026 (ZXing.Net, Jint, Acornima, System.Speech – porównane z `dotnet list package --include-transitive`, okno O programie i `dist\LICENSES`). Źródło listy: `dotnet list <projekt> package --include-transitive` dla **wszystkich projektów `src\`** (sumarycznie) i osobno dla projektów `tests\`. Licencje odczytane z plików `.nuspec` pakietów w `%USERPROFILE%\.nuget\packages` (element `<license>`), dla Fluent.Ribbon – z pliku `license/License.txt` w pakiecie.
 
 **Wynik kontroli:** wszystkie biblioteki dołączane do programu mają licencje permisywne (MIT, Apache-2.0, BSD, zlib/libpng, FTL, IJG, Unicode) pozwalające na użycie komercyjne w programie o zamkniętym kodzie, pod warunkiem dołączenia informacji o prawach autorskich i tekstów licencji. **Brak AGPL/GPL/LGPL.** PDFsharp jest przypięty do **6.2.4 (MIT)** – wersja 6.5.0 ma licencję AGPL-3.0-only i jest zakazana (DECYZJE D-01, `$(PdfSharpVersion)` w `Directory.Build.props`).
 
@@ -35,7 +35,7 @@ Stan: 17.10.2026, recenzent końcowy. Źródło listy: `dotnet list <projekt> pa
 | .NET 8 runtime + WPF (self-contained w exe) | 8.0.x | MIT | dist | |
 | Czcionki Windows (Arial, Segoe UI) | – | licencja systemu | podzbiory osadzane w tworzonych PDF (prawo osadzania TrueType) | ikony: Segoe Fluent Icons / MDL2 z systemu – NIE dołączane |
 
-Pakiety z wcześniejszej listy, które **nie są używane** (nie występują w `dotnet list package` żadnego projektu): ZXing.Net 0.16.11 (etap 3), DiffPlex 1.9.0 (porównanie ma własną implementację Myersa), BouncyCastle.Cryptography (usunięty po scaleniu). Nie trafiają do programu.
+Pakiety z wcześniejszej listy, które **nie są używane** (nie występują w `dotnet list package` żadnego projektu): DiffPlex 1.9.0 (porównanie ma własną implementację Myersa), BouncyCastle.Cryptography (usunięty po scaleniu). Nie trafiają do programu.
 
 ## 2. Biblioteki tylko testów (projekty `tests\`, NIE trafiają do `ZetPDF.exe`)
 
@@ -57,8 +57,10 @@ Do niezależnej weryfikacji plików wynikowych (szyfrowanie AES-256, redakcja, o
 
 ## 4. Teksty licencji w `dist\LICENSES\` – stan
 
-Dołączone pliki: `MIT.txt`, `Apache-2.0.txt`, `BSD-2-Clause.txt`, `BSD-3-Clause.txt` (z `src\ZetPDF.App\Licenses\`), `PDFium-ThirdParty.txt` (noty o prawach autorskich komponentów PDFium), `zlib.txt` (tekst licencji zlib), `Fluent.Ribbon-License.txt` (z pakietu), `tessdata-LICENSE.txt` (Apache-2.0, z `src\ZetPDF.Ocr\tessdata\LICENSE`), `THIRD-PARTY-NOTICES.txt` (lista z sekcji 1).
+Dołączone pliki: `MIT.txt`, `Apache-2.0.txt`, `BSD-2-Clause.txt`, `BSD-3-Clause.txt` (z `src\ZetPDF.App\Licenses\`), `PDFium-ThirdParty.txt` (noty o prawach autorskich komponentów PDFium), `zlib.txt` (tekst licencji zlib), `Fluent.Ribbon-License.txt` (z pakietu), `tessdata-LICENSE.txt` (Apache-2.0, z `src\ZetPDF.Ocr\tessdata\LICENSE`), `Jint-LICENSE.txt` (BSD-2, posiadacz praw Sebastien Ros), `Acornima-LICENSE.txt` (BSD-3, Adam Simon, z notą o kodzie acorn – MIT i Esprima .NET – BSD-3), `THIRD-PARTY-NOTICES.txt` (lista z sekcji 1).
 
 **Brakuje pełnych tekstów** licencji FreeType (FTL), IJG/libjpeg-turbo, libpng-2.0 i Unicode/ICU. Pakiet bblanchon.PDFium ich nie zawiera, a recenzent nie pobierał plików z sieci (brak zgody na pobieranie w tej sesji). Przed dystrybucją komercyjną należy dołączyć plik `LICENSE` z repozytorium https://github.com/bblanchon/pdfium-binaries (wersja odpowiadająca 157.0.8100). Noty wymagane w dokumentacji (FTL – „Portions of this software are copyright © The FreeType Project”, IJG – „based in part on the work of the Independent JPEG Group”, AGG) są w `PDFium-ThirdParty.txt` i w oknie O programie > Licencje bibliotek.
 
 Zakazane: AGPL/GPL (iText 7, MuPDF, Ghostscript, **PDFsharp ≥ 6.5**), LGPL z linkowaniem statycznym. Nowy pakiet: sprawdzić `.nuspec` (`<license>`) i dopisać tutaj.
+
+Uwaga (etap 3): pakiety Jint i Acornima nie zawierają plików LICENSE; linie praw autorskich wpisano z metadanych `.nuspec` (`<copyright>`), bez lat. Przed dystrybucją komercyjną porównać z plikami LICENSE repozytoriów GitHub (w tej kontroli nie pobierano plików z sieci). ZXing.Net (Apache-2.0) i System.Speech (MIT, .NET Foundation) – teksty `Apache-2.0.txt` i `MIT.txt`.

@@ -57,8 +57,32 @@ internal static class DiagnosticScreenshots
             dlg.Close();
         }
 
-        var samples = new List<IPdfDocumentSession>();
         var docs = sp.GetRequiredService<IDocumentManager>();
+        var registry = sp.GetRequiredService<ICommandRegistry>();
+        async Task Stage3Async(string tag)
+        {
+            var ribbon = window.Ribbon;
+            var tab = ribbon.Tabs.FirstOrDefault(t => Equals(t.Header, loc["Ribbon.Tab.Accessibility"]));
+            if (tab is not null) ribbon.SelectedTabIndex = ribbon.Tabs.IndexOf(tab);
+            if (docs.ActiveDocument is not null)
+            {
+                registry.TryExecute(ZetPDF.Core.Commands.CommandIds.Access.FullCheck);
+                await Task.Delay(1500);
+            }
+            await Shot(window, "tab-accessibility-" + tag);
+            registry.TryExecute(ZetPDF.Core.Commands.CommandIds.Index.Search);
+            await Shot(window, "panel-advanced-search-" + tag);
+            if (docs.ActiveDocument is not null && registry.TryExecute(ZetPDF.Core.Commands.CommandIds.Read.Activate))
+            {
+                await Settle();
+                await Task.Delay(500);
+                foreach (Window w in Application.Current.Windows)
+                    if (w.GetType().Name == "ReadAloudPanel" && w.IsVisible) await Shot(w, "read-aloud-panel-" + tag);
+                registry.TryExecute(ZetPDF.Core.Commands.CommandIds.Read.Activate);
+            }
+        }
+
+        var samples = new List<IPdfDocumentSession>();
         try
         {
             // Pliki z linii poleceń (np. przykładowy PDF z polską ścieżką) – otwierane przez te same akcje co zwykle.
@@ -106,6 +130,8 @@ internal static class DiagnosticScreenshots
                     ribbon.SelectedTabIndex = i;
                     await Shot(window, $"tab{i}-{tag}");
                 }
+                // etap 3: karta Ułatwienia dostępu z panelem wyników, panel wyszukiwania zaawansowanego, panel czytania
+                await Stage3Async(tag);
                 ribbon.SelectedTabIndex = 0;
             }
         }
