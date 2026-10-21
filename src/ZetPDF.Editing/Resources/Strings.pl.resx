@@ -312,7 +312,6 @@ Tak – z podfolderami, Nie – tylko ten folder.</value></data>
   <data name="Edit.Search.Skipped" xml:space="preserve"><value>Pominięto (chronione hasłem, nieczytelne lub bez prawa kopiowania): {0}.</value></data>
   <data name="Edit.Search.HitHeader" xml:space="preserve"><value>{0} – strona {1}</value></data>
   <data name="Edit.Search.Export" xml:space="preserve"><value>Eksportuj CSV…</value></data>
-  <data name="Edit.Search.Close" xml:space="preserve"><value>Zamknij</value></data>
   <data name="Edit.Search.ExportTitle" xml:space="preserve"><value>Eksport wyników wyszukiwania</value></data>
   <data name="Edit.Search.ExportFileName" xml:space="preserve"><value>wyniki wyszukiwania</value></data>
   <data name="Edit.Search.Column.File" xml:space="preserve"><value>Plik</value></data>

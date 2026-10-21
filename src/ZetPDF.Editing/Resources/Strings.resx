@@ -312,7 +312,6 @@ Yes – with subfolders, No – this folder only.</value></data>
   <data name="Edit.Search.Skipped" xml:space="preserve"><value>Skipped (password-protected, unreadable or without copy permission): {0}.</value></data>
   <data name="Edit.Search.HitHeader" xml:space="preserve"><value>{0} – page {1}</value></data>
   <data name="Edit.Search.Export" xml:space="preserve"><value>Export CSV…</value></data>
-  <data name="Edit.Search.Close" xml:space="preserve"><value>Close</value></data>
   <data name="Edit.Search.ExportTitle" xml:space="preserve"><value>Export Search Results</value></data>
   <data name="Edit.Search.ExportFileName" xml:space="preserve"><value>search results</value></data>
   <data name="Edit.Search.Column.File" xml:space="preserve"><value>File</value></data>

@@ -250,7 +250,7 @@ internal sealed class ViewerCommands
         Cmd(CommandIds.Read.CurrentPage, v => _ = ReadSafe(read, v, false));
         Cmd(CommandIds.Read.FromPage, v => _ = ReadSafe(read, v, true));
         _registry.Register(CommandIds.Read.Pause, new RelayCommandLite(read.TogglePause, () => read.State != ReadAloudState.Stopped));
-        _registry.Register(CommandIds.Read.Stop, new RelayCommandLite(read.Stop, () => read.State != ReadAloudState.Stopped));
+        _registry.Register(CommandIds.Read.Stop, new RelayCommandLite(read.Stop, () => read.IsActive || read.State != ReadAloudState.Stopped));
         read.StateChanged += (_, _) =>
         {
             activate.RaiseIsCheckedChanged();

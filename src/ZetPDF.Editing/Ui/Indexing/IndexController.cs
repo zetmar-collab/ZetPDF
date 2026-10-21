@@ -20,7 +20,9 @@ internal sealed class IndexController
     private readonly EditingContext _ctx;
     private readonly Dictionary<string, IPdfDocumentSession> _sessionSources = new(StringComparer.Ordinal);
     private readonly ConditionalWeakTable<IDocumentView, SearchHighlightOverlay> _overlays = new();
-    private AdvancedSearchWindow? _window;
+    public const string PanelId = "Panel.AdvancedSearch";
+    private AdvancedSearchPanel? _window;
+    private string? _pendingQuery;
 
     public IndexController(EditingContext ctx, FullTextIndex index)
     {
@@ -31,8 +33,15 @@ internal sealed class IndexController
     public FullTextIndex Index { get; }
     private ILocalizationService L => _ctx.Loc;
 
-    public void Register(ICommandRegistry registry)
+    public void Register(ICommandRegistry? registry, IPanelRegistry? panels)
     {
+        panels?.Register(new PanelDescriptor(PanelId, "Edit.Search.Title", "", 70, _ =>
+        {
+            _window = new AdvancedSearchPanel(_ctx.Loc, this);
+            _window.FocusQuery(_pendingQuery);
+            return _window;
+        }));
+        if (registry is null) return;
         registry.Register(CommandIds.Index.BuildFolder, new AsyncCommand(() => BuildFolderAsync(), _ctx));
         registry.Register(CommandIds.Index.Search, new AsyncCommand(() => { ShowSearch(); return Task.CompletedTask; }, _ctx));
     }
@@ -65,15 +74,9 @@ internal sealed class IndexController
     public void ShowSearch()
     {
         var initial = _ctx.View?.TextSelection?.Text?.Trim();
-        if (_window is null)
-        {
-            _window = new AdvancedSearchWindow(_ctx.Loc, this);
-            if (_ctx.Shell?.MainWindow is { IsLoaded: true } owner) _window.Owner = owner;
-            _window.Closed += (_, _) => _window = null;
-            _window.Show();
-        }
-        else _window.Activate();
-        _window.FocusQuery(string.IsNullOrEmpty(initial) || initial.Length > 200 ? null : initial);
+        _pendingQuery = string.IsNullOrEmpty(initial) || initial.Length > 200 ? null : initial;
+        _ctx.Shell?.ShowPanel(PanelId);
+        _window?.FocusQuery(_pendingQuery);
     }
 
     public bool HasActiveDocument => _ctx.Documents.ActiveDocument is not null;

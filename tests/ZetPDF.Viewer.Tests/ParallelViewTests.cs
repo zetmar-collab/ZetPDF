@@ -94,4 +94,20 @@ public class ParallelViewTests
         v1.Dispose();
         v2.Dispose();
     });
+    [Fact]
+    public void Parallel_dialog_and_read_aloud_panel_build() => Sta.Run(async () =>
+    {
+        var factory = new FakeSpeechFactory();
+        using var host = new ViewerHost(s => s.AddSingleton<ReadAloud.ISpeechEngineFactory>(factory));
+        var (s1, v1) = await host.OpenAsync(SamplePdfFactory.Text(2), "a.pdf");
+        var loc = host.Services.GetRequiredService<ILocalizationService>();
+        var dlg = new Dialogs.ParallelViewDialog(loc, new[] { s1 });
+        Assert.Same(s1, dlg.Selected);
+        Assert.Equal(Orientation.Horizontal, dlg.Orientation);
+        dlg.Close();
+        var panel = new ReadAloud.ReadAloudPanel(host.Services.GetRequiredService<ReadAloud.ReadAloudService>(), loc, host.Services.GetRequiredService<ICommandRegistry>());
+        Assert.NotNull(panel.Content);
+        panel.Close();
+        v1.Dispose();
+    });
 }

@@ -10,10 +10,10 @@ using ZetPDF.Editing.Indexing;
 namespace ZetPDF.Editing.Ui.Indexing;
 
 /// <summary>
-/// Okno wyszukiwania zaawansowanego (Ctrl+Shift+F, niemodalne): bieżący dokument, otwarte dokumenty lub indeks folderu;
+/// Panel wyszukiwania zaawansowanego (Ctrl+Shift+F; panel boczny – niemodalny, bez osobnego okna): bieżący dokument, otwarte dokumenty lub indeks folderu;
 /// wyniki z kontekstem i numerem strony; dwuklik/Enter przechodzi do trafienia; eksport do CSV.
 /// </summary>
-internal sealed class AdvancedSearchWindow : Window
+internal sealed class AdvancedSearchPanel : UserControl
 {
     private const int MaxHits = 2000;
     private readonly ILocalizationService _loc;
@@ -34,18 +34,11 @@ internal sealed class AdvancedSearchWindow : Window
     private TextSearchOptionsEx _lastOptions = new();
     private CancellationTokenSource? _cts;
 
-    public AdvancedSearchWindow(ILocalizationService loc, IndexController controller)
+    public AdvancedSearchPanel(ILocalizationService loc, IndexController controller)
     {
         _loc = loc;
         _controller = controller;
-        this.Loc(TitleProperty, loc, "Edit.Search.Title");
-        Width = 720;
-        Height = 560;
-        MinWidth = 480;
-        MinHeight = 360;
-        ShowInTaskbar = false;
-        WindowStartupLocation = WindowStartupLocation.CenterOwner;
-        this.Themed(BackgroundProperty, ThemeKeys.SurfaceRaised).Themed(ForegroundProperty, ThemeKeys.TextPrimary);
+        this.Themed(BackgroundProperty, ThemeKeys.Surface).Themed(ForegroundProperty, ThemeKeys.TextPrimary);
 
         _query = Ui.Box();
         System.Windows.Automation.AutomationProperties.SetName(_query, loc["Edit.Search.Query"]);
@@ -67,11 +60,13 @@ internal sealed class AdvancedSearchWindow : Window
             catch (Exception ex) when (ex is not OutOfMemoryException) { _controller.ShowError(ex); }
         });
         build.Margin = new Thickness(0, 3, 0, 3);
-        var folderRow = new StackPanel { Orientation = Orientation.Horizontal };
+        _indexes.HorizontalAlignment = HorizontalAlignment.Stretch;
+        _indexes.MinWidth = 0;
+        var folderRow = new StackPanel();
         folderRow.Children.Add(_folder);
         folderRow.Children.Add(_indexes);
         folderRow.Children.Add(build);
-        var scope = new StackPanel { Orientation = Orientation.Horizontal };
+        var scope = new StackPanel();
         scope.Children.Add(_current);
         scope.Children.Add(_open);
 
@@ -99,14 +94,11 @@ internal sealed class AdvancedSearchWindow : Window
             catch (Exception ex) when (ex is not OutOfMemoryException) { _controller.ShowError(ex); }
         });
         _export.IsEnabled = false;
-        var close = Ui.Button(loc, "Edit.Search.Close", (_, _) => Close(), isCancel: true);
-        var bottom = new DockPanel();
-        var buttons = new StackPanel { Orientation = Orientation.Horizontal };
-        buttons.Children.Add(_export);
-        buttons.Children.Add(close);
-        DockPanel.SetDock(buttons, Dock.Right);
-        bottom.Children.Add(buttons);
+        _export.Margin = new Thickness(0, 4, 0, 0);
+        _export.HorizontalAlignment = HorizontalAlignment.Left;
+        var bottom = new StackPanel();
         bottom.Children.Add(_status);
+        bottom.Children.Add(_export);
 
         var top = new StackPanel();
         top.Children.Add(Ui.Label(loc, "Edit.Search.Query"));
@@ -115,7 +107,7 @@ internal sealed class AdvancedSearchWindow : Window
         top.Children.Add(scope);
         top.Children.Add(folderRow);
         top.Children.Add(options);
-        var root = new DockPanel { Margin = new Thickness(12), LastChildFill = true };
+        var root = new DockPanel { Margin = new Thickness(8), LastChildFill = true };
         DockPanel.SetDock(top, Dock.Top);
         DockPanel.SetDock(bottom, Dock.Bottom);
         root.Children.Add(top);
@@ -124,7 +116,7 @@ internal sealed class AdvancedSearchWindow : Window
         Content = root;
 
         RefreshIndexes(null);
-        Closed += (_, _) => _cts?.Cancel();
+        Unloaded += (_, _) => _cts?.Cancel();
     }
 
     public void FocusQuery(string? text)

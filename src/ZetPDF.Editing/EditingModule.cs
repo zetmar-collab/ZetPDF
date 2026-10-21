@@ -41,6 +41,6 @@ public sealed class EditingModule : IFeatureModule
         // etap 3: ułatwienia dostępu
         AccessibilityCommands.Register(ctx, registry, services.GetService<IPanelRegistry>());
         // etap 3: indeks pełnotekstowy i wyszukiwanie zaawansowane
-        if (registry is not null) new IndexController(ctx, services.GetRequiredService<FullTextIndex>()).Register(registry);
+        new IndexController(ctx, services.GetRequiredService<FullTextIndex>()).Register(registry, services.GetService<IPanelRegistry>());
     }
 }

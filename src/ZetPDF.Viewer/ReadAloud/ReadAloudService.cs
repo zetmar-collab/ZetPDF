@@ -8,7 +8,7 @@ namespace ZetPDF.Viewer.ReadAloud;
 
 public enum ReadAloudState { Stopped, Speaking, Paused }
 
-/// <summary>Ustawienia czytania (sekcja "Viewer.ReadAloud" w settings.json).</summary>
+/// <summary>Ustawienia czytania (sekcja "ReadAloud" w settings.json).</summary>
 public sealed class ReadAloudSettings
 {
     public int Rate { get; set; }
@@ -24,7 +24,7 @@ public sealed class ReadAloudSettings
 /// </summary>
 public sealed class ReadAloudService : IDisposable
 {
-    public const string SettingsKey = "Viewer.ReadAloud";
+    public const string SettingsKey = "ReadAloud";
 
     private readonly IServiceProvider _services;
     private readonly IDocumentManager _documents;
