@@ -96,7 +96,8 @@ internal static class FormDataIO
 
     private static byte[] Csv(List<(string Name, string Value, FormFieldKind Kind)> data)
     {
-        static string Q(string s) => s.IndexOfAny(new[] { ',', '"', '\n', '\r', ';' }) >= 0 ? "\"" + s.Replace("\"", "\"\"") + "\"" : s;
+        // nazwy i wartości pól pochodzą z dokumentu – neutralizacja formuł (CsvText), import cofa ją (CsvText.Restore)
+        static string Q(string s) => CsvText.Cell(s, ',');
         var sb = new StringBuilder();
         sb.Append(string.Join(",", data.Select(d => Q(d.Name)))).Append("\r\n");
         sb.Append(string.Join(",", data.Select(d => Q(d.Value)))).Append("\r\n");
@@ -170,7 +171,7 @@ internal static class FormDataIO
         var result = new Dictionary<string, string>(StringComparer.Ordinal);
         if (rows.Count < 2) return result;
         for (int i = 0; i < rows[0].Count; i++)
-            if (rows[0][i].Length > 0) result[rows[0][i]] = i < rows[1].Count ? rows[1][i] : string.Empty;
+            if (rows[0][i].Length > 0) result[CsvText.Restore(rows[0][i])] = i < rows[1].Count ? CsvText.Restore(rows[1][i]) : string.Empty;
         return result;
     }
 

@@ -133,20 +133,19 @@ public sealed class MeasureService
     public byte[] ExportCsv(IReadOnlyList<MeasurementInfo> items)
     {
         var c = Culture;
-        string Esc(string s) => s.IndexOfAny(new[] { ';', '"', '\n', '\r' }) >= 0 ? "\"" + s.Replace("\"", "\"\"") + "\"" : s;
+        string T(string s) => CsvText.Cell(s, ';');               // tekst (z dokumentu / zasobów) – neutralizowany
+        string N(string s) => CsvText.Cell(s, ';', neutralize: false); // liczby generowane przez program
         var sb = new StringBuilder();
-        sb.AppendLine(string.Join(";", new[] { "Page", "Type", "Value", "Unit", "Author", "Date", "Scale" }.Select(h => Esc(_annotations.TextsGet("Annot.Measure.Csv." + h)))));
+        sb.AppendLine(string.Join(";", new[] { "Page", "Type", "Value", "Unit", "Author", "Date", "Scale" }.Select(h => T(_annotations.TextsGet("Annot.Measure.Csv." + h)))));
         foreach (var m in items.OrderBy(m => m.Id.PageIndex))
-            sb.AppendLine(string.Join(";", new[]
-            {
-                (m.Id.PageIndex + 1).ToString(c),
-                _annotations.TextsGet("Annot.Measure.Kind." + m.Type),
-                m.Value.ToString("0.######", c),
-                m.Unit,
-                m.Author,
-                m.Created?.LocalDateTime.ToString("g", c) ?? string.Empty,
-                m.Ratio,
-            }.Select(Esc)));
+            sb.AppendLine(string.Join(";",
+                N((m.Id.PageIndex + 1).ToString(c)),
+                T(_annotations.TextsGet("Annot.Measure.Kind." + m.Type)),
+                N(m.Value.ToString("0.######", c)),
+                T(m.Unit),
+                T(m.Author),
+                N(m.Created?.LocalDateTime.ToString("g", c) ?? string.Empty),
+                T(m.Ratio)));
         return Encoding.UTF8.GetPreamble().Concat(Encoding.UTF8.GetBytes(sb.ToString())).ToArray();
     }
 }
