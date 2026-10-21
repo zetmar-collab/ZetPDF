@@ -19,7 +19,7 @@ internal sealed class AnnotationTexts : IAnnotationTexts
         _settings = settings;
     }
 
-    private CultureInfo Culture => _loc?.CurrentCulture ?? CultureInfo.CurrentUICulture;
+    internal CultureInfo Culture => _loc?.CurrentCulture ?? CultureInfo.CurrentUICulture;
 
     public string DefaultAuthor
     {

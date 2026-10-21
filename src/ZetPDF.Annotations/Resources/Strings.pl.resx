@@ -189,4 +189,34 @@
   <data name="Annot.Error.FieldNotFound" xml:space="preserve"><value>Pole „{0}” nie istnieje w formularzu.</value></data>
   <data name="Annot.Error.Geometry" xml:space="preserve"><value>Za mało punktów albo pusty obszar, aby utworzyć komentarz.</value></data>
   <data name="Annot.Error.KindNotSupported" xml:space="preserve"><value>Ten rodzaj komentarza nie jest obsługiwany ({0}).</value></data>
+  <data name="Annot.Measure.Kind.Distance" xml:space="preserve"><value>Odległość</value></data>
+  <data name="Annot.Measure.Kind.Perimeter" xml:space="preserve"><value>Obwód</value></data>
+  <data name="Annot.Measure.Kind.Area" xml:space="preserve"><value>Pole powierzchni</value></data>
+  <data name="Annot.Measure.Csv.Page" xml:space="preserve"><value>Strona</value></data>
+  <data name="Annot.Measure.Csv.Type" xml:space="preserve"><value>Typ</value></data>
+  <data name="Annot.Measure.Csv.Value" xml:space="preserve"><value>Wartość</value></data>
+  <data name="Annot.Measure.Csv.Unit" xml:space="preserve"><value>Jednostka</value></data>
+  <data name="Annot.Measure.Csv.Author" xml:space="preserve"><value>Autor</value></data>
+  <data name="Annot.Measure.Csv.Date" xml:space="preserve"><value>Data</value></data>
+  <data name="Annot.Measure.Csv.Scale" xml:space="preserve"><value>Skala</value></data>
+  <data name="Annot.Measure.Scale.Title" xml:space="preserve"><value>Skala i kalibracja</value></data>
+  <data name="Annot.Measure.Scale.Info" xml:space="preserve"><value>Odległość na stronie = odległość w rzeczywistości:</value></data>
+  <data name="Annot.Measure.Scale.PageValue" xml:space="preserve"><value>Długość na stronie</value></data>
+  <data name="Annot.Measure.Scale.PageUnit" xml:space="preserve"><value>Jednostka na stronie</value></data>
+  <data name="Annot.Measure.Scale.RealValue" xml:space="preserve"><value>Długość w rzeczywistości</value></data>
+  <data name="Annot.Measure.Scale.RealUnit" xml:space="preserve"><value>Jednostka rzeczywista</value></data>
+  <data name="Annot.Measure.Scale.Decimals" xml:space="preserve"><value>Miejsca po przecinku:</value></data>
+  <data name="Annot.Measure.Scale.CurrentPage" xml:space="preserve"><value>Bieżąca strona ({0})</value></data>
+  <data name="Annot.Measure.Scale.AllPages" xml:space="preserve"><value>Wszystkie strony ({0})</value></data>
+  <data name="Annot.Measure.Scale.UpdateExisting" xml:space="preserve"><value>Przelicz istniejące pomiary na tych stronach</value></data>
+  <data name="Annot.Measure.Scale.Calibrate" xml:space="preserve"><value>Kalibruj…</value></data>
+  <data name="Annot.Measure.Scale.Done" xml:space="preserve"><value>Ustawiono skalę: {0}</value></data>
+  <data name="Annot.Measure.Calibrate.Title" xml:space="preserve"><value>Kalibracja</value></data>
+  <data name="Annot.Measure.Calibrate.Hint" xml:space="preserve"><value>Kalibracja: przeciągnij wzdłuż odcinka o znanej długości.</value></data>
+  <data name="Annot.Measure.Calibrate.Info" xml:space="preserve"><value>Zmierzony odcinek ma na stronie {0} cm. Wpisz jego rzeczywistą długość.</value></data>
+  <data name="Annot.Measure.Calibrate.RealLength" xml:space="preserve"><value>Rzeczywista długość:</value></data>
+  <data name="Annot.Measure.Error.Scale" xml:space="preserve"><value>Wpisz liczby dodatnie i wybierz jednostki.</value></data>
+  <data name="Annot.Measure.Export.None" xml:space="preserve"><value>Dokument nie zawiera pomiarów.</value></data>
+  <data name="Annot.Undo.Measure" xml:space="preserve"><value>Pomiar</value></data>
+  <data name="Annot.Undo.MeasureScale" xml:space="preserve"><value>Skala pomiarów</value></data>
 </root>

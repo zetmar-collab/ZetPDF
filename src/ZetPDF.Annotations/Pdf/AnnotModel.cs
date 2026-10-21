@@ -56,6 +56,7 @@ internal sealed partial class AnnotModel
                     _ => AnnotationKind.FreeText,
                 };
             case "/Line":
+                if (NameOf(d, "/IT") == "/LineDimension") return AnnotationKind.Line;
                 var le = ArrayOf(d, "/LE");
                 return le is { Elements.Count: 2 } && TextOf(le.Elements[1]) is { } end && end != "None" ? AnnotationKind.Arrow : AnnotationKind.Line;
             case "/Square": return AnnotationKind.Square;

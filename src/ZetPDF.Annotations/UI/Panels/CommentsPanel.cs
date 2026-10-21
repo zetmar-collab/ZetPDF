@@ -24,6 +24,7 @@ internal sealed class CommentsPanel : UserControl
     private readonly Grid _detailPanel;
     private IPdfDocumentSession? _session;
     private IReadOnlyList<AnnotationInfo> _all = Array.Empty<AnnotationInfo>();
+    private Dictionary<AnnotationId, Measure.MeasurementInfo> _measures = new();
     private int _refreshVersion;
     private bool _updatingFilters;
 
@@ -168,7 +169,14 @@ internal sealed class CommentsPanel : UserControl
             try { list = await _ctx.GetAnnotationsAsync(s); }
             catch (Exception ex) when (ex is not OutOfMemoryException) { list = Array.Empty<AnnotationInfo>(); }
         }
+        var measures = new Dictionary<AnnotationId, Measure.MeasurementInfo>();
+        if (s is not null && list.Any(a => a.Kind is AnnotationKind.Line or AnnotationKind.Polyline or AnnotationKind.Polygon))
+        {
+            try { foreach (var m in await _ctx.Measures.GetMeasurementsAsync(s.Current.GetBytes())) measures[m.Id] = m; }
+            catch (Exception ex) when (ex is not OutOfMemoryException) { }
+        }
         if (v != _refreshVersion) return;
+        _measures = measures;
         _all = list.Where(a => Pdf.AnnotModel.IsComment(a.Kind)).ToList();
         _updatingFilters = true;
         var selAuthor = (_author.SelectedItem as ComboBoxItem)?.Tag as string;
@@ -224,7 +232,8 @@ internal sealed class CommentsPanel : UserControl
         var panel = new StackPanel { Margin = new Thickness(0, 2, 0, 2) };
         var head = new TextBlock { FontWeight = FontWeights.SemiBold, TextTrimming = TextTrimming.CharacterEllipsis };
         var when = (a.Modified ?? a.Created)?.LocalDateTime.ToString("g", _loc.CurrentCulture) ?? string.Empty;
-        string kindText = a.InReplyTo is not null ? _loc["Annot.Kind.Reply"] : _loc["Annot.Kind." + a.Kind];
+        string kindText = a.InReplyTo is not null ? _loc["Annot.Kind.Reply"]
+            : _measures.TryGetValue(a.Id, out var measure) ? _loc["Annot.Measure.Kind." + measure.Type] : _loc["Annot.Kind." + a.Kind];
         head.Text = $"{kindText} · {a.Author}  {when}";
         head.SetResourceReference(TextBlock.ForegroundProperty, ThemeKeys.TextPrimary);
         panel.Children.Add(head);

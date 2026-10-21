@@ -27,6 +27,7 @@ internal sealed class AnnotContext
         Annotations = services.GetRequiredService<AnnotationService>();
         Forms = services.GetRequiredService<FormService>();
         Attachments = services.GetRequiredService<AttachmentService>();
+        Measures = services.GetRequiredService<MeasureService>();
     }
 
     public ILocalizationService Loc { get; }
@@ -34,6 +35,7 @@ internal sealed class AnnotContext
     public AnnotationService Annotations { get; }
     public FormService Forms { get; }
     public AttachmentService Attachments { get; }
+    public MeasureService Measures { get; }
     public IViewerService? Viewer => _services.GetService<IViewerService>();
     public IToolService? Tools => _services.GetService<IToolService>();
     public IDialogService? Dialogs => _services.GetService<IDialogService>();
@@ -106,6 +108,29 @@ internal sealed class AnnotContext
         if (System.Threading.SynchronizationContext.Current is not null)
             _ = GetWidgetsAsync(session).ContinueWith(_ => ActiveView?.InvalidateOverlays(), TaskScheduler.FromCurrentSynchronizationContext());
         return null;
+    }
+
+    // ------------------------------------------------------------------ skala pomiarów
+
+    private readonly Dictionary<(Guid, int), (long Version, Task<Measure.MeasureScale?> Task)> _scales = new();
+
+    public Task<Measure.MeasureScale?> GetScaleAsync(IPdfDocumentSession session, int page)
+    {
+        var snap = session.Current;
+        if (_scales.TryGetValue((session.Id, page), out var c) && c.Version == snap.Version && !c.Task.IsFaulted) return c.Task;
+        var task = Measures.GetScaleAsync(snap.GetBytes(), page);
+        _scales[(session.Id, page)] = (snap.Version, task);
+        return task;
+    }
+
+    /// <summary>Skala strony z pamięci (podgląd narzędzi); gdy nie wczytana – domyślna i wczytanie w tle.</summary>
+    public Measure.MeasureScale ScaleFor(IPdfDocumentSession session, int page)
+    {
+        if (_scales.TryGetValue((session.Id, page), out var c) && c.Version == session.Current.Version && c.Task.IsCompletedSuccessfully)
+            return c.Task.Result ?? Measure.MeasureScale.Default;
+        if (System.Threading.SynchronizationContext.Current is not null)
+            _ = GetScaleAsync(session, page).ContinueWith(_ => ActiveView?.InvalidateOverlays(), TaskScheduler.FromCurrentSynchronizationContext());
+        return Measure.MeasureScale.Default;
     }
 
     // ------------------------------------------------------------------ polecenia

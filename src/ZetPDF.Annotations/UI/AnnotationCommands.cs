@@ -10,7 +10,7 @@ using ZetPDF.Core.Contracts;
 namespace ZetPDF.Annotations.UI;
 
 /// <summary>Obsługa 48 poleceń wstążki modułu Annotations (komentarze, formularze, Wypełnij i podpisz, załączniki).</summary>
-internal sealed class AnnotationCommands
+internal sealed partial class AnnotationCommands
 {
     private readonly AnnotContext _ctx;
     private readonly ICommandRegistry _registry;
@@ -146,6 +146,10 @@ internal sealed class AnnotationCommands
             _ctx.Shell?.SetContextualTabVisible(ContextualTabIds.FillSign, false);
             _ctx.Tools?.ActivateDefault();
         }));
+
+        // ---------------------------------------------------------------- etap 3: pomiary, kalkulator, kod kreskowy, skrypty
+        RegisterMeasure();
+        RegisterStage3Forms();
 
         // ---------------------------------------------------------------- styl narzędzia (polecenie dodatkowe)
         try

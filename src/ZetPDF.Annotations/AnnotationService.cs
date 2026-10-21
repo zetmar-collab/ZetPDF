@@ -24,6 +24,11 @@ public sealed class AnnotationService : IAnnotationService
 
     internal IAnnotationTexts Texts => _texts;
 
+    /// <summary>Kultura tekstów „danych” (język interfejsu) – etykiety pomiarów, stemple.</summary>
+    internal System.Globalization.CultureInfo TextsCulture => _texts.Culture;
+
+    internal string TextsGet(string key) => _texts.Get(key);
+
     /// <summary>Zegar (testy mogą podmienić).</summary>
     internal Func<DateTimeOffset> Clock { get; set; } = () => DateTimeOffset.Now;
 
