@@ -205,6 +205,13 @@ public sealed class DialogService : IDialogService, IOwnerProtectionPrompts
         {
             return false;
         }
+        finally
+        {
+            // Okno niepokazane (krótka operacja) też jest oknem podrzędnym głównego – bez tego przy zamykaniu programu
+            // dostawało OnClosing, anulowało zwolniony CancellationTokenSource (ObjectDisposedException, okno błędu
+            // przy wyjściu, zawieszony proces) i blokowało zamknięcie.
+            window.CloseFromCode();
+        }
     }
 
     public bool? ShowDialog(Window dialog)

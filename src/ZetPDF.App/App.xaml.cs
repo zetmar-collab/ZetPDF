@@ -77,7 +77,15 @@ public partial class App : Application
         var diag = Array.FindIndex(e.Args, a => string.Equals(a, "--diag-screenshots", StringComparison.OrdinalIgnoreCase));
         if (diag >= 0 && diag + 1 < e.Args.Length)
         {
-            _ = Diagnostics.DiagnosticScreenshots.RunAsync(_services, window, e.Args[diag + 1]);
+            var rest = e.Args.Where((_, i) => i != diag && i != diag + 1).ToArray();
+            _ = Diagnostics.DiagnosticScreenshots.RunAsync(_services, window, e.Args[diag + 1], rest);
+            return;
+        }
+        var smoke = Array.FindIndex(e.Args, a => string.Equals(a, "--diag-smoke", StringComparison.OrdinalIgnoreCase));
+        if (smoke >= 0 && smoke + 1 < e.Args.Length)
+        {
+            var rest = e.Args.Where((_, i) => i != smoke && i != smoke + 1).ToArray();
+            _ = Diagnostics.DiagnosticSmokeTest.RunAsync(_services, window, e.Args[smoke + 1], rest);
             return;
         }
         _ = OpenFromCommandLineAsync(e.Args);

@@ -77,9 +77,11 @@ internal sealed class RibbonBuilder
             var tabItem = new RibbonTabItem();
             tabItem.SetBinding(RibbonTabItem.HeaderProperty, Loc.Bind(_loc, tab.TextKey));
             TabsById[tab.Id] = tabItem;
+            var groupNames = new List<string>();
             foreach (var group in tab.Groups)
             {
-                var box = new RibbonGroupBox();
+                var box = new RibbonGroupBox { Name = "g" + groupNames.Count };
+                groupNames.Add(box.Name);
                 box.SetBinding(HeaderedItemsControl.HeaderProperty, Loc.Bind(_loc, group.TextKey));
                 var descriptors = group.CommandIds.Select(id => _registry.GetDescriptor(id)).OfType<CommandDescriptor>()
                     .Concat(_registry.Extras.Where(x => x.Tab == tab.Id && x.Group == group.Id).Select(x => x.Descriptor))
@@ -96,6 +98,13 @@ internal sealed class RibbonBuilder
                 }
                 tabItem.Groups.Add(box);
             }
+            // Przy wąskim oknie (lub dłuższych polskich etykietach) grupy najpierw zmniejszają przyciski
+            // (Large → Middle → Small), od ostatniej grupy, a dopiero potem zwijają się do jednego przycisku –
+            // zamiast przewijania wstążki strzałką, które ukrywało ostatnie grupy (np. Rozpoznawanie, Podpis).
+            var reverse = Enumerable.Reverse(groupNames).ToList();
+            tabItem.ReduceOrder = string.Join(",", reverse.Select(n => "(" + n + ")")
+                .Concat(reverse.Select(n => "(" + n + ")"))
+                .Concat(reverse));
             if (tab.IsContextual)
             {
                 var ctx = new RibbonContextualTabGroup { Visibility = Visibility.Collapsed };

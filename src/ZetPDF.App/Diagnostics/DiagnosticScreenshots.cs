@@ -17,7 +17,7 @@ namespace ZetPDF.App.Diagnostics;
 /// </summary>
 internal static class DiagnosticScreenshots
 {
-    public static async Task RunAsync(IServiceProvider sp, MainWindow window, string folder)
+    public static async Task RunAsync(IServiceProvider sp, MainWindow window, string folder, IReadOnlyList<string> args)
     {
         Directory.CreateDirectory(folder);
         var theme = sp.GetRequiredService<IThemeService>();
@@ -57,11 +57,15 @@ internal static class DiagnosticScreenshots
             dlg.Close();
         }
 
+        var samples = new List<IPdfDocumentSession>();
+        var docs = sp.GetRequiredService<IDocumentManager>();
         try
         {
+            // Pliki z linii poleceń (np. przykładowy PDF z polską ścieżką) – otwierane przez te same akcje co zwykle.
+            var files = App.ParseArgs(args).Files;
+            if (files.Count > 0) await sp.GetRequiredService<DocumentActions>().OpenAsync(files);
             await Shot(window, "start");
             // Próbne dokumenty i panel, żeby zobaczyć karty, pasek stanu i pasek paneli.
-            var docs = sp.GetRequiredService<IDocumentManager>();
             foreach (var name in new[] { "zażółć gęślą.pdf", "Raport roczny 2026.pdf" })
             {
                 using var pdf = new PdfSharp.Pdf.PdfDocument();
@@ -69,8 +73,9 @@ internal static class DiagnosticScreenshots
                 pdf.AddPage();
                 using var ms = new MemoryStream();
                 pdf.Save(ms);
-                await docs.CreateNewAsync(ms.ToArray(), name);
+                samples.Add(await docs.CreateNewAsync(ms.ToArray(), name));
             }
+            if (docs.Documents.FirstOrDefault(d => d.FilePath is not null) is { } real) docs.ActiveDocument = real;
             await Settle();
             foreach (var (lang, th) in new[] { ("pl", AppTheme.Light), ("pl", AppTheme.Dark), ("en", AppTheme.Dark), ("en", AppTheme.Light) })
             {
@@ -86,10 +91,28 @@ internal static class DiagnosticScreenshots
                 await Dialog(new MessageWindow(loc["Shell.AppTitle"], loc.Format("Shell.Close.SavePrompt", "zażółć gęślą.pdf"), null, true,
                     new[] { new MessageWindow.ButtonSpec(loc["Core.Button.Save"], 1, true), new MessageWindow.ButtonSpec(loc["Shell.Close.DontSave"], 2), new MessageWindow.ButtonSpec(loc["Core.Button.Cancel"], 0, false, true) }, 0),
                     "message-" + tag);
+                // DECYZJE D-23 – wybór ochrony przed zapisem (4 przyciski, układ pionowy) i okno błędu z kluczem (O-3)
+                await Dialog(new MessageWindow(loc["Shell.OwnerOnly.Title"], loc.Format("Shell.OwnerOnly.Text", "zażółć gęślą.pdf"), MessageSeverity.Warning, false,
+                    new[] { new MessageWindow.ButtonSpec(loc["Shell.OwnerOnly.EnterOwner"], 1, true), new MessageWindow.ButtonSpec(loc["Shell.OwnerOnly.NewPassword"], 2),
+                            new MessageWindow.ButtonSpec(loc["Shell.OwnerOnly.NoProtection"], 3), new MessageWindow.ButtonSpec(loc["Core.Button.Cancel"], 0, false, true) }, 0),
+                    "owner-only-" + tag);
+                await Dialog(new MessageWindow(loc["Core.Error.Title"], loc.Format("Core.Error.PageRangeOutside", "2-9", 3), MessageSeverity.Error, false,
+                    new[] { new MessageWindow.ButtonSpec(loc["Core.Button.Ok"], 1, true, true) }, 1), "error-" + tag);
+                // każda widoczna karta wstążki
+                var ribbon = window.Ribbon;
+                for (int i = 0; i < ribbon.Tabs.Count; i++)
+                {
+                    if (ribbon.Tabs[i].Visibility != Visibility.Visible) continue;
+                    ribbon.SelectedTabIndex = i;
+                    await Shot(window, $"tab{i}-{tag}");
+                }
+                ribbon.SelectedTabIndex = 0;
             }
         }
         finally
         {
+            // Próbne dokumenty zamykane bez pytania o zapis (wcześniej proces czekał na okno „Zapisać zmiany?”).
+            foreach (var d in samples) docs.Close(d);
             theme.SetTheme(originalTheme);
             settings.Update(s => s.Language = originalLanguage);
             window.Close();

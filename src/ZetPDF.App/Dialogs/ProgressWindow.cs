@@ -92,7 +92,9 @@ public sealed class ProgressWindow : Window
     private void RequestCancel()
     {
         if (_cancel is not null) _cancel.IsEnabled = false;
-        _onCancel?.Invoke();
+        // Po zakończeniu pracy źródło anulowania jest już zwolnione – nie ma czego anulować.
+        try { _onCancel?.Invoke(); }
+        catch (ObjectDisposedException) { }
     }
 
     protected override void OnClosing(CancelEventArgs e)
