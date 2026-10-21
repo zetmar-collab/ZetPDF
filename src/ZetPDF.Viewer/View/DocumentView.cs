@@ -54,6 +54,9 @@ public sealed class DocumentView : IDocumentView
     private readonly HandTool _hand;
     private readonly ILogger? _log;
     private readonly Grid _root;
+    private readonly Grid _main;
+    private FrameworkElement? _side;
+    private GridSplitter? _sideSplitter;
     private readonly ScrollViewer _scroll;
     private readonly PagesPresenter _presenter;
     private readonly FindBar _find;
@@ -134,10 +137,13 @@ public sealed class DocumentView : IDocumentView
         _status.IsHitTestVisible = false;
 
         // nawigacja stron i powiększenie: pasek stanu powłoki (bez własnego paska pod widokiem)
+        // _main = widok tego dokumentu; w widoku równoległym obok (kolumna/wiersz 1–2) dochodzi drugi dokument
+        _main = new Grid();
+        _main.Children.Add(_scroll);
+        _main.Children.Add(_status);
+        _main.Children.Add(_find);
         _root = new Grid();
-        _root.Children.Add(_scroll);
-        _root.Children.Add(_status);
-        _root.Children.Add(_find);
+        _root.Children.Add(_main);
         _root.SetResourceReference(Panel.BackgroundProperty, ThemeKeys.ViewerBackground);
         _root.PreviewKeyDown += OnPreviewKeyDown;
         _root.PreviewKeyUp += OnPreviewKeyUp;
@@ -354,7 +360,70 @@ public sealed class DocumentView : IDocumentView
 
     internal void FocusPages() => _presenter.Focus();
 
-    private IViewerTool CurrentTool => _spaceHand ? _hand : _tools.ActiveTool;
+    private IViewerTool CurrentTool => _spaceHand || IsCompanion ? _hand : _tools.ActiveTool;
+
+    /// <summary>Widok pomocniczy (drugi dokument w widoku równoległym): tylko podgląd – zawsze narzędzie Ręka.</summary>
+    internal bool IsCompanion { get; init; }
+
+    /// <summary>Przewinięcie obszaru stron (dla synchronizacji widoku równoległego).</summary>
+    internal event EventHandler? Scrolled;
+
+    /// <summary>Element obok widoku tego dokumentu (widok równoległy) albo null.</summary>
+    internal FrameworkElement? SideContent => _side;
+
+    /// <summary>
+    /// Wstawia obok stron tego dokumentu inny element (widok drugiego dokumentu) – poziomo (obok) lub pionowo (pod spodem),
+    /// z przesuwanym rozdzielaczem. Ten dokument zostaje w kolumnie/wierszu 0, więc współrzędne <see cref="Element"/> się nie zmieniają.
+    /// </summary>
+    internal void SetSideContent(FrameworkElement? side, Orientation orientation)
+    {
+        if (_side is not null) _root.Children.Remove(_side);
+        if (_sideSplitter is not null) _root.Children.Remove(_sideSplitter);
+        _side = null;
+        _sideSplitter = null;
+        _root.ColumnDefinitions.Clear();
+        _root.RowDefinitions.Clear();
+        if (side is null)
+        {
+            _presenter.Focus();
+            return;
+        }
+        bool horizontal = orientation == Orientation.Horizontal;
+        var splitter = new GridSplitter
+        {
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            VerticalAlignment = VerticalAlignment.Stretch,
+            ResizeBehavior = GridResizeBehavior.PreviousAndNext,
+            ResizeDirection = horizontal ? GridResizeDirection.Columns : GridResizeDirection.Rows,
+            Focusable = false,
+        };
+        splitter.SetResourceReference(Control.BackgroundProperty, ThemeKeys.BorderStrong);
+        if (horizontal)
+        {
+            _root.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star), MinWidth = 120 });
+            _root.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(5) });
+            _root.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star), MinWidth = 120 });
+            Grid.SetColumn(splitter, 1);
+            Grid.SetColumn(side, 2);
+            Grid.SetRow(side, 0);
+        }
+        else
+        {
+            _root.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star), MinHeight = 100 });
+            _root.RowDefinitions.Add(new RowDefinition { Height = new GridLength(5) });
+            _root.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star), MinHeight = 100 });
+            Grid.SetRow(splitter, 1);
+            Grid.SetRow(side, 2);
+            Grid.SetColumn(side, 0);
+        }
+        _root.Children.Add(splitter);
+        _root.Children.Add(side);
+        _side = side;
+        _sideSplitter = splitter;
+    }
+
+    private bool IsInSideContent(object? source) =>
+        _side is not null && source is DependencyObject d && (ReferenceEquals(d, _side) || (d is Visual v && _side.IsAncestorOf(v)));
 
     internal void UpdateCursor() => _presenter.Cursor = _hoverCursor ?? CurrentTool.Cursor;
 
@@ -529,6 +598,7 @@ public sealed class DocumentView : IDocumentView
         UpdateCurrentPageFromScroll();
         ScheduleRenders();
         if (CurrentTool is SelectTextTool) PrefetchVisibleText();
+        Scrolled?.Invoke(this, EventArgs.Empty);
     }
 
     private void UpdateCurrentPageFromScroll()
@@ -923,6 +993,7 @@ public sealed class DocumentView : IDocumentView
 
     private void OnPreviewKeyDown(object sender, KeyEventArgs e)
     {
+        if (IsInSideContent(e.OriginalSource)) return; // klawisze w drugim dokumencie widoku równoległego obsługuje jego widok
         if (Ui.IsTextInputFocused(Keyboard.FocusedElement)) return;
         if (_doc is null) return;
         if (e.Key == Key.Space && Keyboard.Modifiers == ModifierKeys.None && CurrentTool is not HandTool)
@@ -941,6 +1012,7 @@ public sealed class DocumentView : IDocumentView
 
     private void OnPreviewKeyUp(object sender, KeyEventArgs e)
     {
+        if (IsInSideContent(e.OriginalSource)) return;
         if (e.Key == Key.Space && _spaceHand)
         {
             _spaceHand = false;

@@ -39,6 +39,7 @@ public sealed class ViewerModule : IFeatureModule
         services.AddSingleton<IPrintService, PrintService>();
         services.AddSingleton<ISpeechEngineFactory, SystemSpeechEngineFactory>();
         services.AddSingleton<ReadAloudService>();
+        services.AddSingleton<ParallelViewController>();
     }
 
     public void Initialize(IServiceProvider services)
@@ -138,6 +139,9 @@ internal sealed class ViewerCommands
         // czytanie na głos (etap 3)
         RegisterReadAloud();
 
+        // widok równoległy (etap 3)
+        RegisterParallel();
+
         // odświeżanie stanów przełączników
         _tools.ActiveToolChanged += (_, _) => RaiseToggles();
         _viewer.ActiveViewChanged += (_, _) => { Observe(View); RaiseToggles(); };
@@ -206,6 +210,33 @@ internal sealed class ViewerCommands
             int.TryParse(text.Trim(), NumberStyles.Integer, CultureInfo.CurrentCulture, out int n) && n >= 1 && n <= v.PageCount ? null : _loc.Format("Viewer.GoTo.Invalid", v.PageCount);
         var dlg = new InputDialog(_loc, "Viewer.GoTo.Title", _loc.Format("Viewer.GoTo.Prompt", v.PageCount), (v.CurrentPageIndex + 1).ToString(CultureInfo.CurrentCulture), Array.Empty<string>(), Validate);
         if (ShowDialog(dlg) == true && int.TryParse(dlg.Value.Trim(), NumberStyles.Integer, CultureInfo.CurrentCulture, out int page)) v.GoToPage(page - 1);
+    }
+
+    private void RegisterParallel()
+    {
+        var parallel = _services.GetRequiredService<ParallelViewController>();
+        var view = new ToggleCommand(_ =>
+        {
+            if (View is not { } v) return;
+            if (parallel.GetPair(v) is not null) { parallel.Close(v); return; }
+            var others = _documents.Documents.Where(d => !ReferenceEquals(d, v.Session)).ToList();
+            if (others.Count == 0)
+            {
+                Dialogs?.ShowMessage(_loc["Viewer.Parallel.NoOther"], _loc["Viewer.Parallel.Title"]);
+                return;
+            }
+            var dlg = new ParallelViewDialog(_loc, others);
+            if (ShowDialog(dlg) == true && dlg.Selected is { } other) parallel.Open(v, other, dlg.Orientation);
+        }, () => parallel.GetPair(View) is not null, _ => HasView());
+        var sync = new ToggleCommand(_ =>
+        {
+            if (parallel.GetPair(View) is { } p) parallel.SetSync(p, !p.Sync);
+        }, () => parallel.GetPair(View)?.Sync == true, _ => parallel.GetPair(View) is not null);
+        _toggles.Add(view);
+        _toggles.Add(sync);
+        _registry.Register(CommandIds.View.ParallelView, view);
+        _registry.Register(CommandIds.View.SyncScroll, sync);
+        parallel.Changed += (_, _) => RaiseToggles();
     }
 
     private ReadAloudPanel? _readPanel;
