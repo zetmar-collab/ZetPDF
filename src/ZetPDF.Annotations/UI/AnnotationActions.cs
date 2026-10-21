@@ -37,6 +37,15 @@ internal static class AnnotationActions
     public static async Task EditFieldAsync(AnnotContext ctx, IPdfDocumentSession session, string fieldName)
     {
         var bytes = session.Current.GetBytes();
+        if (await ctx.Forms.GetBarcodeOptionsAsync(bytes, fieldName) is { } barcode)
+        {
+            var bd = new BarcodeFieldDialog(ctx.Loc, barcode, await ctx.Forms.GetBarcodeSourceNamesAsync(bytes));
+            if (Ui.Show(ctx.Dialogs, bd) != true) return;
+            var options = bd.Result;
+            await ctx.RunAsync(session, "Annot.Undo.Barcode", (pdf, ct) => ctx.Forms.SetBarcodeOptionsAsync(pdf, fieldName, options, ct),
+                DocumentChangeKind.FormFields, DocumentPermissions.ModifyContent);
+            return;
+        }
         var spec = await ctx.Forms.DescribeAsync(bytes, fieldName);
         var names = (await ctx.Forms.GetFieldsAsync(bytes)).Select(f => f.FullName).ToHashSet(StringComparer.Ordinal);
         var dlg = new FieldPropertiesDialog(ctx.Loc, spec, n => names.Contains(n));

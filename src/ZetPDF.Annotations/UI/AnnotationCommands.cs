@@ -10,7 +10,7 @@ using ZetPDF.Core.Contracts;
 namespace ZetPDF.Annotations.UI;
 
 /// <summary>Obsługa 48 poleceń wstążki modułu Annotations (komentarze, formularze, Wypełnij i podpisz, załączniki).</summary>
-internal sealed class AnnotationCommands
+internal sealed partial class AnnotationCommands
 {
     private readonly AnnotContext _ctx;
     private readonly ICommandRegistry _registry;
@@ -146,6 +146,10 @@ internal sealed class AnnotationCommands
             _ctx.Shell?.SetContextualTabVisible(ContextualTabIds.FillSign, false);
             _ctx.Tools?.ActivateDefault();
         }));
+
+        // ---------------------------------------------------------------- etap 3: pomiary, kalkulator, kod kreskowy, skrypty
+        RegisterMeasure();
+        RegisterStage3Forms();
 
         // ---------------------------------------------------------------- styl narzędzia (polecenie dodatkowe)
         try
@@ -401,7 +405,10 @@ internal sealed class AnnotationCommands
         if (files is not { Count: > 0 }) return;
         var data = await File.ReadAllBytesAsync(files[0]);
         var fmt = FormService.FormatFromPath(files[0]);
-        await _ctx.RunAsync(s, "Annot.Undo.FormImport", (pdf, ct) => _ctx.Forms.ImportDataAsync(pdf, new MemoryStream(data), fmt, ct), DocumentChangeKind.FormFields, DocumentPermissions.FillForms);
+        var policy = _ctx.ScriptPolicyFor(s);
+        var report = new Forms.Scripting.ScriptReport();
+        await _ctx.RunAsync(s, "Annot.Undo.FormImport", (pdf, ct) => _ctx.Forms.SetValuesAsync(pdf, Forms.FormDataIO.Import(data, fmt), policy, report, ct), DocumentChangeKind.FormFields, DocumentPermissions.FillForms, cancellation: AnnotContext.ScriptCommandToken());
+        _ctx.ShowScriptReport(s, report);
     }
 
     private async Task ExportDataAsync(IPdfDocumentSession s)
@@ -417,7 +424,8 @@ internal sealed class AnnotationCommands
     private async Task ResetFormAsync(IPdfDocumentSession s)
     {
         if (Dialogs is { } d && !d.Confirm(_loc["Annot.Form.ResetConfirm"])) return;
-        await _ctx.RunAsync(s, "Annot.Undo.FormReset", (pdf, ct) => _ctx.Forms.ResetAsync(pdf, null, ct), DocumentChangeKind.FormFields, DocumentPermissions.FillForms);
+        var policy = _ctx.ScriptPolicyFor(s);
+        await _ctx.RunAsync(s, "Annot.Undo.FormReset", (pdf, ct) => _ctx.Forms.ResetAsync(pdf, null, policy, ct), DocumentChangeKind.FormFields, DocumentPermissions.FillForms, cancellation: AnnotContext.ScriptCommandToken());
     }
 
     // ================================================================== Wypełnij i podpisz

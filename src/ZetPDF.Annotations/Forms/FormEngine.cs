@@ -103,9 +103,12 @@ internal static class FormEngine
     }
 
     /// <summary>Wygląd wszystkich pól + /NeedAppearances false.</summary>
-    public static void RefreshAppearances(PdfDocument doc)
+    /// <param name="display">Teksty wyświetlane wg skryptów formatu (pełna nazwa → tekst); null = wartości.</param>
+    public static void RefreshAppearances(PdfDocument doc, IReadOnlyDictionary<string, string>? display = null)
     {
-        foreach (var f in FieldTree.Terminals(doc)) FieldAppearance.Build(doc, f);
+        BarcodeEngine.UpdateValues(doc);
+        foreach (var f in FieldTree.Terminals(doc))
+            FieldAppearance.Build(doc, f, displayText: display is not null && display.TryGetValue(f.FullName, out var t) ? t : null);
         if (FieldTree.AcroForm(doc) is { } acro) acro.Elements["/NeedAppearances"] = new PdfBoolean(false);
     }
 
@@ -476,6 +479,7 @@ internal static class FormEngine
             }
             else SetValue(doc, f, TextOf(dv));
         }
+        BarcodeEngine.UpdateAll(doc);
         if (FieldTree.AcroForm(doc) is { } acro) acro.Elements["/NeedAppearances"] = new PdfBoolean(false);
     }
 }

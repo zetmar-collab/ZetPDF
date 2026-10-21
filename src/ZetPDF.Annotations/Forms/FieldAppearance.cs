@@ -19,9 +19,12 @@ internal static class FieldAppearance
         Dict(widget, "/MK") is { } mk ? PdfLow.Color(mk, key) : null;
 
     /// <summary>Generuje wygląd wszystkich widżetów pola (pola wyboru/opcje – tylko gdy brak poprawnego /AP lub force).</summary>
-    public static void Build(PdfDocument doc, FieldNode field, bool forceStates = false)
+    /// <param name="displayText">Tekst wyświetlany zamiast wartości (wynik skryptu formatu /AA /F); null = wartość.</param>
+    public static void Build(PdfDocument doc, FieldNode field, bool forceStates = false, string? displayText = null)
     {
         var kind = field.Kind;
+        // podpisane pole podpisu: wygląd należy do podpisu – nie nadpisujemy
+        if (kind == FormFieldKind.Signature && field.Inherited("/V") is PdfDictionary) return;
         foreach (var w in field.Widgets)
         {
             switch (kind)
@@ -31,7 +34,8 @@ internal static class FieldAppearance
                     SyncAs(field, w);
                     break;
                 default:
-                    SetNormal(doc, w, BuildFlat(doc, field, w));
+                    if (BarcodeEngine.Options(field) is { } barcode) SetNormal(doc, w, BarcodeEngine.Appearance(doc, w, field.Value, barcode.Symbology));
+                    else SetNormal(doc, w, BuildFlat(doc, field, w, displayText));
                     break;
             }
         }
@@ -62,7 +66,7 @@ internal static class FieldAppearance
 
     private static PdfRect WidgetRect(PdfDictionary w) => PdfLow.Rect(w) ?? new PdfRect(0, 0, 10, 10);
 
-    private static PdfDictionary BuildFlat(PdfDocument doc, FieldNode field, PdfDictionary w)
+    private static PdfDictionary BuildFlat(PdfDocument doc, FieldNode field, PdfDictionary w, string? displayText)
     {
         var r = WidgetRect(w);
         double width = Math.Max(1, r.Width), height = Math.Max(1, r.Height);
@@ -90,7 +94,7 @@ internal static class FieldAppearance
             {
                 case FormFieldKind.Text or FormFieldKind.Date or FormFieldKind.ComboBox:
                 {
-                    string text = kind == FormFieldKind.ComboBox ? DisplayOf(field, field.Value) : field.Value;
+                    string text = displayText ?? (kind == FormFieldKind.ComboBox ? DisplayOf(field, field.Value) : field.Value);
                     double size = fontSize > 0 ? fontSize : multiline ? 10 : Math.Clamp((height - 4) * 0.7, 4, 14);
                     var font = XFormHelper.Font(family, size);
                     if (multiline)

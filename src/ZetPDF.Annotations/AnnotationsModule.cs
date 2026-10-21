@@ -25,6 +25,7 @@ public sealed class AnnotationsModule : IFeatureModule
         services.AddSingleton<IAnnotationService>(sp => sp.GetRequiredService<AnnotationService>());
         services.AddSingleton<FormService>();
         services.AddSingleton<IFormService>(sp => sp.GetRequiredService<FormService>());
+        services.AddSingleton(sp => new MeasureService(sp.GetRequiredService<AnnotationService>()));
         services.AddSingleton<AttachmentService>();
         services.AddSingleton<IAttachmentService>(sp => sp.GetRequiredService<AttachmentService>());
         services.AddSingleton<AnnotContext>(sp => new AnnotContext(sp));

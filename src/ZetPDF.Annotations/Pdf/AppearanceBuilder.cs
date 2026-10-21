@@ -15,7 +15,7 @@ internal static class AppearanceBuilder
     /// <summary>Generuje i ustawia /AP. Zwraca false, gdy wyglądu nie da się odtworzyć (np. stempel z obrazu) – zostaje stary.</summary>
     public static bool Apply(PdfDocument doc, PdfDictionary annot, AnnotModel m)
     {
-        PdfDictionary? normal = m.Kind switch
+        PdfDictionary? normal = MeasureDict.TypeOf(annot) is { } measure ? MeasureAppearance.Build(doc, annot, m, measure) : m.Kind switch
         {
             AnnotationKind.Highlight or AnnotationKind.AreaHighlight => Markup(doc, m, MarkupStyle.Highlight),
             AnnotationKind.Underline => Markup(doc, m, MarkupStyle.Underline),
