@@ -53,6 +53,9 @@ public partial class App : Application
         services.AddSingleton<DocumentActions>();
         services.AddSingleton<MainWindow>();
         foreach (var m in modules) m.ConfigureServices(services);
+        // tryby diagnostyczne (test dymny, zrzuty): czytanie na głos przez prawdziwy System.Speech, ale bez dźwięku
+        if (e.Args.Any(a => a.StartsWith("--diag-", StringComparison.OrdinalIgnoreCase)))
+            services.AddSingleton<ZetPDF.Viewer.ReadAloud.ISpeechEngineFactory, ZetPDF.Viewer.ReadAloud.SilentSpeechEngineFactory>();
         _services = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true });
 
         _log = _services.GetRequiredService<ILogger<App>>();

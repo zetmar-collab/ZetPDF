@@ -58,6 +58,9 @@ internal static class DiagnosticSmokeTest
 
         // Okna dialogowe otwarte przez polecenia: zrzut + zamknięcie (Anuluj), żeby test się nie zatrzymał.
         var handled = new HashSet<Window>();
+        // okna zatwierdzane (OK) zamiast Anuluj i okna pozostawiane otwarte (panel czytania – zamykany poleceniem)
+        var accept = new HashSet<string>(StringComparer.Ordinal);
+        var keep = new HashSet<string>(StringComparer.Ordinal);
         var closer = new DispatcherTimer(DispatcherPriority.Background, window.Dispatcher) { Interval = TimeSpan.FromMilliseconds(700) };
         closer.Tick += (_, _) =>
         {
@@ -66,8 +69,12 @@ internal static class DiagnosticSmokeTest
                 if (ReferenceEquals(w, window) || !w.IsVisible || !w.IsLoaded || !handled.Add(w)) continue;
                 var name = $"dialog{++dialogNo:00}";
                 try { w.UpdateLayout(); Png(w, name); } catch (Exception) { /* zrzut nieistotny dla testu */ }
-                Log($"    okno: „{w.Title}” ({w.GetType().Name}) → {name}.png, zamknięte (Anuluj)");
-                w.Close();
+                var type = w.GetType().Name;
+                if (keep.Contains(type)) { Log($"    okno: „{w.Title}” ({type}) → {name}.png, pozostawione"); continue; }
+                bool ok = accept.Contains(type);
+                Log($"    okno: „{w.Title}” ({type}) → {name}.png, {(ok ? "zatwierdzone (OK)" : "zamknięte (Anuluj)")}");
+                if (ok) { try { w.DialogResult = true; } catch (InvalidOperationException) { w.Close(); } }
+                else w.Close();
             }
         };
         closer.Start();
@@ -86,6 +93,58 @@ internal static class DiagnosticSmokeTest
             string state = !can ? "NIEDOSTĘPNE" : ok ? (changed ? "wykonane, dokument zmieniony" : "wykonane") : "BŁĄD wykonania";
             if (!ok || (expectChange && !changed)) failures++;
             Log($"[{tab}] {commandId} ({loc["Cmd." + commandId]}): {state}{(expectChange && !changed ? " – OCZEKIWANO ZMIANY" : string.Empty)}");
+        }
+
+        async Task Stage3ParallelAndReadAsync()
+        {
+            var main = docs.ActiveDocument!;
+            // widok równoległy z drugim dokumentem (okno wyboru zatwierdzane)
+            using var pdf = new PdfSharp.Pdf.PdfDocument();
+            pdf.AddPage();
+            using var ms = new MemoryStream();
+            pdf.Save(ms);
+            var second = await docs.CreateNewAsync(ms.ToArray(), "drugi dokument – ąę.pdf");
+            docs.ActiveDocument = main;
+            await Settle(800);
+            accept.Add("ParallelViewDialog");
+            await Run("Widok", CommandIds.View.ParallelView);
+            bool paired = (registry.GetHandler(CommandIds.View.ParallelView) as IToggleCommand)?.IsChecked == true;
+            Log($"    widok równoległy: {(paired ? "włączony (2 dokumenty w karcie)" : "BŁĄD – nie włączony")}");
+            if (!paired) failures++;
+            Png(window, "smoke-07-widok-rownolegly");
+            if (paired) await Run("Widok", CommandIds.View.ParallelView);
+            accept.Remove("ParallelViewDialog");
+            docs.Close(second);
+            docs.ActiveDocument = main;
+            await Settle(500);
+
+            // czytanie na głos: prawdziwy System.Speech, wyjście do pustego urządzenia (bez dźwięku)
+            keep.Add("ReadAloudPanel");
+            var read = sp.GetRequiredService<ZetPDF.Viewer.ReadAloud.ReadAloudService>();
+            var states = new List<string>();
+            void OnState(object? o, EventArgs a) => states.Add(read.State.ToString());
+            read.StateChanged += OnState;
+            try
+            {
+                Log($"    silnik mowy: {sp.GetRequiredService<ZetPDF.Viewer.ReadAloud.ISpeechEngineFactory>().GetType().Name}");
+                await Run("Ułatwienia dostępu", CommandIds.Read.Activate);
+                await Run("Ułatwienia dostępu", CommandIds.Read.CurrentPage);
+                Png(window, "smoke-08-czytanie");
+                await Run("Ułatwienia dostępu", CommandIds.Read.Stop);
+                Log($"    stany czytania: {string.Join(" → ", states)}; głos: {read.VoiceInUse ?? "(brak)"}; po Zatrzymaj: {read.State}");
+                if (read.State != ZetPDF.Viewer.ReadAloud.ReadAloudState.Stopped) failures++;
+                if (read.IsActive) await Run("Ułatwienia dostępu", CommandIds.Read.Activate);
+                Log($"    tryb czytania aktywny po wyłączeniu: {read.IsActive}");
+                // czytanie do końca dokumentu pozostawione włączone – ma się zatrzymać przy zamknięciu dokumentu i programu
+                await Run("Ułatwienia dostępu", CommandIds.Read.Activate);
+                await Run("Ułatwienia dostępu", CommandIds.Read.FromPage);
+                Log($"    czytanie od strony pozostawione włączone: stan {read.State}, aktywne {read.IsActive}");
+            }
+            finally
+            {
+                read.StateChanged -= OnState;
+                keep.Remove("ReadAloudPanel");
+            }
         }
 
         try
@@ -121,6 +180,15 @@ internal static class DiagnosticSmokeTest
             await Run("Cofnij", CommandIds.Edit.Undo, expectChange: true);
             await Run("Ponów", CommandIds.Edit.Redo, expectChange: true);
             Png(window, "smoke-02-po-poleceniach");
+
+            // ---- etap 3
+            await Run("Ułatwienia dostępu", CommandIds.Access.FullCheck);
+            Png(window, "smoke-05-ulatwienia-dostepu");
+            await Run("Widok", CommandIds.Index.Search);
+            Png(window, "smoke-06-wyszukiwanie-zaawansowane");
+            await Run("Komentarz", CommandIds.Measure.Calculator);
+            await Run("Formularz", CommandIds.Form.JavaScript);
+            await Stage3ParallelAndReadAsync();
 
             foreach (var (lang, th) in new[] { ("en", AppTheme.Dark), ("pl", AppTheme.Light) })
             {
@@ -159,11 +227,14 @@ internal static class DiagnosticSmokeTest
         finally
         {
             closer.Stop();
-            Log(failures == 0 ? "WYNIK: OK" : $"WYNIK: {failures} problemów");
-            File.WriteAllText(Path.Combine(folder, "smoke.txt"), report.ToString(), new UTF8Encoding(true));
             theme.SetTheme(originalTheme);
             settings.Update(s => s.Language = originalLanguage);
             foreach (var d in docs.Documents.ToArray()) docs.Close(d);
+            var readService = sp.GetRequiredService<ZetPDF.Viewer.ReadAloud.ReadAloudService>();
+            Log($"Po zamknięciu dokumentów: czytanie {readService.State}");
+            if (readService.State != ZetPDF.Viewer.ReadAloud.ReadAloudState.Stopped) failures++;
+            Log(failures == 0 ? "WYNIK: OK" : $"WYNIK: {failures} problemów");
+            File.WriteAllText(Path.Combine(folder, "smoke.txt"), report.ToString(), new UTF8Encoding(true));
             window.Close();
         }
     }

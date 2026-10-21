@@ -110,6 +110,28 @@ public class FullTextIndexTests
         Assert.Equal(5, rebuilt.Indexed);
     }
 
+    [Theory]
+    [InlineData(-1, 0L)]                 // ujemna liczba plików
+    [InlineData(int.MaxValue, 0L)]       // ogromna liczba plików (bez danych)
+    [InlineData(1, long.MaxValue)]       // nieprawidłowa data
+    public async Task Index_file_with_valid_gzip_but_corrupt_values_is_ignored(int count, long builtTicks)
+    {
+        var (folder, index) = Setup();
+        await index.BuildAsync(folder, false);
+        using (var fs = File.Create(index.IndexFileFor(folder)))
+        using (var gz = new System.IO.Compression.GZipStream(fs, System.IO.Compression.CompressionLevel.Fastest))
+        using (var w = new BinaryWriter(gz, System.Text.Encoding.UTF8))
+        {
+            w.Write("ZIDX"); w.Write(1); w.Write(FullTextIndex.NormalizeFolder(folder)); w.Write(false); w.Write(builtTicks); w.Write(count);
+            w.Write("a.pdf"); w.Write(1L); w.Write(1L); w.Write((byte)0); w.Write(""); w.Write(int.MaxValue);
+        }
+        Assert.Null(index.Load(folder));
+        Assert.DoesNotContain(index.ListIndexes(), i => i.Root == FullTextIndex.NormalizeFolder(folder) && builtTicks == long.MaxValue);
+        var rebuilt = await index.BuildAsync(folder, false);
+        Assert.Equal(5, rebuilt.Indexed);
+        Assert.NotNull(index.Load(folder));
+    }
+
     [Fact]
     public void Csv_export_quotes_fields_and_neutralizes_formulas()
     {

@@ -235,8 +235,10 @@ public sealed class FullTextIndex
             bool recursive = r.ReadBoolean();
             var built = new DateTime(r.ReadInt64(), DateTimeKind.Utc);
             int count = r.ReadInt32();
+            if (count < 0) return null;
             if (headerOnly) return new FolderIndex(root, recursive, built, Array.Empty<IndexedFile>());
-            var files = new List<IndexedFile>(count);
+            // pojemność bez ufania licznikom z pliku (uszkodzony plik nie może wymusić ogromnej alokacji)
+            var files = new List<IndexedFile>(Math.Min(count, 4096));
             for (int i = 0; i < count; i++)
             {
                 var rel = r.ReadString();
@@ -245,13 +247,15 @@ public sealed class FullTextIndex
                 var status = (IndexedFileStatus)r.ReadByte();
                 var error = r.ReadString();
                 int pages = r.ReadInt32();
-                var list = new string[pages];
-                for (int p = 0; p < pages; p++) list[p] = r.ReadString();
+                if (pages < 0 || !Enum.IsDefined(status)) return null;
+                var list = new List<string>(Math.Min(pages, 4096));
+                for (int p = 0; p < pages; p++) list.Add(r.ReadString());
                 files.Add(new IndexedFile(rel, size, ticks, status, list, error.Length == 0 ? null : error));
             }
             return new FolderIndex(root, recursive, built, files);
         }
-        catch (Exception ex) when (ex is IOException or InvalidDataException or EndOfStreamException or UnauthorizedAccessException or FormatException)
+        catch (Exception ex) when (ex is IOException or InvalidDataException or EndOfStreamException or UnauthorizedAccessException or FormatException
+                                   or ArgumentException or OverflowException or DecoderFallbackException)
         {
             return null;
         }

@@ -17,47 +17,81 @@ internal static class AcroJsPrelude
     public const string Source = """
 (function () {
   // Ograniczenia pojedynczych dużych alokacji (limit pamięci Jint jest sprawdzany dopiero między instrukcjami).
-  // Funkcje wbudowane przechwycone tutaj – skrypt nie może ich podmienić (np. Math.floor), a argumenty są
-  // zamieniane na liczby/łańcuchy RAZ (valueOf/toString/getter length nie mogą zwrócić innej wartości przy drugim odczycie).
+  // Zasady: (1) funkcje wbudowane przechwycone i związane (bind) tutaj – późniejsza podmiana Math.floor, Array,
+  // Function.prototype.call/apply, String.prototype.* przez skrypt nie zmienia działania ograniczeń; (2) argumenty
+  // zamieniane na liczby/łańcuchy RAZ (valueOf/toString/getter length nie zwrócą innej wartości przy drugim odczycie);
+  // (3) natywne funkcje wołane tylko na prymitywach i tablicach utworzonych tutaj; tam, gdzie natywny kod składałby
+  // wynik z elementów kontrolowanych przez skrypt (replace, JSON), każdy kawałek przechodzi przez licznik długości.
   var MAXS = 1048576, MAXA = 100000;
-  var floor = Math.floor, min = Math.min, num = Number, str = String, apply = Function.prototype.apply;
-  var rep = String.prototype.repeat, ps = String.prototype.padStart, pe = String.prototype.padEnd;
-  var sconcat = String.prototype.concat, srepl = String.prototype.replace, sreplAll = String.prototype.replaceAll;
-  var jn = Array.prototype.join, fl = Array.prototype.fill, push = Array.prototype.push;
-  var jsonStr = JSON.stringify, isArr = Array.isArray, keys = Object.keys;
-  function lim(n) { if (!(n <= MAXS)) throw new RangeError("ZetPDF limit: string too long"); }
-  function limA(n) { if (!(n <= MAXA)) throw new RangeError("ZetPDF limit: array too long"); }
+  var bindCall = Function.prototype.bind.bind(Function.prototype.call);
+  var floor = Math.floor, min = Math.min, max = Math.max, num = Number, str = String, fin = isFinite, isArr = Array.isArray, keys = Object.keys;
+  var defProp = Object.defineProperty, RE = RangeError, TE = TypeError;
+  var NumberC = Number, StringC = String, BooleanC = Boolean, boolOf = bindCall(Boolean.prototype.valueOf);
+  var rep = bindCall(String.prototype.repeat), ps = bindCall(String.prototype.padStart), pe = bindCall(String.prototype.padEnd);
+  var sub = bindCall(String.prototype.substring), cca = bindCall(String.prototype.charCodeAt), sidx = bindCall(String.prototype.indexOf);
+  var srepl = bindCall(String.prototype.replace), sreplAll = String.prototype.replaceAll ? bindCall(String.prototype.replaceAll) : null;
+  var jn = bindCall(Array.prototype.join), push = bindCall(Array.prototype.push), fnApply = bindCall(Function.prototype.apply);
+  var hasInst = bindCall(Object.prototype.isPrototypeOf);
+  var NumP = Number.prototype, StrP = String.prototype, BoolP = Boolean.prototype;
+  var quote = JSON.stringify; // wołane wyłącznie na prymitywnych łańcuchach (bez toJSON)
+  function lim(n) { if (!(n >= 0 && n <= MAXS)) throw new RE("ZetPDF limit: string too long"); }
+  function limA(n) { if (!(n >= 0 && n <= MAXA)) throw new RE("ZetPDF limit: array too long"); }
   function int(v) { var n = floor(num(v)); return n === n ? n : 0; }
-  function def(o, k, f) { Object.defineProperty(o, k, { value: f, writable: false, configurable: false, enumerable: false }); }
-  function strs(a, len) { var out = new Array(len), t = 0; for (var i = 0; i < len; i++) { var e = a[i]; out[i] = e === null || e === undefined ? "" : str(e); t += out[i].length; lim(t); } return out; }
-  def(String.prototype, "repeat", function (c) { var s = str(this), n = int(c); if (n > 0) lim(s.length * n); return rep.call(s, n); });
-  def(String.prototype, "padStart", function (n, f) { var k = int(n); lim(k); return ps.call(str(this), k, f === undefined ? undefined : str(f)); });
-  def(String.prototype, "padEnd", function (n, f) { var k = int(n); lim(k); return pe.call(str(this), k, f === undefined ? undefined : str(f)); });
+  function def(o, k, f) { defProp(o, k, { value: f, writable: false, configurable: false, enumerable: false }); }
+  function strs(a, len, keepNull) { var out = [], t = 0; for (var i = 0; i < len; i++) { var e = a[i]; var x = !keepNull && (e === null || e === undefined) ? "" : str(e); t += x.length; lim(t); push(out, x); } return out; }
+  function args(a) { var out = [], n = a.length; for (var i = 0; i < n; i++) push(out, a[i]); return out; }
+  def(String.prototype, "repeat", function (c) { var s = str(this), n = int(c); if (n > 0) lim(s.length * n); return rep(s, n); });
+  def(String.prototype, "padStart", function (n, f) { var k = int(n); lim(max(0, k)); return ps(str(this), k, f === undefined ? undefined : str(f)); });
+  def(String.prototype, "padEnd", function (n, f) { var k = int(n); lim(max(0, k)); return pe(str(this), k, f === undefined ? undefined : str(f)); });
   def(String.prototype, "concat", function () {
-    var s = str(this), len = arguments.length; limA(len);
-    var parts = strs(arguments, len), t = s.length;
-    for (var i = 0; i < len; i++) { t += parts[i].length; lim(t); }
-    return apply.call(sconcat, s, parts);
+    var len = arguments.length; limA(len);
+    var s = str(this), parts = strs(arguments, len, true), t = s.length;
+    for (var i = 0; i < len; i++) t += parts[i].length;
+    lim(t);
+    return s + jn(parts, "");
   });
-  function safeReplace(orig, all) {
-    return function (pattern, replacement) {
-      var s = str(this);
-      // wyrażenie regularne (albo obiekt z własnym Symbol.replace) – liczba trafień do s.length + 1 niezależnie od flagi
-      // (właściwość global może być getterem zwracającym co innego przy drugim odczycie)
-      var matches = !all && typeof pattern === "string" ? 1 : s.length + 1;
-      if (typeof replacement === "function") {
-        var f = replacement, total = s.length;
-        return orig.call(s, pattern, function () { var r = str(apply.call(f, undefined, arguments)); total += r.length; lim(total); return r; });
+  // $-wzorzec zamiany (GetSubstitution) liczony po naszej stronie – natywny replace dostaje zawsze naszą funkcję
+  function expand(r, a) {
+    if (sidx(r, "$") < 0) return r;
+    var n = a.length, groups = typeof a[n - 1] === "object" && a[n - 1] !== null ? a[n - 1] : undefined;
+    var whole = str(a[n - (groups ? 2 : 1)]), pos = int(a[n - (groups ? 3 : 2)]), m = str(a[0]), caps = n - (groups ? 4 : 3);
+    var out = [], t = 0;
+    function put(x) { t += x.length; lim(t); push(out, x); }
+    for (var i = 0; i < r.length; i++) {
+      var c = cca(r, i);
+      if (c !== 36 || i + 1 >= r.length) { put(r[i]); continue; }
+      var d = cca(r, i + 1);
+      if (d === 36) { put("$"); i++; }
+      else if (d === 38) { put(m); i++; }
+      else if (d === 96) { put(sub(whole, 0, pos)); i++; }
+      else if (d === 39) { put(sub(whole, min(whole.length, pos + m.length))); i++; }
+      else if (d >= 48 && d <= 57) {
+        var k = d - 48, used = 1;
+        if (i + 2 < r.length) { var d2 = cca(r, i + 2); if (d2 >= 48 && d2 <= 57 && k * 10 + d2 - 48 <= caps) { k = k * 10 + d2 - 48; used = 2; } }
+        if (k >= 1 && k <= caps) { var v = a[k]; put(v === undefined ? "" : str(v)); i += used; } else put("$");
       }
-      var r = str(replacement), dollars = 0;
-      for (var i = 0; i < r.length; i++) if (r.charCodeAt(i) === 36) dollars++;
-      // górne oszacowanie: każde trafienie zastąpione tekstem r, w którym każde $… może wstawić co najwyżej cały łańcuch
-      lim(s.length + matches * (r.length + dollars * s.length));
-      return orig.call(s, pattern, r);
+      else if (d === 60 && groups !== undefined) {
+        var e = sidx(r, ">", i + 2);
+        if (e < 0) put("$"); else { var g = groups[sub(r, i + 2, e)]; put(g === undefined ? "" : str(g)); i = e; }
+      }
+      else put("$");
+    }
+    return jn(out, "");
+  }
+  function safeReplace(orig) {
+    return function (pattern, replacement) {
+      var s = str(this), total = s.length, f = typeof replacement === "function" ? replacement : null, r = f ? null : str(replacement);
+      lim(total);
+      return orig(s, pattern, function () {
+        var a = args(arguments);
+        var x = f ? str(fnApply(f, undefined, a)) : expand(r, a);
+        total += x.length; lim(total);
+        return x;
+      });
     };
   }
-  def(String.prototype, "replace", safeReplace(srepl, false));
-  if (sreplAll) def(String.prototype, "replaceAll", safeReplace(sreplAll, true));
+  def(String.prototype, "replace", safeReplace(srepl));
+  if (sreplAll) def(String.prototype, "replaceAll", safeReplace(sreplAll));
   def(Array.prototype, "join", function (sep) {
     var len = this.length >>> 0;
     limA(len);
@@ -65,51 +99,90 @@ internal static class AcroJsPrelude
     lim(len > 0 ? (len - 1) * sp.length : 0);
     var parts = strs(this, len), t = len > 0 ? (len - 1) * sp.length : 0;
     for (var i = 0; i < len; i++) { t += parts[i].length; lim(t); }
-    return jn.call(parts, sp);
+    return jn(parts, sp);
   });
   def(Array.prototype, "toLocaleString", function () {
     var len = this.length >>> 0; limA(len);
-    var parts = new Array(len), t = 0;
-    for (var i = 0; i < len; i++) { var e = this[i]; parts[i] = e === null || e === undefined ? "" : str(e.toLocaleString()); t += parts[i].length + 1; lim(t); }
-    return jn.call(parts, ",");
+    var parts = [], t = 0;
+    for (var i = 0; i < len; i++) { var e = this[i], x = e === null || e === undefined ? "" : str(e.toLocaleString()); t += x.length + 1; lim(t); push(parts, x); }
+    return jn(parts, ",");
   });
-  def(Array.prototype, "fill", function () { limA(this.length >>> 0); return apply.call(fl, this, arguments); });
-  // JSON.stringify: najpierw kopia z samych wartości prostych (toJSON, gettery i replacer wywołane raz) z oszacowaniem
-  // rozmiaru wyniku, dopiero potem oryginał na kopii
+  def(Array.prototype, "fill", function (value, start, end) {
+    var o = this, len = o.length >>> 0; limA(len);
+    var k = start === undefined ? 0 : int(start), e = end === undefined ? len : int(end);
+    k = k < 0 ? max(len + k, 0) : min(k, len);
+    e = e < 0 ? max(len + e, 0) : min(e, len);
+    for (; k < e; k++) o[k] = value;
+    return o;
+  });
+  // JSON.stringify: własny serializator – każdy kawałek wyniku liczony (toJSON, gettery i replacer wywoływane raz);
+  // natywny JSON.stringify tylko do cytowania prymitywnych łańcuchów (prymityw nie ma toJSON)
   def(JSON, "stringify", function (value, replacer, space) {
-    var gap = typeof space === "number" ? min(10, int(space)) : (typeof space === "string" ? space.substring(0, 10).length : 0);
+    var gap = "";
+    if (space !== null && typeof space === "object") {
+      if (hasInst(NumP, space)) space = num(space);
+      else if (hasInst(StrP, space)) space = str(space);
+    }
+    if (typeof space === "number") gap = rep(" ", max(0, min(10, int(space))));
+    else if (typeof space === "string") gap = sub(space, 0, 10);
     var allow = null, fn = typeof replacer === "function" ? replacer : null;
-    if (isArr(replacer)) { allow = {}; for (var i = 0; i < replacer.length; i++) allow["$" + str(replacer[i])] = true; }
-    var total = 0, nodes = 0;
-    function add(n) { total += n; lim(total); }
-    function walk(holder, key, v, depth) {
-      if (++nodes > MAXA) throw new RangeError("ZetPDF limit: object too large");
-      if (v !== null && typeof v === "object" && typeof v.toJSON === "function") v = v.toJSON(key);
-      if (fn) v = fn.call(holder, key, v);
-      if (v === null) { add(4); return null; }
+    if (isArr(replacer)) { allow = {}; var rl = replacer.length >>> 0; limA(rl); for (var i = 0; i < rl; i++) allow["$" + str(replacer[i])] = true; }
+    var out = [], total = 0, nodes = 0;
+    function put(x) { total += x.length; lim(total); push(out, x); }
+    function prim(v) {
+      if (v === null) return "null";
       var t = typeof v;
-      if (t === "string") { add(v.length * 6 + 2); return v; }
-      if (t === "number" || t === "boolean") { add(25); return v; }
-      if (t === "bigint" || t === "undefined" || t === "function" || t === "symbol") { if (t === "bigint") throw new TypeError("BigInt"); return undefined; }
-      if (v instanceof Number || v instanceof Boolean) { add(25); return v.valueOf(); }
-      if (v instanceof String) { var sv = str(v); add(sv.length * 6 + 2); return sv; }
-      add(2 + gap * depth);
+      if (t === "boolean") return v ? "true" : "false";
+      if (t === "number") return fin(v) ? str(v) : "null";
+      if (t === "string") { lim(total + v.length * 6 + 2); return quote(v); }
+      if (t === "bigint") throw new TE("BigInt");
+      return undefined;
+    }
+    // false, gdy wartość pomijana (undefined, funkcja, symbol)
+    function ser(holder, key, v, indent) {
+      if (++nodes > MAXA) throw new RE("ZetPDF limit: object too large");
+      if (v !== null && (typeof v === "object" || typeof v === "bigint") && typeof v.toJSON === "function") v = v.toJSON(key);
+      if (fn) v = fnApply(fn, holder, [key, v]);
+      if (v !== null && typeof v === "object") {
+        if (hasInst(NumP, v)) v = num(v);
+        else if (hasInst(StrP, v)) v = str(v);
+        else if (hasInst(BoolP, v)) { try { v = boolOf(v); } catch (e) { v = true; } }
+      }
+      if (v === null || typeof v !== "object") { var p = prim(v); if (p === undefined) return false; put(p); return true; }
+      var inner = indent + gap, first = true;
       if (isArr(v)) {
         var len = v.length >>> 0; limA(len);
-        var out = [];
-        for (var j = 0; j < len; j++) { var w = walk(v, str(j), v[j], depth + 1); push.call(out, w === undefined ? null : w); add(2 + gap * (depth + 1)); }
-        return out;
+        put("[");
+        for (var j = 0; j < len; j++) {
+          if (!first) put(",");
+          first = false;
+          if (gap) put("\n" + inner);
+          if (!ser(v, str(j), v[j], inner)) put("null");
+        }
+        if (!first && gap) put("\n" + indent);
+        put("]");
+        return true;
       }
-      var o = {}, ks = keys(v);
+      var ks = keys(v); limA(ks.length);
+      put("{");
       for (var k = 0; k < ks.length; k++) {
-        if (allow && !allow["$" + ks[k]]) continue;
-        var x = walk(v, ks[k], v[ks[k]], depth + 1);
-        if (x !== undefined) { o[ks[k]] = x; add(ks[k].length * 6 + 4 + gap * (depth + 1)); }
+        var key2 = ks[k];
+        if (allow && !allow["$" + key2]) continue;
+        var mark = out.length, before = total;
+        if (!first) put(",");
+        if (gap) put("\n" + inner);
+        put(quote(key2) + (gap ? ": " : ":"));
+        if (ser(v, key2, v[key2], inner)) first = false;
+        else { out.length = mark; total = before; }
       }
-      return o;
+      if (!first && gap) put("\n" + indent);
+      put("}");
+      return true;
     }
-    var snap = walk({ "": value }, "", value, 0);
-    return snap === undefined ? undefined : jsonStr(snap, null, gap > 0 ? (typeof space === "string" ? space.substring(0, 10) : gap) : undefined);
+    if (!ser({ "": value }, "", value, "")) return undefined;
+    var result = jn(out, "");
+    lim(result.length);
+    return result;
   });
   // bufory binarne i tablice typowane nie są potrzebne skryptom pól, a omijają limit rozmiaru tablic
   var bin = ["ArrayBuffer", "SharedArrayBuffer", "DataView", "Atomics", "Int8Array", "Uint8Array", "Uint8ClampedArray", "Int16Array", "Uint16Array",
