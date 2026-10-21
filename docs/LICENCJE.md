@@ -16,6 +16,7 @@ Stan: 17.10.2026, recenzent końcowy. Źródło listy: `dotnet list <projekt> pa
 | Tesseract (charlesw) | 5.2.0 | Apache-2.0 | Ocr | natywne: Tesseract 5 (Apache-2.0), Leptonica 1.82 (BSD-2-Clause) – osadzone w `ZetPDF.Ocr.dll` (DECYZJE D-07) |
 | tessdata_fast `pol.traineddata`, `eng.traineddata` | main (16.10.2026) | Apache-2.0 | `src\ZetPDF.Ocr\tessdata\` (osadzone) | plik `LICENSE` obok danych |
 | Fluent.Ribbon | 11.0.2 | MIT | App | licencja z pliku w pakiecie |
+| System.Speech | 8.0.0 | MIT | Viewer (czytanie na głos, etap 3) | SAPI 5 z Windows; głosy lokalne, bez sieci |
 | ControlzEx | 7.0.3 | MIT | App (przez Fluent.Ribbon) | |
 | Microsoft.Xaml.Behaviors.Wpf | 1.1.135 | MIT | App (przez ControlzEx) | |
 | CommunityToolkit.Mvvm | 8.4.2 | MIT | Core | |
