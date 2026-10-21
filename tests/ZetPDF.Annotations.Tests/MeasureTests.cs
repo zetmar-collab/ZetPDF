@@ -137,9 +137,13 @@ public class MeasureTests
             return Encoding.UTF8.GetString(svc.ExportCsv(items)).TrimStart('﻿');
         });
         var lines = csv.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries);
-        Assert.Equal("Strona;Typ;Wartość;Jednostka;Autor;Data;Skala", lines[0]);
-        Assert.StartsWith("1;Odległość;1,5;m;Jan Kowalski;", lines[1]);
-        Assert.EndsWith(";1 cm = 1,5 m", lines[1]);
+        Assert.Equal("sep=;", lines[0]);
+        Assert.Equal("Strona;Typ;Wartość;Jednostka;Autor;Data;Skala", lines[1]);
+        Assert.StartsWith("1;Odległość;\"1,5\";m;Jan Kowalski;", lines[2]);
+        Assert.EndsWith(";\"1 cm = 1,5 m\"", lines[2]);
+        var rows = Forms.FormDataIO.ParseCsv(csv);
+        Assert.Equal("Wartość", rows[0][2]);
+        Assert.Equal("1,5", rows[1][2]);
     }
 
     [Fact]

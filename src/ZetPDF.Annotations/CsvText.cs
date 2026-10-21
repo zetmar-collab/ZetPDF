@@ -7,6 +7,7 @@ namespace ZetPDF.Annotations;
 /// </summary>
 public static class CsvText
 {
+    private static readonly char[] Special = { ',', ';', '\t', '"', '\n', '\r' };
     private static readonly char[] Dangerous = { '=', '+', '-', '@', '\t', '\r' };
 
     public static bool NeedsNeutralizing(string s) => s.Length > 0 && Array.IndexOf(Dangerous, s[0]) >= 0;
@@ -20,10 +21,16 @@ public static class CsvText
     /// <summary>Komórka: neutralizacja (opcjonalnie) + cytowanie, gdy zawiera separator, cudzysłów lub koniec wiersza.</summary>
     public static string Cell(string? value, char separator, bool neutralize = true)
     {
+        _ = separator; // cytowanie nie zależy od separatora pliku (patrz niżej)
+        return CellCore(value, neutralize);
+    }
+
+    private static string CellCore(string? value, bool neutralize)
+    {
         var s = value ?? string.Empty;
         if (neutralize) s = Neutralize(s);
-        // przy separatorze ',' cytujemy też ';' (import wykrywa separator z nagłówka)
-        var special = separator == ',' ? new[] { ',', ';', '"', '\n', '\r' } : new[] { separator, '"', '\n', '\r' };
-        return s.IndexOfAny(special) >= 0 ? "\"" + s.Replace("\"", "\"\"") + "\"" : s;
+        // cytujemy ZAWSZE wartości z dowolnym znakiem separatora (',', ';', tabulator), cudzysłowem lub końcem wiersza –
+        // niezależnie od separatora pliku: czytnik z innym separatorem (ustawienia regionalne) nie rozbije wartości na komórki
+        return s.IndexOfAny(Special) >= 0 ? "\"" + s.Replace("\"", "\"\"") + "\"" : s;
     }
 }

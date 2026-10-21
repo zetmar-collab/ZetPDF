@@ -136,6 +136,7 @@ public sealed class MeasureService
         string T(string s) => CsvText.Cell(s, ';');               // tekst (z dokumentu / zasobów) – neutralizowany
         string N(string s) => CsvText.Cell(s, ';', neutralize: false); // liczby generowane przez program
         var sb = new StringBuilder();
+        sb.AppendLine("sep=;"); // Excel: separator niezależny od ustawień regionalnych (import ZetPDF tę linię pomija)
         sb.AppendLine(string.Join(";", new[] { "Page", "Type", "Value", "Unit", "Author", "Date", "Scale" }.Select(h => T(_annotations.TextsGet("Annot.Measure.Csv." + h)))));
         foreach (var m in items.OrderBy(m => m.Id.PageIndex))
             sb.AppendLine(string.Join(";",

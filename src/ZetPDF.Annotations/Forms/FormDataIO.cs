@@ -175,13 +175,35 @@ internal static class FormDataIO
         return result;
     }
 
-    /// <summary>CSV wg RFC 4180 (separator przecinek albo średnik – wykrywany z nagłówka).</summary>
+    /// <summary>
+    /// CSV wg RFC 4180. Separator: z pierwszej linii „sep=X” (Excel; linia pomijana) albo wykrywany z nagłówka
+    /// (przecinek, średnik lub tabulator – liczone poza cudzysłowami).
+    /// </summary>
     public static List<List<string>> ParseCsv(string text)
     {
         char sep = ',';
         int firstLineEnd = text.IndexOfAny(new[] { '\r', '\n' });
         var header = firstLineEnd < 0 ? text : text[..firstLineEnd];
-        if (header.Count(c => c == ';') > header.Count(c => c == ',')) sep = ';';
+        if (header.Length == 5 && header.StartsWith("sep=", StringComparison.OrdinalIgnoreCase))
+        {
+            sep = header[4];
+            int skip = firstLineEnd < 0 ? text.Length : firstLineEnd;
+            if (skip < text.Length && text[skip] == '\r') skip++;
+            if (skip < text.Length && text[skip] == '\n') skip++;
+            text = text[skip..];
+        }
+        else
+        {
+            int comma = 0, semi = 0, tab = 0;
+            bool q = false;
+            foreach (char c in header)
+            {
+                if (c == '"') q = !q;
+                else if (!q) { if (c == ',') comma++; else if (c == ';') semi++; else if (c == '\t') tab++; }
+            }
+            if (semi > comma && semi >= tab) sep = ';';
+            else if (tab > comma && tab > semi) sep = '\t';
+        }
         var rows = new List<List<string>>();
         var row = new List<string>();
         var cell = new StringBuilder();

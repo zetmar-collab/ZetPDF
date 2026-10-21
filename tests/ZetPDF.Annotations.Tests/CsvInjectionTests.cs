@@ -26,8 +26,32 @@ public class CsvInjectionTests
     [Fact]
     public void Program_numbers_are_not_neutralized_and_quoting_still_applies()
     {
-        Assert.Equal("-12,5", CsvText.Cell("-12,5", ';', neutralize: false));
+        Assert.Equal("-12", CsvText.Cell("-12", ';', neutralize: false));
+        Assert.Equal("\"-12,5\"", CsvText.Cell("-12,5", ';', neutralize: false));
         Assert.Equal("\"'=A;B\"", CsvText.Cell("=A;B", ';'));
+    }
+
+    [Theory]
+    [InlineData(';')]
+    [InlineData(',')]
+    public void Values_with_any_separator_are_always_quoted(char sep)
+    {
+        Assert.Equal("\"a,=1+1\"", CsvText.Cell("a,=1+1", sep));
+        Assert.Equal("\"a;=1+1\"", CsvText.Cell("a;=1+1", sep));
+        Assert.Equal("\"a\t@x\"", CsvText.Cell("a\t@x", sep));
+        Assert.Equal("\"'=a,b\"", CsvText.Cell("=a,b", sep));
+    }
+
+    [Fact]
+    public async Task Csv_import_skips_sep_line()
+    {
+        var parsed = Forms.FormDataIO.ParseCsv("sep=;\r\nimie;zgoda\r\n\"Kowalski, Jan\";Yes\r\n");
+        Assert.Equal(new[] { "imie", "zgoda" }, parsed[0]);
+        Assert.Equal("Kowalski, Jan", parsed[1][0]);
+        var forms = new FormService();
+        var data = Encoding.UTF8.GetBytes("sep=;\r\nimie\r\n\"Zażółć, gęślą\"\r\n");
+        var pdf = await forms.ImportDataAsync(SamplePdfFactory.WithForm(), new MemoryStream(data), FormDataFormat.Csv);
+        Assert.Equal("Zażółć, gęślą", (await forms.GetFieldsAsync(pdf)).Single(f => f.FullName == "imie").Value);
     }
 
     [Fact]
@@ -40,8 +64,7 @@ public class CsvInjectionTests
             Points = new[] { new PdfPoint(10, 10), new PdfPoint(100, 10) },
         });
         var csv = Encoding.UTF8.GetString(svc.ExportCsv(await svc.GetMeasurementsAsync(pdf))).TrimStart('﻿');
-        var row = csv.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries)[1];
-        var cells = Forms.FormDataIO.ParseCsv(row)[0];
+        var cells = Forms.FormDataIO.ParseCsv(csv)[1];
         Assert.StartsWith("'=HYPERLINK(", cells[4]);
         Assert.DoesNotContain(cells, c => c.StartsWith('='));
     }
