@@ -1,0 +1,5 @@
+﻿ZetPDF 0.1.0-test – test dymny exe 2026-10-21 13:31
+Pliki z linii poleceń: C:\Users\Marek\Claude\PDF-Edytor\scratch\recenzja\Próbny folder ąę\uszkodzony ąę.pdf
+    okno: „Błąd” (MessageWindow) → dialog01.png, zamknięte (Anuluj)
+BŁĄD: dokument się nie otworzył
+WYNIK: 1 problemów

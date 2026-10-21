@@ -1,0 +1,31 @@
+﻿ZetPDF 0.1.0-test – test dymny exe 2026-10-21 13:31
+Pliki z linii poleceń: C:\Users\Marek\Claude\PDF-Edytor\scratch\recenzja\Próbny folder ąę\500 stron ąę.pdf
+Otwarto: C:\Users\Marek\Claude\PDF-Edytor\scratch\recenzja\Próbny folder ąę\500 stron ąę.pdf (500 str., zaszyfrowany=False)
+[Początek] View.ZoomIn (Powiększ): wykonane
+[Początek] Tool.SelectText (Zaznacz tekst): wykonane
+    okno: „Edycja i konwersja” (MessageWindow) → dialog01.png, zamknięte (Anuluj)
+[Konwertuj] Ocr.QuickRecognize (Szybkie rozpoznawanie): wykonane
+    okno: „Edycja i konwersja” (MessageWindow) → dialog02.png, zamknięte (Anuluj)
+[Edytuj] Edit.CreateLinksFromUrls (Utwórz łącza z adresów URL): wykonane
+[Organizuj] Pages.RotateRight (Obróć w prawo): wykonane, dokument zmieniony
+[Organizuj] Pages.Duplicate (Duplikuj): wykonane, dokument zmieniony
+[Komentarz] Comment.HideAll (Ukryj wszystkie komentarze): wykonane
+[Komentarz] Comment.ShowAll (Pokaż wszystkie komentarze): wykonane
+[Widok] View.TwoPages (Dwie strony): wykonane
+[Widok] View.RotateRight (Obróć widok w prawo): wykonane
+[Formularz] Form.HighlightFields (Wyróżnij pola): wykonane
+    okno: „ZetPDF” (MessageWindow) → dialog03.png, zamknięte (Anuluj)
+[Formularz] Form.Reset (Resetuj formularz): wykonane
+    okno: „Właściwości zabezpieczeń” (SecurityPropertiesDialog) → dialog04.png, zamknięte (Anuluj)
+[Ochrona] Security.Properties (Właściwości zabezpieczeń): wykonane
+    okno: „O programie” (AboutWindow) → dialog05.png, zamknięte (Anuluj)
+[Pomoc] Help.About (O programie): wykonane
+    okno: „Właściwości dokumentu” (DocumentPropertiesWindow) → dialog06.png, zamknięte (Anuluj)
+[Plik] File.Properties (Właściwości dokumentu): wykonane
+[Cofnij] Edit.Undo (Cofnij): wykonane, dokument zmieniony
+[Ponów] Edit.Redo (Ponów): wykonane, dokument zmieniony
+Przełączono: język=en, motyw=Dark; etykieta Zapisz = „Save”
+Przełączono: język=pl, motyw=Light; etykieta Zapisz = „Zapisz”
+Zapisano jako: C:\Users\Marek\Claude\PDF-Edytor\scratch\recenzja\Próbny folder ąę\500 stron ąę – zapisany przez exe.pdf (398878 B), zmodyfikowany po zapisie=False
+Ponowne otwarcie: OK – stron 501 (oczekiwano 501, przed zmianami 500)
+WYNIK: OK

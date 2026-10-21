@@ -1,0 +1,41 @@
+ZetPDF 0.1.0-test – third-party components / komponenty zewnętrzne
+=====================================================================
+
+Component                                   Version      License           License text in this folder
+------------------------------------------  -----------  ----------------  ---------------------------------------
+PDFsharp (empira Software GmbH)             6.2.4        MIT               MIT.txt
+PdfPig (UglyToad and contributors)          0.1.16       Apache-2.0        Apache-2.0.txt
+PDFium (The PDFium Authors, Foxit)          157.0.8100   BSD-3-Clause      BSD-3-Clause.txt, PDFium-ThirdParty.txt
+  + FreeType                                             FTL               notice in PDFium-ThirdParty.txt (*)
+  + libjpeg-turbo / IJG                                  IJG, BSD-3, zlib  notice in PDFium-ThirdParty.txt (*)
+  + OpenJPEG                                             BSD-2-Clause      BSD-2-Clause.txt
+  + Little CMS                                           MIT               MIT.txt
+  + zlib                                                 zlib              zlib.txt
+  + libpng                                               libpng-2.0        notice in PDFium-ThirdParty.txt (*)
+  + Abseil                                               Apache-2.0        Apache-2.0.txt
+  + ICU                                                  Unicode           notice in PDFium-ThirdParty.txt (*)
+  + AGG 2.3                                              permissive        full text in PDFium-ThirdParty.txt
+pdfium-binaries (Benoît Blanchon)           157.0.8100   Apache-2.0        Apache-2.0.txt
+PDFiumCore (Dtronix)                        157.0.8100   Apache-2.0        Apache-2.0.txt
+Tesseract .NET wrapper (Charles Weld)       5.2.0        Apache-2.0        Apache-2.0.txt
+Tesseract OCR engine                        5.x          Apache-2.0        Apache-2.0.txt
+Leptonica                                   1.82         BSD-2-Clause      BSD-2-Clause.txt
+tessdata_fast pol, eng                      main         Apache-2.0        tessdata-LICENSE.txt
+Fluent.Ribbon                               11.0.2       MIT               Fluent.Ribbon-License.txt
+ControlzEx                                  7.0.3        MIT               MIT.txt
+Microsoft.Xaml.Behaviors.Wpf                1.1.135      MIT               MIT.txt
+CommunityToolkit.Mvvm                       8.4.2        MIT               MIT.txt
+Microsoft.Extensions.* (DI, Logging, ...)   8.0.x        MIT               MIT.txt
+System.Security.Cryptography.Pkcs           8.0.2        MIT               MIT.txt
+System.Security.Cryptography.ProtectedData  8.0.0        MIT               MIT.txt
+System.Text.Json, System.IO.Packaging,      8.0.x/4.7.0  MIT               MIT.txt
+System.Reflection.Emit
+DocumentFormat.OpenXml (+ Framework)        3.5.1        MIT               MIT.txt
+.NET 8 runtime and WPF                      8.0.x        MIT               MIT.txt
+
+(*) The full license texts of FreeType (FTL), IJG, libpng-2.0 and Unicode/ICU are NOT included in this test build.
+    Before commercial distribution add the LICENSE file of https://github.com/bblanchon/pdfium-binaries
+    (release 157.0.8100). / Pełne teksty tych licencji NIE są dołączone do wersji testowej – patrz README.txt.
+
+No AGPL/GPL components. PDFsharp is pinned to 6.2.4 (MIT); PDFsharp 6.5+ is AGPL and is not used.
+Brak komponentów AGPL/GPL. PDFsharp przypięty do 6.2.4 (MIT); PDFsharp 6.5+ ma licencję AGPL i nie jest używany.

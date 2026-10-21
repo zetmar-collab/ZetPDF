@@ -1,0 +1,28 @@
+﻿ZetPDF 0.1.0-test – test dymny exe 2026-10-21 13:31
+Pliki z linii poleceń: C:\Users\Marek\Claude\PDF-Edytor\scratch\recenzja\Próbny folder ąę\aes256-tylko-uprawnienia.pdf
+Otwarto: C:\Users\Marek\Claude\PDF-Edytor\scratch\recenzja\Próbny folder ąę\aes256-tylko-uprawnienia.pdf (1 str., zaszyfrowany=True)
+[Początek] View.ZoomIn (Powiększ): wykonane
+[Początek] Tool.SelectText (Zaznacz tekst): wykonane
+[Konwertuj] Ocr.QuickRecognize (Szybkie rozpoznawanie): NIEDOSTĘPNE
+[Edytuj] Edit.CreateLinksFromUrls (Utwórz łącza z adresów URL): NIEDOSTĘPNE
+[Organizuj] Pages.RotateRight (Obróć w prawo): NIEDOSTĘPNE – OCZEKIWANO ZMIANY
+[Organizuj] Pages.Duplicate (Duplikuj): NIEDOSTĘPNE – OCZEKIWANO ZMIANY
+[Komentarz] Comment.HideAll (Ukryj wszystkie komentarze): wykonane
+[Komentarz] Comment.ShowAll (Pokaż wszystkie komentarze): wykonane
+[Widok] View.TwoPages (Dwie strony): wykonane
+[Widok] View.RotateRight (Obróć widok w prawo): wykonane
+[Formularz] Form.HighlightFields (Wyróżnij pola): wykonane
+[Formularz] Form.Reset (Resetuj formularz): NIEDOSTĘPNE
+    okno: „Właściwości zabezpieczeń” (SecurityPropertiesDialog) → dialog01.png, zamknięte (Anuluj)
+[Ochrona] Security.Properties (Właściwości zabezpieczeń): wykonane
+    okno: „O programie” (AboutWindow) → dialog02.png, zamknięte (Anuluj)
+[Pomoc] Help.About (O programie): wykonane
+    okno: „Właściwości dokumentu” (DocumentPropertiesWindow) → dialog03.png, zamknięte (Anuluj)
+[Plik] File.Properties (Właściwości dokumentu): wykonane
+[Cofnij] Edit.Undo (Cofnij): NIEDOSTĘPNE – OCZEKIWANO ZMIANY
+[Ponów] Edit.Redo (Ponów): NIEDOSTĘPNE – OCZEKIWANO ZMIANY
+Przełączono: język=en, motyw=Dark; etykieta Zapisz = „Save”
+Przełączono: język=pl, motyw=Light; etykieta Zapisz = „Zapisz”
+    okno: „Ochrona dokumentu” (MessageWindow) → dialog04.png, zamknięte (Anuluj)
+Zapis anulowany w oknie ochrony
+WYNIK: 8 problemów
