@@ -9,7 +9,8 @@ namespace ZetPDF.Annotations.UI;
 /// <summary>Polecenia etapu 3: kalkulator księgowy, pole kodu kreskowego, skrypty formularza.</summary>
 internal sealed partial class AnnotationCommands
 {
-    private CalculatorWindow? _calculator;
+    private readonly Measure.CalculatorTape _calcTape = new();
+    private string? _calcLastSelection;
     private ClickTool? _calcInsertTool;
     private string _calcInsertText = string.Empty;
 
@@ -22,22 +23,31 @@ internal sealed partial class AnnotationCommands
         RegisterScripts();
     }
 
+    /// <summary>
+    /// Kalkulator: okno modalne (IDialogService), taśma zachowywana między otwarciami. Przy otwarciu dodaje liczby z nowego
+    /// zaznaczenia tekstu; „Wstaw na stronę” zamyka okno i uruchamia narzędzie wskazania miejsca.
+    /// </summary>
     private void ShowCalculator()
     {
-        if (_calculator is { IsLoaded: true })
+        string? insert = null;
+        CalculatorWindow? dlg = null;
+        dlg = new CalculatorWindow(_loc, () => _ctx.ActiveView?.TextSelection?.Text, text =>
         {
-            _calculator.Activate();
-            return;
+            insert = text;
+            dlg!.Close();
+        }, _calcTape);
+        var selection = _ctx.ActiveView?.TextSelection?.Text;
+        if (!string.IsNullOrWhiteSpace(selection) && selection != _calcLastSelection)
+        {
+            _calcLastSelection = selection;
+            dlg.AddSelection();
         }
-        _calculator = new CalculatorWindow(_loc, () => _ctx.ActiveView?.TextSelection?.Text, text =>
-        {
-            if (!CanAnnotate() || _calcInsertTool is null) { _ctx.Shell?.SetStatus(_loc["Annot.Calc.NoDocument"]); return; }
-            _calcInsertText = text;
-            _ctx.Shell?.SetStatus(_loc["Annot.Calc.InsertHint"]);
-            Activate(_calcInsertTool);
-        });
-        _calculator.Closed += (_, _) => _calculator = null;
-        _calculator.Show();
+        Ui.Show(Dialogs, dlg);
+        if (insert is null) return;
+        if (!CanAnnotate() || _calcInsertTool is null) { _ctx.Shell?.SetStatus(_loc["Annot.Calc.NoDocument"]); return; }
+        _calcInsertText = insert;
+        _ctx.Shell?.SetStatus(_loc["Annot.Calc.InsertHint"]);
+        Activate(_calcInsertTool);
     }
 
     private Task InsertCalcResult(IPdfDocumentSession s, int page, PdfPoint at)
@@ -102,8 +112,8 @@ internal sealed partial class AnnotationCommands
                 _ctx.SetScriptPolicy(s, policy);
                 var report = new Forms.Scripting.ScriptReport();
                 await _ctx.RunAsync(s, "Annot.Undo.FormRecalculate", (pdf, ct) => _ctx.Forms.RecalculateAsync(pdf, policy, report, ct),
-                    DocumentChangeKind.FormFields, DocumentPermissions.FillForms);
-                _ctx.ShowScriptReport(report);
+                    DocumentChangeKind.FormFields, DocumentPermissions.FillForms, cancellation: AnnotContext.ScriptCommandToken());
+                _ctx.ShowScriptReport(s, report);
             });
         Ui.Show(Dialogs, dlg);
         _ctx.SetScriptPolicy(s, dlg.Policy);

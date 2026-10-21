@@ -173,8 +173,8 @@ internal sealed class FormFillController
         var report = new Forms.Scripting.ScriptReport();
         var policy = _ctx.ScriptPolicyFor(session);
         bool ok = await _ctx.RunAsync(session, "Annot.Undo.FormFill", (pdf, ct) => _ctx.Forms.SetValuesAsync(pdf, new Dictionary<string, string> { [name] = value }, policy, report, ct),
-            DocumentChangeKind.FormFields, DocumentPermissions.FillForms);
-        _ctx.ShowScriptReport(report);
+            DocumentChangeKind.FormFields, DocumentPermissions.FillForms, cancellation: AnnotContext.ScriptCommandToken());
+        _ctx.ShowScriptReport(session, report);
         return ok;
     }
 
@@ -185,7 +185,7 @@ internal sealed class FormFillController
         {
             case FormButtonAction.ResetForm:
                 var policy = _ctx.ScriptPolicyFor(session);
-                await _ctx.RunAsync(session, "Annot.Undo.FormReset", (pdf, ct) => _ctx.Forms.ResetAsync(pdf, null, policy, ct), DocumentChangeKind.FormFields, DocumentPermissions.FillForms);
+                await _ctx.RunAsync(session, "Annot.Undo.FormReset", (pdf, ct) => _ctx.Forms.ResetAsync(pdf, null, policy, ct), DocumentChangeKind.FormFields, DocumentPermissions.FillForms, cancellation: AnnotContext.ScriptCommandToken());
                 break;
             case FormButtonAction.OpenUrl when Uri.TryCreate(spec.ButtonUrl, UriKind.Absolute, out var uri) && uri.Scheme is "http" or "https" or "mailto":
                 if (_ctx.Dialogs?.Confirm(_ctx.Loc.Format("Annot.Form.OpenUrlConfirm", uri.AbsoluteUri)) == true)

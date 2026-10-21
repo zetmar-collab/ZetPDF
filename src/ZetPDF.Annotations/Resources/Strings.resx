@@ -294,4 +294,7 @@
   <data name="Annot.Script.Alert.Format" xml:space="preserve"><value>The value does not match the required format.</value></data>
   <data name="Annot.Undo.FormScript" xml:space="preserve"><value>Form script</value></data>
   <data name="Annot.Undo.FormRecalculate" xml:space="preserve"><value>Recalculate form</value></data>
+  <data name="Annot.Script.Budget" xml:space="preserve"><value>Form scripts took too long – the remaining scripts were skipped (limit: 2 s and 1000 events per change).</value></data>
+  <data name="Annot.Script.AutoDisabled" xml:space="preserve"><value>Form scripts in this document repeatedly exceeded the limits and have been turned off. You can turn them on again in Form &gt; Form Scripts.</value></data>
+  <data name="Annot.Script.FieldTrigger" xml:space="preserve"><value>{0} – {1}</value></data>
 </root>

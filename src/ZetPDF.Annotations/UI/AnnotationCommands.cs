@@ -407,8 +407,8 @@ internal sealed partial class AnnotationCommands
         var fmt = FormService.FormatFromPath(files[0]);
         var policy = _ctx.ScriptPolicyFor(s);
         var report = new Forms.Scripting.ScriptReport();
-        await _ctx.RunAsync(s, "Annot.Undo.FormImport", (pdf, ct) => _ctx.Forms.SetValuesAsync(pdf, Forms.FormDataIO.Import(data, fmt), policy, report, ct), DocumentChangeKind.FormFields, DocumentPermissions.FillForms);
-        _ctx.ShowScriptReport(report);
+        await _ctx.RunAsync(s, "Annot.Undo.FormImport", (pdf, ct) => _ctx.Forms.SetValuesAsync(pdf, Forms.FormDataIO.Import(data, fmt), policy, report, ct), DocumentChangeKind.FormFields, DocumentPermissions.FillForms, cancellation: AnnotContext.ScriptCommandToken());
+        _ctx.ShowScriptReport(s, report);
     }
 
     private async Task ExportDataAsync(IPdfDocumentSession s)
@@ -425,7 +425,7 @@ internal sealed partial class AnnotationCommands
     {
         if (Dialogs is { } d && !d.Confirm(_loc["Annot.Form.ResetConfirm"])) return;
         var policy = _ctx.ScriptPolicyFor(s);
-        await _ctx.RunAsync(s, "Annot.Undo.FormReset", (pdf, ct) => _ctx.Forms.ResetAsync(pdf, null, policy, ct), DocumentChangeKind.FormFields, DocumentPermissions.FillForms);
+        await _ctx.RunAsync(s, "Annot.Undo.FormReset", (pdf, ct) => _ctx.Forms.ResetAsync(pdf, null, policy, ct), DocumentChangeKind.FormFields, DocumentPermissions.FillForms, cancellation: AnnotContext.ScriptCommandToken());
     }
 
     // ================================================================== Wypełnij i podpisz

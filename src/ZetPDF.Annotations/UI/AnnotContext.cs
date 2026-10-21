@@ -120,7 +120,45 @@ internal sealed class AnnotContext
     public void SetScriptPolicy(IPdfDocumentSession session, ZetPDF.Annotations.Forms.Scripting.ScriptPolicy policy) => _scriptPolicies[session.Id] = policy;
 
     /// <summary>Komunikaty skryptów (app.alert, błędy, odrzucone wartości) – w pasku stanu, bez okien wyskakujących.</summary>
-    public void ShowScriptReport(ZetPDF.Annotations.Forms.Scripting.ScriptReport report)
+    private readonly Dictionary<Guid, int> _scriptStrikes = new();
+
+    /// <summary>
+    /// Token dla poleceń wykonujących skrypty formularza: twardy limit całego polecenia (praca i tak trwa poza wątkiem UI;
+    /// budżet skryptów to 2 s – ten limit chroni przed zawieszeniem przy nieprzewidzianej pętli w kodzie hosta).
+    /// </summary>
+    public static CancellationToken ScriptCommandToken() => new CancellationTokenSource(TimeSpan.FromSeconds(30)).Token;
+
+    /// <summary>Po tylu przebiegach z przekroczonymi limitami skrypty dokumentu są wyłączane automatycznie.</summary>
+    public const int ScriptStrikeLimit = 3;
+
+    /// <summary>
+    /// Komunikat po przebiegu skryptów; przy powtarzających się przekroczeniach limitów (albo braku pamięci) wyłącza
+    /// wykonywanie skryptów dla dokumentu.
+    /// </summary>
+    public void ShowScriptReport(IPdfDocumentSession session, ZetPDF.Annotations.Forms.Scripting.ScriptReport report)
+    {
+        if (report.HitLimits)
+        {
+            int strikes = _scriptStrikes.TryGetValue(session.Id, out var s) ? s + 1 : 1;
+            _scriptStrikes[session.Id] = strikes;
+            if ((report.OutOfMemory || strikes >= ScriptStrikeLimit) && ScriptPolicyFor(session) != ZetPDF.Annotations.Forms.Scripting.ScriptPolicy.Off)
+            {
+                SetScriptPolicy(session, ZetPDF.Annotations.Forms.Scripting.ScriptPolicy.Off);
+                _scriptStrikes.Remove(session.Id);
+                Shell?.SetStatus(Loc["Annot.Script.AutoDisabled"]);
+                Dialogs?.ShowMessage(Loc["Annot.Script.AutoDisabled"], null, MessageSeverity.Warning);
+                return;
+            }
+            if (report.BudgetExceeded)
+            {
+                Shell?.SetStatus(Loc["Annot.Script.Budget"]);
+                return;
+            }
+        }
+        ShowScriptReport(report);
+    }
+
+    private void ShowScriptReport(ZetPDF.Annotations.Forms.Scripting.ScriptReport report)
     {
         if (report.Rejected.Count > 0)
             Shell?.SetStatus(Loc.Format("Annot.Script.Rejected", string.Join(", ", report.Rejected.Distinct())) + (report.Alerts.Count > 0 ? " " + report.Alerts[0] : ""));
@@ -155,12 +193,13 @@ internal sealed class AnnotContext
 
     /// <summary>Wykonuje zmianę dokumentu jako polecenie z Cofnij/Ponów. Błędy → okno błędu. Zwraca, czy coś zmieniono.</summary>
     public async Task<bool> RunAsync(IPdfDocumentSession session, string undoKey, Func<byte[], CancellationToken, Task<byte[]>> transform,
-        DocumentChangeKind kind = DocumentChangeKind.Annotations, DocumentPermissions permission = DocumentPermissions.Annotate, IReadOnlyList<int>? pages = null)
+        DocumentChangeKind kind = DocumentChangeKind.Annotations, DocumentPermissions permission = DocumentPermissions.Annotate, IReadOnlyList<int>? pages = null,
+        CancellationToken cancellation = default)
     {
         try
         {
             var cmd = new DelegateDocumentCommand(undoKey, (pdf, _, ct) => transform(pdf, ct), kind, permission, pages);
-            return await session.ExecuteAsync(cmd);
+            return await session.ExecuteAsync(cmd, null, cancellation);
         }
         catch (OperationCanceledException) { return false; }
         catch (Exception ex)

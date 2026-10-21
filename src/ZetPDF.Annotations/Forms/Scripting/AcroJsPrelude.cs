@@ -8,7 +8,35 @@ namespace ZetPDF.Annotations.Forms.Scripting;
 /// </summary>
 internal static class AcroJsPrelude
 {
+    /// <summary>Maks. długość łańcucha tworzonego przez repeat/padStart/padEnd/join i wartości pola (znaki).</summary>
+    public const int MaxStringLength = 1024 * 1024;
+
+    /// <summary>Maks. liczba elementów tablicy dla join/fill (zgodnie z Constraints.MaxArraySize).</summary>
+    public const int MaxArrayLength = 100_000;
+
     public const string Source = """
+(function () {
+  // Ograniczenia pojedynczych dużych alokacji (limit pamięci Jint jest sprawdzany dopiero między instrukcjami)
+  var MAXS = 1048576, MAXA = 100000;
+  var rep = String.prototype.repeat, ps = String.prototype.padStart, pe = String.prototype.padEnd;
+  var jn = Array.prototype.join, fl = Array.prototype.fill;
+  function lim(n) { if (!(n <= MAXS)) throw new RangeError("ZetPDF limit: string too long"); }
+  function limA(n) { if (!(n <= MAXA)) throw new RangeError("ZetPDF limit: array too long"); }
+  function def(o, k, f) { Object.defineProperty(o, k, { value: f, writable: false, configurable: false, enumerable: false }); }
+  def(String.prototype, "repeat", function (c) { var n = Math.floor(Number(c) || 0); if (n > 0) lim(String(this).length * n); return rep.call(this, c); });
+  def(String.prototype, "padStart", function (n, f) { lim(Math.floor(Number(n) || 0)); return ps.call(this, n, f); });
+  def(String.prototype, "padEnd", function (n, f) { lim(Math.floor(Number(n) || 0)); return pe.call(this, n, f); });
+  def(Array.prototype, "join", function (sep) {
+    var len = this.length >>> 0;
+    limA(len);
+    var s = sep === undefined ? 1 : String(sep).length, total = len > 0 ? (len - 1) * s : 0;
+    lim(total);
+    for (var i = 0; i < len; i++) { var e = this[i]; if (e !== null && e !== undefined) { total += String(e).length; lim(total); } }
+    return jn.call(this, sep);
+  });
+  def(Array.prototype, "fill", function () { limA(this.length >>> 0); return fl.apply(this, arguments); });
+})();
+function __str(v) { var s = v === null || v === undefined ? "" : String(v); if (s.length > 1048576) throw new RangeError("ZetPDF limit: value too long"); return s; }
 var event = { value: "", rc: true, willCommit: true, change: "", changeEx: "", name: "", type: "Field", target: null, targetName: "", selStart: 0, selEnd: 0, modifier: false, shift: false };
 function __val(s) {
   if (typeof s !== "string") return s;

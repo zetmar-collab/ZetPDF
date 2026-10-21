@@ -35,11 +35,12 @@ internal static class FormCalculation
         AnnotationsModule.Strings.GetString(key, System.Globalization.CultureInfo.CurrentUICulture) ?? key;
 
     /// <summary>Stosuje zmiany (null = tylko przeliczenie) i zwraca teksty wyświetlane wg skryptów formatu.</summary>
-    public static Dictionary<string, string> Apply(PdfDocument doc, IReadOnlyDictionary<string, string>? changes, ScriptPolicy policy, ScriptReport report, CancellationToken ct)
+    /// <param name="budget">Łączny budżet przebiegu (czas, liczba zdarzeń); null = domyślny (<see cref="ScriptBudget"/>).</param>
+    public static Dictionary<string, string> Apply(PdfDocument doc, IReadOnlyDictionary<string, string>? changes, ScriptPolicy policy, ScriptReport report, CancellationToken ct, ScriptBudget? budget = null)
     {
         var terminals = FieldTree.Terminals(doc);
         var byName = terminals.GroupBy(f => f.FullName).ToDictionary(g => g.Key, g => g.First(), StringComparer.Ordinal);
-        var runner = new ScriptRunner(new Host(doc, byName), report, Localize, ct);
+        var runner = new ScriptRunner(new Host(doc, byName), report, Localize, ct, budget ?? new ScriptBudget());
         bool Can(string code)
         {
             if (FormScripts.MayRun(code, policy)) return true;

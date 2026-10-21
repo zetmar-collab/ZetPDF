@@ -1,4 +1,7 @@
 using System.Diagnostics;
+using Microsoft.Extensions.DependencyInjection;
+using ZetPDF.Core.Documents;
+using ZetPDF.Core.Services;
 using ZetPDF.Annotations.Forms.Scripting;
 using ZetPDF.Core.Contracts;
 using ZetPDF.TestData;
@@ -94,6 +97,75 @@ public class FormScriptTests
         Assert.Equal("1", await ValueAsync(result, "A"));
     }
 
+    [Theory]
+    [InlineData("event.value = 'x'.repeat(1e9);")]
+    [InlineData("event.value = 'x'.padStart(1e9);")]
+    [InlineData("event.value = 'x'.padEnd(2e9, 'ab');")]
+    [InlineData("event.value = Array(1e9).join('x');")]
+    [InlineData("event.value = new Array(50000).fill('x'.repeat(1000)).join('');")]
+    [InlineData("var s = 'x'; while (true) s = s + s;")]
+    public async Task Huge_allocations_are_script_errors_and_process_survives(string script)
+    {
+        var pdf = await SumFormAsync(script);
+        var report = new ScriptReport();
+        var result = await _forms.SetValuesAsync(pdf, new Dictionary<string, string> { ["A"] = "1" }, ScriptPolicy.All, report);
+        Assert.NotEmpty(report.Errors);
+        Assert.True(report.HitLimits || report.Errors.Count > 0);
+        Assert.Equal("", await ValueAsync(result, "C"));
+        Assert.Equal("1", await ValueAsync(result, "A"));
+    }
+
+    [Fact]
+    public async Task Infinite_loops_in_many_fields_are_limited_by_the_total_budget()
+    {
+        var pdf = SamplePdfFactory.Text(1);
+        pdf = Core.Documents.PdfSharpEdit.Modify(pdf, doc =>
+        {
+            for (int i = 0; i < 300; i++)
+            {
+                Forms.FormEngine.Create(doc, new FormFieldSpec { Kind = FormFieldKind.Text, Name = "L" + i, PageIndex = 0, Rect = new PdfRect(50 + i % 10 * 50, 100 + i / 10 * 20, 90 + i % 10 * 50, 115 + i / 10 * 20) });
+                FormScripts.SetFieldScript(doc, Forms.FieldTree.Find(doc, "L" + i)!, ScriptTrigger.Calculate, "while (true) { }");
+            }
+        });
+        // każdy skrypt przerywa limit instrukcji/czasu; łączny czas ogranicza budżet przebiegu (tu 300 ms)
+        var report = new ScriptReport();
+        var sw = Stopwatch.StartNew();
+        Core.Documents.PdfSharpEdit.Modify(pdf, doc => { FormCalculation.Apply(doc, null, ScriptPolicy.All, report, CancellationToken.None, new ScriptBudget(TimeSpan.FromMilliseconds(300))); });
+        Assert.True(sw.Elapsed < TimeSpan.FromSeconds(3), sw.Elapsed.ToString());
+        Assert.True(report.BudgetExceeded);
+        Assert.True(report.LimitHits >= 1);
+        Assert.True(report.Executed + report.Errors.Count < 300);
+        // domyślny budżet przez usługę: kończy się w rozsądnym czasie
+        var r2 = new ScriptReport();
+        sw.Restart();
+        await _forms.RecalculateAsync(pdf, ScriptPolicy.All, r2);
+        Assert.True(sw.Elapsed < TimeSpan.FromSeconds(10), sw.Elapsed.ToString());
+        Assert.True(r2.LimitHits >= 1);
+    }
+
+    [Fact]
+    public async Task Five_thousand_calculated_fields_are_cut_by_the_budget()
+    {
+        var pdf = SamplePdfFactory.Text(1);
+        pdf = Core.Documents.PdfSharpEdit.Modify(pdf, doc =>
+        {
+            Forms.FormEngine.Create(doc, new FormFieldSpec { Kind = FormFieldKind.Text, Name = "A", PageIndex = 0, Rect = new PdfRect(10, 10, 20, 20) });
+            for (int i = 0; i < 5000; i++)
+            {
+                Forms.FormEngine.Create(doc, new FormFieldSpec { Kind = FormFieldKind.Text, Name = "F" + i, PageIndex = 0, Rect = new PdfRect(10 + i % 50 * 11, 30 + i / 50 * 7, 20 + i % 50 * 11, 36 + i / 50 * 7) });
+            }
+            foreach (var f in Forms.FieldTree.Terminals(doc).Where(f => f.FullName != "A"))
+                FormScripts.SetFieldScript(doc, f, ScriptTrigger.Calculate, "var s = 0; for (var i = 0; i < 2000; i++) s += i; event.value = s + Number(this.getField('A').value);");
+        });
+        var report = new ScriptReport();
+        var sw = Stopwatch.StartNew();
+        await _forms.SetValuesAsync(pdf, new Dictionary<string, string> { ["A"] = "1" }, ScriptPolicy.All, report);
+        Assert.True(report.BudgetExceeded);
+        Assert.True(report.Executed <= ScriptBudget.DefaultMaxEvents);
+        Assert.True(report.Skipped > 0);
+        Assert.True(sw.Elapsed < TimeSpan.FromSeconds(60), sw.Elapsed.ToString());
+    }
+
     [Fact]
     public async Task Sandbox_has_no_clr_network_or_file_access()
     {
@@ -139,6 +211,44 @@ public class FormScriptTests
         var pdf = SamplePdfFactory.WithMetadataAttachmentAndJavaScript();
         var scripts = await _forms.GetScriptsAsync(pdf);
         Assert.Contains(scripts, s => s.FieldName is null && !s.IsEditable);
+    }
+
+    [Fact]
+    public void Repeated_limit_hits_turn_scripts_off_for_the_document()
+    {
+        var s = new ServiceCollection();
+        s.AddZetPdfCore(new AppPaths(TestPaths.NewDirectory()));
+        new AnnotationsModule().ConfigureServices(s);
+        using var sp = s.BuildServiceProvider();
+        var ctx = sp.GetRequiredService<UI.AnnotContext>();
+        var session = new StubSession();
+        ctx.SetScriptPolicy(session, ScriptPolicy.All);
+        for (int i = 1; i < UI.AnnotContext.ScriptStrikeLimit; i++)
+        {
+            ctx.ShowScriptReport(session, new ScriptReport { BudgetExceeded = true });
+            Assert.Equal(ScriptPolicy.All, ctx.ScriptPolicyFor(session));
+        }
+        ctx.ShowScriptReport(session, new ScriptReport { LimitHits = 1 });
+        Assert.Equal(ScriptPolicy.Off, ctx.ScriptPolicyFor(session));
+        // brak pamięci – od razu
+        var other = new StubSession();
+        ctx.ShowScriptReport(other, new ScriptReport { OutOfMemory = true });
+        Assert.Equal(ScriptPolicy.Off, ctx.ScriptPolicyFor(other));
+    }
+
+    private sealed class StubSession : IPdfDocumentSession
+    {
+        public Guid Id { get; } = Guid.NewGuid();
+        public string? FilePath => null;
+        public string DisplayName => "stub";
+        public DocumentSnapshot Current => throw new NotSupportedException();
+        public bool IsModified => false;
+        public PdfSecurityInfo SecurityInfo => throw new NotSupportedException();
+        public DocumentPermissions Permissions => DocumentPermissions.All;
+        public IUndoRedoService History => throw new NotSupportedException();
+        public Task<bool> ExecuteAsync(IDocumentCommand command, IProgress<OperationProgress>? progress = null, CancellationToken ct = default) => throw new NotSupportedException();
+        public event EventHandler<DocumentChangedEventArgs>? Changed { add { } remove { } }
+        public event EventHandler? StateChanged { add { } remove { } }
     }
 
     private sealed class DictHost : IScriptFieldHost

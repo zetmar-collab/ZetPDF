@@ -165,7 +165,7 @@ internal sealed class FormScriptsDialog : Window
             return kind;
         }
         var trig = s.Trigger is { } t ? _loc["Annot.Script.Trigger." + t] : _loc["Annot.Script.ButtonAction"];
-        return $"{s.FieldName} – {trig}";
+        return _loc.Format("Annot.Script.FieldTrigger", s.FieldName, trig);
     }
 
     private void Fill(IReadOnlyList<FormScriptInfo> scripts)
@@ -201,7 +201,7 @@ internal sealed class FormScriptsDialog : Window
         }
         _list.SelectedItem = null;
         _editing = (field, t);
-        _where.Text = $"{field} – {_loc["Annot.Script.Trigger." + t]}";
+        _where.Text = _loc.Format("Annot.Script.FieldTrigger", field, _loc["Annot.Script.Trigger." + t]);
         _note.Text = _loc["Annot.Script.Note.New"];
         _editor.IsReadOnly = false;
         _editor.Text = t switch

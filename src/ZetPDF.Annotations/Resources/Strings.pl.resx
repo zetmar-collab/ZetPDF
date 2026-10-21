@@ -247,7 +247,7 @@
   <data name="Annot.Barcode.Symbology" xml:space="preserve"><value>Symbolika:</value></data>
   <data name="Annot.Barcode.Sym.QrCode" xml:space="preserve"><value>Kod QR</value></data>
   <data name="Annot.Barcode.Sym.Pdf417" xml:space="preserve"><value>PDF417</value></data>
-  <data name="Annot.Barcode.Sym.DataMatrix" xml:space="preserve"><value>Data Matrix</value></data>
+  <data name="Annot.Barcode.Sym.DataMatrix" xml:space="preserve"><value>Kod Data Matrix</value></data>
   <data name="Annot.Barcode.Format" xml:space="preserve"><value>Format danych:</value></data>
   <data name="Annot.Barcode.Fmt.TabDelimited" xml:space="preserve"><value>Rozdzielany tabulatorami</value></data>
   <data name="Annot.Barcode.Fmt.Json" xml:space="preserve"><value>JSON</value></data>
@@ -294,4 +294,7 @@
   <data name="Annot.Script.Alert.Format" xml:space="preserve"><value>Wartość nie pasuje do wymaganego formatu.</value></data>
   <data name="Annot.Undo.FormScript" xml:space="preserve"><value>Skrypt formularza</value></data>
   <data name="Annot.Undo.FormRecalculate" xml:space="preserve"><value>Przeliczenie formularza</value></data>
+  <data name="Annot.Script.Budget" xml:space="preserve"><value>Skrypty formularza trwały zbyt długo – pozostałe skrypty pominięto (limit: 2 s i 1000 zdarzeń na zmianę).</value></data>
+  <data name="Annot.Script.AutoDisabled" xml:space="preserve"><value>Skrypty formularza w tym dokumencie wielokrotnie przekroczyły limity i zostały wyłączone. Można je włączyć ponownie w Formularz &gt; Skrypty formularza.</value></data>
+  <data name="Annot.Script.FieldTrigger" xml:space="preserve"><value>{0} – {1}</value></data>
 </root>

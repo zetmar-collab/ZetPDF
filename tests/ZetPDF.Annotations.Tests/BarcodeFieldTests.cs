@@ -95,9 +95,9 @@ public class BarcodeFieldTests
     }
 
     [Fact]
-    public void Barcode_appearance_is_vector_and_stored_in_widget()
+    public async Task Barcode_appearance_is_vector_and_stored_in_widget()
     {
-        var pdf = _forms.CreateBarcodeFieldAsync(SamplePdfFactory.WithForm(), Spec("Kod", new PdfRect(350, 450, 500, 600)), new BarcodeOptions()).GetAwaiter().GetResult();
+        var pdf = await _forms.CreateBarcodeFieldAsync(SamplePdfFactory.WithForm(), Spec("Kod", new PdfRect(350, 450, 500, 600)), new BarcodeOptions());
         PdfSharpEdit.Read(pdf, doc =>
         {
             var node = FieldTree.Find(doc, "Kod")!;

@@ -8,7 +8,8 @@ using ZetPDF.Core.Theming;
 namespace ZetPDF.Annotations.UI.Dialogs;
 
 /// <summary>
-/// Kalkulator księgowy (okno niemodalne – taśma): liczby wpisywane i z zaznaczonego tekstu dokumentu, operacje
+/// Kalkulator księgowy (okno modalne przez IDialogService; taśma zachowywana między otwarciami): liczby wpisywane
+/// i z zaznaczonego tekstu dokumentu (przy otwarciu i przyciskiem), operacje
 /// + − × ÷, cofnięcie wpisu, historia wyników, kopiowanie wyniku, wstawienie wyniku na stronę (polecenie z Cofnij/Ponów).
 /// </summary>
 internal sealed class CalculatorWindow : Window
@@ -20,7 +21,7 @@ internal sealed class CalculatorWindow : Window
     private readonly ListBox _tape, _history;
     private readonly TextBlock _total, _status;
 
-    public CalculatorWindow(ILocalizationService loc, Func<string?> selectionText, Action<string> insert)
+    public CalculatorWindow(ILocalizationService loc, Func<string?> selectionText, Action<string> insert, CalculatorTape? tape = null)
     {
         _loc = loc;
         _selectionText = selectionText;
@@ -33,7 +34,10 @@ internal sealed class CalculatorWindow : Window
         MinWidth = 300;
         MinHeight = 380;
         ShowInTaskbar = false;
-        Tape.Changed += (_, _) => Refresh();
+        Tape = tape ?? new CalculatorTape();
+        EventHandler onChanged = (_, _) => Refresh();
+        Tape.Changed += onChanged;
+        Closed += (_, _) => Tape.Changed -= onChanged;
 
         var root = new DockPanel { Margin = new Thickness(12) };
 
@@ -98,7 +102,8 @@ internal sealed class CalculatorWindow : Window
         Refresh();
     }
 
-    public CalculatorTape Tape { get; } = new();
+    /// <summary>Taśma (współdzielona między kolejnymi otwarciami okna w sesji programu).</summary>
+    public CalculatorTape Tape { get; }
 
     private void OnInputKey(object sender, KeyEventArgs e)
     {
