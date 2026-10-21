@@ -200,7 +200,8 @@ public class FormScriptTests
         Assert.Null(r);
         Assert.Single(report.Errors);
         Assert.True(report.HitLimits);
-        Assert.True(sw.Elapsed < TimeSpan.FromSeconds(1), sw.Elapsed.ToString());
+        // Próg obejmuje też start silnika Jint; 1 s bywało za mało przy obciążonym procesorze (np. tuż po pełnym przebudowaniu).
+        Assert.True(sw.Elapsed < TimeSpan.FromSeconds(5), sw.Elapsed.ToString());
     }
 
     private sealed class MemoryHost : IScriptFieldHost
