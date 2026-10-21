@@ -9,6 +9,7 @@ using ZetPDF.Viewer.Bookmarks;
 using ZetPDF.Viewer.Dialogs;
 using ZetPDF.Viewer.Panels;
 using ZetPDF.Viewer.Printing;
+using ZetPDF.Viewer.ReadAloud;
 using ZetPDF.Viewer.Tools;
 using ZetPDF.Viewer.View;
 
@@ -36,6 +37,8 @@ public sealed class ViewerModule : IFeatureModule
         services.AddSingleton<IToolService, ToolService>();
         services.AddSingleton<IBookmarkService, BookmarkService>();
         services.AddSingleton<IPrintService, PrintService>();
+        services.AddSingleton<ISpeechEngineFactory, SystemSpeechEngineFactory>();
+        services.AddSingleton<ReadAloudService>();
     }
 
     public void Initialize(IServiceProvider services)
@@ -51,7 +54,7 @@ public sealed class ViewerModule : IFeatureModule
     }
 }
 
-/// <summary>Obsługa poleceń wstążki należących do Viewer (30 poleceń z katalogu).</summary>
+/// <summary>Obsługa poleceń wstążki należących do Viewer (37 poleceń z katalogu).</summary>
 internal sealed class ViewerCommands
 {
     private readonly IServiceProvider _services;
@@ -132,6 +135,9 @@ internal sealed class ViewerCommands
         }, v => v.TextSelection is { Text.Length: > 0 } && v.Session.Can(DocumentPermissions.CopyContent));
         Cmd(CommandIds.Edit.SelectAll, v => _ = SelectAllSafe(v), v => v.Session.Can(DocumentPermissions.CopyContent) || v.Session.Can(DocumentPermissions.Annotate));
 
+        // czytanie na głos (etap 3)
+        RegisterReadAloud();
+
         // odświeżanie stanów przełączników
         _tools.ActiveToolChanged += (_, _) => RaiseToggles();
         _viewer.ActiveViewChanged += (_, _) => { Observe(View); RaiseToggles(); };
@@ -202,6 +208,50 @@ internal sealed class ViewerCommands
         if (ShowDialog(dlg) == true && int.TryParse(dlg.Value.Trim(), NumberStyles.Integer, CultureInfo.CurrentCulture, out int page)) v.GoToPage(page - 1);
     }
 
+    private ReadAloudPanel? _readPanel;
+
+    private void RegisterReadAloud()
+    {
+        var read = _services.GetRequiredService<ReadAloudService>();
+        var activate = new ToggleCommand(_ => read.IsActive = !read.IsActive, () => read.IsActive);
+        _toggles.Add(activate);
+        _registry.Register(CommandIds.Read.Activate, activate);
+        Cmd(CommandIds.Read.CurrentPage, v => _ = ReadSafe(read, v, false));
+        Cmd(CommandIds.Read.FromPage, v => _ = ReadSafe(read, v, true));
+        _registry.Register(CommandIds.Read.Pause, new RelayCommandLite(read.TogglePause, () => read.State != ReadAloudState.Stopped));
+        _registry.Register(CommandIds.Read.Stop, new RelayCommandLite(read.Stop, () => read.State != ReadAloudState.Stopped));
+        read.StateChanged += (_, _) =>
+        {
+            activate.RaiseIsCheckedChanged();
+            CommandManager.InvalidateRequerySuggested();
+            if (read.IsActive) ShowReadPanel(read);
+            else if (_readPanel is { } p) { _readPanel = null; p.Close(); }
+            if (read.State == ReadAloudState.Stopped && read.IsActive) Shell?.SetStatus(null);
+        };
+    }
+
+    private void ShowReadPanel(ReadAloudService read)
+    {
+        if (_readPanel is not null || Shell?.MainWindow is not { IsLoaded: true } owner) return;
+        var panel = new ReadAloudPanel(read, _loc, _registry) { Owner = owner };
+        panel.Left = owner.Left + Math.Max(0, owner.ActualWidth - panel.Width - 40);
+        panel.Top = owner.Top + 160;
+        panel.Closed += (_, _) =>
+        {
+            if (!ReferenceEquals(_readPanel, panel)) return;
+            _readPanel = null;
+            read.IsActive = false;
+        };
+        _readPanel = panel;
+        panel.Show();
+    }
+
+    private async Task ReadSafe(ReadAloudService read, DocumentView view, bool continueToEnd)
+    {
+        try { await read.ReadAsync(view, view.CurrentPageIndex, continueToEnd); }
+        catch (Exception ex) when (ex is not OutOfMemoryException) { Dialogs?.ShowError(ex); }
+    }
+
     private bool? ShowDialog(Window w) => Dialogs is { } d ? d.ShowDialog(w) : w.ShowDialog();
 
     private async Task AddBookmarkAsync(IPdfDocumentSession session)
@@ -218,6 +268,24 @@ internal sealed class ViewerCommands
         var node = new BookmarkNode(BookmarksPanel.DefaultTitle(view, _loc), view.CurrentPageIndex, BookmarkNode.NoChildren);
         await BookmarkTree.CommitAsync(session, service, BookmarkTree.Insert(tree, Array.Empty<int>(), tree.Count, node), "Viewer.Undo.AddBookmark");
     }
+}
+
+/// <summary>Proste polecenie (akcja + warunek).</summary>
+internal sealed class RelayCommandLite : ICommand
+{
+    private readonly Action _execute;
+    private readonly Func<bool> _canExecute;
+
+    public RelayCommandLite(Action execute, Func<bool> canExecute) { _execute = execute; _canExecute = canExecute; }
+
+    public event EventHandler? CanExecuteChanged
+    {
+        add => CommandManager.RequerySuggested += value;
+        remove => CommandManager.RequerySuggested -= value;
+    }
+
+    public bool CanExecute(object? parameter) => _canExecute();
+    public void Execute(object? parameter) { if (_canExecute()) _execute(); }
 }
 
 /// <summary>Polecenie działające na aktywnym (wczytanym) widoku.</summary>

@@ -118,7 +118,7 @@ public class ViewerTests
         using var host = new ViewerHost();
         var registry = host.Services.GetRequiredService<ICommandRegistry>();
         var mine = RibbonCatalog.Commands.Where(c => c.Module == FeatureModuleId.Viewer).ToList();
-        Assert.Equal(30, mine.Count);
+        Assert.Equal(37, mine.Count);
         Assert.All(mine, c => Assert.NotNull(registry.GetHandler(c.Id)));
         var panels = host.Services.GetRequiredService<IPanelRegistry>().Panels;
         Assert.Contains(panels, p => p.Id == PanelIds.Thumbnails && p.Order == 10);

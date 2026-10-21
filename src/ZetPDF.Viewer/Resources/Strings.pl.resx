@@ -90,4 +90,20 @@ Czy otworzyć?</value></data>
   <data name="Viewer.ZoomTo.Prompt" xml:space="preserve"><value>Powiększenie (%):</value></data>
   <data name="Viewer.ZoomTo.Title" xml:space="preserve"><value>Powiększ do</value></data>
   <data name="Viewer.Error.NoPagesToPrint" xml:space="preserve"><value>Zakres nie zawiera żadnej strony do wydrukowania.</value></data>
+  <data name="Viewer.Read.Title" xml:space="preserve"><value>Czytanie na głos</value></data>
+  <data name="Viewer.Read.Unavailable" xml:space="preserve"><value>Synteza mowy jest niedostępna na tym komputerze (brak zainstalowanych głosów SAPI).</value></data>
+  <data name="Viewer.Read.NoVoiceForLanguage" xml:space="preserve"><value>Brak zainstalowanego głosu dla języka {0} – czytanie domyślnym głosem ({1}).</value></data>
+  <data name="Viewer.Read.EmptyPage" xml:space="preserve"><value>Strona {0} nie zawiera tekstu do przeczytania (skan? użyj OCR).</value></data>
+  <data name="Viewer.Read.Status" xml:space="preserve"><value>Czytanie strony {0} z {1}…</value></data>
+  <data name="Viewer.Read.Voice" xml:space="preserve"><value>Głos:</value></data>
+  <data name="Viewer.Read.VoiceAuto" xml:space="preserve"><value>Automatycznie (język dokumentu lub interfejsu)</value></data>
+  <data name="Viewer.Read.Volume" xml:space="preserve"><value>Głośność:</value></data>
+  <data name="Viewer.Read.Rate" xml:space="preserve"><value>Szybkość:</value></data>
+  <data name="Viewer.Read.Button.Page" xml:space="preserve"><value>Przeczytaj bieżącą stronę (Ctrl+Shift+V)</value></data>
+  <data name="Viewer.Read.Button.FromPage" xml:space="preserve"><value>Czytaj od bieżącej strony do końca (Ctrl+Shift+B)</value></data>
+  <data name="Viewer.Read.Button.Pause" xml:space="preserve"><value>Wstrzymaj / wznów (Ctrl+Shift+P)</value></data>
+  <data name="Viewer.Read.Button.Stop" xml:space="preserve"><value>Zatrzymaj (Ctrl+Shift+E)</value></data>
+  <data name="Viewer.Read.State.Speaking" xml:space="preserve"><value>Czytanie strony {0} – głos: {1}</value></data>
+  <data name="Viewer.Read.State.Paused" xml:space="preserve"><value>Wstrzymano na stronie {0}</value></data>
+  <data name="Viewer.Read.State.Stopped" xml:space="preserve"><value>Gotowe. Wybierz stronę i naciśnij Czytaj.</value></data>
 </root>
