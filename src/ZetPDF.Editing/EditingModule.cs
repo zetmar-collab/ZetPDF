@@ -2,7 +2,9 @@ using System.Resources;
 using Microsoft.Extensions.DependencyInjection;
 using ZetPDF.Core.Commands;
 using ZetPDF.Core.Contracts;
+using ZetPDF.Editing.Accessibility;
 using ZetPDF.Editing.Ui;
+using ZetPDF.Editing.Ui.Accessibility;
 
 namespace ZetPDF.Editing;
 
@@ -24,12 +26,16 @@ public sealed class EditingModule : IFeatureModule
         services.AddSingleton<ILinkService, LinkService>();
         services.AddSingleton<IConversionService>(sp => new ConversionService(sp.GetRequiredService<IPdfRenderer>(), sp.GetService<ILocalizationService>()));
         services.AddSingleton<IRedactionService>(sp => new RedactionService(sp.GetRequiredService<IPdfRenderer>(), sp.GetService<ILocalizationService>()));
+        services.AddSingleton<AccessibilityService>();
     }
 
     public void Initialize(IServiceProvider services)
     {
         services.GetRequiredService<ILocalizationService>().RegisterResources(Strings);
         var registry = services.GetService<ICommandRegistry>();
-        if (registry is not null) new EditingCommands(new EditingContext(services), registry).RegisterAll();
+        var ctx = new EditingContext(services);
+        if (registry is not null) new EditingCommands(ctx, registry).RegisterAll();
+        // etap 3: ułatwienia dostępu
+        AccessibilityCommands.Register(ctx, registry, services.GetService<IPanelRegistry>());
     }
 }
