@@ -3,8 +3,10 @@ using Microsoft.Extensions.DependencyInjection;
 using ZetPDF.Core.Commands;
 using ZetPDF.Core.Contracts;
 using ZetPDF.Editing.Accessibility;
+using ZetPDF.Editing.Indexing;
 using ZetPDF.Editing.Ui;
 using ZetPDF.Editing.Ui.Accessibility;
+using ZetPDF.Editing.Ui.Indexing;
 
 namespace ZetPDF.Editing;
 
@@ -27,6 +29,7 @@ public sealed class EditingModule : IFeatureModule
         services.AddSingleton<IConversionService>(sp => new ConversionService(sp.GetRequiredService<IPdfRenderer>(), sp.GetService<ILocalizationService>()));
         services.AddSingleton<IRedactionService>(sp => new RedactionService(sp.GetRequiredService<IPdfRenderer>(), sp.GetService<ILocalizationService>()));
         services.AddSingleton<AccessibilityService>();
+        services.AddSingleton(sp => new FullTextIndex(Path.Combine(sp.GetRequiredService<IAppPaths>().LocalDataDirectory, "index")));
     }
 
     public void Initialize(IServiceProvider services)
@@ -37,5 +40,7 @@ public sealed class EditingModule : IFeatureModule
         if (registry is not null) new EditingCommands(ctx, registry).RegisterAll();
         // etap 3: ułatwienia dostępu
         AccessibilityCommands.Register(ctx, registry, services.GetService<IPanelRegistry>());
+        // etap 3: indeks pełnotekstowy i wyszukiwanie zaawansowane
+        if (registry is not null) new IndexController(ctx, services.GetRequiredService<FullTextIndex>()).Register(registry);
     }
 }

@@ -276,4 +276,47 @@
   <data name="Edit.Access.Properties.Figure" xml:space="preserve"><value>Figure {0} (page {1}):</value></data>
   <data name="Edit.Access.Properties.InvalidLanguage" xml:space="preserve"><value>"{0}" is not a valid language tag.</value></data>
   <data name="Edit.Access.Properties.EmptyTitle" xml:space="preserve"><value>Enter the document title.</value></data>
+  <data name="Edit.Filter.Csv" xml:space="preserve"><value>CSV file</value></data>
+  <data name="Edit.Index.Title" xml:space="preserve"><value>Full-text Index</value></data>
+  <data name="Edit.Index.ChooseFolder" xml:space="preserve"><value>Choose a folder with PDF files to index</value></data>
+  <data name="Edit.Index.Recursive" xml:space="preserve"><value>Index PDF files also in subfolders of
+{0}?
+
+Yes – with subfolders, No – this folder only.</value></data>
+  <data name="Edit.Index.Progress" xml:space="preserve"><value>Building full-text index…</value></data>
+  <data name="Edit.Index.Cancelled" xml:space="preserve"><value>Indexing cancelled – the files processed so far were saved.</value></data>
+  <data name="Edit.Index.Done" xml:space="preserve"><value>Index ready: {0} files ({1} indexed, {2} unchanged, {3} removed).</value></data>
+  <data name="Edit.Index.SkippedEncrypted" xml:space="preserve"><value>Skipped password-protected files ({0}): {1}</value></data>
+  <data name="Edit.Index.SkippedFailed" xml:space="preserve"><value>Skipped unreadable files ({0}): {1}</value></data>
+  <data name="Edit.Index.Missing" xml:space="preserve"><value>There is no index for folder {0}. Build it first.</value></data>
+  <data name="Edit.Index.FileMissing" xml:space="preserve"><value>The file no longer exists: {0}. Update the index.</value></data>
+  <data name="Edit.Index.HitStatus" xml:space="preserve"><value>{0} – page {1}</value></data>
+  <data name="Edit.Search.Title" xml:space="preserve"><value>Advanced Search</value></data>
+  <data name="Edit.Search.Query" xml:space="preserve"><value>Search for:</value></data>
+  <data name="Edit.Search.Find" xml:space="preserve"><value>Search</value></data>
+  <data name="Edit.Search.Scope" xml:space="preserve"><value>Where:</value></data>
+  <data name="Edit.Search.Scope.Current" xml:space="preserve"><value>Current document</value></data>
+  <data name="Edit.Search.Scope.Open" xml:space="preserve"><value>All open documents</value></data>
+  <data name="Edit.Search.Scope.Folder" xml:space="preserve"><value>Folder index:</value></data>
+  <data name="Edit.Search.BuildIndex" xml:space="preserve"><value>Build / update index…</value></data>
+  <data name="Edit.Search.IndexRecursive" xml:space="preserve"><value>{0} (with subfolders)</value></data>
+  <data name="Edit.Search.IndexBuilt" xml:space="preserve"><value>Updated: {0}</value></data>
+  <data name="Edit.Search.IgnoreDiacritics" xml:space="preserve"><value>Ignore diacritics (ą = a)</value></data>
+  <data name="Edit.Search.WholeWords" xml:space="preserve"><value>Whole words only</value></data>
+  <data name="Edit.Search.Results" xml:space="preserve"><value>Results</value></data>
+  <data name="Edit.Search.Searching" xml:space="preserve"><value>Searching…</value></data>
+  <data name="Edit.Search.NoResults" xml:space="preserve"><value>No results.</value></data>
+  <data name="Edit.Search.NoIndex" xml:space="preserve"><value>Choose a folder index or build one.</value></data>
+  <data name="Edit.Search.Count" xml:space="preserve"><value>{0} results in {1} files. Double-click a result to open it.</value></data>
+  <data name="Edit.Search.Limit" xml:space="preserve"><value>(showing the first {0})</value></data>
+  <data name="Edit.Search.Skipped" xml:space="preserve"><value>Skipped (password-protected, unreadable or without copy permission): {0}.</value></data>
+  <data name="Edit.Search.HitHeader" xml:space="preserve"><value>{0} – page {1}</value></data>
+  <data name="Edit.Search.Export" xml:space="preserve"><value>Export CSV…</value></data>
+  <data name="Edit.Search.Close" xml:space="preserve"><value>Close</value></data>
+  <data name="Edit.Search.ExportTitle" xml:space="preserve"><value>Export Search Results</value></data>
+  <data name="Edit.Search.ExportFileName" xml:space="preserve"><value>search results</value></data>
+  <data name="Edit.Search.Column.File" xml:space="preserve"><value>File</value></data>
+  <data name="Edit.Search.Column.Path" xml:space="preserve"><value>Path</value></data>
+  <data name="Edit.Search.Column.Page" xml:space="preserve"><value>Page</value></data>
+  <data name="Edit.Search.Column.Context" xml:space="preserve"><value>Context</value></data>
 </root>
