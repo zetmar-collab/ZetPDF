@@ -25,14 +25,26 @@ public class ModelessWindowsTests
 
     private static void Click(Button b) => b.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
 
+    /// <summary>Taśma: ostatnia lista w oknie (pierwsza to historia wyników).</summary>
+    private static ListBox Tape(Window window) => Find<ListBox>(window).Last();
+
+    private static byte[] PdfWithNumbers()
+    {
+        ZetPDF.Core.Documents.PdfSharpEdit.EnsureInitialized();
+        using var doc = new PdfSharp.Pdf.PdfDocument();
+        var font = new PdfSharp.Drawing.XFont("Arial", 12);
+        var page = doc.AddPage();
+        using (var g = PdfSharp.Drawing.XGraphics.FromPdfPage(page)) g.DrawString("Netto 1200 Rabat 34", font, PdfSharp.Drawing.XBrushes.Black, new PdfSharp.Drawing.XPoint(56, 100));
+        return ZetPDF.Core.Documents.PdfSharpEdit.Save(doc);
+    }
+
     [Fact]
     public void Calculator_stays_open_and_adds_selection_from_the_active_document() => Sta.Run(async () =>
     {
         using var host = new TestHost(withShellFakes: true, initializeModules: true);
         var loc = host.Get<ILocalizationService>();
         var registry = host.Get<ICommandRegistry>();
-        var pdf = SamplePdfFactory.Text(1);
-        var session = await host.Documents.CreateNewAsync(pdf, "liczby.pdf");
+        var session = await host.Documents.CreateNewAsync(PdfWithNumbers(), "liczby.pdf");
         var view = host.Get<IDocumentViewFactory>().CreateView(session);
         try
         {
@@ -53,17 +65,16 @@ public class ModelessWindowsTests
             // zaznaczenie w dokumencie PRZY otwartym oknie, potem przycisk
             Assert.True(registry.TryExecute(CommandIds.Edit.SelectAll));
             await Sta.WaitFor(() => view.TextSelection is not null, 20000, "zaznaczenie");
-            var selected = view.TextSelection!.Text;
+            Assert.Empty(Tape(window).Items);
             Click(add);
-            var status = Find<TextBlock>(window).Select(t => t.Text).ToList();
-            Assert.DoesNotContain(loc["Annot.Calc.NoSelection"], status);
-            Assert.False(string.IsNullOrWhiteSpace(selected));
+            Assert.Equal(2, Tape(window).Items.Count); // 1200 i 34
+            Assert.Contains(Find<TextBlock>(window), t => t.Text == loc.Format("Annot.Calc.Added", 2));
+            Assert.Contains(Find<TextBlock>(window), t => t.Text.StartsWith("= ", StringComparison.Ordinal) && new string(t.Text.Where(char.IsDigit).ToArray()).StartsWith("1234", StringComparison.Ordinal));
 
             // ponowne polecenie nie otwiera drugiego okna ani nie liczy tego samego zaznaczenia jeszcze raz
-            var before = Find<ListBox>(window).First().Items.Count;
             Assert.True(registry.TryExecute(CommandIds.Measure.Calculator));
             Assert.Single(host.Dialogs.ModelessShown);
-            Assert.Equal(before, Find<ListBox>(window).First().Items.Count);
+            Assert.Equal(2, Tape(window).Items.Count);
 
             // po zamknięciu polecenie otwiera nowe okno z tą samą taśmą
             window.Close();
@@ -71,7 +82,7 @@ public class ModelessWindowsTests
             Assert.True(registry.TryExecute(CommandIds.Measure.Calculator));
             var second = Assert.Single(host.Dialogs.ModelessShown);
             Assert.NotSame(window, second);
-            Assert.Equal(before, Find<ListBox>(second).First().Items.Count);
+            Assert.Equal(2, Tape(second).Items.Count);
             second.Close();
             Assert.Empty(host.Dialogs.Errors);
         }
