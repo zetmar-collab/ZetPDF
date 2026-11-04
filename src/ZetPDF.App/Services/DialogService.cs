@@ -51,7 +51,7 @@ public sealed class DialogService : IDialogService, IOwnerProtectionPrompts
     public string? SaveFile(string title, IReadOnlyList<FileFilter> filters, string? defaultFileName = null, string? initialDirectory = null)
     {
         var d = new SaveFileDialog { Title = title, Filter = ToFilter(filters), FileName = defaultFileName ?? string.Empty, InitialDirectory = initialDirectory ?? string.Empty, OverwritePrompt = true, AddExtension = true };
-        if (filters.Count > 0 && filters[0].Patterns.Length > 0 && filters[0].Patterns[0].StartsWith("*.", StringComparison.Ordinal))
+        if (filters.Count > 0 && filters[0].Patterns.Length > 0 && filters[0].Patterns[0].StartsWith("*.", StringComparison.Ordinal) && filters[0].Patterns[0] != "*.*")
             d.DefaultExt = filters[0].Patterns[0][1..];
         return d.ShowDialog(Owner) == true ? d.FileName : null;
     }

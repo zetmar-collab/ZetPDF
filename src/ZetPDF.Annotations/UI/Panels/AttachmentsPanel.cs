@@ -118,6 +118,10 @@ internal sealed class AttachmentsPanel : UserControl
 
     private AttachmentInfo? Selected => (_list.SelectedItem as ListViewItem)?.Tag as AttachmentInfo;
 
+    internal int AttachmentCount => _list.Items.Count;
+
+    internal void SelectAttachment(int index) => _list.SelectedIndex = index;
+
     public async Task AddAsync()
     {
         if (_session is not { } s || _ctx.Dialogs is not { } dialogs) return;
@@ -130,16 +134,16 @@ internal sealed class AttachmentsPanel : UserControl
         }, DocumentChangeKind.Attachments, DocumentPermissions.ModifyContent);
     }
 
-    private async Task SaveAsync()
+    internal async Task SaveAsync()
     {
         if (_session is not { } s || Selected is not { } a || _ctx.Dialogs is not { } dialogs) return;
-        var target = dialogs.SaveFile(_loc["Annot.Attach.Save"], new[] { FileFilter.All(_loc) }, a.Name);
+        if (_ctx.Services.GetService(typeof(IFileService)) is not IFileService files) return;
+        var target = AttachmentSaveGuard.ChooseTarget(a.Name, dialogs, files, _loc);
         if (target is null) return;
         try
         {
             var data = await _ctx.Attachments.ExtractAsync(s.Current.GetSharedBytes(), a.Name);
-            if (_ctx.Services.GetService(typeof(IFileService)) is IFileService fs) await fs.WriteAllBytesSafeAsync(target, data);
-            else await File.WriteAllBytesAsync(target, data);
+            await files.WriteAllBytesSafeAsync(target, data);
             _ctx.Shell?.SetStatus(_loc.Format("Annot.Attach.Saved", Path.GetFileName(target)));
         }
         catch (Exception ex) when (ex is not OutOfMemoryException) { dialogs.ShowError(ex); }

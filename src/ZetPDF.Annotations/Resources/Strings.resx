@@ -298,4 +298,8 @@
   <data name="Annot.Script.AutoDisabled" xml:space="preserve"><value>Form scripts in this document repeatedly exceeded the limits and have been turned off. You can turn them on again in Form &gt; Form Scripts.</value></data>
   <data name="Annot.Script.FieldTrigger" xml:space="preserve"><value>{0} – {1}</value></data>
   <data name="Annot.Script.TooLong" xml:space="preserve"><value>The script is too long (limit: 256 KB) – it was not run.</value></data>
+  <data name="Annot.Attach.ExecutableTitle" xml:space="preserve"><value>Potentially dangerous attachment</value></data>
+  <data name="Annot.Attach.ExecutableWarning" xml:space="preserve"><value>The attachment "{0}" has a program or script file type ({1}). Running it can harm your computer. Save it only if you trust the source of this document.
+
+Save this file?</value></data>
 </root>

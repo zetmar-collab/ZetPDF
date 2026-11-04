@@ -233,3 +233,6 @@ Zbiorczo z `docs\ograniczenia\annotations-forms.md` (pkt 17–25), `renderer-vie
 - Przepisanie starego indeksu usuwa plik przez podmianę; jawne dane mogą fizycznie zostać na dysku (SSD, kopie w tle systemu), dopóki system ich nie nadpisze.
 - Dopóki program nie zostanie uruchomiony po aktualizacji, stare pliki indeksu pozostają jawne. Punkt 26.8 („bez usuwania z UI”) jest nieaktualny: usuwanie jest w oknie Zarządzaj indeksami.
 - Cały tekst indeksu jest w pamięci podczas zapisu i odczytu (DPAPI bez strumieniowania); limit jednego pliku indeksu to około 2 GB po kompresji.
+
+### 27.4 Zapis załączników
+- Ostrzeżenie opiera się na rozszerzeniu, nie na zawartości: plik wykonywalny z rozszerzeniem `.txt` nie wywoła ostrzeżenia. Nie obejmuje archiwów (`.zip`, `.iso`) z programami w środku ani dokumentów z makrami.
