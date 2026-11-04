@@ -25,12 +25,12 @@ internal sealed partial class AnnotationCommands
     private int CurrentPage(IPdfDocumentSession s) => _ctx.Viewer?.GetView(s)?.CurrentPageIndex ?? 0;
 
     private async Task<int> PageCountAsync(IPdfDocumentSession s) =>
-        _ctx.Viewer?.GetView(s)?.PageCount ?? await Task.Run(() => Core.Documents.PdfSharpEdit.Read(s.Current.GetBytes(), d => d.PageCount));
+        _ctx.Viewer?.GetView(s)?.PageCount ?? await Task.Run(() => Core.Documents.PdfSharpEdit.Read(s.Current.GetSharedBytes(), d => d.PageCount));
 
     private async Task ScaleAsync(IPdfDocumentSession s, MeasureScale? proposed)
     {
         int page = CurrentPage(s);
-        var current = proposed ?? await _ctx.Measures.GetScaleAsync(s.Current.GetBytes(), page) ?? MeasureScale.Default;
+        var current = proposed ?? await _ctx.Measures.GetScaleAsync(s.Current.GetSharedBytes(), page) ?? MeasureScale.Default;
         int pageCount = await PageCountAsync(s);
         var dlg = new ScaleDialog(_loc, current, page, pageCount);
         var ok = Ui.Show(Dialogs, dlg) == true;
@@ -52,7 +52,7 @@ internal sealed partial class AnnotationCommands
         _ctx.Tools?.ActivateDefault();
         double len = MeasureGeometry.Length(a, b);
         if (len < 3) return;
-        var current = await _ctx.Measures.GetScaleAsync(s.Current.GetBytes(), page) ?? MeasureScale.Default;
+        var current = await _ctx.Measures.GetScaleAsync(s.Current.GetSharedBytes(), page) ?? MeasureScale.Default;
         var dlg = new CalibrateDialog(_loc, len, current.RealUnit);
         if (Ui.Show(Dialogs, dlg) != true || dlg.Result is not { } scale) return;
         await ScaleAsync(s, scale with { Decimals = current.Decimals });
@@ -60,7 +60,7 @@ internal sealed partial class AnnotationCommands
 
     private async Task ExportMeasurementsAsync(IPdfDocumentSession s)
     {
-        var items = await _ctx.Measures.GetMeasurementsAsync(s.Current.GetBytes());
+        var items = await _ctx.Measures.GetMeasurementsAsync(s.Current.GetSharedBytes());
         if (items.Count == 0) { Dialogs?.ShowMessage(_loc["Annot.Measure.Export.None"]); return; }
         var path = Dialogs?.SaveFile(_loc["Cmd.Measure.Export"], new[] { new FileFilter(_loc["Annot.Filter.Csv"], "*.csv") },
             Path.GetFileNameWithoutExtension(s.DisplayName) + ".csv");

@@ -56,7 +56,7 @@ internal sealed class EditTextTool : ToolBase
             var newStyle = popup.ResultStyle;
             if (text == block.Text && newStyle == style) return;
             var svc = Ctx.Get<ITextEditService>();
-            if (!await svc.CanRemoveTextBlockAsync(view.Session.Current.GetBytes(), block.PageIndex, block.Id)
+            if (!await svc.CanRemoveTextBlockAsync(view.Session.Current.GetSharedBytes(), block.PageIndex, block.Id)
                 && Ctx.Dialogs?.Confirm(Ctx.Loc["Edit.Text.CoverWarning"]) == false) return;
             await Ctx.ExecuteAsync(view.Session, "Edit.Undo.EditText",
                 (pdf, _, ct) => svc.ReplaceTextBlockAsync(pdf, block.PageIndex, block.Id, text, newStyle, ct),

@@ -1081,7 +1081,7 @@ public sealed class DocumentView : IDocumentView
         IRenderDocument doc;
         try
         {
-            doc = await _renderer.OpenAsync(Session.Current.GetBytes());
+            doc = await _renderer.OpenAsync(Session.Current.GetSharedBytes());
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {

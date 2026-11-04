@@ -301,8 +301,8 @@ internal sealed partial class AnnotationCommands
         if (path is null) return;
         var source = s.FilePath is { } fp ? Path.GetFileName(fp) : s.DisplayName;
         using var ms = new MemoryStream();
-        if (Path.GetExtension(path).Equals(".fdf", StringComparison.OrdinalIgnoreCase)) await _ctx.Annotations.ExportFdfAsync(s.Current.GetBytes(), ms, source);
-        else await _ctx.Annotations.ExportXfdfAsync(s.Current.GetBytes(), ms, source);
+        if (Path.GetExtension(path).Equals(".fdf", StringComparison.OrdinalIgnoreCase)) await _ctx.Annotations.ExportFdfAsync(s.Current.GetSharedBytes(), ms, source);
+        else await _ctx.Annotations.ExportXfdfAsync(s.Current.GetSharedBytes(), ms, source);
         await WriteFile(path, ms.ToArray());
         _ctx.Shell?.SetStatus(_loc.Format("Annot.Export.Done", Path.GetFileName(path)));
     }
@@ -356,7 +356,7 @@ internal sealed partial class AnnotationCommands
             if (rect.Width < 4 || rect.Height < 4) side = defaultSize.Width;
             rect = new PdfRect(rect.Left, rect.Top - side, rect.Left + side, rect.Top);
         }
-        var existing = (await _ctx.Forms.GetFieldsAsync(s.Current.GetBytes())).Select(f => f.FullName).ToHashSet(StringComparer.Ordinal);
+        var existing = (await _ctx.Forms.GetFieldsAsync(s.Current.GetSharedBytes())).Select(f => f.FullName).ToHashSet(StringComparer.Ordinal);
         string name;
         string? export = null;
         if (kind == FormFieldKind.RadioButton && _radioGroup is not null && existing.Contains(_radioGroup)) name = _radioGroup;
@@ -386,7 +386,7 @@ internal sealed partial class AnnotationCommands
     private async Task TabOrderAsync(IPdfDocumentSession s)
     {
         int page = _ctx.Viewer?.GetView(s)?.CurrentPageIndex ?? 0;
-        var fields = (await _ctx.Forms.GetFieldsAsync(s.Current.GetBytes())).Where(f => f.PageIndex == page).ToList();
+        var fields = (await _ctx.Forms.GetFieldsAsync(s.Current.GetSharedBytes())).Where(f => f.PageIndex == page).ToList();
         if (fields.Count == 0) { Dialogs?.ShowMessage(_loc.Format("Annot.TabOrder.NoFields", page + 1)); return; }
         var dlg = new TabOrderDialog(_loc, page, fields);
         if (Ui.Show(Dialogs, dlg) != true) return;
@@ -416,7 +416,7 @@ internal sealed partial class AnnotationCommands
         var path = Dialogs?.SaveFile(_loc["Cmd.Form.ExportData"], DataFilters(_loc), Path.GetFileNameWithoutExtension(s.DisplayName) + ".fdf");
         if (path is null) return;
         using var ms = new MemoryStream();
-        await _ctx.Forms.ExportDataAsync(s.Current.GetBytes(), ms, FormService.FormatFromPath(path));
+        await _ctx.Forms.ExportDataAsync(s.Current.GetSharedBytes(), ms, FormService.FormatFromPath(path));
         await WriteFile(path, ms.ToArray());
         _ctx.Shell?.SetStatus(_loc.Format("Annot.Export.Done", Path.GetFileName(path)));
     }

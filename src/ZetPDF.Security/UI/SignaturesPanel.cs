@@ -54,22 +54,40 @@ internal sealed class SignaturesPanel : UserControl
         Loaded += (_, _) => Track(_documents.ActiveDocument);
     }
 
+    private bool _refreshPending;
+
+    /// <summary>Ukryty panel nie parsuje dokumentu po każdej edycji; odświeża się, gdy znów będzie widoczny.</summary>
+    private void RequestRefresh()
+    {
+        if (IsLoaded && !IsVisible) { _refreshPending = true; return; }
+        _ = RefreshAsync();
+    }
+
+    private void OnPanelVisibilityChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+        if (!IsVisible || !_refreshPending) return;
+        _refreshPending = false;
+        _ = RefreshAsync();
+    }
+
     private void Track(IPdfDocumentSession? session)
     {
+        IsVisibleChanged -= OnPanelVisibilityChanged;
+        IsVisibleChanged += OnPanelVisibilityChanged;
         if (_session is not null) _session.Changed -= OnChanged;
         _session = session;
         if (_session is not null) _session.Changed += OnChanged;
         _ = RefreshAsync();
     }
 
-    private void OnChanged(object? sender, DocumentChangedEventArgs e) => _ = RefreshAsync();
+    private void OnChanged(object? sender, DocumentChangedEventArgs e) => RequestRefresh();
 
     /// <summary>Bajty do weryfikacji: plik z dysku, gdy dokument niezmieniony; inaczej bieżąca wersja (odszyfrowana).</summary>
     public static async Task<(byte[] Pdf, string? Password)> GetValidationSourceAsync(IPdfDocumentSession session, CancellationToken ct)
     {
         if (session.FilePath is { } path && !session.IsModified && File.Exists(path))
             return (await File.ReadAllBytesAsync(path, ct), session.SecurityInfo.Password);
-        return (session.Current.GetBytes(), null);
+        return (session.Current.GetSharedBytes(), null);
     }
 
     public async Task RefreshAsync()

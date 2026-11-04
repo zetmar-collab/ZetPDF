@@ -79,7 +79,7 @@ internal sealed class AnnotContext
     {
         var snap = session.Current;
         if (_annots.TryGetValue(session.Id, out var c) && c.Version == snap.Version && !c.Task.IsFaulted) return c.Task;
-        var task = Annotations.GetAnnotationsAsync(snap.GetBytes());
+        var task = Annotations.GetAnnotationsAsync(snap.GetSharedBytes());
         _annots[session.Id] = (snap.Version, task);
         return task;
     }
@@ -97,7 +97,7 @@ internal sealed class AnnotContext
     {
         var snap = session.Current;
         if (_widgets.TryGetValue(session.Id, out var c) && c.Version == snap.Version && !c.Task.IsFaulted) return c.Task;
-        var task = Forms.GetWidgetsAsync(snap.GetBytes());
+        var task = Forms.GetWidgetsAsync(snap.GetSharedBytes());
         _widgets[session.Id] = (snap.Version, task);
         return task;
     }
@@ -174,7 +174,7 @@ internal sealed class AnnotContext
     {
         var snap = session.Current;
         if (_scales.TryGetValue((session.Id, page), out var c) && c.Version == snap.Version && !c.Task.IsFaulted) return c.Task;
-        var task = Measures.GetScaleAsync(snap.GetBytes(), page);
+        var task = Measures.GetScaleAsync(snap.GetSharedBytes(), page);
         _scales[(session.Id, page)] = (snap.Version, task);
         return task;
     }

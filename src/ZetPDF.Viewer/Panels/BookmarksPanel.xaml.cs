@@ -145,7 +145,7 @@ public partial class BookmarksPanel : UserControl
             return;
         }
         IReadOnlyList<BookmarkNode> tree;
-        try { tree = await _bookmarks.GetBookmarksAsync(view.Session.Current.GetBytes()); }
+        try { tree = await _bookmarks.GetBookmarksAsync(view.Session.Current.GetSharedBytes()); }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
             tree = Array.Empty<BookmarkNode>();

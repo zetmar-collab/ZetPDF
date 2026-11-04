@@ -89,7 +89,7 @@ internal sealed class FormFillController
     public async Task ActivateAsync(IDocumentView view, string name, string? onState)
     {
         var session = view.Session;
-        var fields = await _ctx.Forms.GetFieldsAsync(session.Current.GetBytes());
+        var fields = await _ctx.Forms.GetFieldsAsync(session.Current.GetSharedBytes());
         var f = fields.FirstOrDefault(x => x.FullName == name);
         if (f is null) return;
         if (f.ReadOnly) { _ctx.Shell?.SetStatus(_ctx.Loc["Annot.Form.ReadOnly"]); return; }
@@ -130,7 +130,7 @@ internal sealed class FormFillController
                 InlineEditor.EditChoice(view, new Rect(rect.X, rect.Y, rect.Width, Math.Max(rect.Height, 60)), f.Options, DisplayOf(f), editable: false, Done);
                 break;
             case FormFieldKind.Date:
-                var spec = await _ctx.Forms.DescribeAsync(session.Current.GetBytes(), name);
+                var spec = await _ctx.Forms.DescribeAsync(session.Current.GetSharedBytes(), name);
                 var fmt = spec.DateFormat ?? "yyyy-MM-dd";
                 DateTime? cur = DateTime.TryParseExact(f.Value, fmt, CultureInfo.InvariantCulture, DateTimeStyles.None, out var d) ? d : null;
                 InlineEditor.EditDate(view, rect, cur, fmt, Done);
@@ -151,7 +151,7 @@ internal sealed class FormFillController
     {
         if (value != f.Value && value != DisplayOf(f)) await SetAsync(view.Session, f.FullName, value);
         if (exit is not (EditorExit.TabNext or EditorExit.TabPrevious)) return;
-        var fields = (await _ctx.Forms.GetFieldsAsync(view.Session.Current.GetBytes()))
+        var fields = (await _ctx.Forms.GetFieldsAsync(view.Session.Current.GetSharedBytes()))
             .Where(x => !x.ReadOnly && x.Kind is not (FormFieldKind.PushButton or FormFieldKind.Signature))
             .OrderBy(x => x.PageIndex).ThenBy(x => x.TabOrder).ToList();
         if (fields.Count == 0) return;
@@ -180,7 +180,7 @@ internal sealed class FormFillController
 
     private async Task PressButtonAsync(IPdfDocumentSession session, string name)
     {
-        var spec = await _ctx.Forms.DescribeAsync(session.Current.GetBytes(), name);
+        var spec = await _ctx.Forms.DescribeAsync(session.Current.GetSharedBytes(), name);
         switch (spec.ButtonAction)
         {
             case FormButtonAction.ResetForm:

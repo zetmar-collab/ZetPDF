@@ -34,7 +34,7 @@ public sealed class PrintService : IPrintService
         var dialogs = _services.GetService<IDialogService>();
         if (!session.Can(DocumentPermissions.Print)) throw new DocumentPermissionException(DocumentPermissions.Print);
 
-        using var doc = await Renderer.OpenAsync(session.Current.GetBytes());
+        using var doc = await Renderer.OpenAsync(session.Current.GetSharedBytes());
         var window = new PrintDialogWindow(doc, loc, currentPageIndex);
         bool? ok = dialogs is not null ? dialogs.ShowDialog(window) : window.ShowDialog();
         if (ok != true || window.Result is not { } options) return;
@@ -51,7 +51,7 @@ public sealed class PrintService : IPrintService
         ArgumentNullException.ThrowIfNull(session);
         ArgumentNullException.ThrowIfNull(options);
         if (!session.Can(DocumentPermissions.Print)) throw new DocumentPermissionException(DocumentPermissions.Print);
-        using var doc = await Renderer.OpenAsync(session.Current.GetBytes(), null, ct);
+        using var doc = await Renderer.OpenAsync(session.Current.GetSharedBytes(), null, ct);
         await RunSta(() => PrintToQueue(doc, options, progress, ct));
     }
 

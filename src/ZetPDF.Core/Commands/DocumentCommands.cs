@@ -36,7 +36,7 @@ public sealed class DelegateDocumentCommand : IDocumentCommand
 
     public async Task<DocumentEditResult?> ExecuteAsync(DocumentEditContext context, CancellationToken ct)
     {
-        var input = context.Input.GetBytes();
+        var input = context.Input.GetSharedBytes();
         var output = await _transform(input, context.Progress, ct).ConfigureAwait(false);
         if (output is null || output.AsSpan().SequenceEqual(input)) return null;
         return new DocumentEditResult(context.Input.WithData(output), Kind, AffectedPages);

@@ -80,6 +80,15 @@ public class RedactionLeakTests
         Assert.True(watch.Elapsed < TimeSpan.FromSeconds(5), watch.Elapsed.ToString());
     }
 
+    [Theory]
+    [InlineData("Kowal-\r\n\r\nski")]
+    [InlineData("Kowal-\u00A0\r\nski")]
+    [InlineData("Kowal\r\n\fski")]
+    public void Word_broken_by_several_breaks_is_found(string text)
+    {
+        Assert.Single(RedactionService.FindPhrase(text, "Kowalski", default));
+    }
+
     /// <summary>Plik ze znacznikami, XFA i komentarzem z okienkiem i odpowiedzią – każdy nosi inną frazę.</summary>
     private static byte[] WithHiddenCopies() => PdfSharpEdit.Modify(TextLines("Tajna treść strony"), doc =>
     {

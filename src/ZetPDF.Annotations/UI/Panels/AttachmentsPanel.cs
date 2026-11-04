@@ -44,8 +44,26 @@ internal sealed class AttachmentsPanel : UserControl
         Track(_ctx.Documents.ActiveDocument);
     }
 
+    private bool _refreshPending;
+
+    /// <summary>Ukryty panel nie parsuje dokumentu po każdej edycji; odświeża się, gdy znów będzie widoczny.</summary>
+    private void RequestRefresh()
+    {
+        if (IsLoaded && !IsVisible) { _refreshPending = true; return; }
+        _ = RefreshAsync();
+    }
+
+    private void OnPanelVisibilityChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+        if (!IsVisible || !_refreshPending) return;
+        _refreshPending = false;
+        _ = RefreshAsync();
+    }
+
     private void Track(IPdfDocumentSession? s)
     {
+        IsVisibleChanged -= OnPanelVisibilityChanged;
+        IsVisibleChanged += OnPanelVisibilityChanged;
         if (_session is not null) _session.Changed -= OnChanged;
         _session = s;
         if (s is not null) s.Changed += OnChanged;
@@ -54,7 +72,7 @@ internal sealed class AttachmentsPanel : UserControl
 
     private void OnChanged(object? sender, DocumentChangedEventArgs e)
     {
-        if ((e.Kind & (DocumentChangeKind.Attachments | DocumentChangeKind.Annotations)) != 0 || e.Source != DocumentChangeSource.Command) _ = RefreshAsync();
+        if ((e.Kind & (DocumentChangeKind.Attachments | DocumentChangeKind.Annotations)) != 0 || e.Source != DocumentChangeSource.Command) RequestRefresh();
     }
 
     private async Task RefreshAsync()
@@ -63,7 +81,7 @@ internal sealed class AttachmentsPanel : UserControl
         IReadOnlyList<AttachmentInfo> list = Array.Empty<AttachmentInfo>();
         if (_session is { } s)
         {
-            try { list = await _ctx.Attachments.GetAttachmentsAsync(s.Current.GetBytes()); }
+            try { list = await _ctx.Attachments.GetAttachmentsAsync(s.Current.GetSharedBytes()); }
             catch (Exception ex) when (ex is not OutOfMemoryException) { }
         }
         if (v != _version) return;
@@ -119,7 +137,7 @@ internal sealed class AttachmentsPanel : UserControl
         if (target is null) return;
         try
         {
-            var data = await _ctx.Attachments.ExtractAsync(s.Current.GetBytes(), a.Name);
+            var data = await _ctx.Attachments.ExtractAsync(s.Current.GetSharedBytes(), a.Name);
             if (_ctx.Services.GetService(typeof(IFileService)) is IFileService fs) await fs.WriteAllBytesSafeAsync(target, data);
             else await File.WriteAllBytesAsync(target, data);
             _ctx.Shell?.SetStatus(_loc.Format("Annot.Attach.Saved", Path.GetFileName(target)));

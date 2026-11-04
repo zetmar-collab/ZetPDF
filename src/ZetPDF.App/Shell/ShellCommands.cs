@@ -147,7 +147,7 @@ internal static class ShellCommands
     {
         var metadataService = sp.GetRequiredService<IMetadataService>();
         var dialogs = sp.GetRequiredService<IDialogService>();
-        var metadata = await metadataService.GetAsync(d.Current.GetBytes());
+        var metadata = await metadataService.GetAsync(d.Current.GetSharedBytes());
         var w = new DocumentPropertiesWindow(d, metadata, sp.GetRequiredService<ILocalizationService>());
         if (dialogs.ShowDialog(w) != true || w.Result is null) return;
         var updated = w.Result;

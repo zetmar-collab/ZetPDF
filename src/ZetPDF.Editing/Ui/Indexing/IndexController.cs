@@ -106,7 +106,7 @@ internal sealed class IndexController
             var key = SourceKey(s);
             _sessionSources[key] = s;
             if (!s.Can(DocumentPermissions.CopyContent)) { failed++; continue; }
-            var bytes = s.Current.GetBytes();
+            var bytes = s.Current.GetSharedBytes();
             try
             {
                 var pages = await Task.Run(() => FullTextIndex.ExtractPages(bytes), ct);

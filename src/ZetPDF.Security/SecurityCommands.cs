@@ -151,7 +151,7 @@ internal sealed class SecurityCommands
             return;
         }
         var tool = new SignatureTool(tools);
-        try { tool.EmptyFields = SignatureService.GetEmptySignatureFields(session.Current.GetBytes(), null); }
+        try { tool.EmptyFields = SignatureService.GetEmptySignatureFields(session.Current.GetSharedBytes(), null); }
         catch (Exception ex) when (ex is PdfCorruptException or FormatException or NotSupportedException) { }
         tool.Placed += (page, rect, field) => _ = GuardAsync(() => SignAsync(session, page, rect, field));
         tools.Activate(tool);
@@ -249,7 +249,7 @@ internal sealed class SecurityCommands
         if (src.Session is { } s)
         {
             if (!s.Can(DocumentPermissions.CopyContent)) throw new DocumentPermissionException(DocumentPermissions.CopyContent);
-            return s.Current.GetBytes();
+            return s.Current.GetSharedBytes();
         }
         var bytes = await File.ReadAllBytesAsync(src.Path!);
         if (!PdfSecurityHelper.IsEncrypted(bytes)) return bytes;

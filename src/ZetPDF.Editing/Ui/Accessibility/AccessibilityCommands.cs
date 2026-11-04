@@ -36,7 +36,7 @@ internal sealed class AccessibilityController
 
     public async Task<AccessReport> CheckAsync(IPdfDocumentSession session, bool showPanel = true)
     {
-        var report = await _service.CheckAsync(session.Current.GetBytes());
+        var report = await _service.CheckAsync(session.Current.GetSharedBytes());
         _reports.AddOrUpdate(session, report);
         if (_watched.Add(session)) session.Changed += OnSessionChanged;
         ReportChanged?.Invoke(this, session);
@@ -87,7 +87,7 @@ internal sealed class AccessibilityController
 
     private async Task<AccessProperties?> AskPropertiesAsync(IPdfDocumentSession session, bool includeFigures)
     {
-        var pdf = session.Current.GetBytes();
+        var pdf = session.Current.GetSharedBytes();
         var meta = await _ctx.Get<IMetadataService>().GetAsync(pdf);
         string lang = await Task.Run(() => Core.Documents.PdfSharpEdit.Read(pdf, d => d.Internals.Catalog.Elements.GetString("/Lang")));
         var figures = includeFigures ? await _service.GetFiguresAsync(pdf) : Array.Empty<AccessFigure>();

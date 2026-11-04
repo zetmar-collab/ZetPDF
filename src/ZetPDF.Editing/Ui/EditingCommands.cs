@@ -196,7 +196,7 @@ internal sealed class EditingCommands
     private async Task RemoveLinksAsync(IPdfDocumentSession session)
     {
         var svc = _ctx.Get<ILinkService>();
-        var links = await svc.GetLinksAsync(session.Current.GetBytes());
+        var links = await svc.GetLinksAsync(session.Current.GetSharedBytes());
         if (links.Count == 0) { _ctx.Message("Edit.Link.NoneToRemove"); return; }
         if (_ctx.Dialogs?.Confirm(L.Format("Edit.Link.RemoveAllConfirm", links.Count)) == false) return;
         await _ctx.ExecuteAsync(session, "Edit.Undo.RemoveLinks", (pdf, _, ct) => svc.RemoveAllLinksAsync(pdf, ct), DocumentChangeKind.Annotations, DocumentPermissions.Annotate);
@@ -206,7 +206,7 @@ internal sealed class EditingCommands
     {
         var svc = _ctx.Get<ILinkService>();
         var bookmarks = _ctx.Get<IBookmarkService>();
-        var pdf = session.Current.GetBytes();
+        var pdf = session.Current.GetSharedBytes();
         IReadOnlyList<BookmarkNode> tree = Array.Empty<BookmarkNode>();
         if (!await _ctx.RunAsync("Edit.Bookmarks.Progress", async (_, ct) => tree = await svc.GenerateBookmarksFromHeadingsAsync(pdf, new HeadingDetectionOptions(), ct))) return;
         if (tree.Count == 0) { _ctx.Message("Edit.Bookmarks.None"); return; }
@@ -301,7 +301,7 @@ internal sealed class EditingCommands
         var folder = _ctx.Dialogs?.SelectFolder(L["Edit.Convert.ToImages.Folder"], session.FilePath is { } fp ? Path.GetDirectoryName(fp) : null);
         if (folder is null) return;
         var conv = _ctx.Get<IConversionService>();
-        var pdf = session.Current.GetBytes();
+        var pdf = session.Current.GetSharedBytes();
         IReadOnlyList<string> files = Array.Empty<string>();
         if (!await _ctx.RunAsync("Edit.Convert.Progress", async (p, ct) => files = await conv.PdfToImagesAsync(pdf, opts, folder, BaseName(session), p, ct))) return;
         _ctx.Message("Edit.Convert.ToImages.Done", files.Count, folder);
@@ -316,7 +316,7 @@ internal sealed class EditingCommands
         if (path is null) return;
         var opts = dlg.TextOptions;
         var conv = _ctx.Get<IConversionService>();
-        var pdf = session.Current.GetBytes();
+        var pdf = session.Current.GetSharedBytes();
         string text = string.Empty;
         if (!await _ctx.RunAsync("Edit.Convert.Progress", async (p, ct) => text = await conv.PdfToTextAsync(pdf, opts, p, ct))) return;
         var bytes = new UTF8Encoding(true).GetPreamble().Concat(Encoding.UTF8.GetBytes(text)).ToArray();
@@ -334,7 +334,7 @@ internal sealed class EditingCommands
         if (path is null) return;
         var opts = dlg.DocxOptions;
         var conv = _ctx.Get<IConversionService>();
-        var pdf = session.Current.GetBytes();
+        var pdf = session.Current.GetSharedBytes();
         if (!await _ctx.RunAsync("Edit.Convert.Progress", (p, ct) => conv.PdfToDocxAsync(pdf, path, opts, p, ct))) return;
         _ctx.Status(L.Format("Edit.Convert.Saved", path));
     }
@@ -371,7 +371,7 @@ internal sealed class EditingCommands
     {
         var ocr = _ctx.Get<IOcrService>();
         if (!await ocr.IsAvailableAsync()) { _ctx.Message("Edit.Ocr.Unavailable"); return; }
-        var pdf = session.Current.GetBytes();
+        var pdf = session.Current.GetSharedBytes();
         OcrResult? result = null;
         if (!await _ctx.RunAsync("Edit.Ocr.Progress", async (p, ct) => result = await ocr.RecognizeAsync(pdf, options, p, ct)) || result is null) return;
         int words = result.Pages.Sum(p => p.Words.Count);
@@ -411,7 +411,7 @@ internal sealed class EditingCommands
         if (!_ocr.TryGetValue(session, out var state)) { _ctx.Message("Edit.Ocr.NoResults"); return; }
         if (state.Version != session.Current.Version) { _ctx.Message("Edit.Ocr.Outdated"); return; }
         if (!state.Result.SuspectWords.Any()) { _ctx.Message("Edit.Ocr.NoSuspects"); return; }
-        var win = new OcrReviewWindow(L, state.Result, session.Current.GetBytes(), _ctx.Renderer);
+        var win = new OcrReviewWindow(L, state.Result, session.Current.GetSharedBytes(), _ctx.Renderer);
         if (_ctx.ShowDialog(win) != true) return;
         // Warstwa OCR strony jest zastępowana (znacznik), więc poprawki nie dublują tekstu.
         await ApplyLayerAsync(session, win.Corrected);
@@ -430,7 +430,7 @@ internal sealed class EditingCommands
     private async Task SearchRedactAsync(IPdfDocumentSession session)
     {
         var svc = _ctx.Get<IRedactionService>();
-        var pdf = session.Current.GetBytes();
+        var pdf = session.Current.GetSharedBytes();
         var dlg = new SearchRedactDialog(L, s => svc.FindAsync(pdf, s));
         if (_ctx.ShowDialog(dlg) != true) return;
         var marks = dlg.Selected.Select(c => new RedactionMark(c.PageIndex, c.Quads)).ToList();
@@ -440,7 +440,7 @@ internal sealed class EditingCommands
 
     private async Task ApplyRedactionsAsync(IPdfDocumentSession session)
     {
-        var marks = await Task.Run(() => RedactionService.ReadMarks(session.Current.GetBytes()));
+        var marks = await Task.Run(() => RedactionService.ReadMarks(session.Current.GetSharedBytes()));
         if (marks.Count == 0) { _ctx.Message("Edit.Redact.NoMarks"); return; }
         var text = L.Format("Edit.Redact.Warning.Irreversible", marks.Values.Sum(v => v.Count), marks.Count);
         if (_ctx.Dialogs is { } d && !d.Confirm(text, L["Edit.Redact.Warning.Title"], MessageSeverity.Warning)) return;

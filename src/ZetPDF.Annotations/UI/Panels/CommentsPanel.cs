@@ -146,8 +146,26 @@ internal sealed class CommentsPanel : UserControl
         _updatingFilters = false;
     }
 
+    private bool _refreshPending;
+
+    /// <summary>Ukryty panel nie parsuje dokumentu po każdej edycji; odświeża się, gdy znów będzie widoczny.</summary>
+    private void RequestRefresh()
+    {
+        if (IsLoaded && !IsVisible) { _refreshPending = true; return; }
+        _ = RefreshAsync();
+    }
+
+    private void OnPanelVisibilityChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+        if (!IsVisible || !_refreshPending) return;
+        _refreshPending = false;
+        _ = RefreshAsync();
+    }
+
     private void Track(IPdfDocumentSession? session)
     {
+        IsVisibleChanged -= OnPanelVisibilityChanged;
+        IsVisibleChanged += OnPanelVisibilityChanged;
         if (_session is not null) _session.Changed -= OnChanged;
         _session = session;
         if (_session is not null) _session.Changed += OnChanged;
@@ -156,7 +174,7 @@ internal sealed class CommentsPanel : UserControl
 
     private void OnChanged(object? sender, DocumentChangedEventArgs e)
     {
-        if ((e.Kind & (DocumentChangeKind.Annotations | DocumentChangeKind.PageStructure)) != 0 || e.Source != DocumentChangeSource.Command) _ = RefreshAsync();
+        if ((e.Kind & (DocumentChangeKind.Annotations | DocumentChangeKind.PageStructure)) != 0 || e.Source != DocumentChangeSource.Command) RequestRefresh();
     }
 
     private async Task RefreshAsync()
@@ -172,7 +190,7 @@ internal sealed class CommentsPanel : UserControl
         var measures = new Dictionary<AnnotationId, Measure.MeasurementInfo>();
         if (s is not null && list.Any(a => a.Kind is AnnotationKind.Line or AnnotationKind.Polyline or AnnotationKind.Polygon))
         {
-            try { foreach (var m in await _ctx.Measures.GetMeasurementsAsync(s.Current.GetBytes())) measures[m.Id] = m; }
+            try { foreach (var m in await _ctx.Measures.GetMeasurementsAsync(s.Current.GetSharedBytes())) measures[m.Id] = m; }
             catch (Exception ex) when (ex is not OutOfMemoryException) { }
         }
         if (v != _refreshVersion) return;

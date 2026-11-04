@@ -95,7 +95,7 @@ public sealed class RedactionService : IRedactionService
     /// </summary>
     internal static System.Text.RegularExpressions.Regex PhraseRegex(string phrase, TextSearchOptions options)
     {
-        const string wordBreak = @"(?:[-\u2010\p{Cf}\u0002\uFFFE]?[ \t]*(?:\r\n|\r|\n)[ \t]*|[\p{Cf}\u0002\uFFFE])?";
+        const string wordBreak = @"(?:[-\u2010\p{Cf}\u0002\uFFFE]?(?:[^\S\r\n]|\p{Cf})*(?:\r\n|\r|\n)(?:\s|\p{Cf})*|[\p{Cf}\u0002\uFFFE])?";
         var sb = new StringBuilder();
         bool afterSpace = true;
         foreach (var ch in phrase.Trim())
@@ -120,7 +120,7 @@ public sealed class RedactionService : IRedactionService
         var rects = PageTextTools.RangeRects(text, index, length);
         if (rects.Count == 0) return;
         var value = System.Text.RegularExpressions.Regex.Replace(text.Text.Substring(index, length), @"\s+", " ");
-        if (list.Any(c => c.PageIndex == page && c.Quads.Count == rects.Count && c.Quads[0].Bounds == rects[0])) return;
+        if (list.Any(c => c.PageIndex == page && c.Quads.Select(q => q.Bounds).SequenceEqual(rects))) return;
         list.Add(new RedactionCandidate(page, value, pattern, rects.Select(PdfQuad.FromRect).ToList()));
     }
 

@@ -12,7 +12,7 @@ internal static class AnnotationActions
         if (a.Kind is not (AnnotationKind.Stamp or AnnotationKind.FileAttachment)) parts |= StyleParts.Color;
         if (a.Kind is AnnotationKind.Square or AnnotationKind.Circle or AnnotationKind.Line or AnnotationKind.Arrow or AnnotationKind.Polygon
             or AnnotationKind.Polyline or AnnotationKind.Ink or AnnotationKind.FreeText or AnnotationKind.Callout) parts |= StyleParts.LineWidth;
-        var text = a.InReplyTo is null ? await ctx.Annotations.GetTextStyleAsync(session.Current.GetBytes(), a.Id) : null;
+        var text = a.InReplyTo is null ? await ctx.Annotations.GetTextStyleAsync(session.Current.GetSharedBytes(), a.Id) : null;
         if (text is not null) parts |= StyleParts.Font;
         if (a.InReplyTo is not null) parts = StyleParts.Contents;
         var style = new ToolStyle { Color = a.Color ?? PdfColor.Yellow, Opacity = a.Opacity, LineWidth = 1 };
@@ -36,7 +36,7 @@ internal static class AnnotationActions
 
     public static async Task EditFieldAsync(AnnotContext ctx, IPdfDocumentSession session, string fieldName)
     {
-        var bytes = session.Current.GetBytes();
+        var bytes = session.Current.GetSharedBytes();
         if (await ctx.Forms.GetBarcodeOptionsAsync(bytes, fieldName) is { } barcode)
         {
             var bd = new BarcodeFieldDialog(ctx.Loc, barcode, await ctx.Forms.GetBarcodeSourceNamesAsync(bytes));

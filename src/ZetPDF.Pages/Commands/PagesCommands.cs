@@ -117,7 +117,7 @@ internal sealed class PagesCommands
     private async Task<DocContext> ContextAsync(IPdfDocumentSession s)
     {
         var view = ViewOf(s);
-        var bytes = s.Current.GetBytes();
+        var bytes = s.Current.GetSharedBytes();
         int current = view?.CurrentPageIndex ?? 0;
         var (count, size) = await Task.Run(() => PdfSharpEdit.Read(bytes, d =>
         {
@@ -226,7 +226,7 @@ internal sealed class PagesCommands
         var ctx = await ContextAsync(s);
         var dlg = new ExtractDialog(_loc, _dialogs, ctx, DocFolder(s));
         if (_dialogs.ShowDialog(dlg) != true) return;
-        var bytes = s.Current.GetBytes();
+        var bytes = s.Current.GetSharedBytes();
         var pages = dlg.Pages;
         if (dlg.SeparateFiles)
         {
@@ -304,7 +304,7 @@ internal sealed class PagesCommands
     {
         var dlg = new SplitDialog(_loc, _dialogs, DocFolder(s));
         if (_dialogs.ShowDialog(dlg) != true) return;
-        var bytes = s.Current.GetBytes();
+        var bytes = s.Current.GetSharedBytes();
         IReadOnlyList<string> files = Array.Empty<string>();
         if (!await _dialogs.RunWithProgressAsync(T("Pages.Split.Title"), async (p, ct) => files = await _ops.SplitAsync(bytes, dlg.Options, dlg.Folder, BaseName(s), p, ct))) return;
         _dialogs.ShowMessage(_loc.Format("Pages.Split.Done", files.Count, dlg.Folder), T("Pages.Split.Title"));
@@ -314,7 +314,7 @@ internal sealed class PagesCommands
     {
         var active = _docs.ActiveDocument;
         MergeDialog.Entry? current = active is null || !active.Can(DocumentPermissions.CopyContent) ? null
-            : new MergeDialog.Entry(active.FilePath ?? active.DisplayName, active.DisplayName) { Data = active.Current.GetBytes() };
+            : new MergeDialog.Entry(active.FilePath ?? active.DisplayName, active.DisplayName) { Data = active.Current.GetSharedBytes() };
         var dlg = new MergeDialog(_loc, _dialogs, current);
         if (_dialogs.ShowDialog(dlg) != true) return;
         var sources = new List<MergeSource>();
@@ -373,7 +373,7 @@ internal sealed class PagesCommands
     private async Task PageLabelsAsync(IPdfDocumentSession s)
     {
         var ctx = await ContextAsync(s);
-        var current = await _ops.GetPageLabelsAsync(s.Current.GetBytes());
+        var current = await _ops.GetPageLabelsAsync(s.Current.GetSharedBytes());
         var dlg = new PageLabelsDialog(_loc, _dialogs, ctx.PageCount, current);
         if (_dialogs.ShowDialog(dlg) != true) return;
         var ranges = dlg.Ranges;
@@ -383,11 +383,11 @@ internal sealed class PagesCommands
     // ------------------------------------------------------------------ oznaczenia
 
     private async Task<T?> StoredAsync<T>(IPdfDocumentSession s, PageMarkKind kind) where T : class =>
-        await _stamp.GetStoredOptionsAsync<T>(s.Current.GetBytes(), kind);
+        await _stamp.GetStoredOptionsAsync<T>(s.Current.GetSharedBytes(), kind);
 
     private async Task<bool> HasMarkAsync(IPdfDocumentSession s, PageMarkKind kind)
     {
-        if ((await _stamp.DetectMarksAsync(s.Current.GetBytes())).HasFlag(kind)) return true;
+        if ((await _stamp.DetectMarksAsync(s.Current.GetSharedBytes())).HasFlag(kind)) return true;
         _dialogs.ShowMessage(T("Pages.Marks.NoneFound"), T("Pages.Dialog.InfoTitle"));
         return false;
     }
@@ -449,7 +449,7 @@ internal sealed class PagesCommands
 
     private async Task PageNumbersAsync(IPdfDocumentSession s)
     {
-        bool has = (await _stamp.DetectMarksAsync(s.Current.GetBytes())).HasFlag(PageMarkKind.PageNumbers);
+        bool has = (await _stamp.DetectMarksAsync(s.Current.GetSharedBytes())).HasFlag(PageMarkKind.PageNumbers);
         var stored = has ? await StoredAsync<PageNumberOptions>(s, PageMarkKind.PageNumbers) : null;
         var dlg = new PageNumbersDialog(_loc, _dialogs, await ContextAsync(s), stored, has);
         if (_dialogs.ShowDialog(dlg) != true) return;

@@ -39,6 +39,12 @@ public sealed class DocumentSnapshot
     /// <summary>Kopia bajtów PDF (bez szyfrowania).</summary>
     public byte[] GetBytes() => _data.Read();
 
+    /// <summary>
+    /// Bajty PDF bez kopiowania, gdy zrzut jest w pamięci – TYLKO DO ODCZYTU, zmiana tablicy zepsułaby historię Cofnij/Ponów.
+    /// Do przekazywania usługom modułów, które czytają dokument i zwracają nową tablicę.
+    /// </summary>
+    public byte[] GetSharedBytes() => _data.ReadShared();
+
     public Stream OpenRead() => new MemoryStream(GetBytes(), writable: false);
 
     /// <summary>Nowy zrzut z innymi danymi i tym samym szyfrowaniem. Tablica przechodzi na własność zrzutu.</summary>
@@ -78,6 +84,15 @@ public sealed class DocumentSnapshot
                 var bytes = File.ReadAllBytes(_file);
                 return _protected ? ProtectedData.Unprotect(bytes, null, DataProtectionScope.CurrentUser) : bytes;
             }
+        }
+
+        public byte[] ReadShared()
+        {
+            lock (_gate)
+            {
+                if (_memory is not null) return _memory;
+            }
+            return Read();
         }
 
         public void Spill(string directory, bool protect)

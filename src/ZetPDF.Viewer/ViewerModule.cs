@@ -295,7 +295,7 @@ internal sealed class ViewerCommands
             return;
         }
         var service = _services.GetRequiredService<IBookmarkService>();
-        var tree = await service.GetBookmarksAsync(session.Current.GetBytes());
+        var tree = await service.GetBookmarksAsync(session.Current.GetSharedBytes());
         var node = new BookmarkNode(BookmarksPanel.DefaultTitle(view, _loc), view.CurrentPageIndex, BookmarkNode.NoChildren);
         await BookmarkTree.CommitAsync(session, service, BookmarkTree.Insert(tree, Array.Empty<int>(), tree.Count, node), "Viewer.Undo.AddBookmark");
     }

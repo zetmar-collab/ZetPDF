@@ -171,7 +171,7 @@ public sealed class ReadAloudService : IDisposable
         string? lang = null;
         try
         {
-            var bytes = snap.GetBytes();
+            var bytes = snap.GetSharedBytes();
             lang = await Task.Run(() => PdfSharpEdit.Read(bytes, d => d.Internals.Catalog.Elements.GetString("/Lang")));
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)

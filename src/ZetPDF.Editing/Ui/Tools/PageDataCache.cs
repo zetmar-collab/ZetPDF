@@ -25,7 +25,7 @@ internal sealed class PageDataCache<T> where T : class
         var key = (s.Id, s.Current.Version, page);
         if (_items.TryGetValue(key, out var t) && !t.IsFaulted) return t;
         if (_items.Count > 64) _items.Clear();
-        var bytes = s.Current.GetBytes();
+        var bytes = s.Current.GetSharedBytes();
         t = Task.Run(() => _load(bytes, page));
         _items[key] = t;
         return t;

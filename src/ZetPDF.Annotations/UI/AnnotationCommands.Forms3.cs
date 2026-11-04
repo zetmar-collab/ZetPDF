@@ -76,7 +76,7 @@ internal sealed partial class AnnotationCommands
     {
         _ctx.Tools?.ActivateDefault();
         var rect = PdfRect.FromPoints(a, b);
-        var bytes = s.Current.GetBytes();
+        var bytes = s.Current.GetSharedBytes();
         var sources = await _ctx.Forms.GetBarcodeSourceNamesAsync(bytes);
         var dlg = new BarcodeFieldDialog(_loc, new Forms.BarcodeOptions(), sources);
         if (Ui.Show(Dialogs, dlg) != true) return;
@@ -95,7 +95,7 @@ internal sealed partial class AnnotationCommands
 
     private async Task FormScriptsAsync(IPdfDocumentSession s)
     {
-        var bytes = s.Current.GetBytes();
+        var bytes = s.Current.GetSharedBytes();
         var scripts = await _ctx.Forms.GetScriptsAsync(bytes);
         var fields = (await _ctx.Forms.GetFieldsAsync(bytes))
             .Where(f => f.Kind is not (FormFieldKind.PushButton or FormFieldKind.Signature)).Select(f => f.FullName).Distinct().ToList();
@@ -105,7 +105,7 @@ internal sealed partial class AnnotationCommands
             {
                 if (!await _ctx.RunAsync(s, "Annot.Undo.FormScript", (pdf, ct) => _ctx.Forms.SetFieldScriptAsync(pdf, field, trigger, code, ct),
                         DocumentChangeKind.FormFields, DocumentPermissions.ModifyContent)) return null;
-                return await _ctx.Forms.GetScriptsAsync(s.Current.GetBytes());
+                return await _ctx.Forms.GetScriptsAsync(s.Current.GetSharedBytes());
             },
             async policy =>
             {
