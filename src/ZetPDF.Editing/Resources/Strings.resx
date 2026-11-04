@@ -349,4 +349,7 @@ Yes – with subfolders, No – this folder only.</value></data>
   <data name="Edit.Xlsx.Sheet.Table" xml:space="preserve"><value>Table {0} (p. {1})</value></data>
   <data name="Edit.Xlsx.Sheet.Text" xml:space="preserve"><value>Text</value></data>
   <data name="Edit.Xlsx.NoTextOnPage" xml:space="preserve"><value>(page {0} has no text; run OCR first)</value></data>
+  <data name="Edit.Convert.ToHtml.Title" xml:space="preserve"><value>Export to HTML</value></data>
+  <data name="Edit.Convert.ToHtml.TextOnly" xml:space="preserve"><value>Text only (no images, sizes or bold)</value></data>
+  <data name="Edit.Convert.ToHtml.Note" xml:space="preserve"><value>One HTML file without scripts or external resources; images are embedded in the file. The page layout is not reproduced: paragraphs follow one another, and tables and vector drawings are not exported as such.</value></data>
 </root>

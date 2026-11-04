@@ -76,6 +76,7 @@ internal sealed class EditingCommands
         _registry.Register(CommandIds.Convert.ToText, Doc(ToTextAsync, DocumentPermissions.CopyContent));
         _registry.Register(CommandIds.Convert.ToDocx, Doc(ToDocxAsync, DocumentPermissions.CopyContent));
         _registry.Register(CommandIds.Convert.ToXlsx, Doc(ToXlsxAsync, DocumentPermissions.CopyContent));
+        _registry.Register(CommandIds.Convert.ToHtml, Doc(ToHtmlAsync, DocumentPermissions.CopyContent));
 
         // ---- OCR
         _registry.Register(CommandIds.Ocr.RecognizeDocument, Doc(s => OcrAsync(s, quick: false), DocumentPermissions.ModifyContent));
@@ -337,6 +338,24 @@ internal sealed class EditingCommands
         var conv = _ctx.Get<IConversionService>();
         var pdf = session.Current.GetSharedBytes();
         if (!await _ctx.RunAsync("Edit.Convert.Progress", (p, ct) => conv.PdfToDocxAsync(pdf, path, opts, p, ct))) return;
+        _ctx.Status(L.Format("Edit.Convert.Saved", path));
+    }
+
+    private async Task ToHtmlAsync(IPdfDocumentSession session)
+    {
+        var view = _ctx.View;
+        var dlg = new ExportHtmlDialog(L, view?.CurrentPageIndex ?? 0, view?.PageCount ?? 1);
+        if (_ctx.ShowDialog(dlg) != true) return;
+        var path = _ctx.Dialogs?.SaveFile(L["Edit.Convert.ToHtml.Title"], new[] { new FileFilter(L["Edit.Filter.Html"], "*.html", "*.htm") }, BaseName(session) + ".html");
+        if (path is null) return;
+        var opts = dlg.Options;
+        var conv = _ctx.Get<IConversionService>();
+        var pdf = session.Current.GetSharedBytes();
+        string html = string.Empty;
+        if (!await _ctx.RunAsync("Edit.Convert.Progress", async (p, ct) => html = await conv.PdfToHtmlAsync(pdf, opts, BaseName(session), p, ct))) return;
+        var bytes = Encoding.UTF8.GetBytes(html);
+        if (_ctx.Files is { } files) await files.WriteAllBytesSafeAsync(path, bytes);
+        else await File.WriteAllBytesAsync(path, bytes);
         _ctx.Status(L.Format("Edit.Convert.Saved", path));
     }
 

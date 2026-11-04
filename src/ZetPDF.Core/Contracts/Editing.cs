@@ -130,6 +130,13 @@ public sealed record XlsxExportOptions
 /// <param name="PagesWithoutText">Strony bez tekstu (skany bez OCR): w arkuszu jest przy nich tylko informacja.</param>
 public sealed record XlsxExportResult(int Sheets, int Tables, int PagesWithoutText);
 
+public sealed record HtmlExportOptions
+{
+    /// <summary>Tylko tekst akapitów: bez obrazów, rozmiarów i pogrubień.</summary>
+    public bool TextOnly { get; init; }
+    public string PageRange { get; init; } = string.Empty;
+}
+
 public interface IConversionService
 {
     /// <summary>Obrazy (JPG/PNG/TIFF wielostronicowy/BMP) → PDF.</summary>
@@ -139,6 +146,8 @@ public interface IConversionService
     Task PdfToDocxAsync(byte[] pdf, string outputPath, DocxExportOptions options, IProgress<OperationProgress>? progress = null, CancellationToken ct = default);
     /// <summary>Tabele z układu tekstu do XLSX; komórki wyłącznie jako tekst lub liczba, nigdy formuła.</summary>
     Task<XlsxExportResult> PdfToXlsxAsync(byte[] pdf, string outputPath, XlsxExportOptions options, IProgress<OperationProgress>? progress = null, CancellationToken ct = default);
+    /// <summary>Jeden plik HTML (tekst wynikowy): treść z dokumentu escapowana, obrazy jako data: URI, bez skryptów i zasobów zewnętrznych.</summary>
+    Task<string> PdfToHtmlAsync(byte[] pdf, HtmlExportOptions options, string fallbackTitle, IProgress<OperationProgress>? progress = null, CancellationToken ct = default);
     /// <summary>Scala pliki różnych typów (PDF, obrazy, TXT) w jeden PDF w podanej kolejności.</summary>
     Task<byte[]> CombineFilesAsync(IReadOnlyList<string> paths, IProgress<OperationProgress>? progress = null, CancellationToken ct = default);
     /// <summary>PDF z tekstu (czcionka z polskimi znakami, zawijanie, A4).</summary>

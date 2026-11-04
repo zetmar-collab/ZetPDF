@@ -74,14 +74,14 @@ internal static class DocxWriter
         main.Document.Save();
     }
 
-    private static IEnumerable<IPdfImage> SafeImages(Page page)
+    internal static IEnumerable<IPdfImage> SafeImages(Page page)
     {
         try { return page.GetImages().ToList(); }
         catch (Exception) { return Array.Empty<IPdfImage>(); }
     }
 
     /// <summary>Linie → akapity (ten sam rozmiar, mały odstęp pionowy, zbliżony lewy margines).</summary>
-    private static List<List<TextLine>> Paragraphs(List<TextLine> lines)
+    internal static List<List<TextLine>> Paragraphs(List<TextLine> lines)
     {
         var result = new List<List<TextLine>>();
         foreach (var l in lines)
@@ -116,7 +116,7 @@ internal static class DocxWriter
         return new Paragraph(pp, run);
     }
 
-    private static byte[]? ImageBytes(IPdfImage img, out PartTypeInfo type)
+    internal static byte[]? ImageBytes(IPdfImage img, out PartTypeInfo type)
     {
         type = ImagePartType.Png;
         try

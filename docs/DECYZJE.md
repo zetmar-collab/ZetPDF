@@ -183,3 +183,7 @@ Format: problem → decyzja → uzasadnienie. Decyzje oznaczone **[DO ZATWIERDZE
 - Liczby: `CellNumberParser` woli zostawić tekst niż zapisać wartość tysiąc razy inną. „1,234” i „1.234” rozstrzyga tylko reszta dokumentu (wskazówka: separator z zapisów jednoznacznych, przewaga co najmniej 3:1); bez niej zostają tekstem. Numery (zera na początku, 11 i więcej cyfr, telefon z plusem), daty i wartości z jednostką zostają tekstem.
 - Komórki: `t="inlineStr"` albo liczba, elementu `<f>` nie ma w ogóle. Tekst zaczynający się od `=`, `+`, `-`, `@` (także znaki pełnej szerokości) ma styl tekstowy z `quotePrefix`, żeby przetrwał ręczną edycję w Excelu. To odpowiednik neutralizacji z eksportów CSV, ale bez zmiany treści komórki.
 - `IConversionService` dostał `PdfToXlsxAsync` (dopisanie do kontraktu, jedyna implementacja to `ConversionService`).
+
+## D-33. PDF do HTML
+- Jeden plik UTF-8: akapity (`DocxWriter.Paragraphs`) z rozmiarem, pogrubieniem, kursywą i kolorem; obrazy jako `data:` z typem ustalonym po sygnaturze bajtów (PNG, JPEG), inne dane są pomijane. Opcja „tylko tekst” daje same `<p>` bez stylów i obrazów.
+- Bezpieczeństwo: tekst z dokumentu (treść, tytuł) idzie przez `HtmlWriter.Escape`; rodzina czcionki pochodzi ze stałej listy `FontNames`, a kolor i rozmiar to liczby. Dodatkowo nagłówek CSP `default-src 'none'; img-src data:; style-src 'unsafe-inline'`: nawet gdyby coś przeszło przez escapowanie, skrypt ani zasób zewnętrzny się nie załaduje. Łącza z PDF nie są eksportowane, więc plik nie zawiera `<a>`.

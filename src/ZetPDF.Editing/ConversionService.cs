@@ -337,6 +337,14 @@ public sealed class ConversionService : IConversionService
         }, ct);
     }
 
+    // ------------------------------------------------------------------ PDF → HTML
+
+    public Task<string> PdfToHtmlAsync(byte[] pdf, HtmlExportOptions options, string fallbackTitle, IProgress<OperationProgress>? progress = null, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+        return Task.Run(() => HtmlWriter.Write(pdf, options, fallbackTitle, progress, ct), ct);
+    }
+
     // ------------------------------------------------------------------ PDF → XLSX
 
     public Task<XlsxExportResult> PdfToXlsxAsync(byte[] pdf, string outputPath, XlsxExportOptions options, IProgress<OperationProgress>? progress = null, CancellationToken ct = default)

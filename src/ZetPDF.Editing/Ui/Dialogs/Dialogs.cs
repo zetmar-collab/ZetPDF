@@ -288,6 +288,29 @@ internal sealed class ExportOptionsDialog : DialogBase
     }
 }
 
+/// <summary>Eksport do HTML: zakres stron, opcja „tylko tekst”.</summary>
+internal sealed class ExportHtmlDialog : DialogBase
+{
+    private readonly PageRangePicker _range;
+    private readonly CheckBox _textOnly;
+
+    public ExportHtmlDialog(ILocalizationService loc, int currentPage, int count) : base(loc, "Edit.Convert.ToHtml.Title")
+    {
+        _range = new PageRangePicker(loc, currentPage, count, "htmlrange");
+        _textOnly = Ui.Check(loc, "Edit.Convert.ToHtml.TextOnly", false);
+        SetBody(Ui.Form((null, _textOnly), (Ui.Label(loc, "Edit.Range.Title"), _range), (null, Ui.Label(loc, "Edit.Convert.ToHtml.Note", secondary: true))));
+        AddOkCancel("Edit.Convert.Export");
+    }
+
+    public HtmlExportOptions Options => new() { TextOnly = _textOnly.IsChecked == true, PageRange = _range.RangeText ?? string.Empty };
+
+    protected override bool Validate()
+    {
+        if (_range.RangeText is null) { ShowError(L["Edit.Range.Invalid"]); return false; }
+        return true;
+    }
+}
+
 /// <summary>Eksport do XLSX: zakres stron, arkusz na stronę lub na tabelę, informacja o jakości.</summary>
 internal sealed class ExportXlsxDialog : DialogBase
 {

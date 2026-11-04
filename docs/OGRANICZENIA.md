@@ -249,3 +249,8 @@ Zbiorczo z `docs\ograniczenia\annotations-forms.md` (pkt 17–25), `renderer-vie
 - Tylko tekst poziomy. Strony obrócone (`/Rotate`) i tekst pionowy nie są obsługiwane poprawnie. Skany bez OCR dają w arkuszu jedynie informację o braku tekstu.
 - Liczby: procenty i wartości z jednostką (`12%`, `12,50 zł`) zostają tekstem, podobnie nawiasowy zapis ujemny `(123)`. Liczba bez wskazówki w dokumencie, np. `1,234`, zostaje tekstem. Zapis `601 234 567` zostanie odczytany jako liczba, bo nie różni się od kwoty; telefon z plusem zostaje tekstem. Formatowanie (kolory, czcionki, obramowania) nie jest przenoszone, a obrazy są pomijane.
 - Sprawdzono: testy na plikach z PDFsharp oraz otwarcie wyniku w Excelu 2024 przez automatyzację (bez naprawy pliku, `HasFormula=False` dla tekstu z `=HYPERLINK(...)`) i w openpyxl.
+
+### 28.2 PDF do HTML
+- Układ strony nie jest odtwarzany: akapity jeden pod drugim, sortowane pionowo (tekst w szpaltach może się przeplatać, jak w DOCX). Tabele nie są rozpoznawane, a łącza i rysunki wektorowe nie są eksportowane.
+- Obrazy tylko te, które zwraca PdfPig z zasobów strony i które da się zapisać jako PNG lub JPEG. JPEG w CMYK trafia do pliku bez konwersji i przeglądarka może pokazać go w złych kolorach. Obrazy wewnątrz formularzy XObject mogą zostać pominięte. Plik może być duży, bo obrazy są w nim zapisane w base64.
+- Wyjście sprawdzone testami (`<script>`, `<img onerror>` w treści, `</title>` w metadanych), nie oglądano go w przeglądarce.
