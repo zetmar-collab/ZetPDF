@@ -151,6 +151,72 @@ public sealed class DocumentManager : IDocumentManager
         public void Dispose() => Interlocked.Exchange(ref _action, null)?.Invoke();
     }
 
+    /// <summary>Stan pliku oryginalnego do opisu kopii odzyskiwania.</summary>
+    public (long Length, long ModifiedUtcTicks, bool Signed) GetRecoverySource(IPdfDocumentSession session)
+    {
+        ArgumentNullException.ThrowIfNull(session);
+        return _fileStates.TryGetValue(session, out var state) ? (state.Stamp.Length, state.Stamp.ModifiedUtcTicks, state.Signed) : default;
+    }
+
+    // ------------------------------------------------------------------ odzyskiwanie po awarii (DECYZJE D-27)
+
+    /// <summary>
+    /// Otwiera kopię odzyskiwania jako dokument zmodyfikowany z oryginalną ścieżką. Dla dokumentu chronionego ustawienia szyfrowania
+    /// powstają z pliku oryginalnego (pyta o hasło jak przy otwieraniu), a gdy się nie da – <paramref name="askNewPassword"/> pyta
+    /// o nowe hasło otwarcia. Zwraca null, gdy nie ustalono ochrony: dokumentu nie wolno wtedy otworzyć bez niej (kopia zostaje).
+    /// </summary>
+    public async Task<IPdfDocumentSession?> OpenRecoveredAsync(RecoveryInfo info, byte[] pdf, Func<string, string?> askNewPassword, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(info);
+        ArgumentNullException.ThrowIfNull(pdf);
+        var path = info.OriginalPath;
+        if (path is not null && _documents.Any(d => string.Equals(d.FilePath, path, StringComparison.OrdinalIgnoreCase)))
+            path = null; // ten plik jest już otwarty w innej karcie – kopia dostaje własną kartę, zapis przez Zapisz jako
+
+        Loaded loaded = new(DocumentSnapshot.FromBytes(pdf), PdfSecurityInfo.None, info.Permissions);
+        if (info.IsProtected)
+        {
+            var resolved = await ResolveRecoveredProtectionAsync(info, pdf, askNewPassword, ct);
+            if (resolved is null) return null;
+            loaded = resolved.Value;
+        }
+
+        var session = CreateSession(path, info.DisplayName, loaded, startModified: true);
+        if (path is not null)
+        {
+            // Stan pliku z chwili sprzed awarii: zmiana na dysku w międzyczasie i podpisy nadal ostrzegają przy zapisie.
+            bool signed = info.SourceSigned;
+            try { signed |= File.Exists(path) && ContainsSignature(await File.ReadAllBytesAsync(path, ct)); }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { _log.LogWarning(ex, "Cannot read original of recovered document"); }
+            _fileStates.AddOrUpdate(session, new FileState(new FileStamp(info.SourceLength, info.SourceModifiedUtcTicks), signed));
+        }
+        _log.LogInformation("Recovered document {Id}", info.Id);
+        return session;
+    }
+
+    private async Task<Loaded?> ResolveRecoveredProtectionAsync(RecoveryInfo info, byte[] pdf, Func<string, string?> askNewPassword, CancellationToken ct)
+    {
+        if (info.OriginalPath is { } path && File.Exists(path))
+        {
+            try
+            {
+                var original = await File.ReadAllBytesAsync(path, ct);
+                var fromFile = await LoadAsync(original, info.DisplayName, null, ct);
+                if (fromFile is { Info.IsEncrypted: true } f)
+                    return new Loaded(DocumentSnapshot.FromBytes(pdf, f.Snapshot.Encryption), f.Info, f.Permissions);
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or PdfCorruptException)
+            {
+                _log.LogWarning(ex, "Cannot read protection from the original of recovered document");
+            }
+        }
+        var password = askNewPassword(info.DisplayName);
+        if (string.IsNullOrEmpty(password)) return null;
+        var settings = new PdfEncryptionSettings(password, PdfSecurityHelper.GenerateRandomPassword(), PdfEncryptionMethod.Aes256, info.Permissions) { GeneratedOwnerPassword = true };
+        var security = new PdfSecurityInfo(true, PdfEncryptionMethod.Aes256, 6, info.Permissions, info.Permissions == DocumentPermissions.All, password);
+        return new Loaded(DocumentSnapshot.FromBytes(pdf, settings), security, info.Permissions);
+    }
+
     // ------------------------------------------------------------------ D-23: plik z samym hasłem uprawnień
 
     private sealed record EncryptionOverride(PdfEncryptionSettings Generated, PdfEncryptionSettings? Settings);

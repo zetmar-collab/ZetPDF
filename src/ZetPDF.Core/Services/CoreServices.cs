@@ -39,6 +39,7 @@ public sealed class AppPaths : IAppPaths
     public string StampsDirectory => Path.Combine(AppDataDirectory, "stamps");
     public string ActionsDirectory => Path.Combine(AppDataDirectory, "actions");
     public string DigitalIdsDirectory => Path.Combine(AppDataDirectory, "digital-ids");
+    public string RecoveryDirectory => Path.Combine(LocalDataDirectory, "recovery");
 
     /// <summary>Usuwa foldery tymczasowe procesów, które już nie działają (zostają po awarii programu).</summary>
     public int CleanupOrphanedTemp()

@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using CommunityToolkit.Mvvm.ComponentModel;
 using ZetPDF.Core.Contracts;
 using ZetPDF.Core.Localization;
+using ZetPDF.Core.Services;
 
 namespace ZetPDF.App.Dialogs;
 
@@ -34,6 +35,8 @@ public sealed class SettingsViewModel : ObservableObject
     private string _tempFolder;
     private string _undoLevels;
     private string _maxRecent;
+    private bool _autoSaveEnabled;
+    private string _autoSaveMinutes;
 
     public SettingsViewModel(ISettingsService settings, ILocalizationService loc, IThemeService theme, IDocumentManager? documents = null)
     {
@@ -55,6 +58,8 @@ public sealed class SettingsViewModel : ObservableObject
         _tempFolder = s.TempFolder;
         _undoLevels = s.UndoLevels.ToString(CultureInfo.CurrentCulture);
         _maxRecent = s.MaxRecentFiles.ToString(CultureInfo.CurrentCulture);
+        _autoSaveEnabled = s.AutoSaveEnabled;
+        _autoSaveMinutes = s.AutoSaveMinutes.ToString(CultureInfo.CurrentCulture);
         _loc.CultureChanged += OnCultureChanged;
     }
 
@@ -101,6 +106,8 @@ public sealed class SettingsViewModel : ObservableObject
     public string TempFolder { get => _tempFolder; set => SetAndValidate(ref _tempFolder, value); }
     public string UndoLevels { get => _undoLevels; set => SetAndValidate(ref _undoLevels, value); }
     public string MaxRecentFiles { get => _maxRecent; set => SetAndValidate(ref _maxRecent, value); }
+    public bool AutoSaveEnabled { get => _autoSaveEnabled; set => SetAndValidate(ref _autoSaveEnabled, value); }
+    public string AutoSaveMinutes { get => _autoSaveMinutes; set => SetAndValidate(ref _autoSaveMinutes, value); }
 
     // ---------------------------------------------------------------- walidacja (komunikaty w bieżącym języku)
 
@@ -109,9 +116,10 @@ public sealed class SettingsViewModel : ObservableObject
     public string? TempFolderError => ValidateFolder(TempFolder) ? null : _loc["Shell.Settings.Error.Folder"];
     public string? UndoError => TryInt(UndoLevels, MinUndo, MaxUndo, out _) ? null : _loc.Format("Shell.Settings.Error.Range", MinUndo, MaxUndo);
     public string? RecentError => TryInt(MaxRecentFiles, MinRecent, MaxRecent, out _) ? null : _loc.Format("Shell.Settings.Error.Range", MinRecent, MaxRecent);
+    public string? AutoSaveError => !AutoSaveEnabled || TryInt(AutoSaveMinutes, AutoSaveService.MinMinutes, AutoSaveService.MaxMinutes, out _) ? null : _loc.Format("Shell.Settings.Error.Range", AutoSaveService.MinMinutes, AutoSaveService.MaxMinutes);
     public string? ZoomError => !IsCustomZoom || TryZoom(ZoomPercent, out _) ? null : _loc.Format("Shell.Settings.Error.Range", 10, 6400);
 
-    public bool IsValid => EmailError is null && TsaError is null && TempFolderError is null && UndoError is null && RecentError is null && ZoomError is null;
+    public bool IsValid => EmailError is null && TsaError is null && TempFolderError is null && UndoError is null && RecentError is null && ZoomError is null && AutoSaveError is null;
 
     public static bool ValidateEmail(string? email)
     {
@@ -161,6 +169,7 @@ public sealed class SettingsViewModel : ObservableObject
         if (!IsValid) return false;
         TryInt(UndoLevels, MinUndo, MaxUndo, out var undo);
         TryInt(MaxRecentFiles, MinRecent, MaxRecent, out var recent);
+        var autoSaveMinutes = TryInt(AutoSaveMinutes, AutoSaveService.MinMinutes, AutoSaveService.MaxMinutes, out var m) ? m : _settings.Current.AutoSaveMinutes;
         var zoom = IsCustomZoom && TryZoom(ZoomPercent, out var z) ? z : _settings.Current.DefaultZoom;
         _settings.Update(s =>
         {
@@ -177,6 +186,8 @@ public sealed class SettingsViewModel : ObservableObject
             s.TempFolder = TempFolder.Trim();
             s.UndoLevels = undo;
             s.MaxRecentFiles = recent;
+            s.AutoSaveEnabled = AutoSaveEnabled;
+            s.AutoSaveMinutes = autoSaveMinutes;
             if (s.RecentFiles.Count > recent) s.RecentFiles.RemoveRange(recent, s.RecentFiles.Count - recent);
         });
         if (_documents is not null)
@@ -223,6 +234,7 @@ public sealed class SettingsViewModel : ObservableObject
         OnPropertyChanged(nameof(UndoError));
         OnPropertyChanged(nameof(RecentError));
         OnPropertyChanged(nameof(ZoomError));
+        OnPropertyChanged(nameof(AutoSaveError));
         OnPropertyChanged(nameof(IsValid));
     }
 }

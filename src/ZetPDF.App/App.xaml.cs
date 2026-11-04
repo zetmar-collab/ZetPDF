@@ -25,6 +25,7 @@ public partial class App : Application
     private ILogger<App>? _log;
     private AppPaths? _paths;
     private int _unhandledShown;
+    private bool _sessionEnding;
 
     /// <summary>Kontener (dla okien tworzonych z XAML bez wstrzykiwania). Preferuj wstrzykiwanie przez konstruktor.</summary>
     public static IServiceProvider Services => ((App)Current)._services ?? throw new InvalidOperationException("Not started.");
@@ -53,6 +54,7 @@ public partial class App : Application
         services.AddSingleton<IOwnerProtectionPrompts>(sp => sp.GetRequiredService<DialogService>());
         services.AddSingleton<OwnerProtectionGuard>();
         services.AddSingleton<DocumentActions>();
+        services.AddSingleton<RecoveryFlow>();
         services.AddSingleton<MainWindow>();
         foreach (var m in modules) m.ConfigureServices(services);
         // tryby diagnostyczne (test dymny, zrzuty): czytanie na głos przez prawdziwy System.Speech, ale bez dźwięku
@@ -93,7 +95,23 @@ public partial class App : Application
             _ = Diagnostics.DiagnosticSmokeTest.RunAsync(_services, window, e.Args[smoke + 1], rest);
             return;
         }
-        _ = OpenFromCommandLineAsync(e.Args);
+        _ = FinishStartupAsync(e.Args);
+    }
+
+    /// <summary>Po pokazaniu okna: autozapis, okno odzyskiwania (kopie po awarii), potem pliki z linii poleceń.</summary>
+    private async Task FinishStartupAsync(string[] args)
+    {
+        await Dispatcher.Yield(DispatcherPriority.Background); // najpierw okno się rysuje
+        try
+        {
+            Services.GetRequiredService<AutoSaveService>().Start();
+            await Services.GetRequiredService<RecoveryFlow>().RunAsync();
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            _log?.LogError(ex, "Recovery on startup failed");
+        }
+        await OpenFromCommandLineAsync(args);
     }
 
     /// <summary>Argumenty: pliki PDF (wiele) i opcjonalnie -pwd&lt;hasło&gt; (dla wszystkich plików).</summary>
@@ -114,16 +132,23 @@ public partial class App : Application
     {
         var (files, password) = ParseArgs(args);
         if (files.Count == 0) return;
-        await Dispatcher.Yield(DispatcherPriority.Background); // najpierw okno się rysuje
         await Services.GetRequiredService<DocumentActions>().OpenAsync(files, password);
     }
 
     protected override void OnExit(ExitEventArgs e)
     {
         _log?.LogInformation("ZetPDF exiting");
+        // Normalne wyjście usuwa kopie odzyskiwania; zamykanie Windows ich nie usuwa (niezapisane zmiany zostają do odzyskania).
+        _services?.GetService<AutoSaveService>()?.Stop(deleteFiles: !_sessionEnding);
         _services?.Dispose();
         _paths?.CleanupTemp();
         base.OnExit(e);
+    }
+
+    protected override void OnSessionEnding(SessionEndingCancelEventArgs e)
+    {
+        _sessionEnding = true;
+        base.OnSessionEnding(e);
     }
 
     private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)

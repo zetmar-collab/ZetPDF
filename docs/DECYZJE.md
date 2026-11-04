@@ -143,3 +143,12 @@ Format: problem → decyzja → uzasadnienie. Decyzje oznaczone **[DO ZATWIERDZE
 - ZXing.Net, Jint, Acornima, System.Speech dopisane do okna O programie i dist\LICENSES; exe opublikowany ponownie.
 - Piaskownica JavaScript utwardzona (R-13…R-15); uszkodzony plik indeksu (R-16); szczegóły w RAPORT_KONTROLI rozdz. 9.
 
+
+## Partia 1 nowych funkcji (2026-11-04)
+
+## D-27. Autozapis i odzyskiwanie po awarii
+- `AutoSaveService` (Core, zegar na wątku UI, zapis w `Task.Run`) i `RecoveryStore`: para plików `<pid>-<guid>.recovery` (PDF) i `.info` (opis JSON) w `%LOCALAPPDATA%\ZetPDF\recovery`, **oba** chronione DPAPI CurrentUser z entropią (także opis, bo ma ścieżkę i nazwę; DPAPI daje też integralność, więc podmieniony opis nie wskaże innego pliku docelowego). Plik tymczasowy + `File.Move(overwrite)`; publikacja i usuwanie pod wspólną blokadą, więc autozapis trwający podczas zapisu lub zamknięcia nie zostawi kopii.
+- Porzucona = numer procesu nie działa albo ma inny czas startu (numery wracają). Pliki działających procesów nie są ruszane, śmieci po martwych procesach są sprzątane przy starcie.
+- **Haseł nie ma na dysku, nawet pod DPAPI** (wymaganie: brak jawnych haseł; DPAPI chroni tylko przed innymi kontami, a hasło żyłoby na dysku dłużej niż dokument). Opis zapamiętuje tylko `IsProtected` i uprawnienia. Przy odzyskaniu ustawienia szyfrowania powstają z pliku oryginalnego tą samą ścieżką co przy otwieraniu (okno hasła, D-08, D-23). Gdy oryginału nie ma, nie jest zaszyfrowany (ochronę dodano w sesji) albo użytkownik anulował okno hasła – pytanie o nowe hasło otwarcia; anulowanie = dokument się **nie otwiera**, kopia zostaje. Nigdy nie ma otwarcia bez ochrony.
+- Stan pliku z opisu (`SourceLength`, `SourceModifiedUtcTicks`, `SourceSigned`) trafia do `FileState`, więc ostrzeżenia przy zapisie (zmiana na dysku, podpisy, D-23) działają bez zmian. Odzyskany dokument ma `startModified` i oryginalną ścieżkę; gdy ten plik jest już otwarty w innej karcie – kopia bez ścieżki (Zapisz jako).
+- Zamykanie Windows (`OnSessionEnding`) nie usuwa kopii. Wyłączenie autozapisu w Ustawieniach usuwa kopie bieżącego procesu. Tryby `--diag-*` autozapisu nie uruchamiają.

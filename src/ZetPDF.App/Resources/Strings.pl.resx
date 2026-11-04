@@ -421,4 +421,21 @@ Usunąć go z listy ostatnich plików?</value></data>
   <data name="Cmd.Form.RecognizeFields" xml:space="preserve"><value>Rozpoznaj pola formularza</value></data>
   <data name="Cmd.View.PanelLayers" xml:space="preserve"><value>Warstwy</value></data>
   <data name="Ribbon.Group.Convert.Standards" xml:space="preserve"><value>Standardy</value></data>
+  <data name="Shell.Settings.AutoSave" xml:space="preserve"><value>Automatycznie zapisuj kopie odzyskiwania zmienionych dokumentów</value></data>
+  <data name="Shell.Settings.AutoSaveMinutes" xml:space="preserve"><value>Co ile minut (autozapis)</value></data>
+  <data name="Shell.Settings.AutoSave.Hint" xml:space="preserve"><value>Kopie są szyfrowane dla Twojego konta Windows i istnieją tylko do zapisania lub zamknięcia dokumentu. Nie zastępują zapisu.</value></data>
+  <data name="Shell.Recovery.Title" xml:space="preserve"><value>Odzyskiwanie dokumentów</value></data>
+  <data name="Shell.Recovery.Intro" xml:space="preserve"><value>ZetPDF nie został ostatnio zamknięty prawidłowo. Znaleziono niezapisane kopie tych dokumentów:</value></data>
+  <data name="Shell.Recovery.Recover" xml:space="preserve"><value>Odzyskaj</value></data>
+  <data name="Shell.Recovery.Discard" xml:space="preserve"><value>Odrzuć</value></data>
+  <data name="Shell.Recovery.Later" xml:space="preserve"><value>Zdecyduj później</value></data>
+  <data name="Shell.Recovery.Saved" xml:space="preserve"><value>Autozapis: {0}</value></data>
+  <data name="Shell.Recovery.State.Modified" xml:space="preserve"><value>Niezapisane zmiany</value></data>
+  <data name="Shell.Recovery.State.NeverSaved" xml:space="preserve"><value>Nigdy niezapisany</value></data>
+  <data name="Shell.Recovery.Protected" xml:space="preserve"><value>Chroniony hasłem: program poprosi o hasło</value></data>
+  <data name="Shell.Recovery.DiscardConfirm" xml:space="preserve"><value>Trwale usunąć kopię odzyskiwania dokumentu „{0}”? Niezapisane zmiany przepadną.</value></data>
+  <data name="Shell.Recovery.Unreadable" xml:space="preserve"><value>Nie można odczytać kopii odzyskiwania dokumentu „{0}”. Może być uszkodzona lub pochodzić z innego konta Windows.</value></data>
+  <data name="Shell.Recovery.Status" xml:space="preserve"><value>Odzyskano: {0}. Zapisz dokument, aby zachować zmiany.</value></data>
+  <data name="Shell.Recovery.NewPassword.Title" xml:space="preserve"><value>Ochrona odzyskanego dokumentu</value></data>
+  <data name="Shell.Recovery.NewPassword.Prompt" xml:space="preserve"><value>Ten dokument był chroniony hasłem, ale ochrony nie udało się odtworzyć z pliku oryginalnego. Podaj nowe hasło otwarcia; zostanie użyte przy zapisie. Anuluj zachowa kopię odzyskiwania.</value></data>
 </root>

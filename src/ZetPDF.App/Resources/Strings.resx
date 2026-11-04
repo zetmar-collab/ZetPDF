@@ -421,4 +421,21 @@ Remove it from the recent files list?</value></data>
   <data name="Cmd.Form.RecognizeFields" xml:space="preserve"><value>Recognize Form Fields</value></data>
   <data name="Cmd.View.PanelLayers" xml:space="preserve"><value>Layers</value></data>
   <data name="Ribbon.Group.Convert.Standards" xml:space="preserve"><value>Standards</value></data>
+  <data name="Shell.Settings.AutoSave" xml:space="preserve"><value>Save recovery copies of changed documents automatically</value></data>
+  <data name="Shell.Settings.AutoSaveMinutes" xml:space="preserve"><value>Autosave interval (minutes)</value></data>
+  <data name="Shell.Settings.AutoSave.Hint" xml:space="preserve"><value>Copies are encrypted for your Windows account and kept only until you save or close the document. They do not replace saving.</value></data>
+  <data name="Shell.Recovery.Title" xml:space="preserve"><value>Recover documents</value></data>
+  <data name="Shell.Recovery.Intro" xml:space="preserve"><value>ZetPDF did not close properly last time. Unsaved copies of these documents were found:</value></data>
+  <data name="Shell.Recovery.Recover" xml:space="preserve"><value>Recover</value></data>
+  <data name="Shell.Recovery.Discard" xml:space="preserve"><value>Discard</value></data>
+  <data name="Shell.Recovery.Later" xml:space="preserve"><value>Decide later</value></data>
+  <data name="Shell.Recovery.Saved" xml:space="preserve"><value>Autosaved: {0}</value></data>
+  <data name="Shell.Recovery.State.Modified" xml:space="preserve"><value>Unsaved changes</value></data>
+  <data name="Shell.Recovery.State.NeverSaved" xml:space="preserve"><value>Never saved</value></data>
+  <data name="Shell.Recovery.Protected" xml:space="preserve"><value>Password protected: you will be asked for the password</value></data>
+  <data name="Shell.Recovery.DiscardConfirm" xml:space="preserve"><value>Permanently delete the recovery copy of "{0}"? Its unsaved changes will be lost.</value></data>
+  <data name="Shell.Recovery.Unreadable" xml:space="preserve"><value>The recovery copy of "{0}" cannot be read. It may be damaged or was created by another Windows account.</value></data>
+  <data name="Shell.Recovery.Status" xml:space="preserve"><value>Recovered: {0}. Save the document to keep the changes.</value></data>
+  <data name="Shell.Recovery.NewPassword.Title" xml:space="preserve"><value>Protect recovered document</value></data>
+  <data name="Shell.Recovery.NewPassword.Prompt" xml:space="preserve"><value>This document was password protected, but the protection could not be restored from the original file. Enter a new password to open it; it will be used when you save. Cancel keeps the recovery copy.</value></data>
 </root>

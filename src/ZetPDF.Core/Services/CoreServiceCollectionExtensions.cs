@@ -35,6 +35,7 @@ public static class CoreServiceCollectionExtensions
         services.AddSingleton<IPanelRegistry, PanelRegistry>();
         services.AddSingleton<IDocumentManager, DocumentManager>();
         services.AddSingleton<IMetadataService, MetadataService>();
+        services.AddSingleton<AutoSaveService>();
         return services;
     }
 }

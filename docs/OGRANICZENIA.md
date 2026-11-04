@@ -212,3 +212,12 @@ Zbiorczo z `docs\ograniczenia\annotations-forms.md` (pkt 17–25), `renderer-vie
 
 ### 26.9 Wspólne
 - Okna i panele etapu 3 nie były klikane myszą na pulpicie; sprawdzono je testami (budowa okien, polecenia), testem dymnym exe (`--diag-smoke`: Access.FullCheck, Index.Search, Measure.Calculator, Form.JavaScript, View.ParallelView z drugim dokumentem, Read.Activate/CurrentPage/Stop/FromPage bez dźwięku) i zrzutami (`--diag-screenshots`). Nie sprawdzono w exe: rysowania pomiarów myszą, okna skali/kalibracji, tworzenia pola kodu kreskowego, budowania indeksu z okna wyboru folderu, czytania z dźwiękiem na głośnikach.
+
+## 27. Partia 1 nowych funkcji (2026-11-04)
+
+### 27.1 Autozapis i odzyskiwanie
+- Kopia może być starsza od stanu w chwili awarii o najwyżej jeden interwał (domyślnie 5 min, zakres 1–120). Nieudany autozapis (np. brak miejsca) trafia tylko do dziennika, bez okna; następny przebieg próbuje ponownie.
+- Historia Cofnij/Ponów nie jest odzyskiwana (start od kopii). Nie jest też odzyskiwany przełącznik „Spłaszcz przy zapisie” ani wybór z okna D-23 (okno pojawi się ponownie).
+- Dokument chroniony: hasła nie są zapisywane, więc odzyskana kopia dostaje ochronę pliku oryginalnego (po podaniu jego hasła). Jeśli w sesji przed awarią zmieniono hasło lub uprawnienia na innym zaszyfrowanym oryginale, po odzyskaniu obowiązują te z pliku na dysku – trzeba ustawić je ponownie. Gdy oryginał jest niedostępny lub bez szyfrowania, program prosi o nowe hasło otwarcia (AES-256, losowe hasło właściciela, uprawnienia z kopii).
+- Kopie są związane z kontem Windows (DPAPI): po resecie hasła konta przez administratora lub na innym komputerze są nieczytelne (komunikat przy odzyskiwaniu; wiersz można odrzucić). Opisy nieczytelne po martwych procesach są usuwane przy starcie bez pytania, bo nie da się ich pokazać.
+- Na czas zapisu kopii w pamięci jest druga kopia dokumentu (zaszyfrowany blob). DPAPI działa na całej tablicy, bez strumieniowania.

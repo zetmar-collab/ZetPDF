@@ -250,6 +250,10 @@ public sealed class AppSettings
     public List<string> QuickAccessExtra { get; set; } = new();
     /// <summary>Próg pewności OCR (0–100) poniżej którego słowo jest "podejrzane".</summary>
     public int OcrSuspectThreshold { get; set; } = 70;
+    /// <summary>Autozapis zmienionych dokumentów do folderu odzyskiwania.</summary>
+    public bool AutoSaveEnabled { get; set; } = true;
+    /// <summary>Interwał autozapisu w minutach.</summary>
+    public int AutoSaveMinutes { get; set; } = 5;
 }
 
 /// <summary>Ostatnie pliki. Implementacja: Core (na bazie ISettingsService).</summary>
@@ -281,6 +285,8 @@ public interface IAppPaths
     string ActionsDirectory { get; }
     /// <summary>Identyfikatory cyfrowe utworzone w ZetPDF (security-signatures).</summary>
     string DigitalIdsDirectory { get; }
+    /// <summary>Kopie odzyskiwania (autozapis): podfolder recovery w LocalDataDirectory.</summary>
+    string RecoveryDirectory { get; }
 }
 
 /// <summary>Bezpieczny zapis plików. Implementacja: Core.</summary>

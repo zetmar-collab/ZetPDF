@@ -114,6 +114,14 @@
                         <TextBox Width="80" HorizontalAlignment="Left" Text="{Binding MaxRecentFiles, UpdateSourceTrigger=PropertyChanged}"
                                  AutomationProperties.Name="{loc:Loc Shell.Settings.MaxRecent}" />
                         <TextBlock Text="{Binding RecentError}" Style="{StaticResource Err}" />
+
+                        <CheckBox Content="{loc:Loc Shell.Settings.AutoSave}" IsChecked="{Binding AutoSaveEnabled}" Margin="0,18,0,0"
+                                  AutomationProperties.AutomationId="Shell.Settings.AutoSave" />
+                        <TextBlock Text="{loc:Loc Shell.Settings.AutoSaveMinutes}" Style="{StaticResource FieldLabel}" />
+                        <TextBox Width="80" HorizontalAlignment="Left" Text="{Binding AutoSaveMinutes, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding AutoSaveEnabled}"
+                                 AutomationProperties.Name="{loc:Loc Shell.Settings.AutoSaveMinutes}" AutomationProperties.AutomationId="Shell.Settings.AutoSaveMinutes" />
+                        <TextBlock Text="{Binding AutoSaveError}" Style="{StaticResource Err}" />
+                        <TextBlock Text="{loc:Loc Shell.Settings.AutoSave.Hint}" Style="{StaticResource Hint}" />
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>

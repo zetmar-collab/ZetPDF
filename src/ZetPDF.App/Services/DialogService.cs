@@ -141,6 +141,10 @@ public sealed class DialogService : IDialogService, IOwnerProtectionPrompts
     public string? AskNewPermissionsPassword(string documentName) =>
         AskSecret(_loc["Shell.OwnerOnly.NewPassword.Title"], documentName, _loc["Shell.OwnerOnly.NewPassword.Prompt"], false, confirm: true);
 
+    /// <summary>Nowe hasło otwarcia dokumentu odzyskanego po awarii (ochrony nie dało się odtworzyć z pliku).</summary>
+    public string? AskRecoveryPassword(string documentName) =>
+        AskSecret(_loc["Shell.Recovery.NewPassword.Title"], documentName, _loc["Shell.Recovery.NewPassword.Prompt"], false, confirm: true);
+
     /// <summary>Okno z polem hasła (opcjonalnie drugim – powtórzenie; OK aktywne dopiero przy zgodnych, niepustych hasłach).</summary>
     private string? AskSecret(string title, string documentName, string promptText, bool isError, bool confirm)
     {
