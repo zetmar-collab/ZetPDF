@@ -40,6 +40,7 @@ public sealed class SystemProcessRunner : IProcessRunner
                 if (doneAt is null && isDone?.Invoke() == true) doneAt = DateTime.UtcNow;
                 if (doneAt is { } at && DateTime.UtcNow - at > ExitGrace)
                 {
+                    UpdateTree(tree, started);
                     KillAll(tree);
                     return process.ExitCode;
                 }
@@ -69,7 +70,12 @@ public sealed class SystemProcessRunner : IProcessRunner
     {
         foreach (var p in tree.Values)
         {
-            try { if (!p.HasExited) p.Kill(); }
+            try
+            {
+                if (p.HasExited) continue;
+                p.Kill();
+                p.WaitForExit(2000); // pliki profilu zwalniają się dopiero po końcu procesu
+            }
             catch (Exception ex) when (ex is InvalidOperationException or System.ComponentModel.Win32Exception or NotSupportedException) { }
         }
     }
@@ -222,7 +228,7 @@ public sealed class EdgePdfPrinter : IWebPdfPrinter
     /// <summary>Procesy potomne przeglądarki mogą jeszcze chwilę trzymać pliki profilu.</summary>
     private static async Task RemoveDirectoryAsync(string path)
     {
-        for (int attempt = 0; attempt < 15 && Directory.Exists(path); attempt++)
+        for (int attempt = 0; attempt < 75 && Directory.Exists(path); attempt++)
         {
             try { Directory.Delete(path, recursive: true); return; }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { await Task.Delay(200).ConfigureAwait(false); }

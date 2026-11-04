@@ -22,7 +22,7 @@
   <data name="Edit.Color.White" xml:space="preserve"><value>Biały</value></data>
   <data name="Edit.Color.Current" xml:space="preserve"><value>Bieżący</value></data>
   <data name="Edit.Combine.Title" xml:space="preserve"><value>Połącz pliki</value></data>
-  <data name="Edit.Combine.Hint" xml:space="preserve"><value>Pliki PDF, obrazy (JPG, PNG, TIFF, BMP, GIF) i pliki tekstowe zostaną połączone w jeden PDF w kolejności z listy.</value></data>
+  <data name="Edit.Combine.Hint" xml:space="preserve"><value>Pliki PDF, obrazy (JPG, PNG, TIFF, BMP, GIF), pliki tekstowe, a z zainstalowanym Microsoft Office także DOCX, XLSX i PPTX zostaną połączone w jeden PDF w kolejności z listy.</value></data>
   <data name="Edit.Combine.Files" xml:space="preserve"><value>Pliki do połączenia</value></data>
   <data name="Edit.Combine.Add" xml:space="preserve"><value>Dodaj pliki…</value></data>
   <data name="Edit.Combine.Remove" xml:space="preserve"><value>Usuń</value></data>
@@ -354,7 +354,7 @@ Tak – z podfolderami, Nie – tylko ten folder.</value></data>
   <data name="Edit.Convert.ToHtml.Note" xml:space="preserve"><value>Jeden plik HTML bez skryptów i zasobów zewnętrznych; obrazy są zapisane w pliku. Układ strony nie jest odtwarzany: akapity następują po sobie, a tabele i rysunki wektorowe nie są eksportowane jako takie.</value></data>
   <data name="Edit.PdfA.Disclaimer" xml:space="preserve"><value>To własne sprawdzenie wybranych reguł PDF/A-2b, a nie certyfikowana walidacja. Wynik bez błędów nie potwierdza zgodności z ISO 19005-2; gdy ma to znaczenie, użyj walidatora, np. veraPDF.</value></data>
   <data name="Edit.PdfA.Summary" xml:space="preserve"><value>Zaliczone: {0}, niezaliczone: {1}, niesprawdzone: {2}.</value></data>
-  <data name="Edit.PdfA.Examples" xml:space="preserve"><value>Znaleziono: {0}.</value></data>
+  <data name="Edit.PdfA.Examples" xml:space="preserve"><value>Znaleziono (numery stron w nawiasie lub na liście): {0}.</value></data>
   <data name="Edit.PdfA.Status.Passed" xml:space="preserve"><value>Zaliczone</value></data>
   <data name="Edit.PdfA.Status.Failed" xml:space="preserve"><value>Niezaliczone</value></data>
   <data name="Edit.PdfA.Status.NotChecked" xml:space="preserve"><value>Nie sprawdzono</value></data>
@@ -383,7 +383,7 @@ Tak – z podfolderami, Nie – tylko ten folder.</value></data>
   <data name="Edit.PdfA.Plan.Signed" xml:space="preserve"><value>Podpisy cyfrowe przestaną być ważne, bo plik jest zapisywany od nowa.</value></data>
   <data name="Edit.PdfA.Plan.Fonts" xml:space="preserve"><value>Czcionki osadzane z systemu: {0}. Kształty znaków mogą się nieco różnić.</value></data>
   <data name="Edit.PdfA.Plan.Metadata" xml:space="preserve"><value>Metadane powstają od nowa z właściwości dokumentu; inne właściwości XMP przepadają.</value></data>
-  <data name="Edit.PdfA.Plan.Rasterize" xml:space="preserve"><value>Strony, które można zapisać tylko jako obraz z ukrytą warstwą tekstu: {0} ({1}). Przepada ich treść wektorowa, łącza i pola formularza. To strony z czcionkami, których nie da się osadzić, kolorami CMYK lub polami bez wyglądu.</value></data>
+  <data name="Edit.PdfA.Plan.Rasterize" xml:space="preserve"><value>Strony, które można zapisać tylko jako obraz z ukrytą warstwą tekstu: {0} (numery: {1}). Przepada ich treść wektorowa, łącza i pola formularza. To strony z czcionkami, których nie da się osadzić, kolorami CMYK lub polami bez wyglądu.</value></data>
   <data name="Edit.PdfA.Plan.RasterizeAllow" xml:space="preserve"><value>Zgadzam się na zamianę tych stron na obrazy</value></data>
   <data name="Edit.PdfA.Plan.RasterizeRequired" xml:space="preserve"><value>Bez tej zgody dokumentu nie da się przekonwertować.</value></data>
   <data name="Edit.PdfA.Error.Encrypted" xml:space="preserve"><value>Plik jest zaszyfrowany. Najpierw otwórz go z hasłem.</value></data>
@@ -489,4 +489,9 @@ Tak – z podfolderami, Nie – tylko ten folder.</value></data>
   <data name="Edit.Web.Invalid.FileNotFound" xml:space="preserve"><value>Ten plik nie istnieje.</value></data>
   <data name="Edit.Web.Invalid.NetworkPath" xml:space="preserve"><value>Ścieżki sieciowe są niedozwolone; skopiuj plik na ten komputer.</value></data>
   <data name="Edit.Web.Invalid.InvalidAddress" xml:space="preserve"><value>To nie jest poprawny adres.</value></data>
+  <data name="Edit.Office.Required" xml:space="preserve"><value>Do konwersji tego pliku potrzebny jest Microsoft Office z odpowiednią aplikacją: {0}.</value></data>
+  <data name="Edit.Office.Missing" xml:space="preserve"><value>Pominięto te pliki, bo do konwersji DOCX, XLSX i PPTX potrzebny jest zainstalowany Microsoft Office z odpowiednią aplikacją: {0}.</value></data>
+  <data name="Edit.Office.ConvertFailed" xml:space="preserve"><value>Microsoft Office nie zdołał przekonwertować tego pliku (może być uszkodzony lub chroniony hasłem): {0}.</value></data>
+  <data name="Edit.Office.Timeout" xml:space="preserve"><value>Microsoft Office nie zakończył konwersji w wyznaczonym czasie i został zamknięty.</value></data>
+  <data name="Edit.Filter.Office" xml:space="preserve"><value>Dokumenty Office (*.docx, *.xlsx, *.pptx)</value></data>
 </root>

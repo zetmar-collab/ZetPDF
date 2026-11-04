@@ -23,11 +23,13 @@ public sealed class ConversionService : IConversionService
 
     private readonly IPdfRenderer _renderer;
     private readonly ILocalizationService? _loc;
+    private readonly IOfficeConverter? _office;
 
-    public ConversionService(IPdfRenderer renderer, ILocalizationService? loc = null)
+    public ConversionService(IPdfRenderer renderer, ILocalizationService? loc = null, IOfficeConverter? office = null)
     {
         _renderer = renderer;
         _loc = loc;
+        _office = office;
     }
 
     // ------------------------------------------------------------------ obrazy → PDF
@@ -184,6 +186,22 @@ public sealed class ConversionService : IConversionService
                 else if (ImageExtensions.Contains(ext))
                 {
                     foreach (var frame in ImageCodec.PrepareFrames(File.ReadAllBytes(path))) AddImagePage(output, frame, new ImageToPdfOptions { PageSize = ImagePageSize.A4, Margin = 28 });
+                }
+                else if (OfficeFormats.IsOffice(ext))
+                {
+                    // Bez Office czytelny błąd; wcześniej plik binarny trafiał do PDF jako tekst.
+                    if (_office is null || !_office.IsAvailableFor(ext)) throw new InvalidOperationException("Office is not available.").WithMessageKey("Edit.Office.Required", Path.GetFileName(path));
+                    var tmp = Path.Combine(Path.GetTempPath(), "zetpdf-office-" + Guid.NewGuid().ToString("N") + ".pdf");
+                    try
+                    {
+                        _office.ConvertToPdfAsync(path, tmp, ct).GetAwaiter().GetResult();
+                        using var src = PdfReader.Open(new MemoryStream(File.ReadAllBytes(tmp)), PdfDocumentOpenMode.Import);
+                        foreach (var p in src.Pages) output.AddPage(p);
+                    }
+                    finally
+                    {
+                        if (File.Exists(tmp)) File.Delete(tmp);
+                    }
                 }
                 else
                 {

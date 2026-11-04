@@ -33,6 +33,11 @@ Nowe w etapie 3 (dodatki)
   - Indeks pełnotekstowy folderu i wyszukiwanie zaawansowane (Widok > Wyszukiwanie) z eksportem CSV;
     indeks w %LOCALAPPDATA%\ZetPDF\index\ (pliki zaszyfrowane hasłem są pomijane).
 
+Nowe w partii 2
+  - Eksport do Excela (XLSX, tabele wykrywane z układu tekstu) i do HTML.
+  - PDF/A-2b: własne sprawdzenie wybranych reguł i konwersja. To nie jest certyfikowana walidacja.
+  - Tworzenie PDF ze skanera (WIA), ze strony WWW (zainstalowana Microsoft Edge) i z DOCX, XLSX, PPTX (zainstalowany Microsoft Office).
+
 Gdzie są dane
   - Ustawienia:        %APPDATA%\ZetPDF\settings.json (podpisy, stempele, działania Kreatora – obok)
   - Indeks folderów:  %LOCALAPPDATA%\ZetPDF\index\*.zidx
@@ -93,6 +98,11 @@ New in stage 3 (add-ons)
   - Parallel view of two documents in one tab (View > Compare), with synchronized scrolling.
   - Full-text folder index and advanced search (View > Find) with CSV export; the index is stored in
     %LOCALAPPDATA%\ZetPDF\index\ (password-protected files are skipped).
+
+New in batch 2
+  - Export to Excel (XLSX, tables detected from the text layout) and to HTML.
+  - PDF/A-2b: ZetPDF's own check of selected rules and conversion. This is not a certified validation.
+  - Create PDF from a scanner (WIA), a web page (installed Microsoft Edge) and DOCX, XLSX, PPTX (installed Microsoft Office).
 
 Where data is stored
   - Settings:     %APPDATA%\ZetPDF\settings.json (signatures, stamps, Action Wizard actions next to it)

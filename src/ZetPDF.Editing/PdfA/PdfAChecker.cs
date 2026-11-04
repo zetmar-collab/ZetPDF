@@ -63,11 +63,11 @@ internal static class PdfAChecker
         return new PdfACheckReport(r);
     }
 
-    /// <summary>Strony 1-based: „s. 1, 2, 3…” (pierwsze dziesięć).</summary>
+    /// <summary>Strony 1-based: „1, 2, 3…” (pierwsze dziesięć).</summary>
     public static string Pages(IEnumerable<int> pages)
     {
         var list = pages.OrderBy(p => p).ToList();
-        return "p. " + string.Join(", ", list.Take(10).Select(p => (p + 1).ToString(System.Globalization.CultureInfo.InvariantCulture))) + (list.Count > 10 ? ", ..." : string.Empty);
+        return string.Join(", ", list.Take(10).Select(p => (p + 1).ToString(System.Globalization.CultureInfo.InvariantCulture))) + (list.Count > 10 ? ", ..." : string.Empty);
     }
 
     /// <summary>Raport TXT lub HTML w bieżącym języku. Przykłady i nazwa pliku pochodzą z dokumentu, więc w HTML są escapowane.</summary>

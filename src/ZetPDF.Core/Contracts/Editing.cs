@@ -148,7 +148,7 @@ public interface IConversionService
     Task<XlsxExportResult> PdfToXlsxAsync(byte[] pdf, string outputPath, XlsxExportOptions options, IProgress<OperationProgress>? progress = null, CancellationToken ct = default);
     /// <summary>Jeden plik HTML (tekst wynikowy): treść z dokumentu escapowana, obrazy jako data: URI, bez skryptów i zasobów zewnętrznych.</summary>
     Task<string> PdfToHtmlAsync(byte[] pdf, HtmlExportOptions options, string fallbackTitle, IProgress<OperationProgress>? progress = null, CancellationToken ct = default);
-    /// <summary>Scala pliki różnych typów (PDF, obrazy, TXT) w jeden PDF w podanej kolejności.</summary>
+    /// <summary>Scala pliki różnych typów (PDF, obrazy, TXT, a z zainstalowanym Office także DOCX, XLSX, PPTX) w jeden PDF w podanej kolejności.</summary>
     Task<byte[]> CombineFilesAsync(IReadOnlyList<string> paths, IProgress<OperationProgress>? progress = null, CancellationToken ct = default);
     /// <summary>PDF z tekstu (czcionka z polskimi znakami, zawijanie, A4).</summary>
     Task<byte[]> TextToPdfAsync(string text, TextStyle? style = null, CancellationToken ct = default);

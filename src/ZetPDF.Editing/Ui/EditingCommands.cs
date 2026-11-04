@@ -228,14 +228,26 @@ internal sealed class EditingCommands
 
     private FileFilter[] CreateFilters() => new[]
     {
-        new FileFilter(L["Edit.Filter.Supported"], "*.pdf", "*.png", "*.jpg", "*.jpeg", "*.tif", "*.tiff", "*.bmp", "*.gif", "*.txt"),
-        FileFilter.Pdf(L), ImageFilter(L), new FileFilter(L["Edit.Filter.Text"], "*.txt"), FileFilter.All(L),
+        new FileFilter(L["Edit.Filter.Supported"], "*.pdf", "*.png", "*.jpg", "*.jpeg", "*.tif", "*.tiff", "*.bmp", "*.gif", "*.txt", "*.docx", "*.xlsx", "*.pptx"),
+        FileFilter.Pdf(L), ImageFilter(L), new FileFilter(L["Edit.Filter.Text"], "*.txt"), new FileFilter(L["Edit.Filter.Office"], "*.docx", "*.xlsx", "*.pptx"), FileFilter.All(L),
     };
+
+    /// <summary>Pliki Office bez zainstalowanej aplikacji są pomijane z komunikatem; reszta działa jak dotąd.</summary>
+    private IReadOnlyList<string> WithoutUnavailableOffice(IReadOnlyList<string> files)
+    {
+        var office = _ctx.Services.GetService(typeof(Conversion.IOfficeConverter)) as Conversion.IOfficeConverter;
+        var missing = files.Where(f => Path.GetExtension(f) is var e && Conversion.OfficeFormats.IsOffice(e) && office?.IsAvailableFor(e) != true).ToList();
+        if (missing.Count == 0) return files;
+        _ctx.Message("Edit.Office.Missing", string.Join(", ", missing.Select(Path.GetFileName)));
+        return files.Except(missing).ToList();
+    }
 
     private async Task CreateFromFileAsync()
     {
         var files = _ctx.Dialogs?.OpenFiles(L["Edit.Create.ChooseFiles"], CreateFilters(), multiselect: true);
         if (files is not { Count: > 0 }) return;
+        files = WithoutUnavailableOffice(files);
+        if (files.Count == 0) return;
         var exts = files.Select(f => Path.GetExtension(f).ToLowerInvariant()).ToList();
         if (exts.All(e => e == ".pdf"))
         {
@@ -260,7 +272,8 @@ internal sealed class EditingCommands
         var initial = _ctx.Documents.ActiveDocument?.FilePath is { } p ? new[] { p } : Array.Empty<string>();
         var dlg = new CombineFilesDialog(L, () => _ctx.Dialogs?.OpenFiles(L["Edit.Create.ChooseFiles"], CreateFilters(), multiselect: true), initial);
         if (_ctx.ShowDialog(dlg) != true) return;
-        var files = dlg.Files;
+        var files = WithoutUnavailableOffice(dlg.Files);
+        if (files.Count == 0) return;
         var conv = _ctx.Get<IConversionService>();
         byte[]? pdf = null;
         if (!await _ctx.RunAsync("Edit.Combine.Progress", async (pr, ct) => pdf = await conv.CombineFilesAsync(files, pr, ct))) return;

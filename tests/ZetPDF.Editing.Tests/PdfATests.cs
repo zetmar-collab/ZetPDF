@@ -99,7 +99,7 @@ public class PdfATests
         var report = await _svc.CheckAsync(ExtraSamples.WithLiteralText(new[] { "Tekst Helvetica" }));
         var fonts = Rule(report, "Fonts");
         Assert.Equal(PdfARuleStatus.Failed, fonts.Status);
-        Assert.Contains("Helvetica (p. 1)", fonts.Examples!);
+        Assert.Contains("Helvetica (1)", fonts.Examples!);
     }
 
     [Fact]
@@ -120,7 +120,7 @@ public class PdfATests
             Ocr.Pdf.PageContent.Append(doc.Pages[0], Encoding.ASCII.GetBytes("0 0 0 1 k 10 10 50 50 re f\n")));
         var report = await _svc.CheckAsync(cmyk);
         AssertFailed(report, "DeviceColors");
-        Assert.Contains("p. 1", Rule(report, "DeviceColors").Examples!);
+        Assert.Contains("1", Rule(report, "DeviceColors").Examples!);
 
         var transparent = PdfSharpEdit.Modify(SamplePdfFactory.Text(1), doc =>
         {
@@ -762,7 +762,7 @@ public class PdfATests
     [Fact]
     public void Report_in_html_escapes_text_from_the_document()
     {
-        var report = new PdfACheckReport(new[] { new PdfARuleResult("Fonts", PdfARuleStatus.Failed, 1, new[] { "<script>alert(1)</script> (p. 1)" }) });
+        var report = new PdfACheckReport(new[] { new PdfARuleResult("Fonts", PdfARuleStatus.Failed, 1, new[] { "<script>alert(1)</script> (1)" }) });
         var loc = new ZetPDF.Core.Localization.LocalizationService();
         loc.RegisterResources(EditingModule.Strings);
         var html = PdfAChecker.BuildReport(report, loc, "<b>plik</b>.pdf", html: true);

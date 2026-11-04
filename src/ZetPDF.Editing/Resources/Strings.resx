@@ -22,7 +22,7 @@
   <data name="Edit.Color.White" xml:space="preserve"><value>White</value></data>
   <data name="Edit.Color.Current" xml:space="preserve"><value>Current</value></data>
   <data name="Edit.Combine.Title" xml:space="preserve"><value>Combine Files</value></data>
-  <data name="Edit.Combine.Hint" xml:space="preserve"><value>PDF files, images (JPG, PNG, TIFF, BMP, GIF) and text files are combined into one PDF in the order of the list.</value></data>
+  <data name="Edit.Combine.Hint" xml:space="preserve"><value>PDF files, images (JPG, PNG, TIFF, BMP, GIF), text files and, with Microsoft Office installed, DOCX, XLSX and PPTX files will be combined into one PDF in the order of the list.</value></data>
   <data name="Edit.Combine.Files" xml:space="preserve"><value>Files to combine</value></data>
   <data name="Edit.Combine.Add" xml:space="preserve"><value>Add files…</value></data>
   <data name="Edit.Combine.Remove" xml:space="preserve"><value>Remove</value></data>
@@ -354,7 +354,7 @@ Yes – with subfolders, No – this folder only.</value></data>
   <data name="Edit.Convert.ToHtml.Note" xml:space="preserve"><value>One HTML file without scripts or external resources; images are embedded in the file. The page layout is not reproduced: paragraphs follow one another, and tables and vector drawings are not exported as such.</value></data>
   <data name="Edit.PdfA.Disclaimer" xml:space="preserve"><value>This is ZetPDF's own check of selected PDF/A-2b rules, not a certified validation. A passed result does not confirm conformance with ISO 19005-2; use a validator such as veraPDF where it matters.</value></data>
   <data name="Edit.PdfA.Summary" xml:space="preserve"><value>Passed: {0}, failed: {1}, not checked: {2}.</value></data>
-  <data name="Edit.PdfA.Examples" xml:space="preserve"><value>Found: {0}.</value></data>
+  <data name="Edit.PdfA.Examples" xml:space="preserve"><value>Found (page numbers in brackets or listed): {0}.</value></data>
   <data name="Edit.PdfA.Status.Passed" xml:space="preserve"><value>Passed</value></data>
   <data name="Edit.PdfA.Status.Failed" xml:space="preserve"><value>Failed</value></data>
   <data name="Edit.PdfA.Status.NotChecked" xml:space="preserve"><value>Not checked</value></data>
@@ -383,7 +383,7 @@ Yes – with subfolders, No – this folder only.</value></data>
   <data name="Edit.PdfA.Plan.Signed" xml:space="preserve"><value>Digital signatures stop being valid, because the file is written anew.</value></data>
   <data name="Edit.PdfA.Plan.Fonts" xml:space="preserve"><value>Fonts embedded from the system: {0}. Glyph shapes may differ slightly.</value></data>
   <data name="Edit.PdfA.Plan.Metadata" xml:space="preserve"><value>Metadata is rewritten from the document properties; other XMP properties are lost.</value></data>
-  <data name="Edit.PdfA.Plan.Rasterize" xml:space="preserve"><value>Pages that can only be saved as an image with a hidden text layer: {0} ({1}). Their vector content, links and form fields are lost. These are pages with fonts that cannot be embedded, CMYK colours or form fields without an appearance.</value></data>
+  <data name="Edit.PdfA.Plan.Rasterize" xml:space="preserve"><value>Pages that can only be saved as an image with a hidden text layer: {0} (numbers: {1}). Their vector content, links and form fields are lost. These are pages with fonts that cannot be embedded, CMYK colours or form fields without an appearance.</value></data>
   <data name="Edit.PdfA.Plan.RasterizeAllow" xml:space="preserve"><value>I agree to change these pages into images</value></data>
   <data name="Edit.PdfA.Plan.RasterizeRequired" xml:space="preserve"><value>Without this consent the document cannot be converted.</value></data>
   <data name="Edit.PdfA.Error.Encrypted" xml:space="preserve"><value>The file is encrypted. Open it with the password first.</value></data>
@@ -489,4 +489,9 @@ Yes – with subfolders, No – this folder only.</value></data>
   <data name="Edit.Web.Invalid.FileNotFound" xml:space="preserve"><value>This file does not exist.</value></data>
   <data name="Edit.Web.Invalid.NetworkPath" xml:space="preserve"><value>Network paths are not allowed; copy the file to this computer.</value></data>
   <data name="Edit.Web.Invalid.InvalidAddress" xml:space="preserve"><value>This is not a valid address.</value></data>
+  <data name="Edit.Office.Required" xml:space="preserve"><value>Microsoft Office with the matching application is needed to convert this file: {0}.</value></data>
+  <data name="Edit.Office.Missing" xml:space="preserve"><value>These files were skipped, because converting DOCX, XLSX and PPTX needs Microsoft Office with the matching application installed: {0}.</value></data>
+  <data name="Edit.Office.ConvertFailed" xml:space="preserve"><value>Microsoft Office could not convert this file (it may be damaged or password-protected): {0}.</value></data>
+  <data name="Edit.Office.Timeout" xml:space="preserve"><value>Microsoft Office did not finish the conversion in time and was closed.</value></data>
+  <data name="Edit.Filter.Office" xml:space="preserve"><value>Office documents (*.docx, *.xlsx, *.pptx)</value></data>
 </root>
