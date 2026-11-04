@@ -9,3 +9,4 @@ scratch/
 tools/**/__pycache__/
 /.claude/worktrees/
 installer/Output/
+graphify-out/
