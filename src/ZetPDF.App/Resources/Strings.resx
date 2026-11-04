@@ -404,4 +404,9 @@ Remove it from the recent files list?</value></data>
   <data name="Ribbon.Tab.Accessibility" xml:space="preserve"><value>Accessibility</value></data>
   <data name="Ribbon.Group.Access.Check" xml:space="preserve"><value>Check</value></data>
   <data name="Ribbon.Group.Access.Read" xml:space="preserve"><value>Read Aloud</value></data>
+  <data name="Shell.Save.ChangedOnDisk" xml:space="preserve"><value>The file “{0}” was changed on disk by another program after it was opened here. Saving will overwrite those changes. Save anyway?</value></data>
+  <data name="Shell.Save.Signed" xml:space="preserve"><value>“{0}” contains digital signatures. Saving your changes over this file will invalidate them. Save the changes as a copy to keep the signed original.</value></data>
+  <data name="Shell.Save.SignedCopy" xml:space="preserve"><value>Save as copy…</value></data>
+  <data name="Shell.Save.SignedOverwrite" xml:space="preserve"><value>Overwrite</value></data>
+  <data name="Shell.SaveAs.AlreadyOpen" xml:space="preserve"><value>“{0}” is open in another tab. Close that tab or choose a different name.</value></data>
 </root>

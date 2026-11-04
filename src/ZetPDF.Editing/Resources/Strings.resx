@@ -318,4 +318,6 @@ Yes – with subfolders, No – this folder only.</value></data>
   <data name="Edit.Search.Column.Path" xml:space="preserve"><value>Path</value></data>
   <data name="Edit.Search.Column.Page" xml:space="preserve"><value>Page</value></data>
   <data name="Edit.Search.Column.Context" xml:space="preserve"><value>Context</value></data>
+  <data name="Edit.Text.CoverWarning" xml:space="preserve"><value>The old text in this font cannot be removed from the file. It will only be covered with a white box and can still be read or found by search. Continue?</value></data>
+  <data name="Edit.FindReplace.CoverWarning" xml:space="preserve"><value>The old text in {0} line(s) could not be removed from the file. It is only covered with a white box and can still be read or found by search.</value></data>
 </root>

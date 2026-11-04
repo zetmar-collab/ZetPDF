@@ -93,6 +93,16 @@ public sealed class DialogService : IDialogService, IOwnerProtectionPrompts
                 new MessageWindow.ButtonSpec(_loc["Core.Button.Cancel"], (int)YesNoCancel.Cancel, IsCancel: true),
             }, (int)YesNoCancel.Cancel);
 
+    /// <summary>Zapis zmian w podpisanym pliku: Yes = zapisz kopię, No = nadpisz, Cancel = anuluj.</summary>
+    public YesNoCancel AskSaveSigned(string documentName) =>
+        (YesNoCancel)Show(_loc["Shell.AppTitle"], _loc.Format("Shell.Save.Signed", documentName), MessageSeverity.Warning, true,
+            new[]
+            {
+                new MessageWindow.ButtonSpec(_loc["Shell.Save.SignedCopy"], (int)YesNoCancel.Yes, IsDefault: true),
+                new MessageWindow.ButtonSpec(_loc["Shell.Save.SignedOverwrite"], (int)YesNoCancel.No),
+                new MessageWindow.ButtonSpec(_loc["Core.Button.Cancel"], (int)YesNoCancel.Cancel, IsCancel: true),
+            }, (int)YesNoCancel.Cancel);
+
     private static int Show(string title, string text, MessageSeverity? severity, bool question, IReadOnlyList<MessageWindow.ButtonSpec> buttons, int cancelResult, string? details = null, string? detailsHeader = null)
     {
         var owner = Owner;

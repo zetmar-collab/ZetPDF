@@ -178,7 +178,9 @@ internal sealed class EditingCommands
         string find = dlg.Find, repl = dlg.Replace;
         var opts = dlg.Options;
         await _ctx.ExecuteAsync(session, "Edit.Undo.FindReplace", async (pdf, p, ct) => (result = await svc.FindReplaceAsync(pdf, find, repl, opts, p, ct)).Pdf, DocumentChangeKind.PageContent);
-        if (result is not null) _ctx.Message("Edit.FindReplace.Result", result.Replaced, result.Skipped);
+        if (result is null) return;
+        _ctx.Message("Edit.FindReplace.Result", result.Replaced, result.Skipped);
+        if (result.Covered > 0) _ctx.Dialogs?.ShowMessage(L.Format("Edit.FindReplace.CoverWarning", result.Covered), null, MessageSeverity.Warning);
     }
 
     // ------------------------------------------------------------------ łącza, zakładki

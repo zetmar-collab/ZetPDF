@@ -48,6 +48,12 @@ public sealed class TextEditService : ITextEditService
     private static PdfTextBlock ToBlock(TextLine l) =>
         new(BlockId(l), l.PageIndex, l.Bounds, l.Text, l.FontName, l.FontSize, l.Color, l.Bold, l.Italic);
 
+    public Task<bool> CanRemoveTextBlockAsync(byte[] pdf, int pageIndex, string blockId, CancellationToken ct = default) => Task.Run(() =>
+    {
+        var line = Lines(pdf, pageIndex).FirstOrDefault(l => BlockId(l) == blockId);
+        return line is not null && PdfSharpEdit.Read(pdf, doc => TryRemove(doc.Pages[pageIndex], new[] { line.Bounds }, out _));
+    }, ct);
+
     public Task<byte[]> ReplaceTextBlockAsync(byte[] pdf, int pageIndex, string blockId, string newText, TextStyle style, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(style);
@@ -106,13 +112,14 @@ public sealed class TextEditService : ITextEditService
                 }
             }
             if (plan.Count == 0) return new FindReplaceResult(pdf, 0, skipped);
+            int covered = 0;
             var output = PdfSharpEdit.Modify(pdf, doc =>
             {
                 foreach (var (p, lines) in plan)
                 {
                     ct.ThrowIfCancellationRequested();
                     var page = doc.Pages[p];
-                    RemoveOrCover(page, lines.Select(l => l.Line.Bounds).ToList());
+                    if (!RemoveOrCover(page, lines.Select(l => l.Line.Bounds).ToList())) covered += lines.Count;
                     foreach (var (line, text) in lines)
                     {
                         var style = new TextStyle { FontFamily = FontNames.ToFamily(line.FontName), FontSize = line.FontSize, Bold = line.Bold, Italic = line.Italic, Color = line.Color };
@@ -120,32 +127,40 @@ public sealed class TextEditService : ITextEditService
                     }
                 }
             });
-            return new FindReplaceResult(output, replaced, skipped);
+            return new FindReplaceResult(output, replaced, skipped, covered);
         }, ct);
+    }
+
+    /// <summary>Treść strony bez glifów z obszarów; false, gdy glifów nie da się usunąć (czcionka lub treść nieobsługiwana).</summary>
+    private static bool TryRemove(PdfPage page, IReadOnlyList<PdfRect> areas, out byte[]? content)
+    {
+        var inflated = areas.Select(a => a.Inflate(0.75)).ToList();
+        content = null;
+        try
+        {
+            int removed = new ContentWalker(page).RemoveGlyphs(g =>
+            {
+                var c = new PdfPoint((g.Box.Left + g.Box.Right) / 2, (g.Box.Bottom + g.Box.Top) / 2);
+                return inflated.Any(a => a.Contains(c));
+            }, out var result);
+            content = result;
+            return removed > 0;
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            return false; // treść nieczytelna dla parsera
+        }
     }
 
     /// <summary>Usuwa glify z obszarów; gdy się nie da – zakrywa obszary białym prostokątem. Zwraca true, gdy usunięto.</summary>
     internal static bool RemoveOrCover(PdfPage page, IReadOnlyList<PdfRect> areas)
     {
+        if (TryRemove(page, areas, out var content))
+        {
+            PageContent.Replace(page, content!);
+            return true;
+        }
         var inflated = areas.Select(a => a.Inflate(0.75)).ToList();
-        try
-        {
-            var walker = new ContentWalker(page);
-            int removed = walker.RemoveGlyphs(g =>
-            {
-                var c = new PdfPoint((g.Box.Left + g.Box.Right) / 2, (g.Box.Bottom + g.Box.Top) / 2);
-                return inflated.Any(a => a.Contains(c));
-            }, out var content);
-            if (removed > 0)
-            {
-                PageContent.Replace(page, content);
-                return true;
-            }
-        }
-        catch (Exception ex) when (ex is not OutOfMemoryException)
-        {
-            // treść nieczytelna dla parsera – rezerwa niżej
-        }
         var sb = new StringBuilder("q 1 1 1 rg\n");
         foreach (var a in inflated) sb.Append($"{PageContent.Num(a.Left)} {PageContent.Num(a.Bottom)} {PageContent.Num(a.Width)} {PageContent.Num(a.Height)} re f\n");
         sb.Append("Q\n");

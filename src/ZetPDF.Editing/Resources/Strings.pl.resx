@@ -318,4 +318,6 @@ Tak – z podfolderami, Nie – tylko ten folder.</value></data>
   <data name="Edit.Search.Column.Path" xml:space="preserve"><value>Ścieżka</value></data>
   <data name="Edit.Search.Column.Page" xml:space="preserve"><value>Strona</value></data>
   <data name="Edit.Search.Column.Context" xml:space="preserve"><value>Kontekst</value></data>
+  <data name="Edit.Text.CoverWarning" xml:space="preserve"><value>Starego tekstu w tej czcionce nie da się usunąć z pliku. Zostanie tylko zakryty białym prostokątem i nadal będzie można go odczytać lub wyszukać. Kontynuować?</value></data>
+  <data name="Edit.FindReplace.CoverWarning" xml:space="preserve"><value>Starego tekstu w {0} liniach nie udało się usunąć z pliku. Jest tylko zakryty białym prostokątem i nadal można go odczytać lub wyszukać.</value></data>
 </root>

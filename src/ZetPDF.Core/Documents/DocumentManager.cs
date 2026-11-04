@@ -70,11 +70,13 @@ public sealed class DocumentManager : IDocumentManager
             return existing;
         }
 
+        var stamp = FileStamp.Of(full);
         var original = await File.ReadAllBytesAsync(full, ct);
         var loaded = await LoadAsync(original, Path.GetFileName(full), password, ct);
         if (loaded is null) return null;
 
         var session = CreateSession(full, Path.GetFileName(full), loaded.Value, startModified: false);
+        _fileStates.AddOrUpdate(session, new FileState(stamp, ContainsSignature(original)));
         _recent.Add(full);
         _log.LogInformation("Opened {File} ({Bytes} B, encrypted={Encrypted})", full, original.Length, loaded.Value.Info.IsEncrypted);
         return session;
@@ -92,12 +94,49 @@ public sealed class DocumentManager : IDocumentManager
         target = Path.GetFullPath(target);
         // Zapisana wersja to ten zrzut – edycje wykonane w trakcie zapisu zostają niezapisane.
         var snapshot = session.Current;
+        bool wasModified = session.IsModified;
         var bytes = await GetBytesForSaveAsync(session, snapshot, ct);
         await _files.WriteAllBytesSafeAsync(target, bytes, keepBackup: false, ct);
         if (session is PdfDocumentSession s) s.MarkSaved(target, snapshot.Version);
+        // Zapis zmian przepisuje plik, więc wcześniejsze podpisy przestają obowiązywać.
+        bool stillSigned = HasSignatures(session) && !wasModified && snapshot.Encryption is null;
+        _fileStates.AddOrUpdate(session, new FileState(FileStamp.Of(target), stillSigned));
         _recent.Add(target);
         _log.LogInformation("Saved {File} ({Bytes} B)", target, bytes.Length);
     }
+
+    // ------------------------------------------------------------------ stan pliku na dysku
+
+    private readonly record struct FileStamp(long Length, long ModifiedUtcTicks)
+    {
+        public static FileStamp Of(string path)
+        {
+            var info = new FileInfo(path);
+            return info.Exists ? new FileStamp(info.Length, info.LastWriteTimeUtc.Ticks) : default;
+        }
+    }
+
+    private sealed record FileState(FileStamp Stamp, bool Signed);
+
+    private readonly System.Runtime.CompilerServices.ConditionalWeakTable<IPdfDocumentSession, FileState> _fileStates = new();
+
+    /// <summary>Czy plik zmienił się na dysku od otwarcia lub ostatniego zapisu (np. inny program, synchronizacja z chmurą).</summary>
+    public bool HasChangedOnDisk(IPdfDocumentSession session)
+    {
+        ArgumentNullException.ThrowIfNull(session);
+        if (session.FilePath is not { } path || !_fileStates.TryGetValue(session, out var state) || !File.Exists(path)) return false;
+        return FileStamp.Of(path) != state.Stamp;
+    }
+
+    /// <summary>Czy plik na dysku ma podpisy cyfrowe, które zapis zmian by unieważnił.</summary>
+    public bool HasSignatures(IPdfDocumentSession session)
+    {
+        ArgumentNullException.ThrowIfNull(session);
+        return _fileStates.TryGetValue(session, out var state) && state.Signed;
+    }
+
+    /// <summary>/ByteRange występuje tylko w słownikach podpisu; nazwy PDF nie są szyfrowane, więc działa też dla plików z hasłem.</summary>
+    private static bool ContainsSignature(byte[] pdf) => pdf.AsSpan().IndexOf("/ByteRange"u8) >= 0;
 
     public IDisposable AddSaveTransform(SaveTransform transform)
     {
@@ -180,9 +219,11 @@ public sealed class DocumentManager : IDocumentManager
     public async Task RevertAsync(IPdfDocumentSession session, CancellationToken ct = default)
     {
         if (session.FilePath is null) throw new InvalidOperationException("Document was never saved.").WithMessageKey("Core.Error.NeverSaved");
+        var stamp = FileStamp.Of(session.FilePath);
         var original = await File.ReadAllBytesAsync(session.FilePath, ct);
         var loaded = await LoadAsync(original, session.DisplayName, session.SecurityInfo.Password, ct);
         if (loaded is null) return;
+        _fileStates.AddOrUpdate(session, new FileState(stamp, ContainsSignature(original)));
         if (session is PdfDocumentSession s)
             await s.ResetAsync(loaded.Value.Snapshot, loaded.Value.Info, loaded.Value.Permissions, ct);
     }

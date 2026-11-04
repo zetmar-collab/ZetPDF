@@ -404,4 +404,9 @@ Usunąć go z listy ostatnich plików?</value></data>
   <data name="Ribbon.Tab.Accessibility" xml:space="preserve"><value>Ułatwienia dostępu</value></data>
   <data name="Ribbon.Group.Access.Check" xml:space="preserve"><value>Sprawdzanie</value></data>
   <data name="Ribbon.Group.Access.Read" xml:space="preserve"><value>Czytanie na głos</value></data>
+  <data name="Shell.Save.ChangedOnDisk" xml:space="preserve"><value>Plik „{0}” został zmieniony na dysku przez inny program po otwarciu go tutaj. Zapis nadpisze te zmiany. Zapisać mimo to?</value></data>
+  <data name="Shell.Save.Signed" xml:space="preserve"><value>„{0}” zawiera podpisy cyfrowe. Zapis zmian w tym pliku je unieważni. Zapisz zmiany jako kopię, aby zachować podpisany oryginał.</value></data>
+  <data name="Shell.Save.SignedCopy" xml:space="preserve"><value>Zapisz kopię…</value></data>
+  <data name="Shell.Save.SignedOverwrite" xml:space="preserve"><value>Nadpisz</value></data>
+  <data name="Shell.SaveAs.AlreadyOpen" xml:space="preserve"><value>„{0}” jest otwarty w innej karcie. Zamknij tę kartę albo wybierz inną nazwę.</value></data>
 </root>

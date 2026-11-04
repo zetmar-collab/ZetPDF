@@ -54,10 +54,10 @@ public sealed class RedactionService : IRedactionService
                 var s = text.Text;
                 foreach (var phrase in phrases)
                 {
-                    foreach (System.Text.RegularExpressions.Match m in PhraseRegex(phrase, search.Options).Matches(s))
+                    foreach (var (index, length) in FindPhrase(s, phrase, search.Options))
                     {
-                        if (!search.Options.HasFlag(TextSearchOptions.WholeWord) || IsWholeWord(s, m.Index, m.Length))
-                            Add(list, text, pi, m.Index, m.Length, SensitiveDataPattern.None);
+                        if (!search.Options.HasFlag(TextSearchOptions.WholeWord) || IsWholeWord(s, index, length))
+                            Add(list, text, pi, index, length, SensitiveDataPattern.None);
                     }
                 }
                 if (search.Patterns != SensitiveDataPattern.None)
@@ -70,19 +70,39 @@ public sealed class RedactionService : IRedactionService
     }
 
     /// <summary>
+    /// Trafienia frazy: suma wyszukiwania kulturowego (porównuje też litery złożone inaczej, np. „ś” i „s” + akcent)
+    /// i wyrażenia dopuszczającego złamania wiersza. W redakcji pominięte trafienie zostaje w pliku, więc metody się uzupełniają.
+    /// </summary>
+    internal static IEnumerable<(int Index, int Length)> FindPhrase(string text, string phrase, TextSearchOptions options)
+    {
+        var found = new HashSet<(int, int)>();
+        var compare = System.Globalization.CultureInfo.CurrentCulture.CompareInfo;
+        var compareOptions = options.HasFlag(TextSearchOptions.MatchCase) ? System.Globalization.CompareOptions.None : System.Globalization.CompareOptions.IgnoreCase;
+        for (int start = 0; start < text.Length;)
+        {
+            int index = compare.IndexOf(text.AsSpan(start), phrase.AsSpan(), compareOptions, out int length);
+            if (index < 0 || length == 0) break;
+            found.Add((start + index, length));
+            start += index + length;
+        }
+        foreach (System.Text.RegularExpressions.Match m in PhraseRegex(phrase, options).Matches(text)) found.Add((m.Index, m.Length));
+        return found.OrderBy(f => f.Item1);
+    }
+
+    /// <summary>
     /// Fraza jako wyrażenie: dowolny biały znak (także koniec wiersza) między słowami, a wewnątrz słowa dopuszczalne
-    /// przeniesienie do następnego wiersza. Fraza złamana w dokumencie też musi zostać znaleziona – inaczej zostałaby w pliku.
+    /// przeniesienie do następnego wiersza i znaki niewidoczne. Silnik bez nawrotów: czas liniowy także dla spreparowanego tekstu.
     /// </summary>
     internal static System.Text.RegularExpressions.Regex PhraseRegex(string phrase, TextSearchOptions options)
     {
-        const string wordBreak = @"(?:[-­‐\u0002￾]?\s*[\r\n]+\s*|[­\u0002￾])?";
+        const string wordBreak = @"(?:[-\u2010\p{Cf}\u0002\uFFFE]?[ \t]*(?:\r\n|\r|\n)[ \t]*|[\p{Cf}\u0002\uFFFE])?";
         var sb = new StringBuilder();
         bool afterSpace = true;
         foreach (var ch in phrase.Trim())
         {
             if (char.IsWhiteSpace(ch))
             {
-                if (!afterSpace) sb.Append(@"\s+");
+                if (!afterSpace) sb.Append(@"(?:\s|\p{Cf})+");
                 afterSpace = true;
                 continue;
             }
@@ -90,9 +110,9 @@ public sealed class RedactionService : IRedactionService
             sb.Append(System.Text.RegularExpressions.Regex.Escape(ch.ToString()));
             afterSpace = false;
         }
-        var regexOptions = System.Text.RegularExpressions.RegexOptions.CultureInvariant;
+        var regexOptions = System.Text.RegularExpressions.RegexOptions.CultureInvariant | System.Text.RegularExpressions.RegexOptions.NonBacktracking;
         if (!options.HasFlag(TextSearchOptions.MatchCase)) regexOptions |= System.Text.RegularExpressions.RegexOptions.IgnoreCase;
-        return new System.Text.RegularExpressions.Regex(sb.ToString(), regexOptions, TimeSpan.FromSeconds(30));
+        return new System.Text.RegularExpressions.Regex(sb.ToString(), regexOptions);
     }
 
     private static void Add(List<RedactionCandidate> list, PageText text, int page, int index, int length, SensitiveDataPattern pattern)
@@ -100,7 +120,7 @@ public sealed class RedactionService : IRedactionService
         var rects = PageTextTools.RangeRects(text, index, length);
         if (rects.Count == 0) return;
         var value = System.Text.RegularExpressions.Regex.Replace(text.Text.Substring(index, length), @"\s+", " ");
-        if (list.Any(c => c.PageIndex == page && c.Text == value && c.Quads.Count == rects.Count && c.Quads[0].Bounds == rects[0])) return;
+        if (list.Any(c => c.PageIndex == page && c.Quads.Count == rects.Count && c.Quads[0].Bounds == rects[0])) return;
         list.Add(new RedactionCandidate(page, value, pattern, rects.Select(PdfQuad.FromRect).ToList()));
     }
 

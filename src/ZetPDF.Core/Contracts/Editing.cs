@@ -13,6 +13,9 @@ public interface ITextEditService
     Task<IReadOnlyList<PdfTextBlock>> GetTextBlocksAsync(byte[] pdf, int pageIndex, CancellationToken ct = default);
 
     /// <summary>Zastępuje blok nowym tekstem (stary usuwany ze strumienia, jeśli wykonalne; inaczej zakrywany – patrz OGRANICZENIA).</summary>
+    /// <summary>Czy stary tekst bloku da się usunąć z pliku; gdy nie, edycja tylko go zakryje i nadal będzie można go odczytać.</summary>
+    Task<bool> CanRemoveTextBlockAsync(byte[] pdf, int pageIndex, string blockId, CancellationToken ct = default);
+
     Task<byte[]> ReplaceTextBlockAsync(byte[] pdf, int pageIndex, string blockId, string newText, TextStyle style, CancellationToken ct = default);
 
     /// <summary>Dodaje nowy tekst (osadzona czcionka TrueType z polskimi znakami). Punkt = lewa linia bazowa.</summary>
@@ -21,7 +24,8 @@ public interface ITextEditService
     Task<FindReplaceResult> FindReplaceAsync(byte[] pdf, string find, string replace, TextSearchOptions options, IProgress<OperationProgress>? progress = null, CancellationToken ct = default);
 }
 
-public sealed record FindReplaceResult(byte[] Pdf, int Replaced, int Skipped);
+/// <param name="Covered">Liczba linii, których starego tekstu nie dało się usunąć – jest tylko zakryty i nadal można go odczytać.</param>
+public sealed record FindReplaceResult(byte[] Pdf, int Replaced, int Skipped, int Covered = 0);
 
 public enum PageObjectKind { Image, Shape, Text, Form }
 

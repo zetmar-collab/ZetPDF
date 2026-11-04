@@ -57,6 +57,29 @@ public class RedactionLeakTests
         Assert.Empty(found);
     }
 
+    [Fact]
+    public void Phrase_typed_in_decomposed_form_is_still_found()
+    {
+        var hits = RedactionService.FindPhrase("Zażółć gęślą jaźń", "ge\u0328s\u0301la\u0328", default).ToList();
+        Assert.Equal((7, 5), Assert.Single(hits));
+    }
+
+    [Fact]
+    public void Invisible_characters_inside_a_word_do_not_hide_it()
+    {
+        Assert.Single(RedactionService.FindPhrase("Pan Kowal\u00ADski i \u200BPani", "Kowalski", default));
+    }
+
+    [Fact]
+    public void Crafted_text_does_not_slow_the_search_down()
+    {
+        // Długie ciągi odstępów i końców wierszy po prawie pasującym początku.
+        var text = string.Concat(Enumerable.Repeat("Kowal-" + new string(' ', 2000) + "\r\n" + new string(' ', 2000) + "X", 200));
+        var watch = System.Diagnostics.Stopwatch.StartNew();
+        Assert.Empty(RedactionService.FindPhrase(text, "Kowalski", default));
+        Assert.True(watch.Elapsed < TimeSpan.FromSeconds(5), watch.Elapsed.ToString());
+    }
+
     /// <summary>Plik ze znacznikami, XFA i komentarzem z okienkiem i odpowiedzią – każdy nosi inną frazę.</summary>
     private static byte[] WithHiddenCopies() => PdfSharpEdit.Modify(TextLines("Tajna treść strony"), doc =>
     {

@@ -80,6 +80,18 @@ public sealed class DocumentActions
     public async Task<bool> SaveAsync(IPdfDocumentSession d)
     {
         if (d.FilePath is null) return await SaveAsAsync(d);
+        if (_documents is Core.Documents.DocumentManager dm)
+        {
+            if (dm.HasChangedOnDisk(d) && !_dialogs.Confirm(_loc.Format("Shell.Save.ChangedOnDisk", d.DisplayName))) return false;
+            if (d.IsModified && dm.HasSignatures(d))
+            {
+                switch (_dialogs.AskSaveSigned(d.DisplayName))
+                {
+                    case YesNoCancel.Yes: return await SaveAsAsync(d);
+                    case YesNoCancel.Cancel: return false;
+                }
+            }
+        }
         if (!await _ownerGuard.EnsureAsync(d)) return false;
         try
         {
@@ -102,6 +114,12 @@ public sealed class DocumentActions
         var dir = d.FilePath is null ? null : Path.GetDirectoryName(d.FilePath);
         var path = _dialogs.SaveFile(_loc["Cmd.File.SaveAs"], new[] { FileFilter.Pdf(_loc) }, name, dir);
         if (path is null) return false;
+        var full = Path.GetFullPath(path);
+        if (_documents.Documents.Any(o => !ReferenceEquals(o, d) && string.Equals(o.FilePath, full, StringComparison.OrdinalIgnoreCase)))
+        {
+            _dialogs.ShowMessage(_loc.Format("Shell.SaveAs.AlreadyOpen", Path.GetFileName(full)), null, MessageSeverity.Warning);
+            return false;
+        }
         if (!await _ownerGuard.EnsureAsync(d)) return false;
         try
         {
