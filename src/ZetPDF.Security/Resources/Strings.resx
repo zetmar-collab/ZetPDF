@@ -51,7 +51,7 @@
   <data name="Security.Action.Web" xml:space="preserve"><value>Optimize for the web</value></data>
   <data name="Security.Action.Web.Description" xml:space="preserve"><value>Recompresses and downsamples images, removes unused objects and thumbnails.</value></data>
   <data name="Security.Action.Archive" xml:space="preserve"><value>Archive</value></data>
-  <data name="Security.Action.Archive.Description" xml:space="preserve"><value>Fills in missing metadata and removes scripts. Note: conversion to PDF/A is not available in this version (no PDF/A validation and colour profile embedding).</value></data>
+  <data name="Security.Action.Archive.Description" xml:space="preserve"><value>Fills in missing metadata, removes scripts and converts to PDF/A-2b where possible without loss. A file with attachments, or with pages that would have to become images, stays a regular PDF, and the report says so.</value></data>
   <data name="Security.Action.Step.Sanitize" xml:space="preserve"><value>Sanitize document</value></data>
   <data name="Security.Action.Step.Watermark" xml:space="preserve"><value>Add watermark</value></data>
   <data name="Security.Action.Step.HeaderFooter" xml:space="preserve"><value>Add header and footer</value></data>
@@ -341,4 +341,11 @@
   <data name="Security.Error.FieldNoWidget" xml:space="preserve"><value>Signature field “{0}” has no visible area on any page.</value></data>
   <data name="Security.Error.NoSigner" xml:space="preserve"><value>The signature contains no signer information.</value></data>
   <data name="Security.Validate.Detail.Malformed" xml:space="preserve"><value>the signature structure is damaged or not supported</value></data>
+  <data name="Security.Action.Step.PdfA" xml:space="preserve"><value>Convert to PDF/A-2b</value></data>
+  <data name="Security.Action.PdfA.NotAvailable" xml:space="preserve"><value>Saved without conversion to PDF/A: the conversion is not available.</value></data>
+  <data name="Security.Action.PdfA.NeedsRasterize" xml:space="preserve"><value>Saved as a regular PDF, not PDF/A: some pages would have to become images.</value></data>
+  <data name="Security.Action.PdfA.RemovesContent" xml:space="preserve"><value>Saved as a regular PDF, not PDF/A: the conversion would remove attachments, annotations or XFA, or invalidate signatures.</value></data>
+  <data name="Security.Action.PdfA.RulesFailing" xml:space="preserve"><value>Saved as a regular PDF, not PDF/A: the converted file still broke PDF/A rules.</value></data>
+  <data name="Security.Param.AllowRasterize" xml:space="preserve"><value>Allow changing pages into images</value></data>
+  <data name="Security.Param.AllowContentRemoval" xml:space="preserve"><value>Allow removing attachments, annotations and XFA, and invalidating signatures</value></data>
 </root>

@@ -161,7 +161,7 @@ Dokument zbiorczy dla użytkownika i testera. Opisuje, czego program nie robi al
 
 ## 24. Kreator działań (etap 2.12)
 
-- „Archiwizuj” **nie tworzy PDF/A** (uzupełnia metadane i usuwa skrypty).
+- „Archiwizuj” tworzy PDF/A-2b tam, gdzie da się to zrobić bez strat (rozdz. 28.3); w pozostałych plikach uzupełnia metadane i usuwa skrypty, a raport podaje powód.
 - Pliki zaszyfrowane nie są przetwarzane (błąd w raporcie). Krok OCR zawsze na wszystkich stronach. Znak wodny z obrazu nie jest edytowalny w edytorze kroków. Hasła kroku „Chroń hasłem” nie są zapisywane – okno pyta o nie przed uruchomieniem.
 
 ## 25. Publikacja i licencje
@@ -254,3 +254,14 @@ Zbiorczo z `docs\ograniczenia\annotations-forms.md` (pkt 17–25), `renderer-vie
 - Układ strony nie jest odtwarzany: akapity jeden pod drugim, sortowane pionowo (tekst w szpaltach może się przeplatać, jak w DOCX). Tabele nie są rozpoznawane, a łącza i rysunki wektorowe nie są eksportowane.
 - Obrazy tylko te, które zwraca PdfPig z zasobów strony i które da się zapisać jako PNG lub JPEG. JPEG w CMYK trafia do pliku bez konwersji i przeglądarka może pokazać go w złych kolorach. Obrazy wewnątrz formularzy XObject mogą zostać pominięte. Plik może być duży, bo obrazy są w nim zapisane w base64.
 - Wyjście sprawdzone testami (`<script>`, `<img onerror>` w treści, `</title>` w metadanych), nie oglądano go w przeglądarce.
+
+### 28.3 PDF/A-2b
+- **Nie jest to certyfikowana walidacja ani konwersja certyfikowana.** Pliki wynikowe nie przeszły przez veraPDF ani inny walidator PDF/A, bo w systemie takiego nie ma. Sprawdzone: własne reguły, pypdf i PyMuPDF (struktura, render, osadzenie czcionek).
+- Nie sprawdzane (status „nie sprawdzono” w raporcie): zgodność `/Widths` z programami czcionek, które już były osadzone, glify `.notdef`, CMap, CIDSet, CharSet, limity implementacji, operatory niezdefiniowane, obrazy wstawione w treści (w tym ich kolory i filtr LZW), funkcje PostScript, własne schematy XMP, szczegóły tablicy odsyłaczy, budowa JPEG 2000 i profili ICC poza nagłówkiem. Plik „bez błędów” może więc nie przejść walidatora.
+- Czcionki w treści wykrywane są po operatorach `Tf` i tekstu; zasoby nieużyte nie są błędem. XObject są sprawdzane wszystkie, także te nieużyte. `/DefaultCMYK` nie jest uwzględniany, więc taki plik zostanie uznany za CMYK.
+- Czcionka zastępcza nie jest tą samą czcionką: Helvetica staje się Arialem, Times – Times New Roman, Courier – Courier New. Metryki się zgadzają, kształty znaków mogą się nieco różnić; okno zgody to wymienia. Osadzany jest cały plik czcionki, stąd wzrost rozmiaru. Czcionki z `/Differences` lub bez `/WinAnsiEncoding` oraz czcionki CID bez pliku są tylko rasteryzowane.
+- Rasteryzacja (200 DPI, PNG bez strat): strona traci tekst wektorowy, łącza, pola formularza i komentarze; zostaje obraz i ukryta warstwa tekstu w poziomie (tekst obrócony trafia do warstwy jako poziomy). Rozmiar pliku rośnie.
+- Konwersja usuwa wszystkie załączniki, skrypty, multimedia, XFA, adnotacje ukryte i bez wyglądu, własne metadane XMP i metadane stron; podpisy przestają być ważne, choć ich wygląd zostaje. Wszystko oprócz metadanych jest wymienione w oknie zgody z liczbą.
+- Transparencja jest tylko sygnalizowana. Grupa `/CS /DeviceCMYK` daje rasteryzację strony.
+- Dokument z oznaczeniem PDF/A po edycji w ZetPDF traci je przy zapisie, bo PDFsharp odtwarza XMP; trzeba przekonwertować ponownie. Krok PDF/A w Kreatorze musi być ostatni, a po nim nie ma sensu krok „Chroń hasłem”. Kreator nie może prosić o zgodę, dlatego pliki z załącznikami, adnotacjami do usunięcia, XFA, podpisami i stronami do rasteryzacji zostają zwykłym PDF z ostrzeżeniem w raporcie. Stare, zapisane działania użytkownika nie dostają kroku same.
+- Plik wyniku ma aktualizację przyrostową (stary pakiet XMP, bez `pdfaid`, zostaje w pliku jako nieużywany obiekt). Bez profilu sRGB w Windows konwersja kończy się komunikatem. Okna nie były klikane na pulpicie; działają testy poleceń z anulowanymi oknami, a logika ma testy na usłudze.

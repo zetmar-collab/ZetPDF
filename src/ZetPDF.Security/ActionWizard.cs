@@ -13,7 +13,7 @@ namespace ZetPDF.Security;
 /// <summary>
 /// Kreator działań: nazwane sekwencje kroków zapisywane jako JSON w IAppPaths.ActionsDirectory, uruchamiane na
 /// wielu plikach z folderem wyjściowym. Kroki wołają inne moduły WYŁĄCZNIE przez kontrakty z DI
-/// (ISanitizeService, IStampingService, IOptimizerService, IPageOperations, IOcrService, ISecurityService, IMetadataService).
+/// (ISanitizeService, IStampingService, IOptimizerService, IPageOperations, IOcrService, ISecurityService, IMetadataService, IPdfAService).
 /// Oryginały nie są nadpisywane, chyba że <see cref="ActionRunOptions.OverwriteExisting"/> (zgoda w oknie).
 /// </summary>
 public sealed class ActionWizard : IActionWizard
@@ -91,6 +91,7 @@ public sealed class ActionWizard : IActionWizard
                         Metadata = false, Comments = false, Attachments = false, JavaScript = true,
                         HiddenLayers = false, FormData = false, ExternalLinks = false, Thumbnails = false,
                     }),
+                    Step(ActionStepTypes.PdfA, new PdfAStepOptions()),
                 },
             },
         };
@@ -178,17 +179,24 @@ public sealed class ActionWizard : IActionWizard
                 var bytes = await File.ReadAllBytesAsync(input, ct).ConfigureAwait(false);
                 if (PdfSecurityHelper.IsEncrypted(bytes)) throw new ActionStepException(Txt("Security.Action.Error.Encrypted"));
                 int s = 0;
+                string? warning = null;
                 foreach (var step in action.Steps)
                 {
                     ct.ThrowIfCancellationRequested();
                     var stepProgress = progress is null ? null : new Progress<OperationProgress>(p =>
                         progress.Report(new OperationProgress((i + (s + (p.Fraction ?? 0)) / Math.Max(1, action.Steps.Count)) / Math.Max(1, inputFiles.Count), name, i + 1, inputFiles.Count)));
-                    bytes = await ApplyStepAsync(step, bytes, Path.GetFileNameWithoutExtension(input), stepProgress, ct).ConfigureAwait(false);
+                    if (step.StepType == ActionStepTypes.PdfA)
+                    {
+                        var (converted, note) = await ApplyPdfAAsync(step, bytes, stepProgress, ct).ConfigureAwait(false);
+                        bytes = converted;
+                        warning = note ?? warning;
+                    }
+                    else bytes = await ApplyStepAsync(step, bytes, Path.GetFileNameWithoutExtension(input), stepProgress, ct).ConfigureAwait(false);
                     s++;
                 }
                 var output = ResolveOutput(input, options, reserved);
                 await WriteSafeAsync(output, bytes, ct).ConfigureAwait(false);
-                results.Add(new ActionFileResult(input, output, true, null));
+                results.Add(new ActionFileResult(input, output, true, null, warning));
             }
             catch (OperationCanceledException) { throw; }
             catch (NotImplementedException)
@@ -202,6 +210,21 @@ public sealed class ActionWizard : IActionWizard
         }
         progress?.Report(new OperationProgress(1, null, inputFiles.Count, inputFiles.Count));
         return new ActionRunReport(results);
+    }
+
+    /// <summary>Konwersja przez kontrakt z DI. Gdy się nie da, bajty zostają bez zmian, a plik nie udaje PDF/A: powód trafia do raportu.</summary>
+    private async Task<(byte[] Pdf, string? Warning)> ApplyPdfAAsync(ActionStep step, byte[] pdf, IProgress<OperationProgress>? progress, CancellationToken ct)
+    {
+        if (_services.GetService<IPdfAService>() is not { } service) return (pdf, Txt("Security.Action.PdfA.NotAvailable"));
+        var o = ReadOptions<PdfAStepOptions>(step);
+        var result = await service.ConvertAsync(pdf, new PdfAConvertOptions { AllowRasterize = o.AllowRasterize, AllowContentRemoval = o.AllowContentRemoval }, progress, ct).ConfigureAwait(false);
+        if (result.Pdf is { } converted) return (converted, null);
+        return (pdf, Txt(result.Reason switch
+        {
+            PdfANotConverted.NeedsRasterize => "Security.Action.PdfA.NeedsRasterize",
+            PdfANotConverted.RemovesContent => "Security.Action.PdfA.RemovesContent",
+            _ => "Security.Action.PdfA.RulesFailing",
+        }));
     }
 
     /// <summary>Ścieżka wyniku: folder wyjściowy + nazwa + przyrostek; nigdy oryginał (chyba że zgoda) ani istniejący plik.</summary>

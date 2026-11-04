@@ -37,6 +37,8 @@ Stan: 17.10.2026, recenzent końcowy; uzupełnienie etapu 3: 21.10.2026 (ZXing.N
 
 Pakiety z wcześniejszej listy, które **nie są używane** (nie występują w `dotnet list package` żadnego projektu): DiffPlex 1.9.0 (porównanie ma własną implementację Myersa), BouncyCastle.Cryptography (usunięty po scaleniu). Nie trafiają do programu.
 
+Partia 2 rozbudowy (2026-11-04): **bez nowych pakietów**. Składniki systemu używane w czasie działania, niedołączane do programu ani do repozytorium: profil `sRGB Color Space Profile.icm` z Windows (kopiowany do tworzonych plików PDF/A jako profil wyjściowy, czytany z `%WINDIR%\System32\spool\drivers\color`). Czcionki Windows (Arial, Times New Roman, Courier New i inne) osadzane w całości w PDF/A tylko wtedy, gdy ich `fsType` na to pozwala.
+
 ## 2. Biblioteki tylko testów (projekty `tests\`, NIE trafiają do `ZetPDF.exe`)
 
 | Pakiet | Wersja | Licencja |

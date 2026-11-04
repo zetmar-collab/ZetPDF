@@ -35,7 +35,7 @@
 
 ## Kreator działań
 - Kroki korzystają z modułów innych agentów przez kontrakty (po scaleniu wszystkie dostępne; test dymny `ActionWizardSmokeTests` w IntegrationTests uruchamia trzy wbudowane działania na prawdziwych usługach). Gdyby usługa nie była zarejestrowana, krok kończy się komunikatem „Ten krok nie jest dostępny…” (raport per plik).
-- „Archiwizuj” NIE tworzy PDF/A (brak walidacji PDF/A, osadzania profili ICC i czcionek w ZetPDF) – uzupełnia metadane i usuwa skrypty; opisano to w opisie działania.
+- „Archiwizuj” tworzy PDF/A-2b przez `IPdfAService` tam, gdzie da się to zrobić bez strat (OGRANICZENIA, rozdz. 28.3); w pozostałych plikach uzupełnia metadane i usuwa skrypty, a raport podaje powód.
 - Pliki zaszyfrowane nie są przetwarzane (błąd w raporcie). Krok OCR – zawsze wszystkie strony. Znak wodny z obrazu nie jest edytowalny w edytorze parametrów (tylko tekst).
 - Hasła kroku „Chroń hasłem” nie są zapisywane w JSON – okno pyta o nie przed uruchomieniem.
 

@@ -24,6 +24,16 @@ public sealed record MetadataStepOptions
     public bool OnlyIfEmpty { get; init; } = true;
 }
 
+/// <summary>
+/// Krok „PDF/A-2b”. Wsadowo nie ma kogo zapytać, więc domyślnie bez rasteryzacji i bez utraty treści: gdy to niemożliwe, plik
+/// przechodzi dalej bez zmian tego kroku i dostaje ostrzeżenie w raporcie.
+/// </summary>
+public sealed record PdfAStepOptions
+{
+    public bool AllowRasterize { get; init; }
+    public bool AllowContentRemoval { get; init; }
+}
+
 /// <summary>Identyfikatory typów kroków (zapisywane w JSON).</summary>
 public static class ActionStepTypes
 {
@@ -36,6 +46,7 @@ public static class ActionStepTypes
     public const string Ocr = "Ocr";
     public const string Encrypt = "Encrypt";
     public const string Metadata = "Metadata";
+    public const string PdfA = "PdfA";
 
     /// <summary>Typ → klasa opcji.</summary>
     public static readonly IReadOnlyDictionary<string, Type> OptionTypes = new Dictionary<string, Type>
@@ -49,5 +60,6 @@ public static class ActionStepTypes
         [Ocr] = typeof(OcrOptions),
         [Encrypt] = typeof(EncryptStepOptions),
         [Metadata] = typeof(MetadataStepOptions),
+        [PdfA] = typeof(PdfAStepOptions),
     };
 }

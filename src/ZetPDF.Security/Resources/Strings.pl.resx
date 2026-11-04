@@ -51,7 +51,7 @@
   <data name="Security.Action.Web" xml:space="preserve"><value>Zoptymalizuj dla Internetu</value></data>
   <data name="Security.Action.Web.Description" xml:space="preserve"><value>Kompresuje i zmniejsza obrazy, usuwa nieużywane obiekty i miniatury.</value></data>
   <data name="Security.Action.Archive" xml:space="preserve"><value>Archiwizuj</value></data>
-  <data name="Security.Action.Archive.Description" xml:space="preserve"><value>Uzupełnia brakujące metadane i usuwa skrypty. Uwaga: konwersja do PDF/A nie jest dostępna w tej wersji (brak walidacji PDF/A i osadzania profili kolorów).</value></data>
+  <data name="Security.Action.Archive.Description" xml:space="preserve"><value>Uzupełnia brakujące metadane, usuwa skrypty i konwertuje do PDF/A-2b tam, gdzie da się to zrobić bez strat. Plik z załącznikami lub ze stronami, które musiałyby stać się obrazami, zostaje zwykłym PDF, a raport to podaje.</value></data>
   <data name="Security.Action.Step.Sanitize" xml:space="preserve"><value>Oczyść dokument</value></data>
   <data name="Security.Action.Step.Watermark" xml:space="preserve"><value>Dodaj znak wodny</value></data>
   <data name="Security.Action.Step.HeaderFooter" xml:space="preserve"><value>Dodaj nagłówek i stopkę</value></data>
@@ -341,4 +341,11 @@
   <data name="Security.Error.FieldNoWidget" xml:space="preserve"><value>Pole podpisu „{0}” nie ma obszaru na żadnej stronie.</value></data>
   <data name="Security.Error.NoSigner" xml:space="preserve"><value>Podpis nie zawiera informacji o podpisującym.</value></data>
   <data name="Security.Validate.Detail.Malformed" xml:space="preserve"><value>struktura podpisu jest uszkodzona albo nieobsługiwana</value></data>
+  <data name="Security.Action.Step.PdfA" xml:space="preserve"><value>Konwertuj do PDF/A-2b</value></data>
+  <data name="Security.Action.PdfA.NotAvailable" xml:space="preserve"><value>Zapisano bez konwersji do PDF/A: konwersja jest niedostępna.</value></data>
+  <data name="Security.Action.PdfA.NeedsRasterize" xml:space="preserve"><value>Zapisano jako zwykły PDF, a nie PDF/A: część stron musiałaby stać się obrazami.</value></data>
+  <data name="Security.Action.PdfA.RemovesContent" xml:space="preserve"><value>Zapisano jako zwykły PDF, a nie PDF/A: konwersja usunęłaby załączniki, adnotacje lub XFA albo unieważniła podpisy.</value></data>
+  <data name="Security.Action.PdfA.RulesFailing" xml:space="preserve"><value>Zapisano jako zwykły PDF, a nie PDF/A: po konwersji plik nadal naruszał reguły PDF/A.</value></data>
+  <data name="Security.Param.AllowRasterize" xml:space="preserve"><value>Zezwalaj na zamianę stron na obrazy</value></data>
+  <data name="Security.Param.AllowContentRemoval" xml:space="preserve"><value>Zezwalaj na usunięcie załączników, adnotacji i XFA oraz unieważnienie podpisów</value></data>
 </root>

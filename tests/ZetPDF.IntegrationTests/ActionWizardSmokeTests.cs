@@ -103,6 +103,34 @@ public class ActionWizardSmokeTests
     }
 
     [Fact]
+    public async Task Archive_converts_to_pdfa_when_possible_and_reports_when_not()
+    {
+        using var sp = BuildAll();
+        var wizard = sp.GetRequiredService<IActionWizard>();
+        var action = (await wizard.GetActionsAsync()).Single(a => a.Id == ActionWizard.ArchiveId);
+        var plain = TestPaths.WriteSample(SamplePdfFactory.Text(2), "zwykły.pdf");
+        var scan = TestPaths.WriteSample(SamplePdfFactory.Scanned(), "skan.pdf");
+        var attachment = TestPaths.WriteSample(SamplePdfFactory.WithMetadataAttachmentAndJavaScript(), "załącznik.pdf");
+        var report = await wizard.RunAsync(action, new[] { plain, scan, attachment }, new ActionRunOptions { OutputDirectory = TestPaths.NewDirectory(), FileNameSuffix = "_archiwum" });
+        Assert.Equal(3, report.Succeeded);
+
+        var pdfa = sp.GetRequiredService<IPdfAService>();
+        foreach (var file in report.Files.Take(2))
+        {
+            Assert.Null(file.Warning);
+            var bytes = await File.ReadAllBytesAsync(file.OutputPath!);
+            Assert.Contains("<pdfaid:part>2</pdfaid:part>", Encoding.UTF8.GetString(bytes));
+            Assert.True((await pdfa.CheckAsync(bytes)).NoFailures);
+        }
+        // plik z załącznikiem: bez zgody na stratę zostaje zwykłym PDF, załącznik jest, skryptu nie ma, raport to podaje
+        var kept = await File.ReadAllBytesAsync(report.Files[2].OutputPath!);
+        Assert.False(string.IsNullOrEmpty(report.Files[2].Warning));
+        Assert.DoesNotContain("pdfaid:part>2", Encoding.UTF8.GetString(kept));
+        Assert.NotEmpty(await sp.GetRequiredService<IAttachmentService>().GetAttachmentsAsync(kept));
+        Assert.DoesNotContain("/JavaScript", Latin1(kept));
+    }
+
+    [Fact]
     public async Task Archive_fills_missing_title_keeps_existing_and_removes_javascript()
     {
         using var sp = BuildAll();

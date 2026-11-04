@@ -143,7 +143,8 @@ public sealed record ActionRunOptions
     public bool OverwriteExisting { get; init; }
 }
 
-public sealed record ActionFileResult(string InputPath, string? OutputPath, bool Success, string? Error);
+/// <param name="Warning">Plik zapisany, ale z zastrzeżeniem (np. „Archiwizuj” nie mogło zrobić z niego PDF/A).</param>
+public sealed record ActionFileResult(string InputPath, string? OutputPath, bool Success, string? Error, string? Warning = null);
 
 public sealed record ActionRunReport(IReadOnlyList<ActionFileResult> Files)
 {

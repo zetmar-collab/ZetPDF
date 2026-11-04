@@ -352,4 +352,98 @@ Yes – with subfolders, No – this folder only.</value></data>
   <data name="Edit.Convert.ToHtml.Title" xml:space="preserve"><value>Export to HTML</value></data>
   <data name="Edit.Convert.ToHtml.TextOnly" xml:space="preserve"><value>Text only (no images, sizes or bold)</value></data>
   <data name="Edit.Convert.ToHtml.Note" xml:space="preserve"><value>One HTML file without scripts or external resources; images are embedded in the file. The page layout is not reproduced: paragraphs follow one another, and tables and vector drawings are not exported as such.</value></data>
+  <data name="Edit.PdfA.Disclaimer" xml:space="preserve"><value>This is ZetPDF's own check of selected PDF/A-2b rules, not a certified validation. A passed result does not confirm conformance with ISO 19005-2; use a validator such as veraPDF where it matters.</value></data>
+  <data name="Edit.PdfA.Summary" xml:space="preserve"><value>Passed: {0}, failed: {1}, not checked: {2}.</value></data>
+  <data name="Edit.PdfA.Examples" xml:space="preserve"><value>Found: {0}.</value></data>
+  <data name="Edit.PdfA.Status.Passed" xml:space="preserve"><value>Passed</value></data>
+  <data name="Edit.PdfA.Status.Failed" xml:space="preserve"><value>Failed</value></data>
+  <data name="Edit.PdfA.Status.NotChecked" xml:space="preserve"><value>Not checked</value></data>
+  <data name="Edit.PdfA.Status.Info" xml:space="preserve"><value>Information</value></data>
+  <data name="Edit.PdfA.Check.Title" xml:space="preserve"><value>PDF/A-2b compliance check</value></data>
+  <data name="Edit.PdfA.Check.Progress" xml:space="preserve"><value>Checking PDF/A rules</value></data>
+  <data name="Edit.PdfA.Check.Close" xml:space="preserve"><value>Close</value></data>
+  <data name="Edit.PdfA.Report.Title" xml:space="preserve"><value>PDF/A-2b check report</value></data>
+  <data name="Edit.PdfA.Report.Save" xml:space="preserve"><value>Save report</value></data>
+  <data name="Edit.PdfA.Report.SaveButton" xml:space="preserve"><value>Save report…</value></data>
+  <data name="Edit.PdfA.Plan.Progress" xml:space="preserve"><value>Analysing the document</value></data>
+  <data name="Edit.PdfA.Convert.Title" xml:space="preserve"><value>Convert to PDF/A-2b</value></data>
+  <data name="Edit.PdfA.Convert.Warning" xml:space="preserve"><value>The result goes to a new file; this document stays as it is. The conversion can lose content:</value></data>
+  <data name="Edit.PdfA.Convert.Button" xml:space="preserve"><value>Choose file and convert</value></data>
+  <data name="Edit.PdfA.Convert.Save" xml:space="preserve"><value>Save PDF/A file</value></data>
+  <data name="Edit.PdfA.Convert.Progress" xml:space="preserve"><value>Converting to PDF/A-2b</value></data>
+  <data name="Edit.PdfA.Convert.SameFile" xml:space="preserve"><value>Choose a different file: the conversion does not overwrite the source document.</value></data>
+  <data name="Edit.PdfA.Convert.Done" xml:space="preserve"><value>Saved: {0}. ZetPDF's own check reports no errors, but this is not a certified validation.</value></data>
+  <data name="Edit.PdfA.Convert.NeedsRasterize" xml:space="preserve"><value>Pages to change into images without consent: {0}. Nothing was saved.</value></data>
+  <data name="Edit.PdfA.Convert.RulesFailing" xml:space="preserve"><value>The result still breaks these rules, so it was not saved: {0}.</value></data>
+  <data name="Edit.PdfA.Plan.Encryption" xml:space="preserve"><value>Password protection and restrictions are removed (PDF/A forbids encryption).</value></data>
+  <data name="Edit.PdfA.Plan.Actions" xml:space="preserve"><value>Scripts and forbidden actions removed: {0}.</value></data>
+  <data name="Edit.PdfA.Plan.Attachments" xml:space="preserve"><value>Attachments removed: {0}. PDF/A-2 allows only PDF/A attachments, which ZetPDF cannot verify.</value></data>
+  <data name="Edit.PdfA.Plan.Annotations" xml:space="preserve"><value>Annotations removed (multimedia, hidden, attached files, without an appearance): {0}.</value></data>
+  <data name="Edit.PdfA.Plan.Xfa" xml:space="preserve"><value>The XFA form definition is removed; only the AcroForm fields remain.</value></data>
+  <data name="Edit.PdfA.Plan.Signed" xml:space="preserve"><value>Digital signatures stop being valid, because the file is written anew.</value></data>
+  <data name="Edit.PdfA.Plan.Fonts" xml:space="preserve"><value>Fonts embedded from the system: {0}. Glyph shapes may differ slightly.</value></data>
+  <data name="Edit.PdfA.Plan.Metadata" xml:space="preserve"><value>Metadata is rewritten from the document properties; other XMP properties are lost.</value></data>
+  <data name="Edit.PdfA.Plan.Rasterize" xml:space="preserve"><value>Pages that can only be saved as an image with a hidden text layer: {0} ({1}). Their vector content, links and form fields are lost. These are pages with fonts that cannot be embedded, CMYK colours or form fields without an appearance.</value></data>
+  <data name="Edit.PdfA.Plan.RasterizeAllow" xml:space="preserve"><value>I agree to change these pages into images</value></data>
+  <data name="Edit.PdfA.Plan.RasterizeRequired" xml:space="preserve"><value>Without this consent the document cannot be converted.</value></data>
+  <data name="Edit.PdfA.Error.Encrypted" xml:space="preserve"><value>The file is encrypted. Open it with the password first.</value></data>
+  <data name="Edit.PdfA.Error.NoProfile" xml:space="preserve"><value>The Windows sRGB profile was not found: {0}. PDF/A needs it for the output intent.</value></data>
+  <data name="Edit.PdfA.Rule.Header" xml:space="preserve"><value>File header</value></data>
+  <data name="Edit.PdfA.Rule.Header.Desc" xml:space="preserve"><value>%PDF-1.n at the very start, then a comment with at least four binary bytes.</value></data>
+  <data name="Edit.PdfA.Rule.Encryption" xml:space="preserve"><value>No encryption</value></data>
+  <data name="Edit.PdfA.Rule.Encryption.Desc" xml:space="preserve"><value>The trailer has no /Encrypt and the document is not saved with a password.</value></data>
+  <data name="Edit.PdfA.Rule.TrailerId" xml:space="preserve"><value>File identifier</value></data>
+  <data name="Edit.PdfA.Rule.TrailerId.Desc" xml:space="preserve"><value>The trailer has an /ID entry.</value></data>
+  <data name="Edit.PdfA.Rule.EndOfFile" xml:space="preserve"><value>End of file</value></data>
+  <data name="Edit.PdfA.Rule.EndOfFile.Desc" xml:space="preserve"><value>No data after the last %%EOF.</value></data>
+  <data name="Edit.PdfA.Rule.Xmp" xml:space="preserve"><value>XMP metadata</value></data>
+  <data name="Edit.PdfA.Rule.Xmp.Desc" xml:space="preserve"><value>The catalog has a readable, unfiltered XMP stream.</value></data>
+  <data name="Edit.PdfA.Rule.PdfaId" xml:space="preserve"><value>PDF/A identification</value></data>
+  <data name="Edit.PdfA.Rule.PdfaId.Desc" xml:space="preserve"><value>XMP has pdfaid:part 2 and pdfaid:conformance B.</value></data>
+  <data name="Edit.PdfA.Rule.OutputIntent" xml:space="preserve"><value>Output intent</value></data>
+  <data name="Edit.PdfA.Rule.OutputIntent.Desc" xml:space="preserve"><value>OutputIntent GTS_PDFA1 with an embedded, valid ICC profile.</value></data>
+  <data name="Edit.PdfA.Rule.DeviceColors" xml:space="preserve"><value>Device colours</value></data>
+  <data name="Edit.PdfA.Rule.DeviceColors.Desc" xml:space="preserve"><value>DeviceRGB and DeviceCMYK match the output intent (no CMYK with an RGB profile, and the reverse).</value></data>
+  <data name="Edit.PdfA.Rule.Fonts" xml:space="preserve"><value>Embedded fonts</value></data>
+  <data name="Edit.PdfA.Rule.Fonts.Desc" xml:space="preserve"><value>Every font used for visible text is embedded (invisible text is exempt).</value></data>
+  <data name="Edit.PdfA.Rule.JavaScript" xml:space="preserve"><value>No JavaScript</value></data>
+  <data name="Edit.PdfA.Rule.JavaScript.Desc" xml:space="preserve"><value>No JavaScript in the name tree or in actions.</value></data>
+  <data name="Edit.PdfA.Rule.Actions" xml:space="preserve"><value>Forbidden actions</value></data>
+  <data name="Edit.PdfA.Rule.Actions.Desc" xml:space="preserve"><value>No Launch, Sound, Movie, ResetForm, ImportData, Hide, Rendition and similar actions, no named actions other than page navigation, no additional actions (/AA).</value></data>
+  <data name="Edit.PdfA.Rule.Multimedia" xml:space="preserve"><value>No multimedia</value></data>
+  <data name="Edit.PdfA.Rule.Multimedia.Desc" xml:space="preserve"><value>No 3D, Sound, Screen, Movie and RichMedia annotations, renditions or alternate presentations.</value></data>
+  <data name="Edit.PdfA.Rule.Attachments" xml:space="preserve"><value>Attachments</value></data>
+  <data name="Edit.PdfA.Rule.Attachments.Desc" xml:space="preserve"><value>No attached files. PDF/A-2 allows only PDF/A attachments, and ZetPDF cannot verify them, so every attachment counts as a failure.</value></data>
+  <data name="Edit.PdfA.Rule.Annotations" xml:space="preserve"><value>Annotations</value></data>
+  <data name="Edit.PdfA.Rule.Annotations.Desc" xml:space="preserve"><value>Annotations are printable and not hidden, and have a normal appearance only.</value></data>
+  <data name="Edit.PdfA.Rule.Forms" xml:space="preserve"><value>Forms</value></data>
+  <data name="Edit.PdfA.Rule.Forms.Desc" xml:space="preserve"><value>No XFA and no NeedAppearances.</value></data>
+  <data name="Edit.PdfA.Rule.XObjects" xml:space="preserve"><value>Images and XObjects</value></data>
+  <data name="Edit.PdfA.Rule.XObjects.Desc" xml:space="preserve"><value>No PostScript XObjects, /Interpolate on images, /OPI, /Alternates or reference XObjects.</value></data>
+  <data name="Edit.PdfA.Rule.Filters" xml:space="preserve"><value>Stream filters</value></data>
+  <data name="Edit.PdfA.Rule.Filters.Desc" xml:space="preserve"><value>No LZW compression and no streams stored in external files.</value></data>
+  <data name="Edit.PdfA.Rule.GraphicsState" xml:space="preserve"><value>Graphics state</value></data>
+  <data name="Edit.PdfA.Rule.GraphicsState.Desc" xml:space="preserve"><value>No transfer functions (/TR), /HTP or non-standard blend modes.</value></data>
+  <data name="Edit.PdfA.Rule.OptionalContent" xml:space="preserve"><value>Layers</value></data>
+  <data name="Edit.PdfA.Rule.OptionalContent.Desc" xml:space="preserve"><value>Every layer configuration has /Name and no /AS.</value></data>
+  <data name="Edit.PdfA.Rule.CatalogKeys" xml:space="preserve"><value>Catalog entries</value></data>
+  <data name="Edit.PdfA.Rule.CatalogKeys.Desc" xml:space="preserve"><value>No /Requirements, /NeedsRendering or /Collection.</value></data>
+  <data name="Edit.PdfA.Rule.PageSize" xml:space="preserve"><value>Page size</value></data>
+  <data name="Edit.PdfA.Rule.PageSize.Desc" xml:space="preserve"><value>Page size between 3 and 14400 units.</value></data>
+  <data name="Edit.PdfA.Rule.OtherMetadata" xml:space="preserve"><value>Page metadata</value></data>
+  <data name="Edit.PdfA.Rule.OtherMetadata.Desc" xml:space="preserve"><value>Pages have no separate metadata streams, because ZetPDF cannot verify their schemas.</value></data>
+  <data name="Edit.PdfA.Rule.UnreadableContent" xml:space="preserve"><value>Unreadable content</value></data>
+  <data name="Edit.PdfA.Rule.UnreadableContent.Desc" xml:space="preserve"><value>Page content could not be read, so its fonts and colours were not verified.</value></data>
+  <data name="Edit.PdfA.Rule.Transparency" xml:space="preserve"><value>Transparency</value></data>
+  <data name="Edit.PdfA.Rule.Transparency.Desc" xml:space="preserve"><value>The document uses transparency, which PDF/A-2b allows.</value></data>
+  <data name="Edit.PdfA.Rule.Signed" xml:space="preserve"><value>Digital signature</value></data>
+  <data name="Edit.PdfA.Rule.Signed.Desc" xml:space="preserve"><value>The document is signed; signatures themselves are allowed, but conversion would invalidate them.</value></data>
+  <data name="Edit.PdfA.Rule.FontPrograms" xml:space="preserve"><value>Font programs</value></data>
+  <data name="Edit.PdfA.Rule.FontPrograms.Desc" xml:space="preserve"><value>Not checked: agreement of widths with the font file, .notdef glyphs, CMaps, CIDSet and CharSet.</value></data>
+  <data name="Edit.PdfA.Rule.ContentLimits" xml:space="preserve"><value>Content limits</value></data>
+  <data name="Edit.PdfA.Rule.ContentLimits.Desc" xml:space="preserve"><value>Not checked: implementation limits, undefined operators, inline images, PostScript functions.</value></data>
+  <data name="Edit.PdfA.Rule.XmpSchemas" xml:space="preserve"><value>XMP schemas</value></data>
+  <data name="Edit.PdfA.Rule.XmpSchemas.Desc" xml:space="preserve"><value>Not checked: whether all XMP properties are predefined or described by an extension schema, and whether they match the document information dictionary.</value></data>
+  <data name="Edit.PdfA.Rule.FileStructure" xml:space="preserve"><value>File structure details</value></data>
+  <data name="Edit.PdfA.Rule.FileStructure.Desc" xml:space="preserve"><value>Not checked: details of the cross-reference table, stream keywords, stream lengths and the inner structure of ICC profiles and JPEG 2000 images.</value></data>
 </root>

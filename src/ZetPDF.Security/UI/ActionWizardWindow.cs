@@ -381,6 +381,8 @@ internal sealed class ActionWizardWindow : Window
         var sb = new StringBuilder(_loc.Format("Security.Wizard.Report", report.Succeeded, report.Failed));
         foreach (var f in report.Files.Where(f => !f.Success))
             sb.AppendLine().Append("• ").Append(Path.GetFileName(f.InputPath)).Append(": ").Append(f.Error);
+        foreach (var f in report.Files.Where(f => f.Success && f.Warning is not null))
+            sb.AppendLine().Append("• ").Append(Path.GetFileName(f.InputPath)).Append(": ").Append(f.Warning);
         _dialogs.ShowMessage(sb.ToString(), _loc["Security.Wizard.Title"], report.Failed > 0 ? MessageSeverity.Warning : MessageSeverity.Info);
     }
 }

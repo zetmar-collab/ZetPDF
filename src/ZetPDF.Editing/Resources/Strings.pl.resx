@@ -352,4 +352,98 @@ Tak – z podfolderami, Nie – tylko ten folder.</value></data>
   <data name="Edit.Convert.ToHtml.Title" xml:space="preserve"><value>Eksport do HTML</value></data>
   <data name="Edit.Convert.ToHtml.TextOnly" xml:space="preserve"><value>Tylko tekst (bez obrazów, rozmiarów i pogrubień)</value></data>
   <data name="Edit.Convert.ToHtml.Note" xml:space="preserve"><value>Jeden plik HTML bez skryptów i zasobów zewnętrznych; obrazy są zapisane w pliku. Układ strony nie jest odtwarzany: akapity następują po sobie, a tabele i rysunki wektorowe nie są eksportowane jako takie.</value></data>
+  <data name="Edit.PdfA.Disclaimer" xml:space="preserve"><value>To własne sprawdzenie wybranych reguł PDF/A-2b, a nie certyfikowana walidacja. Wynik bez błędów nie potwierdza zgodności z ISO 19005-2; gdy ma to znaczenie, użyj walidatora, np. veraPDF.</value></data>
+  <data name="Edit.PdfA.Summary" xml:space="preserve"><value>Zaliczone: {0}, niezaliczone: {1}, niesprawdzone: {2}.</value></data>
+  <data name="Edit.PdfA.Examples" xml:space="preserve"><value>Znaleziono: {0}.</value></data>
+  <data name="Edit.PdfA.Status.Passed" xml:space="preserve"><value>Zaliczone</value></data>
+  <data name="Edit.PdfA.Status.Failed" xml:space="preserve"><value>Niezaliczone</value></data>
+  <data name="Edit.PdfA.Status.NotChecked" xml:space="preserve"><value>Nie sprawdzono</value></data>
+  <data name="Edit.PdfA.Status.Info" xml:space="preserve"><value>Informacja</value></data>
+  <data name="Edit.PdfA.Check.Title" xml:space="preserve"><value>Sprawdzanie zgodności z PDF/A-2b</value></data>
+  <data name="Edit.PdfA.Check.Progress" xml:space="preserve"><value>Sprawdzanie reguł PDF/A</value></data>
+  <data name="Edit.PdfA.Check.Close" xml:space="preserve"><value>Zamknij</value></data>
+  <data name="Edit.PdfA.Report.Title" xml:space="preserve"><value>Raport sprawdzenia PDF/A-2b</value></data>
+  <data name="Edit.PdfA.Report.Save" xml:space="preserve"><value>Zapisz raport</value></data>
+  <data name="Edit.PdfA.Report.SaveButton" xml:space="preserve"><value>Zapisz raport…</value></data>
+  <data name="Edit.PdfA.Plan.Progress" xml:space="preserve"><value>Analiza dokumentu</value></data>
+  <data name="Edit.PdfA.Convert.Title" xml:space="preserve"><value>Konwersja do PDF/A-2b</value></data>
+  <data name="Edit.PdfA.Convert.Warning" xml:space="preserve"><value>Wynik trafi do nowego pliku; ten dokument zostaje bez zmian. Konwersja może spowodować straty:</value></data>
+  <data name="Edit.PdfA.Convert.Button" xml:space="preserve"><value>Wybierz plik i konwertuj</value></data>
+  <data name="Edit.PdfA.Convert.Save" xml:space="preserve"><value>Zapisz plik PDF/A</value></data>
+  <data name="Edit.PdfA.Convert.Progress" xml:space="preserve"><value>Konwersja do PDF/A-2b</value></data>
+  <data name="Edit.PdfA.Convert.SameFile" xml:space="preserve"><value>Wybierz inny plik: konwersja nie nadpisuje dokumentu źródłowego.</value></data>
+  <data name="Edit.PdfA.Convert.Done" xml:space="preserve"><value>Zapisano: {0}. Własne sprawdzenie ZetPDF nie zgłasza błędów, ale to nie jest certyfikowana walidacja.</value></data>
+  <data name="Edit.PdfA.Convert.NeedsRasterize" xml:space="preserve"><value>Strony do zamiany na obraz bez zgody: {0}. Niczego nie zapisano.</value></data>
+  <data name="Edit.PdfA.Convert.RulesFailing" xml:space="preserve"><value>Wynik nadal narusza te reguły, więc nie został zapisany: {0}.</value></data>
+  <data name="Edit.PdfA.Plan.Encryption" xml:space="preserve"><value>Hasło i ograniczenia zostaną usunięte (PDF/A zakazuje szyfrowania).</value></data>
+  <data name="Edit.PdfA.Plan.Actions" xml:space="preserve"><value>Usuwane skrypty i akcje zabronione: {0}.</value></data>
+  <data name="Edit.PdfA.Plan.Attachments" xml:space="preserve"><value>Usuwane załączniki: {0}. PDF/A-2 dopuszcza tylko załączniki PDF/A, a ZetPDF nie umie tego sprawdzić.</value></data>
+  <data name="Edit.PdfA.Plan.Annotations" xml:space="preserve"><value>Usuwane adnotacje (multimedia, ukryte, pliki, bez wyglądu): {0}.</value></data>
+  <data name="Edit.PdfA.Plan.Xfa" xml:space="preserve"><value>Definicja formularza XFA zostanie usunięta; zostają tylko pola AcroForm.</value></data>
+  <data name="Edit.PdfA.Plan.Signed" xml:space="preserve"><value>Podpisy cyfrowe przestaną być ważne, bo plik jest zapisywany od nowa.</value></data>
+  <data name="Edit.PdfA.Plan.Fonts" xml:space="preserve"><value>Czcionki osadzane z systemu: {0}. Kształty znaków mogą się nieco różnić.</value></data>
+  <data name="Edit.PdfA.Plan.Metadata" xml:space="preserve"><value>Metadane powstają od nowa z właściwości dokumentu; inne właściwości XMP przepadają.</value></data>
+  <data name="Edit.PdfA.Plan.Rasterize" xml:space="preserve"><value>Strony, które można zapisać tylko jako obraz z ukrytą warstwą tekstu: {0} ({1}). Przepada ich treść wektorowa, łącza i pola formularza. To strony z czcionkami, których nie da się osadzić, kolorami CMYK lub polami bez wyglądu.</value></data>
+  <data name="Edit.PdfA.Plan.RasterizeAllow" xml:space="preserve"><value>Zgadzam się na zamianę tych stron na obrazy</value></data>
+  <data name="Edit.PdfA.Plan.RasterizeRequired" xml:space="preserve"><value>Bez tej zgody dokumentu nie da się przekonwertować.</value></data>
+  <data name="Edit.PdfA.Error.Encrypted" xml:space="preserve"><value>Plik jest zaszyfrowany. Najpierw otwórz go z hasłem.</value></data>
+  <data name="Edit.PdfA.Error.NoProfile" xml:space="preserve"><value>Nie znaleziono profilu sRGB systemu Windows: {0}. PDF/A wymaga go do profilu wyjściowego.</value></data>
+  <data name="Edit.PdfA.Rule.Header" xml:space="preserve"><value>Nagłówek pliku</value></data>
+  <data name="Edit.PdfA.Rule.Header.Desc" xml:space="preserve"><value>%PDF-1.n na samym początku, potem komentarz z co najmniej czterema bajtami binarnymi.</value></data>
+  <data name="Edit.PdfA.Rule.Encryption" xml:space="preserve"><value>Brak szyfrowania</value></data>
+  <data name="Edit.PdfA.Rule.Encryption.Desc" xml:space="preserve"><value>Trailer nie ma /Encrypt, a dokument nie jest zapisywany z hasłem.</value></data>
+  <data name="Edit.PdfA.Rule.TrailerId" xml:space="preserve"><value>Identyfikator pliku</value></data>
+  <data name="Edit.PdfA.Rule.TrailerId.Desc" xml:space="preserve"><value>Trailer ma wpis /ID.</value></data>
+  <data name="Edit.PdfA.Rule.EndOfFile" xml:space="preserve"><value>Koniec pliku</value></data>
+  <data name="Edit.PdfA.Rule.EndOfFile.Desc" xml:space="preserve"><value>Brak danych po ostatnim %%EOF.</value></data>
+  <data name="Edit.PdfA.Rule.Xmp" xml:space="preserve"><value>Metadane XMP</value></data>
+  <data name="Edit.PdfA.Rule.Xmp.Desc" xml:space="preserve"><value>Katalog ma czytelny strumień XMP bez filtrów.</value></data>
+  <data name="Edit.PdfA.Rule.PdfaId" xml:space="preserve"><value>Oznaczenie PDF/A</value></data>
+  <data name="Edit.PdfA.Rule.PdfaId.Desc" xml:space="preserve"><value>XMP ma pdfaid:part 2 i pdfaid:conformance B.</value></data>
+  <data name="Edit.PdfA.Rule.OutputIntent" xml:space="preserve"><value>Profil wyjściowy</value></data>
+  <data name="Edit.PdfA.Rule.OutputIntent.Desc" xml:space="preserve"><value>OutputIntent GTS_PDFA1 z osadzonym, poprawnym profilem ICC.</value></data>
+  <data name="Edit.PdfA.Rule.DeviceColors" xml:space="preserve"><value>Kolory urządzenia</value></data>
+  <data name="Edit.PdfA.Rule.DeviceColors.Desc" xml:space="preserve"><value>DeviceRGB i DeviceCMYK zgodne z profilem wyjściowym (bez CMYK przy profilu RGB i odwrotnie).</value></data>
+  <data name="Edit.PdfA.Rule.Fonts" xml:space="preserve"><value>Osadzone czcionki</value></data>
+  <data name="Edit.PdfA.Rule.Fonts.Desc" xml:space="preserve"><value>Każda czcionka użyta do widocznego tekstu jest osadzona (tekst niewidoczny jest wyłączony).</value></data>
+  <data name="Edit.PdfA.Rule.JavaScript" xml:space="preserve"><value>Brak JavaScript</value></data>
+  <data name="Edit.PdfA.Rule.JavaScript.Desc" xml:space="preserve"><value>Brak JavaScript w drzewie nazw i akcjach.</value></data>
+  <data name="Edit.PdfA.Rule.Actions" xml:space="preserve"><value>Akcje zabronione</value></data>
+  <data name="Edit.PdfA.Rule.Actions.Desc" xml:space="preserve"><value>Brak akcji Launch, Sound, Movie, ResetForm, ImportData, Hide, Rendition i podobnych, akcji nazwanych innych niż nawigacja po stronach i akcji dodatkowych (/AA).</value></data>
+  <data name="Edit.PdfA.Rule.Multimedia" xml:space="preserve"><value>Brak multimediów</value></data>
+  <data name="Edit.PdfA.Rule.Multimedia.Desc" xml:space="preserve"><value>Brak adnotacji 3D, Sound, Screen, Movie i RichMedia, wersji multimedialnych i prezentacji alternatywnych.</value></data>
+  <data name="Edit.PdfA.Rule.Attachments" xml:space="preserve"><value>Załączniki</value></data>
+  <data name="Edit.PdfA.Rule.Attachments.Desc" xml:space="preserve"><value>Brak załączonych plików. PDF/A-2 dopuszcza tylko załączniki PDF/A, a ZetPDF nie umie ich sprawdzić, więc każdy załącznik jest błędem.</value></data>
+  <data name="Edit.PdfA.Rule.Annotations" xml:space="preserve"><value>Adnotacje</value></data>
+  <data name="Edit.PdfA.Rule.Annotations.Desc" xml:space="preserve"><value>Adnotacje są drukowane, nieukryte i mają tylko wygląd normalny.</value></data>
+  <data name="Edit.PdfA.Rule.Forms" xml:space="preserve"><value>Formularze</value></data>
+  <data name="Edit.PdfA.Rule.Forms.Desc" xml:space="preserve"><value>Brak XFA i NeedAppearances.</value></data>
+  <data name="Edit.PdfA.Rule.XObjects" xml:space="preserve"><value>Obrazy i XObject</value></data>
+  <data name="Edit.PdfA.Rule.XObjects.Desc" xml:space="preserve"><value>Brak XObject PostScript, /Interpolate w obrazach, /OPI, /Alternates i XObject referencyjnych.</value></data>
+  <data name="Edit.PdfA.Rule.Filters" xml:space="preserve"><value>Filtry strumieni</value></data>
+  <data name="Edit.PdfA.Rule.Filters.Desc" xml:space="preserve"><value>Brak kompresji LZW i strumieni w plikach zewnętrznych.</value></data>
+  <data name="Edit.PdfA.Rule.GraphicsState" xml:space="preserve"><value>Stan graficzny</value></data>
+  <data name="Edit.PdfA.Rule.GraphicsState.Desc" xml:space="preserve"><value>Brak funkcji transferu (/TR), /HTP i niestandardowych trybów mieszania.</value></data>
+  <data name="Edit.PdfA.Rule.OptionalContent" xml:space="preserve"><value>Warstwy</value></data>
+  <data name="Edit.PdfA.Rule.OptionalContent.Desc" xml:space="preserve"><value>Każda konfiguracja warstw ma /Name i nie ma /AS.</value></data>
+  <data name="Edit.PdfA.Rule.CatalogKeys" xml:space="preserve"><value>Wpisy katalogu</value></data>
+  <data name="Edit.PdfA.Rule.CatalogKeys.Desc" xml:space="preserve"><value>Brak /Requirements, /NeedsRendering i /Collection.</value></data>
+  <data name="Edit.PdfA.Rule.PageSize" xml:space="preserve"><value>Rozmiar strony</value></data>
+  <data name="Edit.PdfA.Rule.PageSize.Desc" xml:space="preserve"><value>Rozmiar strony od 3 do 14400 jednostek.</value></data>
+  <data name="Edit.PdfA.Rule.OtherMetadata" xml:space="preserve"><value>Metadane stron</value></data>
+  <data name="Edit.PdfA.Rule.OtherMetadata.Desc" xml:space="preserve"><value>Strony nie mają osobnych strumieni metadanych, bo ZetPDF nie umie sprawdzić ich schematów.</value></data>
+  <data name="Edit.PdfA.Rule.UnreadableContent" xml:space="preserve"><value>Nieczytelna treść</value></data>
+  <data name="Edit.PdfA.Rule.UnreadableContent.Desc" xml:space="preserve"><value>Nie udało się odczytać treści strony, więc jej czcionek i kolorów nie sprawdzono.</value></data>
+  <data name="Edit.PdfA.Rule.Transparency" xml:space="preserve"><value>Transparencja</value></data>
+  <data name="Edit.PdfA.Rule.Transparency.Desc" xml:space="preserve"><value>Dokument używa transparencji, którą PDF/A-2b dopuszcza.</value></data>
+  <data name="Edit.PdfA.Rule.Signed" xml:space="preserve"><value>Podpis cyfrowy</value></data>
+  <data name="Edit.PdfA.Rule.Signed.Desc" xml:space="preserve"><value>Dokument jest podpisany; podpisy są dozwolone, ale konwersja je unieważni.</value></data>
+  <data name="Edit.PdfA.Rule.FontPrograms" xml:space="preserve"><value>Programy czcionek</value></data>
+  <data name="Edit.PdfA.Rule.FontPrograms.Desc" xml:space="preserve"><value>Nie sprawdzono: zgodności szerokości z plikiem czcionki, glifów .notdef, CMap, CIDSet i CharSet.</value></data>
+  <data name="Edit.PdfA.Rule.ContentLimits" xml:space="preserve"><value>Limity treści</value></data>
+  <data name="Edit.PdfA.Rule.ContentLimits.Desc" xml:space="preserve"><value>Nie sprawdzono: limitów implementacji, operatorów niezdefiniowanych, obrazów wstawionych, funkcji PostScript.</value></data>
+  <data name="Edit.PdfA.Rule.XmpSchemas" xml:space="preserve"><value>Schematy XMP</value></data>
+  <data name="Edit.PdfA.Rule.XmpSchemas.Desc" xml:space="preserve"><value>Nie sprawdzono: czy wszystkie właściwości XMP są zdefiniowane lub opisane schematem rozszerzenia oraz czy zgadzają się ze słownikiem Info.</value></data>
+  <data name="Edit.PdfA.Rule.FileStructure" xml:space="preserve"><value>Szczegóły struktury pliku</value></data>
+  <data name="Edit.PdfA.Rule.FileStructure.Desc" xml:space="preserve"><value>Nie sprawdzono: szczegółów tablicy odsyłaczy, słów kluczowych strumieni, ich długości oraz budowy profili ICC i obrazów JPEG 2000.</value></data>
 </root>

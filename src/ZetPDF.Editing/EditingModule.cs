@@ -28,6 +28,7 @@ public sealed class EditingModule : IFeatureModule
         services.AddSingleton<ILinkService, LinkService>();
         services.AddSingleton<IConversionService>(sp => new ConversionService(sp.GetRequiredService<IPdfRenderer>(), sp.GetService<ILocalizationService>()));
         services.AddSingleton<IRedactionService>(sp => new RedactionService(sp.GetRequiredService<IPdfRenderer>(), sp.GetService<ILocalizationService>()));
+        services.AddSingleton<IPdfAService>(sp => new PdfA.PdfAService(sp.GetRequiredService<IPdfRenderer>(), sp.GetService<ILocalizationService>()));
         services.AddSingleton<AccessibilityService>();
         services.AddSingleton(sp => new FullTextIndex(Path.Combine(sp.GetRequiredService<IAppPaths>().LocalDataDirectory, "index")));
     }
@@ -37,7 +38,11 @@ public sealed class EditingModule : IFeatureModule
         services.GetRequiredService<ILocalizationService>().RegisterResources(Strings);
         var registry = services.GetService<ICommandRegistry>();
         var ctx = new EditingContext(services);
-        if (registry is not null) new EditingCommands(ctx, registry).RegisterAll();
+        if (registry is not null)
+        {
+            new EditingCommands(ctx, registry).RegisterAll();
+            new Ui.PdfA.PdfACommands(ctx).Register(registry);
+        }
         // etap 3: ułatwienia dostępu
         AccessibilityCommands.Register(ctx, registry, services.GetService<IPanelRegistry>());
         // etap 3: indeks pełnotekstowy i wyszukiwanie zaawansowane
