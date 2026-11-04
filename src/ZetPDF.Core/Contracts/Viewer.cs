@@ -188,7 +188,9 @@ public sealed record PrintOptions(
     int PagesPerSheet = 1,
     bool AutoOrientation = true,
     bool PrintAnnotations = true,
-    bool Grayscale = false);
+    bool Grayscale = false,
+    /// <summary>Broszura: 2 strony na stronie arkusza w kolejności składki, druk dwustronny; pomija <see cref="PagesPerSheet"/>.</summary>
+    bool Booklet = false);
 
 /// <summary>Drukowanie. Implementacja: ZetPDF.Viewer (renderer-viewer).</summary>
 public interface IPrintService

@@ -37,6 +37,7 @@ public sealed class ViewerModule : IFeatureModule
         services.AddSingleton<IToolService, ToolService>();
         services.AddSingleton<IBookmarkService, BookmarkService>();
         services.AddSingleton<IPrintService, PrintService>();
+        services.AddSingleton(sp => new BatchPrintService(sp.GetRequiredService<IPdfRenderer>()));
         services.AddSingleton<ISpeechEngineFactory, SystemSpeechEngineFactory>();
         services.AddSingleton<ReadAloudService>();
         services.AddSingleton<ParallelViewController>();
@@ -84,6 +85,7 @@ internal sealed class ViewerCommands
     public void RegisterAll()
     {
         // druk
+        _registry.Register(CommandIds.File.BatchPrint, new RelayCommandLite(() => _ = BatchPrintAsync(), () => true));
         _registry.Register(CommandIds.File.Print, new ActiveDocumentCommand(_documents, Dialogs,
             s => _services.GetRequiredService<IPrintService>().ShowPrintDialogAsync(s, _viewer.GetView(s)?.CurrentPageIndex ?? 0), DocumentPermissions.Print));
 
@@ -281,6 +283,27 @@ internal sealed class ViewerCommands
     {
         try { await read.ReadAsync(view, view.CurrentPageIndex, continueToEnd); }
         catch (Exception ex) when (ex is not OutOfMemoryException) { Dialogs?.ShowError(ex); }
+    }
+
+    /// <summary>Druk wsadowy: okno, sprawdzenie plików w tle, hasła, druk w tle, raport.</summary>
+    private async Task BatchPrintAsync()
+    {
+        try
+        {
+            var window = new BatchPrintWindow(_loc, Dialogs);
+            if (ShowDialog(window) != true || window.Options is not { } options || Dialogs is not { } dialogs) return;
+            var service = _services.GetRequiredService<BatchPrintService>();
+            IReadOnlyList<BatchPrintEntry>? entries = null;
+            if (!await dialogs.RunWithProgressAsync(_loc["Viewer.Batch.Checking"], async (p, ct) => entries = await service.ProbeAsync(window.Files, p, ct)) || entries is null) return;
+            await service.ResolvePasswordsAsync(entries, dialogs.AskPassword);
+            await dialogs.RunWithProgressAsync(_loc["Viewer.Batch.Printing"], (p, ct) => service.PrintAsync(entries, options, (doc, o, _, inner, c) => PrintService.PrintDocumentAsync(doc, o, inner, c), p, ct));
+            service.MarkUnfinishedCancelled(entries);
+            ShowDialog(new BatchPrintReportWindow(_loc, entries));
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            Dialogs?.ShowError(ex);
+        }
     }
 
     private bool? ShowDialog(Window w) => Dialogs is { } d ? d.ShowDialog(w) : w.ShowDialog();

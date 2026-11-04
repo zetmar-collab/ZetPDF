@@ -25,6 +25,14 @@ public static class PrintLayout
         return sheets;
     }
 
+    /// <summary>Strony arkuszy dla opcji druku; w broszurze kolejność składki, <see cref="BookletImposition.Blank"/> to pusta komórka.</summary>
+    public static IReadOnlyList<IReadOnlyList<int>> SheetsFor(IReadOnlyList<int> pages, PrintOptions options) =>
+        options.Booklet ? BookletImposition.Map(pages) : Sheets(pages, options.PagesPerSheet);
+
+    /// <summary>Papier poziomy dla broszury.</summary>
+    public static (Size Paper, Rect Printable) ForBooklet(Size paper, Rect printable) =>
+        paper.Width >= paper.Height ? (paper, printable) : (new Size(paper.Height, paper.Width), new Rect(printable.Y, printable.X, printable.Height, printable.Width));
+
     public static int Normalize(int perSheet) => SupportedPagesPerSheet.Contains(perSheet) ? perSheet : 1;
 
     /// <summary>Siatka (kolumny, wiersze) dla N stron na arkuszu – dopasowana do orientacji obszaru druku.</summary>
@@ -82,11 +90,13 @@ public static class PrintLayout
     /// <summary>Rozmieszczenie stron jednego arkusza.</summary>
     public static IReadOnlyList<CellPlacement> LayoutSheet(IReadOnlyList<int> sheetPages, Func<int, Size> pageSizePoints, Rect printable, PrintOptions options)
     {
-        int n = Normalize(options.PagesPerSheet);
+        int n = options.Booklet ? 2 : Normalize(options.PagesPerSheet);
         var cells = Cells(n, printable);
+        bool autoRotate = options.AutoOrientation && !options.Booklet;
         var result = new List<CellPlacement>(sheetPages.Count);
         for (int i = 0; i < sheetPages.Count && i < cells.Count; i++)
-            result.Add(Place(sheetPages[i], pageSizePoints(sheetPages[i]), cells[i], options.Scaling, options.CustomScalePercent, options.AutoOrientation, forceFit: n > 1));
+            if (sheetPages[i] != BookletImposition.Blank)
+                result.Add(Place(sheetPages[i], pageSizePoints(sheetPages[i]), cells[i], options.Scaling, options.CustomScalePercent, autoRotate, forceFit: n > 1));
         return result;
     }
 

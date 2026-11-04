@@ -113,4 +113,29 @@ Czy otworzyć?</value></data>
   <data name="Viewer.Parallel.Vertical" xml:space="preserve"><value>Jeden pod drugim</value></data>
   <data name="Viewer.Parallel.NoOther" xml:space="preserve"><value>Najpierw otwórz inny dokument w karcie – widok równoległy pokazuje obok siebie dwa otwarte dokumenty.</value></data>
   <data name="Viewer.Parallel.Close" xml:space="preserve"><value>Zamknij widok równoległy</value></data>
+  <data name="Viewer.Print.Booklet" xml:space="preserve"><value>Broszura (2 strony na stronie arkusza, do złożenia)</value></data>
+  <data name="Viewer.Print.Booklet.Duplex" xml:space="preserve"><value>Drukuj dwustronnie, z obracaniem wzdłuż krótszej krawędzi. ZetPDF włącza to, jeśli sterownik drukarki to obsługuje; w przeciwnym razie ustaw to we właściwościach drukarki. Puste strony dopełniają liczbę stron do wielokrotności 4.</value></data>
+  <data name="Viewer.Print.Booklet.Count" xml:space="preserve"><value>Arkusze papieru: {0}, dodane puste strony: {1}</value></data>
+  <data name="Viewer.Batch.Title" xml:space="preserve"><value>Drukowanie wsadowe</value></data>
+  <data name="Viewer.Batch.Files" xml:space="preserve"><value>Pliki w kolejności druku</value></data>
+  <data name="Viewer.Batch.AddFiles" xml:space="preserve"><value>Dodaj pliki...</value></data>
+  <data name="Viewer.Batch.AddFolder" xml:space="preserve"><value>Dodaj folder...</value></data>
+  <data name="Viewer.Batch.Up" xml:space="preserve"><value>W górę</value></data>
+  <data name="Viewer.Batch.Down" xml:space="preserve"><value>W dół</value></data>
+  <data name="Viewer.Batch.Remove" xml:space="preserve"><value>Usuń</value></data>
+  <data name="Viewer.Batch.PdfFilter" xml:space="preserve"><value>Pliki PDF</value></data>
+  <data name="Viewer.Batch.Info" xml:space="preserve"><value>Drukowane są wszystkie strony każdego pliku, każdy plik jako osobne zadanie. Dodanie folderu bierze jego pliki PDF bez podfolderów. Przy plikach zaszyfrowanych program zapyta o hasło; można je pominąć.</value></data>
+  <data name="Viewer.Batch.NoFiles" xml:space="preserve"><value>Dodaj co najmniej jeden plik.</value></data>
+  <data name="Viewer.Batch.Checking" xml:space="preserve"><value>Sprawdzanie plików...</value></data>
+  <data name="Viewer.Batch.Printing" xml:space="preserve"><value>Drukowanie plików...</value></data>
+  <data name="Viewer.Batch.Report.Title" xml:space="preserve"><value>Raport drukowania wsadowego</value></data>
+  <data name="Viewer.Batch.Report.Summary" xml:space="preserve"><value>Wydrukowano plików: {0} z {1}.</value></data>
+  <data name="Viewer.Batch.Status.Pending" xml:space="preserve"><value>niewydrukowany</value></data>
+  <data name="Viewer.Batch.Status.Printed" xml:space="preserve"><value>wysłany do drukarki</value></data>
+  <data name="Viewer.Batch.Status.SkippedEncrypted" xml:space="preserve"><value>pominięty, zaszyfrowany i nie podano hasła</value></data>
+  <data name="Viewer.Batch.Status.SkippedCorrupt" xml:space="preserve"><value>pominięty, plik jest uszkodzony lub nie jest plikiem PDF</value></data>
+  <data name="Viewer.Batch.Status.SkippedNoPrintPermission" xml:space="preserve"><value>pominięty, dokument nie pozwala na drukowanie</value></data>
+  <data name="Viewer.Batch.Status.SkippedUnreadable" xml:space="preserve"><value>pominięty, nie można odczytać pliku</value></data>
+  <data name="Viewer.Batch.Status.Failed" xml:space="preserve"><value>błąd druku</value></data>
+  <data name="Viewer.Batch.Status.Cancelled" xml:space="preserve"><value>anulowany</value></data>
 </root>

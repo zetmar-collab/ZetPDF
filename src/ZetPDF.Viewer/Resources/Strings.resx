@@ -113,4 +113,29 @@ Open it?</value></data>
   <data name="Viewer.Parallel.Vertical" xml:space="preserve"><value>One above the other</value></data>
   <data name="Viewer.Parallel.NoOther" xml:space="preserve"><value>Open another document in a tab first – the parallel view shows two open documents side by side.</value></data>
   <data name="Viewer.Parallel.Close" xml:space="preserve"><value>Close parallel view</value></data>
+  <data name="Viewer.Print.Booklet" xml:space="preserve"><value>Booklet (2 pages per side, folded)</value></data>
+  <data name="Viewer.Print.Booklet.Duplex" xml:space="preserve"><value>Print on both sides, flipping on the short edge. ZetPDF turns this on if the printer driver supports it; otherwise set it in the printer properties. Blank pages are added to reach a multiple of 4.</value></data>
+  <data name="Viewer.Print.Booklet.Count" xml:space="preserve"><value>Sheets of paper: {0}, blank pages added: {1}</value></data>
+  <data name="Viewer.Batch.Title" xml:space="preserve"><value>Batch Print</value></data>
+  <data name="Viewer.Batch.Files" xml:space="preserve"><value>Files, in printing order</value></data>
+  <data name="Viewer.Batch.AddFiles" xml:space="preserve"><value>Add files...</value></data>
+  <data name="Viewer.Batch.AddFolder" xml:space="preserve"><value>Add folder...</value></data>
+  <data name="Viewer.Batch.Up" xml:space="preserve"><value>Move up</value></data>
+  <data name="Viewer.Batch.Down" xml:space="preserve"><value>Move down</value></data>
+  <data name="Viewer.Batch.Remove" xml:space="preserve"><value>Remove</value></data>
+  <data name="Viewer.Batch.PdfFilter" xml:space="preserve"><value>PDF files</value></data>
+  <data name="Viewer.Batch.Info" xml:space="preserve"><value>All pages of each file are printed, each file as a separate job. Adding a folder takes its PDF files without subfolders. Encrypted files will ask for a password or can be skipped.</value></data>
+  <data name="Viewer.Batch.NoFiles" xml:space="preserve"><value>Add at least one file.</value></data>
+  <data name="Viewer.Batch.Checking" xml:space="preserve"><value>Checking files...</value></data>
+  <data name="Viewer.Batch.Printing" xml:space="preserve"><value>Printing files...</value></data>
+  <data name="Viewer.Batch.Report.Title" xml:space="preserve"><value>Batch Print Report</value></data>
+  <data name="Viewer.Batch.Report.Summary" xml:space="preserve"><value>Printed {0} of {1} files.</value></data>
+  <data name="Viewer.Batch.Status.Pending" xml:space="preserve"><value>not printed</value></data>
+  <data name="Viewer.Batch.Status.Printed" xml:space="preserve"><value>sent to the printer</value></data>
+  <data name="Viewer.Batch.Status.SkippedEncrypted" xml:space="preserve"><value>skipped, encrypted and no password was given</value></data>
+  <data name="Viewer.Batch.Status.SkippedCorrupt" xml:space="preserve"><value>skipped, the file is damaged or is not a PDF</value></data>
+  <data name="Viewer.Batch.Status.SkippedNoPrintPermission" xml:space="preserve"><value>skipped, the document does not allow printing</value></data>
+  <data name="Viewer.Batch.Status.SkippedUnreadable" xml:space="preserve"><value>skipped, the file cannot be read</value></data>
+  <data name="Viewer.Batch.Status.Failed" xml:space="preserve"><value>printing failed</value></data>
+  <data name="Viewer.Batch.Status.Cancelled" xml:space="preserve"><value>cancelled</value></data>
 </root>

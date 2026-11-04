@@ -63,8 +63,15 @@ public sealed class PrintService : IPrintService
             using var xps = new XpsDocument(path, FileAccess.ReadWrite, CompressionOption.Normal);
             var writer = XpsDocument.CreateXpsDocumentWriter(xps);
             var printable = new Rect(new Point(24, 24), new Size(size.Width - 48, size.Height - 48));
-            WriteSheets(writer, null, doc, options, size, printable, 300, progress, ct);
+            if (options.Booklet) (size, printable) = PrintLayout.ForBooklet(size, printable);
+            // bez biletu zapis do XPS przyjmuje domyślny rozmiar strony, a broszura potrzebuje arkusza poziomego
+            var ticket = options.Booklet ? new PrintTicket { PageMediaSize = new PageMediaSize(size.Width, size.Height) } : null;
+            WriteSheets(writer, ticket, doc, options, size, printable, 300, progress, ct);
         });
+
+    /// <summary>Druk otwartego dokumentu do drukarki (druk wsadowy: dokument nie ma sesji).</summary>
+    internal static Task PrintDocumentAsync(IRenderDocument doc, PrintOptions options, IProgress<OperationProgress>? progress, CancellationToken ct) =>
+        RunSta(() => PrintToQueue(doc, options, progress, ct));
 
     private static void PrintToQueue(IRenderDocument doc, PrintOptions options, IProgress<OperationProgress>? progress, CancellationToken ct)
     {
@@ -74,6 +81,12 @@ public sealed class PrintService : IPrintService
         ticket.CopyCount = Math.Max(1, options.Copies);
         ticket.Collation = options.Collate ? Collation.Collated : Collation.Uncollated;
         if (options.Grayscale) ticket.OutputColor = OutputColor.Grayscale;
+        if (options.Booklet)
+        {
+            // Arkusz poziomy, odwracany wzdłuż krótszej krawędzi. Bez dupleksu w sterowniku ustawienie zostaje jak było; okno druku o tym mówi.
+            ticket.PageOrientation = PageOrientation.Landscape;
+            if (queue.GetPrintCapabilities(ticket).DuplexingCapability.Contains(Duplexing.TwoSidedShortEdge)) ticket.Duplexing = Duplexing.TwoSidedShortEdge;
+        }
         var caps = queue.GetPrintCapabilities(ticket);
         double paperW = ticket.PageMediaSize?.Width ?? PdfSize.A4.Width * PrintLayout.DipPerPoint;
         double paperH = ticket.PageMediaSize?.Height ?? PdfSize.A4.Height * PrintLayout.DipPerPoint;
@@ -96,7 +109,7 @@ public sealed class PrintService : IPrintService
     {
         var pages = PageRange.Parse(options.PageRange, doc.PageCount);
         if (pages.Count == 0) throw new InvalidOperationException("No pages to print.").WithMessageKey("Viewer.Error.NoPagesToPrint");
-        var sheets = PrintLayout.Sheets(pages, options.PagesPerSheet);
+        var sheets = PrintLayout.SheetsFor(pages, options);
         var collator = ticket is null ? writer.CreateVisualsCollator() : writer.CreateVisualsCollator(ticket, ticket);
         collator.BeginBatchWrite();
         bool cancelled = false;
