@@ -31,14 +31,17 @@ internal static class PdfAFontEmbedder
     {
         var subtype = font.Elements.GetName("/Subtype");
         if (subtype == "/Type3") return true;
-        if (subtype == "/Type0")
-        {
-            if (PdfObjects.Resolve(font.Elements["/DescendantFonts"]) is PdfArray { Elements.Count: > 0 } a && PdfObjects.Resolve(a.Elements[0]) is PdfDictionary child) return IsEmbedded(child);
-            return false;
-        }
-        return PdfObjects.Resolve(font.Elements["/FontDescriptor"]) is PdfDictionary d &&
-            (d.Elements.ContainsKey("/FontFile") || d.Elements.ContainsKey("/FontFile2") || d.Elements.ContainsKey("/FontFile3"));
+        if (subtype != "/Type0") return HasFontFile(font);
+        // Tylko jeden poziom i tylko czcionka CID: spreparowany Type0 może wskazywać sam siebie.
+        return PdfObjects.Resolve(font.Elements["/DescendantFonts"]) is PdfArray { Elements.Count: > 0 } a
+            && PdfObjects.Resolve(a.Elements[0]) is PdfDictionary child
+            && child.Elements.GetName("/Subtype") is "/CIDFontType0" or "/CIDFontType2"
+            && HasFontFile(child);
     }
+
+    private static bool HasFontFile(PdfDictionary font) =>
+        PdfObjects.Resolve(font.Elements["/FontDescriptor"]) is PdfDictionary d &&
+        (d.Elements.ContainsKey("/FontFile") || d.Elements.ContainsKey("/FontFile2") || d.Elements.ContainsKey("/FontFile3"));
 
     /// <summary>Rodzina zastępcza zgodna metrycznie albo o tej samej nazwie; null, gdy brak.</summary>
     internal static (string Family, bool Metric)? MapFamily(string baseName)

@@ -166,6 +166,189 @@ public class PdfATests
         AssertPassed(after, "Annotations");
     }
 
+    // ------------------------------------------------------------------ pliki spreparowane
+
+    private static byte[] WithPageContent(string content, Action<PdfDocument, PdfDictionary> resources) => PdfSharpEdit.Modify(SamplePdfFactory.Text(1), doc =>
+    {
+        var page = doc.Pages[0];
+        var res = new PdfDictionary(doc);
+        page.Elements["/Resources"] = res;
+        resources(doc, res);
+        Ocr.Pdf.PageContent.Replace(page, Encoding.ASCII.GetBytes(content));
+    });
+
+    private static PdfDictionary Form(PdfDocument doc, string content)
+    {
+        var form = new PdfDictionary(doc);
+        form.Elements["/Type"] = new PdfName("/XObject");
+        form.Elements["/Subtype"] = new PdfName("/Form");
+        form.Elements["/BBox"] = new PdfArray(doc, new PdfInteger(0), new PdfInteger(0), new PdfInteger(10), new PdfInteger(10));
+        form.CreateStream(Encoding.ASCII.GetBytes(content));
+        doc.Internals.AddObject(form);
+        return form;
+    }
+
+    private static void Links(PdfDocument doc, PdfDictionary from, PdfDictionary to)
+    {
+        var xobjects = new PdfDictionary(doc);
+        xobjects.Elements["/X"] = to.Reference!;
+        var res = new PdfDictionary(doc);
+        res.Elements["/XObject"] = xobjects;
+        from.Elements["/Resources"] = res;
+    }
+
+    [Fact]
+    public async Task Type0_font_pointing_at_itself_does_not_crash_and_counts_as_unembedded()
+    {
+        var pdf = WithPageContent("BT /F1 12 Tf 10 10 Td (x) Tj ET\n", (doc, res) =>
+        {
+            var font = new PdfDictionary(doc);
+            font.Elements["/Type"] = new PdfName("/Font");
+            font.Elements["/Subtype"] = new PdfName("/Type0");
+            font.Elements["/BaseFont"] = new PdfName("/Petla");
+            doc.Internals.AddObject(font);
+            font.Elements["/DescendantFonts"] = new PdfArray(doc, font.Reference!);
+            var fonts = new PdfDictionary(doc);
+            fonts.Elements["/F1"] = font.Reference!;
+            res.Elements["/Font"] = fonts;
+        });
+        AssertFailed(await _svc.CheckAsync(pdf), "Fonts");
+        Assert.Equal(new[] { 0 }, (await _svc.PlanAsync(pdf)).PagesToRasterize);
+        AssertPassed(await _svc.CheckAsync(await Convert(pdf)), "Fonts");
+    }
+
+    [Fact]
+    public async Task Form_xobject_cycle_is_reported_as_unreadable_without_crash()
+    {
+        var pdf = WithPageContent("/X Do\n", (doc, res) =>
+        {
+            var a = Form(doc, "/X Do\n");
+            var b = Form(doc, "/X Do\n");
+            Links(doc, a, b);
+            Links(doc, b, a);
+            var xobjects = new PdfDictionary(doc);
+            xobjects.Elements["/X"] = a.Reference!;
+            res.Elements["/XObject"] = xobjects;
+        });
+        AssertFailed(await _svc.CheckAsync(pdf), "UnreadableContent");
+        Assert.Equal(new[] { 0 }, (await _svc.PlanAsync(pdf)).PagesToRasterize);
+        var converted = await _svc.CheckAsync(await Convert(pdf));
+        Assert.DoesNotContain(converted.Results, r => r.Rule == "UnreadableContent");
+    }
+
+    [Fact]
+    public async Task Very_deep_form_nesting_is_unreadable_without_crash()
+    {
+        var pdf = WithPageContent("/X Do\n", (doc, res) =>
+        {
+            var first = Form(doc, "/X Do\n");
+            var current = first;
+            for (int i = 0; i < 500; i++)
+            {
+                var next = Form(doc, "/X Do\n");
+                Links(doc, current, next);
+                current = next;
+            }
+            var xobjects = new PdfDictionary(doc);
+            xobjects.Elements["/X"] = first.Reference!;
+            res.Elements["/XObject"] = xobjects;
+        });
+        AssertFailed(await _svc.CheckAsync(pdf), "UnreadableContent");
+    }
+
+    [Fact]
+    public async Task Nested_forms_within_the_limit_are_read_normally()
+    {
+        var pdf = WithPageContent("/X Do\n", (doc, res) =>
+        {
+            var first = Form(doc, "q Q\n");
+            var second = Form(doc, "0 0 0 1 k\n");
+            Links(doc, first, second);
+            var xobjects = new PdfDictionary(doc);
+            xobjects.Elements["/X"] = first.Reference!;
+            res.Elements["/XObject"] = xobjects;
+        });
+        var report = await _svc.CheckAsync(pdf);
+        Assert.DoesNotContain(report.Results, r => r.Rule == "UnreadableContent");
+        AssertFailed(report, "DeviceColors"); // kolor z formularza zagnieżdżonego
+    }
+
+    private static PdfDictionary Script(PdfDocument doc, bool indirect)
+    {
+        var js = new PdfDictionary(doc);
+        js.Elements["/S"] = new PdfName("/JavaScript");
+        js.Elements["/JS"] = new PdfString("app.alert(1)");
+        if (indirect) doc.Internals.AddObject(js);
+        return js;
+    }
+
+    /// <summary>Pole z /AA i przycisk z /A JavaScript w drzewie /AcroForm /Fields, także poza stronami i w polu nadrzędnym; pętla w /Kids.</summary>
+    private static byte[] WithScriptedFields() => PdfSharpEdit.Modify(SamplePdfFactory.Text(1), doc =>
+    {
+        var fields = new PdfArray(doc);
+        var parent = new PdfDictionary(doc);
+        parent.Elements["/T"] = new PdfString("rodzic");
+        var aa = new PdfDictionary(doc);
+        aa.Elements["/K"] = Script(doc, indirect: true).Reference!;
+        parent.Elements["/AA"] = aa;
+        doc.Internals.AddObject(parent);
+        var button = new PdfDictionary(doc);
+        button.Elements["/T"] = new PdfString("przycisk");
+        button.Elements["/FT"] = new PdfName("/Btn");
+        button.Elements["/A"] = Script(doc, indirect: false); // akcja bezpośrednio w słowniku
+        button.Elements["/Parent"] = parent.Reference!;
+        doc.Internals.AddObject(button);
+        parent.Elements["/Kids"] = new PdfArray(doc, button.Reference!, parent.Reference!);
+        fields.Elements.Add(parent.Reference!);
+        var acro = new PdfDictionary(doc);
+        acro.Elements["/Fields"] = fields;
+        doc.Internals.Catalog.Elements["/AcroForm"] = acro;
+    });
+
+    [Fact]
+    public async Task Scripts_on_form_fields_are_detected_and_removed_from_the_whole_file()
+    {
+        var input = WithScriptedFields();
+        var report = await _svc.CheckAsync(input);
+        AssertFailed(report, "JavaScript");
+        AssertFailed(report, "Actions");
+
+        var pdf = await Convert(input);
+        Assert.DoesNotContain("/JavaScript", Latin(pdf));
+        Assert.DoesNotMatch(new System.Text.RegularExpressions.Regex(@"/AA\s*[<\d]"), Latin(pdf));
+        PdfSharpEdit.Read(pdf, doc =>
+        {
+            foreach (var d in PdfATree.Dictionaries(doc))
+            {
+                Assert.False(d.Elements.ContainsKey("/AA"));
+                Assert.False(PdfAInspector.IsForbiddenAction(d));
+            }
+            return 0;
+        });
+        var after = await _svc.CheckAsync(pdf);
+        AssertPassed(after, "JavaScript");
+        AssertPassed(after, "Actions");
+    }
+
+    [Fact]
+    public void Structure_elements_are_not_mistaken_for_actions()
+    {
+        PdfSharpEdit.EnsureInitialized();
+        using var doc = new PdfDocument();
+        var element = new PdfDictionary(doc);
+        element.Elements["/Type"] = new PdfName("/StructElem");
+        element.Elements["/S"] = new PdfName("/Sound");
+        Assert.False(PdfAInspector.IsForbiddenAction(element));
+        var untyped = new PdfDictionary(doc);
+        untyped.Elements["/S"] = new PdfName("/Movie");
+        untyped.Elements["/P"] = new PdfInteger(1);
+        Assert.False(PdfAInspector.IsForbiddenAction(untyped));
+        var action = new PdfDictionary(doc);
+        action.Elements["/Type"] = new PdfName("/Action");
+        action.Elements["/S"] = new PdfName("/Launch");
+        Assert.True(PdfAInspector.IsForbiddenAction(action));
+    }
+
     // ------------------------------------------------------------------ konwersja
 
     [Fact]

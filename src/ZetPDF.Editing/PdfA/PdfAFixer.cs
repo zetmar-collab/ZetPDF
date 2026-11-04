@@ -32,11 +32,30 @@ internal static class PdfAFixer
             page.Elements.Remove("/Metadata");
             FixAnnotations(page);
         }
-        foreach (var o in doc.Internals.GetAllObjects())
+        foreach (var d in PdfATree.Dictionaries(doc))
         {
-            if (o is not PdfDictionary d) continue;
+            RemoveActions(d);
             FixStream(d);
             FixGraphicsState(d);
+        }
+    }
+
+    /// <summary>
+    /// Przegląd całego dokumentu, a nie tylko znanych miejsc: /AA i wpisy wskazujące akcje zabronione znikają też w drzewie pól
+    /// /AcroForm i w obiektach nieoczywistych. Sama akcja przestaje być osiągalna, więc nie trafi do pliku.
+    /// </summary>
+    private static void RemoveActions(PdfDictionary d)
+    {
+        d.Elements.Remove("/AA");
+        foreach (var key in d.Elements.Keys.ToList())
+        {
+            var value = PdfObjects.Resolve(d.Elements[key]);
+            if (value is PdfDictionary a && PdfAInspector.IsForbiddenAction(a)) d.Elements.Remove(key);
+            else if (value is PdfArray list)
+            {
+                for (int i = list.Elements.Count - 1; i >= 0; i--)
+                    if (PdfObjects.Resolve(list.Elements[i]) is PdfDictionary e && PdfAInspector.IsForbiddenAction(e)) list.Elements.RemoveAt(i);
+            }
         }
     }
 

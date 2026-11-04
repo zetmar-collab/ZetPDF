@@ -89,7 +89,7 @@ internal static class PdfAInspector
         ReadXmp(catalog, f);
         ReadIntent(catalog, f);
         ReadCatalog(catalog, f);
-        ReadActions(catalog, f);
+        ReadActions(doc, f);
         var walker = new ContentScan(f);
         for (int i = 0; i < doc.PageCount; i++)
         {
@@ -153,7 +153,6 @@ internal static class PdfAInspector
         if (PdfObjects.Resolve(catalog.Elements["/Names"]) is PdfDictionary names)
         {
             f.Attachments = CountNames(names.Elements["/EmbeddedFiles"]);
-            f.JavaScript += CountNames(names.Elements["/JavaScript"]);
             f.RenditionNames = CountNames(names.Elements["/Renditions"]);
             if (names.Elements.ContainsKey("/AlternatePresentations")) f.AlternatePresentations = 1;
         }
@@ -171,56 +170,45 @@ internal static class PdfAInspector
     {
         int count = 0;
         var seen = new HashSet<object>(ReferenceEqualityComparer.Instance);
-        void Walk(PdfItem? node)
-        {
-            if (PdfObjects.Resolve(node) is not PdfDictionary d || !seen.Add(d)) return;
-            if (PdfObjects.Resolve(d.Elements["/Names"]) is PdfArray n) count += n.Elements.Count / 2;
-            if (PdfObjects.Resolve(d.Elements["/Kids"]) is PdfArray k) foreach (var e in k.Elements) Walk(e);
-        }
-        Walk(tree);
-        return count;
-    }
-
-    private static void ReadActions(PdfDictionary catalog, PdfAFacts f)
-    {
-        if (catalog.Elements.ContainsKey("/AA")) f.CatalogAdditionalActions++;
-        Action(catalog.Elements["/OpenAction"], f);
-        // Kolejny poziom: zakładki (akcje w /A, iteracyjnie, odporne na cykle).
-        var seen = new HashSet<object>(ReferenceEqualityComparer.Instance);
         var stack = new Stack<PdfItem?>();
-        stack.Push(catalog.Elements["/Outlines"]);
+        stack.Push(tree);
         while (stack.Count > 0)
         {
             if (PdfObjects.Resolve(stack.Pop()) is not PdfDictionary d || !seen.Add(d)) continue;
-            Action(d.Elements["/A"], f);
-            stack.Push(d.Elements["/First"]);
-            stack.Push(d.Elements["/Next"]);
+            if (PdfObjects.Resolve(d.Elements["/Names"]) is PdfArray n) count += n.Elements.Count / 2;
+            if (PdfObjects.Resolve(d.Elements["/Kids"]) is PdfArray k) foreach (var e in k.Elements) stack.Push(e);
         }
+        return count;
     }
 
-    /// <summary>Akcja i jej łańcuch /Next: zlicza zabronione.</summary>
-    private static void Action(PdfItem? item, PdfAFacts f)
+    /// <summary>
+    /// Akcje w całym dokumencie, a nie tylko w znanych miejscach: drzewo pól /AcroForm, zakładki, adnotacje, strony, obiekty nieoczywiste.
+    /// Każdy słownik liczony raz.
+    /// </summary>
+    private static void ReadActions(PdfDocument doc, PdfAFacts f)
     {
-        var seen = new HashSet<object>(ReferenceEqualityComparer.Instance);
-        var stack = new Stack<PdfItem?>();
-        stack.Push(item);
-        while (stack.Count > 0)
+        foreach (var d in PdfATree.Dictionaries(doc))
         {
-            var cur = PdfObjects.Resolve(stack.Pop());
-            if (cur is PdfArray list) { foreach (var e in list.Elements) stack.Push(e); continue; }
-            if (cur is not PdfDictionary a || !seen.Add(a)) continue;
-            if (IsForbiddenAction(a))
-            {
-                var s = a.Elements.GetName("/S");
-                if (s == "/JavaScript") f.JavaScript++;
-                else { f.ForbiddenActions++; if (f.ActionNames.Count < 8) f.ActionNames.Add(s.TrimStart('/')); }
-            }
-            if (a.Elements.ContainsKey("/Next")) stack.Push(a.Elements["/Next"]);
+            if (d.Elements.ContainsKey("/AA")) f.CatalogAdditionalActions++;
+            if (!IsForbiddenAction(d)) continue;
+            var s = d.Elements.GetName("/S");
+            if (s == "/JavaScript") f.JavaScript++;
+            else { f.ForbiddenActions++; if (f.ActionNames.Count < 8) f.ActionNames.Add(s.TrimStart('/')); }
         }
+        // Drzewo nazw bez rozpoznawalnych akcji też jest naruszeniem.
+        if (f.JavaScript == 0 && PdfObjects.Resolve(doc.Internals.Catalog.Elements["/Names"]) is PdfDictionary names && names.Elements.ContainsKey("/JavaScript")) f.JavaScript = 1;
     }
 
+    /// <summary>
+    /// Akcja zabroniona. Klucz /S mają też inne słowniki (np. element struktury może mieć typ /Sound lub /Movie),
+    /// więc słowniki innego typu i elementy struktury nie są akcjami.
+    /// </summary>
     internal static bool IsForbiddenAction(PdfDictionary a)
     {
+        if (!a.Elements.ContainsKey("/S")) return false;
+        var type = a.Elements.GetName("/Type");
+        if (type.Length > 0 && type != "/Action") return false;
+        if (a.Elements.ContainsKey("/P") || a.Elements.ContainsKey("/K")) return false;
         var s = a.Elements.GetName("/S");
         if (ForbiddenActionTypes.Contains(s)) return true;
         return s == "/Named" && !AllowedNamedActions.Contains(a.Elements.GetName("/N").TrimStart('/'));
@@ -228,7 +216,6 @@ internal static class PdfAInspector
 
     private static void ReadPage(PdfPage page, int index, PdfAFacts f)
     {
-        if (page.Elements.ContainsKey("/AA")) { f.CatalogAdditionalActions++; }
         if (page.Elements.ContainsKey("/PresSteps")) f.AlternatePresentations++;
         if (page.Elements.ContainsKey("/Metadata")) f.OtherMetadata++;
         var box = PdfObjects.Rect(page.Elements["/MediaBox"]);
@@ -247,8 +234,6 @@ internal static class PdfAInspector
             var subtype = PdfObjects.Subtype(a);
             if (MultimediaAnnotationTypes.Contains(subtype)) { f.MultimediaAnnotations++; continue; }
             if (subtype == "/FileAttachment") { f.AttachmentAnnotations++; continue; }
-            Action(a.Elements["/A"], f);
-            if (a.Elements.ContainsKey("/AA")) f.CatalogAdditionalActions++;
             if (subtype == "/Popup") continue;
             int flags = a.Elements.GetInteger("/F");
             if ((flags & (1 | 2 | 32)) != 0) { f.AnnotationsHidden++; continue; }
@@ -285,7 +270,10 @@ internal static class PdfAInspector
     private sealed class ContentScan
     {
         private readonly PdfAFacts _f;
+        /// <summary>Największe zagnieżdżenie formularzy i wzorów; głębiej treść liczy się jako nieczytelna.</summary>
+        private const int MaxFormDepth = 32;
         private readonly Dictionary<PdfDictionary, Use> _forms = new(ReferenceEqualityComparer.Instance);
+        private readonly HashSet<PdfDictionary> _active = new(ReferenceEqualityComparer.Instance);
 
         private sealed class Use
         {
@@ -332,18 +320,27 @@ internal static class PdfAInspector
 
         private Use Form(PdfDictionary form, PdfDictionary? parentResources)
         {
+            // Cykl albo zbyt głębokie zagnieżdżenie: nie awaria, tylko strona, której nie da się sprawdzić.
+            if (_active.Contains(form) || _active.Count >= MaxFormDepth) return new Use { Unreadable = true };
             if (_forms.TryGetValue(form, out var known)) return known;
             var use = new Use();
-            _forms[form] = use; // cykle: zwracany jest wynik częściowy
+            _forms[form] = use;
+            _active.Add(form);
+            try { ReadForm(form, parentResources, use); }
+            finally { _active.Remove(form); }
+            return use;
+        }
+
+        private void ReadForm(PdfDictionary form, PdfDictionary? parentResources, Use use)
+        {
             if (form.Elements.ContainsKey("/Ref") || form.Elements.ContainsKey("/OPI") || form.Elements.ContainsKey("/PS") || form.Elements.ContainsKey("/Alternates")) _f.XObjectsForbiddenKeys++;
             if (PdfObjects.Resolve(form.Elements["/Group"]) is PdfDictionary g && g.Elements.GetName("/S") == "/Transparency") _f.Transparency = true;
             var resources = PdfObjects.Resolve(form.Elements["/Resources"]) as PdfDictionary ?? parentResources;
             byte[] data;
             try { data = PageContent.Decoded(form); }
-            catch (Exception) { use.Unreadable = true; return use; }
+            catch (Exception) { use.Unreadable = true; return; }
             Content(data, resources, use);
             if (!ReferenceEquals(resources, parentResources)) Resources(resources, use);
-            return use;
         }
 
         private void Resources(PdfDictionary? res, Use use)
@@ -358,6 +355,7 @@ internal static class PdfAInspector
                 if (bm is PdfName { Value: not ("/Normal" or "/Compatible") } || (d.Elements.ContainsKey("/SMask") && d.Elements.GetName("/SMask") != "/None") ||
                     (d.Elements.ContainsKey("/ca") && PdfObjects.Number(d.Elements["/ca"]) < 1) || (d.Elements.ContainsKey("/CA") && PdfObjects.Number(d.Elements["/CA"]) < 1))
                     _f.Transparency = true;
+                if (PdfObjects.Resolve(d.Elements["/SMask"]) is PdfDictionary mask && PdfObjects.Resolve(mask.Elements["/G"]) is PdfDictionary maskForm && maskForm.Stream is not null) use.Add(Form(maskForm, res));
                 if (PdfObjects.Resolve(d.Elements["/Font"]) is PdfArray fa && fa.Elements.Count > 0 && PdfObjects.Resolve(fa.Elements[0]) is PdfDictionary font) use.Fonts.Add(font);
             }
             if (PdfObjects.Resolve(res.Elements["/ColorSpace"]) is PdfDictionary spaces)
@@ -390,7 +388,7 @@ internal static class PdfAInspector
 
         private static void ColorSpace(PdfItem? item, Use use, int depth = 0)
         {
-            if (depth > 8) return;
+            if (depth > 8) { use.Unreadable = true; return; }
             switch (PdfObjects.Resolve(item))
             {
                 case PdfName n:
@@ -443,6 +441,34 @@ internal static class PdfAInspector
                         if (PdfObjects.Resolve(fonts.Elements[k]) is PdfDictionary fd) use.Fonts.Add(fd);
             }
         }
+    }
+}
+
+/// <summary>Wszystkie słowniki dokumentu: obiekty pośrednie i słowniki w nich zagnieżdżone. Iteracyjnie i ze zbiorem odwiedzonych, więc głębokość ani cykle nie są groźne.</summary>
+internal static class PdfATree
+{
+    public static List<PdfDictionary> Dictionaries(PdfDocument doc)
+    {
+        var result = new List<PdfDictionary>();
+        var seen = new HashSet<object>(ReferenceEqualityComparer.Instance);
+        var stack = new Stack<PdfItem>(doc.Internals.GetAllObjects());
+        while (stack.Count > 0)
+        {
+            var item = stack.Pop();
+            if (!seen.Add(item)) continue;
+            if (item is PdfDictionary d)
+            {
+                result.Add(d);
+                foreach (var key in d.Elements.Keys)
+                    if (d.Elements[key] is PdfDictionary or PdfArray) stack.Push(d.Elements[key]!);
+            }
+            else if (item is PdfArray a)
+            {
+                foreach (var e in a.Elements)
+                    if (e is PdfDictionary or PdfArray) stack.Push(e);
+            }
+        }
+        return result;
     }
 }
 
