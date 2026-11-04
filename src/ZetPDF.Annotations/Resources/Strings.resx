@@ -302,4 +302,21 @@
   <data name="Annot.Attach.ExecutableWarning" xml:space="preserve"><value>The attachment "{0}" has a program or script file type ({1}). Running it can harm your computer. Save it only if you trust the source of this document.
 
 Save this file?</value></data>
+  <data name="Annot.Recognize.Title" xml:space="preserve"><value>Recognize form fields</value></data>
+  <data name="Annot.Recognize.Progress" xml:space="preserve"><value>Looking for form fields...</value></data>
+  <data name="Annot.Recognize.None" xml:space="preserve"><value>No new fields were found. Fields are detected from underlines, boxes and small squares next to labels.</value></data>
+  <data name="Annot.Recognize.Info" xml:space="preserve"><value>Found {0} proposed fields. This is a heuristic: check the list, clear wrong proposals, then create the fields.</value></data>
+  <data name="Annot.Recognize.Column.Create" xml:space="preserve"><value>Create</value></data>
+  <data name="Annot.Recognize.Column.Name" xml:space="preserve"><value>Field name</value></data>
+  <data name="Annot.Recognize.Column.Kind" xml:space="preserve"><value>Type</value></data>
+  <data name="Annot.Recognize.Column.Page" xml:space="preserve"><value>Page</value></data>
+  <data name="Annot.Recognize.Column.Label" xml:space="preserve"><value>Label</value></data>
+  <data name="Annot.Recognize.Kind.Text" xml:space="preserve"><value>Text field</value></data>
+  <data name="Annot.Recognize.Kind.CheckBox" xml:space="preserve"><value>Check box</value></data>
+  <data name="Annot.Recognize.GenericText" xml:space="preserve"><value>Field</value></data>
+  <data name="Annot.Recognize.GenericCheckBox" xml:space="preserve"><value>Checkbox</value></data>
+  <data name="Annot.Recognize.Create" xml:space="preserve"><value>Create fields</value></data>
+  <data name="Annot.Recognize.SelectAll" xml:space="preserve"><value>Select all</value></data>
+  <data name="Annot.Recognize.SelectNone" xml:space="preserve"><value>Clear all</value></data>
+  <data name="Annot.Undo.RecognizeFields" xml:space="preserve"><value>Recognize form fields</value></data>
 </root>

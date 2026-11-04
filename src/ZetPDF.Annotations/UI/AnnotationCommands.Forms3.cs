@@ -22,6 +22,7 @@ internal sealed partial class AnnotationCommands
         _registry.Register(CommandIds.Measure.Calculator, new RelayCmd(_ => ShowCalculator()));
         RegisterBarcode();
         RegisterScripts();
+        _registry.Register(CommandIds.Form.RecognizeFields, Doc(RecognizeFieldsAsync, DocumentPermissions.ModifyContent));
     }
 
     /// <summary>

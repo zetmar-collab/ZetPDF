@@ -288,3 +288,10 @@ Zbiorczo z `docs\ograniczenia\annotations-forms.md` (pkt 17–25), `renderer-vie
 
 ### 29.0 Piaskownica JavaScript: limit wyrażeń regularnych
 - Limit 200 ms to czas zegarowy. Na mocno obciążonym komputerze poprawny skrypt z wyrażeniem regularnym może go przekroczyć: pole nie dostanie wtedy wyniku, a w raporcie skryptów pojawi się błąd. Trzy takie przebiegi w jednym dokumencie wyłączają jego skrypty (jak inne limity). Nie ma to wpływu na stabilność programu.
+
+### 29.1 Rozpoznawanie pól formularza
+- **To heurystyka na obrazie strony.** Okno pokazuje propozycje do sprawdzenia, nic nie powstaje bez zatwierdzenia.
+- **Zmierzona dokładność** na 6 dokumentach wygenerowanych w teście (formularz, ten sam formularz jako skan 200 DPI bez tekstu, tabela z siatką, tabela z liniami, tekst z ozdobnikami, zwykły tekst): 23 poprawne, 0 fałszywych, 0 pominiętych, czyli precyzja i czułość 1,000. **To nie jest wynik na prawdziwych formularzach:** heurystykę strojono na tych samych dokumentach, a prawdziwych skanów nie sprawdzano.
+- **Znane słabości, zmierzone bez progu w teście:** skan przekrzywiony o 0,5° gubi 2 z 11 pól, o 1,5° gubi 6 z 11 (obszary się nie zamykają lub linie przestają spełniać warunek grubości; prostowania nie ma). Formularz w układzie tabeli (etykieta w komórce obok pustej komórki): 0 z 4 pól, bo siatka jest uznawana za tabelę, co jest świadomą ceną braku fałszywych trafień na tabelach.
+- Pusty kwadracik jako punktor wyliczenia zostanie uznany za pole wyboru. Kilka kolejnych linii do pisania pod jedną etykietą daje jedno pole (tylko linia z etykietą). Linia bez etykiety na stronie z tekstem jest pomijana. Pola wielowierszowe tylko z prostokątów wyższych niż 30 pt. Wielokropek z odstępami (`. . . .`) nie jest rozpoznawany, a na skanie bez OCR nie ma wielokropków w ogóle. Bez pól opcji, list i przycisków. Linie jaśniejsze niż próg luminancji 170 nie istnieją dla analizy.
+- Okno nie było oglądane na pulpicie; działają testy budowy okna, wyniku `SelectedSpecs` i Cofnij/Ponów na sesji.

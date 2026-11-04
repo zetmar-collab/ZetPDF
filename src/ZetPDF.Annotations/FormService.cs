@@ -69,6 +69,27 @@ public sealed class FormService : IFormService
             FormScripts.SetFieldScript(doc, f, trigger, code);
         }, ct);
 
+    /// <summary>Tworzy wiele pól w jednym zapisie (jeden krok Cofnij).</summary>
+    public Task<byte[]> CreateFieldsAsync(byte[] pdf, IReadOnlyList<FormFieldSpec> specs, CancellationToken ct = default) =>
+        PdfSharpEdit.ModifyAsync(pdf, doc =>
+        {
+            foreach (var spec in specs)
+            {
+                ct.ThrowIfCancellationRequested();
+                FormEngine.Create(doc, spec);
+            }
+        }, ct);
+
+    /// <summary>Propozycje pól z bitmap stron i tekstu; pomija miejsca, w których już jest widżet.</summary>
+    public async Task<IReadOnlyList<ZetPDF.Annotations.Forms.Recognition.FieldProposal>> RecognizeFieldsAsync(byte[] pdf, IPdfRenderer renderer,
+        ZetPDF.Annotations.Forms.Recognition.FieldGenericNames generic, IProgress<OperationProgress>? progress = null, CancellationToken ct = default)
+    {
+        var widgets = await GetWidgetsAsync(pdf, ct).ConfigureAwait(false);
+        var fields = await GetFieldsAsync(pdf, ct).ConfigureAwait(false);
+        return await ZetPDF.Annotations.Forms.Recognition.FieldRecognizer.RecognizeAsync(pdf, renderer, widgets.Select(w => (w.Page, w.Rect)).ToList(),
+            fields.Select(f => f.FullName).Concat(widgets.Select(w => w.Name)), generic, progress, ct).ConfigureAwait(false);
+    }
+
     public Task<byte[]> CreateFieldAsync(byte[] pdf, FormFieldSpec spec, CancellationToken ct = default) =>
         PdfSharpEdit.ModifyAsync(pdf, doc => FormEngine.Create(doc, spec), ct);
 

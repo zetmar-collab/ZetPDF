@@ -302,4 +302,21 @@
   <data name="Annot.Attach.ExecutableWarning" xml:space="preserve"><value>Załącznik „{0}” jest typu programu lub skryptu ({1}). Jego uruchomienie może zaszkodzić komputerowi. Zapisz go tylko wtedy, gdy ufasz źródłu tego dokumentu.
 
 Zapisać ten plik?</value></data>
+  <data name="Annot.Recognize.Title" xml:space="preserve"><value>Rozpoznaj pola formularza</value></data>
+  <data name="Annot.Recognize.Progress" xml:space="preserve"><value>Szukanie pól formularza...</value></data>
+  <data name="Annot.Recognize.None" xml:space="preserve"><value>Nie znaleziono nowych pól. Pola są wykrywane z linii podkreślenia, prostokątów i małych kratek obok etykiet.</value></data>
+  <data name="Annot.Recognize.Info" xml:space="preserve"><value>Znaleziono propozycji pól: {0}. To heurystyka: sprawdź listę, odznacz błędne propozycje i utwórz pola.</value></data>
+  <data name="Annot.Recognize.Column.Create" xml:space="preserve"><value>Utwórz</value></data>
+  <data name="Annot.Recognize.Column.Name" xml:space="preserve"><value>Nazwa pola</value></data>
+  <data name="Annot.Recognize.Column.Kind" xml:space="preserve"><value>Rodzaj</value></data>
+  <data name="Annot.Recognize.Column.Page" xml:space="preserve"><value>Strona</value></data>
+  <data name="Annot.Recognize.Column.Label" xml:space="preserve"><value>Etykieta</value></data>
+  <data name="Annot.Recognize.Kind.Text" xml:space="preserve"><value>Pole tekstowe</value></data>
+  <data name="Annot.Recognize.Kind.CheckBox" xml:space="preserve"><value>Pole wyboru</value></data>
+  <data name="Annot.Recognize.GenericText" xml:space="preserve"><value>Pole</value></data>
+  <data name="Annot.Recognize.GenericCheckBox" xml:space="preserve"><value>Pole_wyboru</value></data>
+  <data name="Annot.Recognize.Create" xml:space="preserve"><value>Utwórz pola</value></data>
+  <data name="Annot.Recognize.SelectAll" xml:space="preserve"><value>Zaznacz wszystkie</value></data>
+  <data name="Annot.Recognize.SelectNone" xml:space="preserve"><value>Odznacz wszystkie</value></data>
+  <data name="Annot.Undo.RecognizeFields" xml:space="preserve"><value>Rozpoznaj pola formularza</value></data>
 </root>
