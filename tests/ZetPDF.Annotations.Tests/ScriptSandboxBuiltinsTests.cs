@@ -44,10 +44,35 @@ public class ScriptSandboxBuiltinsTests
     [MemberData(nameof(Expressions))]
     public void Hardened_builtins_match_native_jint(string expression)
     {
-        var native = new Engine().Evaluate(expression).ToString();
+        var native = new Engine(o => o.Constraints.RegexTimeout = RelaxedTime).Evaluate(expression).ToString();
         var report = new ScriptReport();
-        var r = new ScriptRunner(new MemoryHost(), report, k => k, CancellationToken.None).RunEvent("event.value = " + expression + ";", "C", "", "Calculate");
+        var r = FunctionalRunner(new MemoryHost(), report).RunEvent("event.value = " + expression + ";", "C", "", "Calculate");
         Assert.Empty(report.Errors);
         Assert.Equal(native, r!.Value.Value);
     }
+
+    private static readonly TimeSpan RelaxedTime = TimeSpan.FromMinutes(5);
+
+    /// <summary>
+    /// Runner do testów wyniku funkcji: limity czasu liczą czas zegarowy (wyrażenie regularne 200 ms łącznie z JIT), więc pod
+    /// obciążeniem przekraczał je poprawny skrypt i test padał bez związku z tym, co sprawdza. Reszta limitów bez zmian.
+    /// </summary>
+    internal static ScriptRunner FunctionalRunner(IScriptFieldHost host, ScriptReport report) =>
+        new(host, report, k => k, CancellationToken.None, new ScriptBudget(RelaxedTime), new ScriptTimeLimits(RelaxedTime), RelaxedTime);
+
+    [Theory]
+    [InlineData("event.value = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa!'.replace(/(a+)+$/, 'x');")]
+    public void Regex_timeout_is_a_script_error_and_a_limit_hit(string script)
+    {
+        var report = new ScriptReport();
+        var host = new MemoryHost();
+        var r = new ScriptRunner(host, report, k => k, CancellationToken.None, new ScriptBudget(RelaxedTime), scriptTimeout: RelaxedTime).RunEvent(script, "C", "", "Calculate");
+        Assert.Null(r);
+        Assert.Contains(report.Errors, e => e.Contains(nameof(System.Text.RegularExpressions.RegexMatchTimeoutException)));
+        Assert.True(report.HitLimits);
+        Assert.Equal("", host.Get("C"));
+    }
+
+    [Fact]
+    public void Default_regex_limit_stays_200_ms() => Assert.Equal(TimeSpan.FromMilliseconds(200), ScriptTimeLimits.Default.Regex);
 }

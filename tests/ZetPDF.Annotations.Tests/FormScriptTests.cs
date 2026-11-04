@@ -172,7 +172,7 @@ public class FormScriptTests
     {
         var host = new MemoryHost();
         var report = new ScriptReport();
-        var r = new ScriptRunner(host, report, k => k, CancellationToken.None).RunEvent(script, "C", "1", "Calculate");
+        var r = ScriptSandboxBuiltinsTests.FunctionalRunner(host, report).RunEvent(script, "C", "1", "Calculate");
         Assert.Empty(report.Errors);
         Assert.Equal(expected, r!.Value.Value);
     }

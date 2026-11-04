@@ -55,6 +55,16 @@ internal sealed class ScriptBudget
     }
 }
 
+/// <summary>
+/// Limity czasu jednego skryptu. Oba liczą czas zegarowy, więc na obciążonym komputerze poprawny skrypt może je przekroczyć
+/// (wyrażenie regularne ma 200 ms łącznie z kompilacją JIT przy pierwszym użyciu). Program zawsze działa na <see cref="Default"/>;
+/// inne wartości są dla testów sprawdzających wynik funkcji, a nie same limity.
+/// </summary>
+internal sealed record ScriptTimeLimits(TimeSpan Regex)
+{
+    public static ScriptTimeLimits Default { get; } = new(TimeSpan.FromMilliseconds(200));
+}
+
 /// <summary>Dostęp skryptu do pól (implementuje silnik formularza; tylko łańcuchy znaków – bez obiektów CLR w skrypcie).</summary>
 internal interface IScriptFieldHost
 {
@@ -88,9 +98,14 @@ internal sealed class ScriptRunner
     private readonly Func<string, string> _localize;
     private readonly CancellationToken _ct;
     private readonly ScriptBudget _budget;
+    private readonly TimeSpan _scriptTimeout;
+    private readonly TimeSpan _regexTimeout;
 
-    public ScriptRunner(IScriptFieldHost host, ScriptReport report, Func<string, string> localize, CancellationToken ct, ScriptBudget? budget = null)
+    public ScriptRunner(IScriptFieldHost host, ScriptReport report, Func<string, string> localize, CancellationToken ct, ScriptBudget? budget = null,
+        ScriptTimeLimits? limits = null, TimeSpan? scriptTimeout = null)
     {
+        _scriptTimeout = scriptTimeout ?? Timeout;
+        _regexTimeout = (limits ?? ScriptTimeLimits.Default).Regex;
         _host = host;
         _report = report;
         _localize = localize;
@@ -112,7 +127,7 @@ internal sealed class ScriptRunner
             o.LimitMemory(MemoryLimit);
             o.LimitRecursion(MaxRecursion);
             o.Constraints.MaxArraySize = 100_000;
-            o.Constraints.RegexTimeout = TimeSpan.FromMilliseconds(200);
+            o.Constraints.RegexTimeout = _regexTimeout;
             o.CancellationToken(_ct);
         });
         void Fn(string name, Func<JsValue, JsValue[], JsValue> f) => engine.SetValue(name, new ClrFunction(engine, name, f));
@@ -141,7 +156,7 @@ internal sealed class ScriptRunner
 
     /// <summary>Czy wyjątek oznacza przekroczenie limitu silnika (a nie zwykły błąd skryptu).</summary>
     private static bool IsLimit(Exception ex) =>
-        ex is TimeoutException or InsufficientExecutionStackException
+        ex is TimeoutException or InsufficientExecutionStackException or System.Text.RegularExpressions.RegexMatchTimeoutException
         || ex.GetType().Name is "StatementsCountOverflowException" or "MemoryLimitExceededException" or "RecursionDepthOverflowException"
         || ex.Message.Contains("ZetPDF limit", StringComparison.Ordinal);
 
@@ -167,7 +182,7 @@ internal sealed class ScriptRunner
         }
         try
         {
-            var engine = CreateEngine(remaining < Timeout ? remaining : Timeout);
+            var engine = CreateEngine(remaining < _scriptTimeout ? remaining : _scriptTimeout);
             var ev = engine.GetValue("event").AsObject();
             ev.Set("value", new JsString(value));
             ev.Set("change", new JsString(value));

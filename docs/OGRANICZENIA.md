@@ -283,3 +283,8 @@ Zbiorczo z `docs\ograniczenia\annotations-forms.md` (pkt 17–25), `renderer-vie
 - Office sam może łączyć się z siecią przy otwieraniu (obrazy połączone, zdalne szablony w Word); program nad tym nie panuje. Automatyzacja nie stosuje Widoku chronionego; makra są wyłączone, ale inne treści aktywne w pliku podlegają ustawieniom Office.
 - Rozpoznanie „naszego” procesu opiera się na różnicy list przed i po uruchomieniu: program Office uruchomiony przez użytkownika dokładnie w tej chwili mógłby zostać uznany za nasz. PowerPoint: plik chroniony hasłem może czekać na niewidoczne okno aż do limitu 3 minut. Jeśli wtedy PowerPoint działał już wcześniej, nie zostanie zamknięty, a zawieszone okno trzeba zamknąć ręcznie.
 - Tylko DOCX, XLSX, PPTX. Stare DOC, XLS, PPT i pliki z makrami (DOCM i inne) nie są obsługiwane. Wynik zależy od ustawień wydruku Office. Arkusz bez zawartości daje błąd konwersji. Pliki łączone mają swój układ bez zakładek i spisu treści.
+
+## 29. Rozbudowa – partia 3 (2026-11-04)
+
+### 29.0 Piaskownica JavaScript: limit wyrażeń regularnych
+- Limit 200 ms to czas zegarowy. Na mocno obciążonym komputerze poprawny skrypt z wyrażeniem regularnym może go przekroczyć: pole nie dostanie wtedy wyniku, a w raporcie skryptów pojawi się błąd. Trzy takie przebiegi w jednym dokumencie wyłączają jego skrypty (jak inne limity). Nie ma to wpływu na stabilność programu.
