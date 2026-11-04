@@ -200,7 +200,8 @@ public sealed class RecoveryStore
         }
     }
 
-    internal static bool IsAcceptablePath(string path)
+    /// <summary>Pełna ścieżka pliku: bez ścieżek urządzeń i strumieni NTFS (dane z opisu kopii i z potoku są niezaufane).</summary>
+    public static bool IsAcceptablePath(string path)
     {
         try
         {

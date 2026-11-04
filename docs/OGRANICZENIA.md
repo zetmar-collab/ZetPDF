@@ -221,3 +221,9 @@ Zbiorczo z `docs\ograniczenia\annotations-forms.md` (pkt 17–25), `renderer-vie
 - Dokument chroniony: hasła nie są zapisywane, więc odzyskana kopia dostaje ochronę pliku oryginalnego (po podaniu jego hasła). Jeśli w sesji przed awarią zmieniono hasło lub uprawnienia na innym zaszyfrowanym oryginale, po odzyskaniu obowiązują te z pliku na dysku – trzeba ustawić je ponownie. Gdy oryginał jest niedostępny lub bez szyfrowania, program prosi o nowe hasło otwarcia (AES-256, losowe hasło właściciela, uprawnienia z kopii).
 - Kopie są związane z kontem Windows (DPAPI): po resecie hasła konta przez administratora lub na innym komputerze są nieczytelne (komunikat przy odzyskiwaniu; wiersz można odrzucić). Opisy nieczytelne po martwych procesach są usuwane przy starcie bez pytania, bo nie da się ich pokazać.
 - Na czas zapisu kopii w pamięci jest druga kopia dokumentu (zaszyfrowany blob). DPAPI działa na całej tablicy, bez strumieniowania.
+
+### 27.2 Jedna instancja
+- Plik podany w drugim uruchomieniu, który nie istnieje, jest pomijany bez komunikatu (dane z potoku są niezaufane), a okno tylko wychodzi na wierzch. Bezpośrednie pierwsze uruchomienie nadal pokazuje „nie znaleziono”.
+- Kopia uruchomiona jako administrator i kopia zwykła nie łączą się (`CurrentUserOnly` sprawdza właściciela potoku) – działają osobno.
+- Wiadomość wysłana w chwili zamykania okna głównego, przed końcem procesu, może przepaść.
+- Hasło z `-pwd` jest widoczne na liście procesów jak dotąd; potok tego nie zmienia.

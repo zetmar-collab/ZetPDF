@@ -25,6 +25,8 @@ public partial class App : Application
     private ILogger<App>? _log;
     private AppPaths? _paths;
     private int _unhandledShown;
+    private SingleInstanceChannel? _channel;
+    private List<ForwardedOpen>? _pendingForwarded = new();
     private bool _sessionEnding;
 
     /// <summary>Kontener (dla okien tworzonych z XAML bez wstrzykiwania). Preferuj wstrzykiwanie przez konstruktor.</summary>
@@ -33,6 +35,7 @@ public partial class App : Application
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+        if (TryForwardToRunningInstance(e.Args)) return;
         _paths = new AppPaths();
         var startupPaths = _paths;
         _ = Task.Run(startupPaths.CleanupOrphanedTemp);
@@ -98,6 +101,50 @@ public partial class App : Application
         _ = FinishStartupAsync(e.Args);
     }
 
+    /// <summary>Druga kopia przekazuje pliki działającemu oknu i się kończy; pierwsza zaczyna nasłuch od razu, jeszcze przed zbudowaniem okna.</summary>
+    private bool TryForwardToRunningInstance(string[] args)
+    {
+        var testPipe = Environment.GetEnvironmentVariable("ZETPDF_TEST_PIPE");
+        if (!SingleInstanceChannel.ShouldUse(args, Environment.GetEnvironmentVariable("ZETPDF_HOME"), testPipe)) return false;
+        var name = SingleInstanceChannel.PipeName(testPipe);
+        _channel = SingleInstanceChannel.TryCreateServer(name);
+        if (_channel is not null)
+        {
+            _channel.Start(m => Dispatcher.BeginInvoke(() => OnForwarded(m)), ex => _log?.LogInformation("Pipe client failed: {Type}", ex.GetType().Name));
+            return false;
+        }
+        if (!SingleInstanceChannel.TrySend(name, SingleInstanceChannel.PrepareMessage(args))) return false; // nie odpowiada: osobna kopia, żeby pliki się otworzyły
+        Shutdown(0);
+        return true;
+    }
+
+    private async void OnForwarded(ForwardedOpen message)
+    {
+        if (_pendingForwarded is not null)
+        {
+            _pendingForwarded.Add(message); // start programu jeszcze trwa (np. okno odzyskiwania)
+            return;
+        }
+        try
+        {
+            BringToFront();
+            if (message.Files.Count > 0) await Services.GetRequiredService<DocumentActions>().OpenAsync(message.Files, message.Password);
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            _log?.LogError(ex, "Opening forwarded files failed");
+        }
+    }
+
+    private void BringToFront()
+    {
+        if (MainWindow is not { } main) return;
+        if (main.WindowState == WindowState.Minimized) SystemCommands.RestoreWindow(main);
+        // Otwarte okno modalne blokuje główne, więc to ono dostaje aktywację.
+        var modal = Windows.OfType<Window>().LastOrDefault(w => w.IsVisible && ReferenceEquals(w.Owner, main));
+        (modal ?? main).Activate();
+    }
+
     /// <summary>Po pokazaniu okna: autozapis, okno odzyskiwania (kopie po awarii), potem pliki z linii poleceń.</summary>
     private async Task FinishStartupAsync(string[] args)
     {
@@ -112,6 +159,9 @@ public partial class App : Application
             _log?.LogError(ex, "Recovery on startup failed");
         }
         await OpenFromCommandLineAsync(args);
+        var pending = _pendingForwarded;
+        _pendingForwarded = null;
+        if (pending is not null) foreach (var m in pending) OnForwarded(m);
     }
 
     /// <summary>Argumenty: pliki PDF (wiele) i opcjonalnie -pwd&lt;hasło&gt; (dla wszystkich plików).</summary>
@@ -138,6 +188,7 @@ public partial class App : Application
     protected override void OnExit(ExitEventArgs e)
     {
         _log?.LogInformation("ZetPDF exiting");
+        _channel?.Dispose();
         // Normalne wyjście usuwa kopie odzyskiwania; zamykanie Windows ich nie usuwa (niezapisane zmiany zostają do odzyskania).
         _services?.GetService<AutoSaveService>()?.Stop(deleteFiles: !_sessionEnding);
         _services?.Dispose();
