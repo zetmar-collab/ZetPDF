@@ -44,6 +44,8 @@ internal sealed class IndexController
         if (registry is null) return;
         registry.Register(CommandIds.Index.BuildFolder, new AsyncCommand(() => BuildFolderAsync(), _ctx));
         registry.Register(CommandIds.Index.Search, new AsyncCommand(() => { ShowSearch(); return Task.CompletedTask; }, _ctx));
+        registry.Register(CommandIds.Index.Manage, new AsyncCommand(() => { ManageIndexes(); return Task.CompletedTask; }, _ctx));
+        _ = Task.Run(Index.ProtectLegacyFiles);
     }
 
     // ------------------------------------------------------------------ budowanie
@@ -53,10 +55,15 @@ internal sealed class IndexController
     {
         folder ??= _ctx.Dialogs?.SelectFolder(L["Edit.Index.ChooseFolder"], _ctx.Documents.ActiveDocument?.FilePath is { } p ? Path.GetDirectoryName(p) : null);
         if (folder is null) return null;
-        var answer = _ctx.Dialogs?.AskYesNoCancel(L.Format("Edit.Index.Recursive", folder), L["Edit.Index.Title"]) ?? YesNoCancel.Yes;
+        var answer = _ctx.Dialogs?.AskYesNoCancel(L.Format("Edit.Index.Recursive", folder) + "\n\n" + L["Edit.Index.Privacy"], L["Edit.Index.Title"]) ?? YesNoCancel.Yes;
         if (answer == YesNoCancel.Cancel) return null;
+        return await BuildCoreAsync(folder, answer == YesNoCancel.Yes);
+    }
+
+    private async Task<FolderIndex?> BuildCoreAsync(string folder, bool recursive)
+    {
         IndexBuildResult? result = null;
-        if (!await _ctx.RunAsync("Edit.Index.Progress", async (pr, ct) => result = await Index.BuildAsync(folder, answer == YesNoCancel.Yes, pr, ct)) || result is null)
+        if (!await _ctx.RunAsync("Edit.Index.Progress", async (pr, ct) => result = await Index.BuildAsync(folder, recursive, pr, ct)) || result is null)
         {
             _ctx.Status(L["Edit.Index.Cancelled"]);
             return null;
@@ -67,6 +74,47 @@ internal sealed class IndexController
         _ctx.Dialogs?.ShowMessage(text, L["Edit.Index.Title"]);
         _window?.RefreshIndexes(result.Index.Root);
         return result.Index;
+    }
+
+    // ------------------------------------------------------------------ zarządzanie
+
+    /// <summary>Okno zarządzania indeksami (Index.Manage).</summary>
+    public void ManageIndexes()
+    {
+        _ctx.Dialogs?.ShowDialog(new IndexManageWindow(L, this));
+        _window?.RefreshIndexes(null);
+    }
+
+    public Task<IReadOnlyList<IndexEntry>> ListEntriesAsync() => Task.Run(Index.ListEntries);
+
+    public bool ConfirmDelete(string text) => _ctx.Dialogs?.Confirm(text, L["Edit.Index.Manage.Title"]) ?? true;
+
+    /// <summary>Usuwa wpis lub (null) wszystkie indeksy. Zwraca, czy się udało; błąd pokazuje użytkownikowi.</summary>
+    public async Task<bool> DeleteAsync(IndexEntry? entry)
+    {
+        try
+        {
+            await Task.Run(() => { if (entry is null) Index.DeleteAll(); else Index.DeleteEntry(entry); });
+            return true;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            _ctx.Dialogs?.ShowError(ex);
+            return false;
+        }
+    }
+
+    /// <summary>Aktualizacja przyrostowa wskazanego indeksu; folder, którego już nie ma, daje komunikat zamiast błędu.</summary>
+    public async Task UpdateAsync(IndexEntry entry)
+    {
+        if (entry.Root is null) return;
+        if (!Directory.Exists(entry.Root))
+        {
+            _ctx.Dialogs?.ShowMessage(L.Format("Edit.Index.Manage.FolderMissing", entry.Root), L["Edit.Index.Manage.Title"], MessageSeverity.Warning);
+            return;
+        }
+        try { await BuildCoreAsync(entry.Root, entry.Recursive); }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { _ctx.Dialogs?.ShowError(ex); }
     }
 
     // ------------------------------------------------------------------ wyszukiwanie

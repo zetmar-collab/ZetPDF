@@ -320,4 +320,21 @@ Yes – with subfolders, No – this folder only.</value></data>
   <data name="Edit.Search.Column.Context" xml:space="preserve"><value>Context</value></data>
   <data name="Edit.Text.CoverWarning" xml:space="preserve"><value>The old text in this font cannot be removed from the file. It will only be covered with a white box and can still be read or found by search. Continue?</value></data>
   <data name="Edit.FindReplace.CoverWarning" xml:space="preserve"><value>The old text in {0} line(s) could not be removed from the file. It is only covered with a white box and can still be read or found by search.</value></data>
+  <data name="Edit.Index.Privacy" xml:space="preserve"><value>The index keeps the text of the documents on this disk, encrypted for your Windows account. You can delete it under Manage Indexes.</value></data>
+  <data name="Edit.Index.Manage.Title" xml:space="preserve"><value>Manage Indexes</value></data>
+  <data name="Edit.Index.Manage.Folder" xml:space="preserve"><value>Folder</value></data>
+  <data name="Edit.Index.Manage.Documents" xml:space="preserve"><value>Documents</value></data>
+  <data name="Edit.Index.Manage.Size" xml:space="preserve"><value>Size</value></data>
+  <data name="Edit.Index.Manage.Built" xml:space="preserve"><value>Updated</value></data>
+  <data name="Edit.Index.Manage.Empty" xml:space="preserve"><value>No indexes yet.</value></data>
+  <data name="Edit.Index.Manage.Update" xml:space="preserve"><value>Update</value></data>
+  <data name="Edit.Index.Manage.Delete" xml:space="preserve"><value>Delete Selected</value></data>
+  <data name="Edit.Index.Manage.DeleteAll" xml:space="preserve"><value>Delete All</value></data>
+  <data name="Edit.Index.Manage.Close" xml:space="preserve"><value>Close</value></data>
+  <data name="Edit.Index.Manage.Unreadable" xml:space="preserve"><value>(unreadable index: damaged or from another Windows account)</value></data>
+  <data name="Edit.Index.Manage.SizeKb" xml:space="preserve"><value>{0} KB</value></data>
+  <data name="Edit.Index.Manage.SizeMb" xml:space="preserve"><value>{0} MB</value></data>
+  <data name="Edit.Index.Manage.DeleteConfirm" xml:space="preserve"><value>Delete the index of {0}? The PDF files stay untouched.</value></data>
+  <data name="Edit.Index.Manage.DeleteAllConfirm" xml:space="preserve"><value>Delete all indexes? The PDF files stay untouched.</value></data>
+  <data name="Edit.Index.Manage.FolderMissing" xml:space="preserve"><value>The folder {0} no longer exists. You can delete its index.</value></data>
 </root>

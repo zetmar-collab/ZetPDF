@@ -15,13 +15,19 @@ public sealed record IndexedFile(string RelativePath, long Size, long ModifiedUt
 /// <summary>Indeks folderu (wczytany z pliku).</summary>
 public sealed class FolderIndex
 {
-    public FolderIndex(string root, bool recursive, DateTime builtUtc, IReadOnlyList<IndexedFile> files)
+    private readonly int? _fileCount;
+
+    public FolderIndex(string root, bool recursive, DateTime builtUtc, IReadOnlyList<IndexedFile> files, int? fileCount = null)
     {
         Root = root;
         Recursive = recursive;
         BuiltUtc = builtUtc;
         Files = files;
+        _fileCount = fileCount;
     }
+
+    /// <summary>Liczba plików w indeksie (znana także po odczycie samego nagłówka).</summary>
+    public int FileCount => _fileCount ?? Files.Count;
 
     public string Root { get; }
     public bool Recursive { get; }
@@ -29,6 +35,9 @@ public sealed class FolderIndex
     public IReadOnlyList<IndexedFile> Files { get; }
     public string FullPath(IndexedFile f) => Path.Combine(Root, f.RelativePath);
 }
+
+/// <summary>Plik indeksu na liście w oknie zarządzania. Root == null: plik nieczytelny (uszkodzony lub z innego konta) – można go tylko usunąć.</summary>
+public sealed record IndexEntry(string FilePath, string? Root, bool Recursive, DateTime? BuiltUtc, int FileCount, long SizeBytes);
 
 public sealed record IndexBuildResult(FolderIndex Index, int Indexed, int Reused, int Removed, IReadOnlyList<string> Encrypted, IReadOnlyList<string> Failed);
 
@@ -47,7 +56,8 @@ public sealed record FullTextHit(string Source, string DisplayName, int PageInde
 }
 
 /// <summary>
-/// Indeks pełnotekstowy folderu: tekst stron PDF (PdfPig) w lokalnym pliku (GZip) w %LOCALAPPDATA%\ZetPDF\index,
+/// Indeks pełnotekstowy folderu: tekst stron PDF (PdfPig) w lokalnym pliku (GZip, chroniony DPAPI – bieżący użytkownik)
+/// w %LOCALAPPDATA%\ZetPDF\index,
 /// budowany w tle z postępem i anulowaniem, aktualizowany przyrostowo (rozmiar + data modyfikacji).
 /// Wyszukiwanie = przegląd znormalizowanego tekstu w pamięci (frazy, fragmenty słów, bez wielkości liter,
 /// opcjonalnie bez znaków diakrytycznych). Wybór zamiast SQLite FTS5: brak natywnych bibliotek (single-file),
@@ -58,6 +68,12 @@ public sealed class FullTextIndex
     private const string Magic = "ZIDX";
     private const int FormatVersion = 1;
     private const int ContextChars = 40;
+    private const int MaxHeaderBytes = 1024 * 1024;
+
+    /// <summary>Format chroniony: znacznik, długość nagłówka, DPAPI(nagłówek), DPAPI(GZip listy plików). Stary format (sam GZip) zaczyna się od 1F 8B.</summary>
+    private static readonly byte[] ProtectedMagic = "ZIDXDP2\n"u8.ToArray();
+    private static readonly byte[] HeaderEntropy = "ZetPDF.Index.Header.2"u8.ToArray();
+    private static readonly byte[] BodyEntropy = "ZetPDF.Index.Body.2"u8.ToArray();
 
     public FullTextIndex(string indexDirectory) => IndexDirectory = indexDirectory;
 
@@ -178,16 +194,18 @@ public sealed class FullTextIndex
         Directory.CreateDirectory(IndexDirectory);
         var target = IndexFileFor(index.Root);
         var temp = target + "." + Guid.NewGuid().ToString("N")[..8] + ".tmp";
-        using (var fs = new FileStream(temp, FileMode.CreateNew, FileAccess.Write))
-        using (var gz = new GZipStream(fs, CompressionLevel.Fastest))
-        using (var w = new BinaryWriter(gz, Encoding.UTF8))
+        var header = new MemoryStream();
+        using (var w = new BinaryWriter(header, Encoding.UTF8, leaveOpen: true))
         {
-            w.Write(Magic);
-            w.Write(FormatVersion);
             w.Write(index.Root);
             w.Write(index.Recursive);
             w.Write(index.BuiltUtc.Ticks);
             w.Write(index.Files.Count);
+        }
+        var body = new MemoryStream();
+        using (var gz = new GZipStream(body, CompressionLevel.Fastest, leaveOpen: true))
+        using (var w = new BinaryWriter(gz, Encoding.UTF8))
+        {
             foreach (var f in index.Files)
             {
                 w.Write(f.RelativePath);
@@ -199,14 +217,94 @@ public sealed class FullTextIndex
                 foreach (var p in f.Pages) w.Write(p);
             }
         }
-        File.Move(temp, target, overwrite: true);
+        var protectedHeader = ProtectedData.Protect(header.ToArray(), HeaderEntropy, DataProtectionScope.CurrentUser);
+        var protectedBody = ProtectedData.Protect(body.ToArray(), BodyEntropy, DataProtectionScope.CurrentUser);
+        try
+        {
+            using (var fs = new FileStream(temp, FileMode.CreateNew, FileAccess.Write))
+            {
+                fs.Write(ProtectedMagic);
+                fs.Write(BitConverter.GetBytes(protectedHeader.Length));
+                fs.Write(protectedHeader);
+                fs.Write(protectedBody);
+            }
+            File.Move(temp, target, overwrite: true);
+        }
+        finally
+        {
+            TryDeleteFile(temp);
+        }
+    }
+
+    private static void TryDeleteFile(string path)
+    {
+        try { if (File.Exists(path)) File.Delete(path); }
+        catch (IOException) { }
+        catch (UnauthorizedAccessException) { }
     }
 
     /// <summary>Wczytuje indeks folderu (null, gdy brak lub plik nieczytelny/innej wersji).</summary>
     public FolderIndex? Load(string folder)
     {
         var path = IndexFileFor(folder);
-        return File.Exists(path) ? Read(path, headerOnly: false) : null;
+        if (!File.Exists(path)) return null;
+        var index = Read(path, headerOnly: false);
+        if (index is not null && !IsProtectedFile(path)) TryProtectLegacy(index);
+        return index;
+    }
+
+    /// <summary>
+    /// Pliki starego formatu (tekst tylko w GZip): czytelne przepisywane na format chroniony, nieczytelne usuwane (indeks i tak zbuduje
+    /// się od nowa). Sprząta też stare pliki tymczasowe, które mogły zawierać jawny tekst. Wołane w tle przy starcie.
+    /// </summary>
+    public void ProtectLegacyFiles()
+    {
+        try
+        {
+            if (!Directory.Exists(IndexDirectory)) return;
+            foreach (var path in Directory.GetFiles(IndexDirectory, "*.zidx"))
+            {
+                if (IsProtectedFile(path)) continue;
+                var index = Read(path, headerOnly: false);
+                if (index is null || !TryProtectLegacy(index)) TryDeleteFile(path);
+            }
+            foreach (var temp in Directory.GetFiles(IndexDirectory, "*.tmp"))
+            {
+                if (DateTime.UtcNow - File.GetLastWriteTimeUtc(temp) > TimeSpan.FromDays(1)) TryDeleteFile(temp);
+            }
+        }
+        catch (IOException) { }
+        catch (UnauthorizedAccessException) { }
+    }
+
+    private bool TryProtectLegacy(FolderIndex index)
+    {
+        try
+        {
+            Save(index);
+            return true;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or CryptographicException)
+        {
+            return false;
+        }
+    }
+
+    private static bool IsProtectedFile(string path)
+    {
+        try
+        {
+            using var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+            return HasProtectedMagic(fs);
+        }
+        catch (IOException) { return false; }
+        catch (UnauthorizedAccessException) { return false; }
+    }
+
+    private static bool HasProtectedMagic(Stream stream)
+    {
+        var magic = new byte[ProtectedMagic.Length];
+        return stream.ReadAtLeast(magic, magic.Length, throwOnEndOfStream: false) == magic.Length && magic.AsSpan().SequenceEqual(ProtectedMagic);
     }
 
     /// <summary>Foldery z indeksem (nagłówki plików indeksu).</summary>
@@ -217,10 +315,42 @@ public sealed class FullTextIndex
             .OrderBy(i => i.Root, StringComparer.CurrentCultureIgnoreCase).ToList();
     }
 
+    /// <summary>Wszystkie pliki indeksu z rozmiarem i datą (także nieczytelne, żeby dało się je usunąć).</summary>
+    public IReadOnlyList<IndexEntry> ListEntries()
+    {
+        if (!Directory.Exists(IndexDirectory)) return Array.Empty<IndexEntry>();
+        var entries = new List<IndexEntry>();
+        foreach (var path in Directory.EnumerateFiles(IndexDirectory, "*.zidx"))
+        {
+            long size;
+            try { size = new FileInfo(path).Length; }
+            catch (IOException) { continue; }
+            catch (UnauthorizedAccessException) { continue; }
+            var head = Read(path, headerOnly: true);
+            entries.Add(new IndexEntry(path, head?.Root, head?.Recursive ?? false, head?.BuiltUtc, head?.FileCount ?? 0, size));
+        }
+        return entries.OrderBy(e => e.Root is null).ThenBy(e => e.Root, StringComparer.CurrentCultureIgnoreCase).ToList();
+    }
+
     public void Delete(string folder)
     {
         var path = IndexFileFor(folder);
         if (File.Exists(path)) File.Delete(path);
+    }
+
+    /// <summary>Usuwa plik indeksu z listy; wyłącznie plik w folderze indeksów.</summary>
+    public void DeleteEntry(IndexEntry entry)
+    {
+        var full = Path.GetFullPath(entry.FilePath);
+        if (!string.Equals(Path.GetDirectoryName(full), Path.GetFullPath(IndexDirectory), StringComparison.OrdinalIgnoreCase)) throw new ArgumentException("Not an index file.", nameof(entry));
+        if (File.Exists(full)) File.Delete(full);
+    }
+
+    /// <summary>Usuwa wszystkie indeksy i pliki tymczasowe.</summary>
+    public void DeleteAll()
+    {
+        if (!Directory.Exists(IndexDirectory)) return;
+        foreach (var path in Directory.GetFiles(IndexDirectory, "*.zidx").Concat(Directory.GetFiles(IndexDirectory, "*.tmp"))) File.Delete(path);
     }
 
     private static FolderIndex? Read(string path, bool headerOnly)
@@ -228,37 +358,75 @@ public sealed class FullTextIndex
         try
         {
             using var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
-            using var gz = new GZipStream(fs, CompressionMode.Decompress);
-            using var r = new BinaryReader(gz, Encoding.UTF8);
-            if (r.ReadString() != Magic || r.ReadInt32() != FormatVersion) return null;
-            var root = r.ReadString();
-            bool recursive = r.ReadBoolean();
-            var built = new DateTime(r.ReadInt64(), DateTimeKind.Utc);
-            int count = r.ReadInt32();
-            if (count < 0) return null;
-            if (headerOnly) return new FolderIndex(root, recursive, built, Array.Empty<IndexedFile>());
-            // pojemność bez ufania licznikom z pliku (uszkodzony plik nie może wymusić ogromnej alokacji)
-            var files = new List<IndexedFile>(Math.Min(count, 4096));
-            for (int i = 0; i < count; i++)
-            {
-                var rel = r.ReadString();
-                long size = r.ReadInt64();
-                long ticks = r.ReadInt64();
-                var status = (IndexedFileStatus)r.ReadByte();
-                var error = r.ReadString();
-                int pages = r.ReadInt32();
-                if (pages < 0 || !Enum.IsDefined(status)) return null;
-                var list = new List<string>(Math.Min(pages, 4096));
-                for (int p = 0; p < pages; p++) list.Add(r.ReadString());
-                files.Add(new IndexedFile(rel, size, ticks, status, list, error.Length == 0 ? null : error));
-            }
-            return new FolderIndex(root, recursive, built, files);
+            if (HasProtectedMagic(fs)) return ReadProtected(fs, headerOnly);
+            fs.Position = 0;
+            return ReadLegacy(fs, headerOnly);
         }
         catch (Exception ex) when (ex is IOException or InvalidDataException or EndOfStreamException or UnauthorizedAccessException or FormatException
-                                   or ArgumentException or OverflowException or DecoderFallbackException)
+                                   or ArgumentException or OverflowException or DecoderFallbackException or CryptographicException)
         {
             return null;
         }
+    }
+
+    private static FolderIndex? ReadProtected(FileStream fs, bool headerOnly)
+    {
+        var lengthBytes = new byte[sizeof(int)];
+        fs.ReadExactly(lengthBytes);
+        int headerLength = BitConverter.ToInt32(lengthBytes);
+        if (headerLength <= 0 || headerLength > MaxHeaderBytes) return null;
+        var protectedHeader = new byte[headerLength];
+        fs.ReadExactly(protectedHeader);
+        using var header = new BinaryReader(new MemoryStream(ProtectedData.Unprotect(protectedHeader, HeaderEntropy, DataProtectionScope.CurrentUser)), Encoding.UTF8);
+        var root = header.ReadString();
+        bool recursive = header.ReadBoolean();
+        var built = new DateTime(header.ReadInt64(), DateTimeKind.Utc);
+        int count = header.ReadInt32();
+        if (count < 0) return null;
+        if (headerOnly) return new FolderIndex(root, recursive, built, Array.Empty<IndexedFile>(), count);
+        var protectedBody = new byte[fs.Length - fs.Position];
+        fs.ReadExactly(protectedBody);
+        var body = ProtectedData.Unprotect(protectedBody, BodyEntropy, DataProtectionScope.CurrentUser);
+        using var gz = new GZipStream(new MemoryStream(body), CompressionMode.Decompress);
+        using var r = new BinaryReader(gz, Encoding.UTF8);
+        var files = ReadFiles(r, count);
+        return files is null ? null : new FolderIndex(root, recursive, built, files);
+    }
+
+    /// <summary>Stary format: całość w GZip, bez ochrony.</summary>
+    private static FolderIndex? ReadLegacy(FileStream fs, bool headerOnly)
+    {
+        using var gz = new GZipStream(fs, CompressionMode.Decompress);
+        using var r = new BinaryReader(gz, Encoding.UTF8);
+        if (r.ReadString() != Magic || r.ReadInt32() != FormatVersion) return null;
+        var root = r.ReadString();
+        bool recursive = r.ReadBoolean();
+        var built = new DateTime(r.ReadInt64(), DateTimeKind.Utc);
+        int count = r.ReadInt32();
+        if (count < 0) return null;
+        if (headerOnly) return new FolderIndex(root, recursive, built, Array.Empty<IndexedFile>(), count);
+        var files = ReadFiles(r, count);
+        return files is null ? null : new FolderIndex(root, recursive, built, files);
+    }
+
+    private static List<IndexedFile>? ReadFiles(BinaryReader r, int count)
+    {
+        // pojemność bez ufania licznikom z pliku (uszkodzony plik nie może wymusić ogromnej alokacji)
+        var files = new List<IndexedFile>(Math.Min(count, 4096));
+        for (int i = 0; i < count; i++)
+        {
+            var rel = r.ReadString();
+            long size = r.ReadInt64();
+            long ticks = r.ReadInt64();
+            var status = (IndexedFileStatus)r.ReadByte();
+            var error = r.ReadString();
+            int pages = r.ReadInt32();
+            if (pages < 0 || !Enum.IsDefined(status)) return null;
+            var list = new List<string>(Math.Min(pages, 4096));
+            for (int p = 0; p < pages; p++) list.Add(r.ReadString());
+            files.Add(new IndexedFile(rel, size, ticks, status, list, error.Length == 0 ? null : error));
+        }
+        return files;
     }
 
     // ------------------------------------------------------------------ wyszukiwanie

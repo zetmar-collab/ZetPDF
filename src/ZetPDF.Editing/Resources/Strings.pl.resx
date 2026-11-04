@@ -320,4 +320,21 @@ Tak – z podfolderami, Nie – tylko ten folder.</value></data>
   <data name="Edit.Search.Column.Context" xml:space="preserve"><value>Kontekst</value></data>
   <data name="Edit.Text.CoverWarning" xml:space="preserve"><value>Starego tekstu w tej czcionce nie da się usunąć z pliku. Zostanie tylko zakryty białym prostokątem i nadal będzie można go odczytać lub wyszukać. Kontynuować?</value></data>
   <data name="Edit.FindReplace.CoverWarning" xml:space="preserve"><value>Starego tekstu w {0} liniach nie udało się usunąć z pliku. Jest tylko zakryty białym prostokątem i nadal można go odczytać lub wyszukać.</value></data>
+  <data name="Edit.Index.Privacy" xml:space="preserve"><value>Indeks przechowuje tekst dokumentów na tym dysku, zaszyfrowany dla Twojego konta Windows. Można go usunąć w oknie Zarządzaj indeksami.</value></data>
+  <data name="Edit.Index.Manage.Title" xml:space="preserve"><value>Zarządzanie indeksami</value></data>
+  <data name="Edit.Index.Manage.Folder" xml:space="preserve"><value>Folder</value></data>
+  <data name="Edit.Index.Manage.Documents" xml:space="preserve"><value>Dokumenty</value></data>
+  <data name="Edit.Index.Manage.Size" xml:space="preserve"><value>Rozmiar</value></data>
+  <data name="Edit.Index.Manage.Built" xml:space="preserve"><value>Aktualizacja</value></data>
+  <data name="Edit.Index.Manage.Empty" xml:space="preserve"><value>Nie ma jeszcze żadnych indeksów.</value></data>
+  <data name="Edit.Index.Manage.Update" xml:space="preserve"><value>Aktualizuj</value></data>
+  <data name="Edit.Index.Manage.Delete" xml:space="preserve"><value>Usuń wybrany</value></data>
+  <data name="Edit.Index.Manage.DeleteAll" xml:space="preserve"><value>Usuń wszystkie</value></data>
+  <data name="Edit.Index.Manage.Close" xml:space="preserve"><value>Zamknij</value></data>
+  <data name="Edit.Index.Manage.Unreadable" xml:space="preserve"><value>(indeks nieczytelny: uszkodzony lub z innego konta Windows)</value></data>
+  <data name="Edit.Index.Manage.SizeKb" xml:space="preserve"><value>{0} KB</value></data>
+  <data name="Edit.Index.Manage.SizeMb" xml:space="preserve"><value>{0} MB</value></data>
+  <data name="Edit.Index.Manage.DeleteConfirm" xml:space="preserve"><value>Usunąć indeks folderu {0}? Pliki PDF pozostaną bez zmian.</value></data>
+  <data name="Edit.Index.Manage.DeleteAllConfirm" xml:space="preserve"><value>Usunąć wszystkie indeksy? Pliki PDF pozostaną bez zmian.</value></data>
+  <data name="Edit.Index.Manage.FolderMissing" xml:space="preserve"><value>Folder {0} już nie istnieje. Możesz usunąć jego indeks.</value></data>
 </root>

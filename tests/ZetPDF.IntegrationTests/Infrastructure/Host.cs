@@ -97,6 +97,7 @@ internal sealed class FakeDialogService : IDialogService
     public Queue<string?> Passwords { get; } = new();
     public List<string> Messages { get; } = new();
     public List<string> Confirmations { get; } = new();
+    public List<string> Questions { get; } = new();
     public List<Exception> Errors { get; } = new();
     public List<Type> DialogsShown { get; } = new();
     public IReadOnlyList<string>? FilesToOpen { get; set; }
@@ -108,7 +109,7 @@ internal sealed class FakeDialogService : IDialogService
     public string? SelectFolder(string title, string? initialDirectory = null) => FolderToSelect;
     public void ShowMessage(string text, string? title = null, MessageSeverity severity = MessageSeverity.Info) => Messages.Add(text);
     public bool Confirm(string text, string? title = null, MessageSeverity severity = MessageSeverity.Warning) { Confirmations.Add(text); return ConfirmResult; }
-    public YesNoCancel AskYesNoCancel(string text, string? title = null) => YesNoCancel.No;
+    public YesNoCancel AskYesNoCancel(string text, string? title = null) { Questions.Add(text); return YesNoCancel.No; }
     public string? AskPassword(string documentName, bool isRetry) => Passwords.Count > 0 ? Passwords.Dequeue() : null;
 
     public async Task<bool> RunWithProgressAsync(string title, Func<IProgress<OperationProgress>, CancellationToken, Task> work, bool cancellable = true)

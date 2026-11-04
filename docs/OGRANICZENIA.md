@@ -227,3 +227,9 @@ Zbiorczo z `docs\ograniczenia\annotations-forms.md` (pkt 17–25), `renderer-vie
 - Kopia uruchomiona jako administrator i kopia zwykła nie łączą się (`CurrentUserOnly` sprawdza właściciela potoku) – działają osobno.
 - Wiadomość wysłana w chwili zamykania okna głównego, przed końcem procesu, może przepaść.
 - Hasło z `-pwd` jest widoczne na liście procesów jak dotąd; potok tego nie zmienia.
+
+### 27.3 Indeksy pełnotekstowe
+- DPAPI wiąże indeks z kontem Windows: na innym koncie lub po resecie hasła konta przez administratora indeks jest nieczytelny i trzeba go zbudować od nowa.
+- Przepisanie starego indeksu usuwa plik przez podmianę; jawne dane mogą fizycznie zostać na dysku (SSD, kopie w tle systemu), dopóki system ich nie nadpisze.
+- Dopóki program nie zostanie uruchomiony po aktualizacji, stare pliki indeksu pozostają jawne. Punkt 26.8 („bez usuwania z UI”) jest nieaktualny: usuwanie jest w oknie Zarządzaj indeksami.
+- Cały tekst indeksu jest w pamięci podczas zapisu i odczytu (DPAPI bez strumieniowania); limit jednego pliku indeksu to około 2 GB po kompresji.
