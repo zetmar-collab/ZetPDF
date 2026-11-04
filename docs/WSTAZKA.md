@@ -19,6 +19,7 @@
 | `File.CloseAll` | Zamknij wszystko | Close All | Shell (ui-shell) | Ctrl+Shift+W |
 | `File.Properties` | Właściwości dokumentu | Document Properties | Shell (ui-shell) | Ctrl+D |
 | `File.Print` | Drukuj | Print | Viewer (renderer-viewer) | Ctrl+P |
+| `File.BatchPrint` | Drukowanie wsadowe | Batch Print | Viewer (renderer-viewer) |  |
 | `File.CreateFromFile` | Z pliku | From File | Editing (edit-convert-ocr) | Ctrl+N |
 | `File.CombineFiles` | Połącz pliki | Combine Files | Editing (edit-convert-ocr) |  |
 | `File.CreateBlank` | Pusty dokument | Blank Document | Pages (pages-engine) |  |
@@ -64,14 +65,20 @@
 | `Convert.Create` Utwórz | `File.CombineFiles` | Połącz pliki | Combine Files | Editing (edit-convert-ocr) | Button |  |  |
 | `Convert.Create` Utwórz | `File.CreateBlank` | Pusty dokument | Blank Document | Pages (pages-engine) | Button |  |  |
 | `Convert.Create` Utwórz | `File.CreateFromClipboard` | Ze schowka | From Clipboard | Editing (edit-convert-ocr) | Button |  |  |
+| `Convert.Create` Utwórz | `File.CreateFromScanner` | Ze skanera | From Scanner | Editing (edit-convert-ocr) | Button |  |  |
+| `Convert.Create` Utwórz | `File.CreateFromWeb` | Ze strony WWW | From Web Page | Editing (edit-convert-ocr) | Button |  |  |
 | `Convert.Export` Eksport | `Convert.ToImages` | Do obrazów | To Images | Editing (edit-convert-ocr) | Button |  |  |
 | `Convert.Export` Eksport | `Convert.ToText` | Do tekstu (TXT) | To Text (TXT) | Editing (edit-convert-ocr) | Button |  |  |
 | `Convert.Export` Eksport | `Convert.ToDocx` | Do Word (DOCX) | To Word (DOCX) | Editing (edit-convert-ocr) | Button |  |  |
+| `Convert.Export` Eksport | `Convert.ToXlsx` | Do Excela (XLSX) | To Excel (XLSX) | Editing (edit-convert-ocr) | Button |  |  |
+| `Convert.Export` Eksport | `Convert.ToHtml` | Do HTML | To HTML | Editing (edit-convert-ocr) | Button |  |  |
 | `Convert.Ocr` OCR | `Ocr.RecognizeDocument` | Rozpoznaj tekst (OCR) | Recognize Text (OCR) | Editing (edit-convert-ocr) | Button |  |  |
 | `Convert.Ocr` OCR | `Ocr.RecognizeRegion` | OCR zaznaczonego obszaru | OCR Selected Area | Editing (edit-convert-ocr) | Button |  |  |
 | `Convert.Ocr` OCR | `Ocr.QuickRecognize` | Szybkie rozpoznawanie | Quick Recognition | Editing (edit-convert-ocr) | Button |  |  |
 | `Convert.Ocr` OCR | `Ocr.SuspectResults` | Podejrzane wyniki | Suspect Results | Editing (edit-convert-ocr) | Button |  |  |
 | `Convert.Color` Kolor | `Convert.Grayscale` | Skala szarości | Grayscale | Pages (pages-engine) | Button |  |  |
+| `Convert.Standards` Standardy | `Convert.ToPdfA` | Konwertuj do PDF/A | Convert to PDF/A | Editing (edit-convert-ocr) | Button |  |  |
+| `Convert.Standards` Standardy | `Convert.CheckPdfA` | Sprawdź zgodność z PDF/A | Check PDF/A Compliance | Editing (edit-convert-ocr) | Button |  |  |
 
 ## Karta `Edit` – Edytuj / Edit
 
@@ -187,6 +194,7 @@
 | `View.Find` Wyszukiwanie | `Nav.FindPrevious` | Znajdź poprzedni | Find Previous | Viewer (renderer-viewer) | Button | Shift+F3 |  |
 | `View.Find` Wyszukiwanie | `Index.Search` | Wyszukiwanie zaawansowane | Advanced Search | Editing (edit-convert-ocr) | Button | Ctrl+Shift+F |  |
 | `View.Find` Wyszukiwanie | `Index.BuildFolder` | Indeks pełnotekstowy folderu | Full-text Index of Folder | Editing (edit-convert-ocr) | Button |  |  |
+| `View.Find` Wyszukiwanie | `Index.Manage` | Zarządzaj indeksami | Manage Indexes | Editing (edit-convert-ocr) | Button |  |  |
 | `View.Compare` Porównanie | `Compare.Start` | Porównaj dokumenty | Compare Documents | Security (security-signatures) | Button |  |  |
 | `View.Compare` Porównanie | `View.ParallelView` | Widok równoległy | Parallel View | Viewer (renderer-viewer) | Toggle |  |  |
 | `View.Compare` Porównanie | `View.SyncScroll` | Synchronizuj widoki | Synchronize Views | Viewer (renderer-viewer) | Toggle |  |  |
@@ -201,6 +209,7 @@
 | `View.Panels` Panele | `View.PanelComments` | Komentarze | Comments | Shell (ui-shell) | Button |  |  |
 | `View.Panels` Panele | `View.PanelAttachments` | Załączniki | Attachments | Shell (ui-shell) | Button |  |  |
 | `View.Panels` Panele | `View.PanelSignatures` | Podpisy | Signatures | Shell (ui-shell) | Button |  |  |
+| `View.Panels` Panele | `View.PanelLayers` | Warstwy | Layers | Viewer (renderer-viewer) | Button |  |  |
 | `View.Panels` Panele | `View.ToggleRibbon` | Zwiń wstążkę | Collapse Ribbon | Shell (ui-shell) | Toggle | Ctrl+F11 |  |
 
 ## Karta `Form` – Formularz / Form
@@ -220,6 +229,7 @@
 | `Form.Design` Projektowanie | `Form.TabOrder` | Kolejność tabulacji | Tab Order | Annotations (annotations-forms) | Button |  |  |
 | `Form.Design` Projektowanie | `Form.HighlightFields` | Wyróżnij pola | Highlight Fields | Annotations (annotations-forms) | Toggle |  |  |
 | `Form.Design` Projektowanie | `Form.JavaScript` | Skrypty formularza | Form Scripts | Annotations (annotations-forms) | Button |  |  |
+| `Form.Design` Projektowanie | `Form.RecognizeFields` | Rozpoznaj pola formularza | Recognize Form Fields | Annotations (annotations-forms) | Button |  |  |
 | `Form.Data` Dane | `Form.ImportData` | Importuj dane | Import Data | Annotations (annotations-forms) | Button |  |  |
 | `Form.Data` Dane | `Form.ExportData` | Eksportuj dane | Export Data | Annotations (annotations-forms) | Button |  |  |
 | `Form.Data` Dane | `Form.Reset` | Resetuj formularz | Reset Form | Annotations (annotations-forms) | Button |  |  |
@@ -249,6 +259,7 @@
 | `Access.Check` Sprawdzanie | `Access.FullCheck` | Pełne sprawdzenie | Full Check | Editing (edit-convert-ocr) | Button |  |  |
 | `Access.Check` Sprawdzanie | `Access.Report` | Raport ułatwień dostępu | Accessibility Report | Editing (edit-convert-ocr) | Button |  |  |
 | `Access.Check` Sprawdzanie | `Access.SetProperties` | Tytuł, język i tekst alternatywny | Title, Language & Alt Text | Editing (edit-convert-ocr) | Button |  |  |
+| `Access.Check` Sprawdzanie | `Access.AutoTag` | Automatyczne oznaczanie | Auto-Tag Document | Editing (edit-convert-ocr) | Button |  |  |
 | `Access.Read` Czytanie na głos | `Read.Activate` | Aktywuj czytanie | Activate Read Aloud | Viewer (renderer-viewer) | Toggle | Ctrl+Shift+Y |  |
 | `Access.Read` Czytanie na głos | `Read.CurrentPage` | Przeczytaj bieżącą stronę | Read Current Page | Viewer (renderer-viewer) | Button | Ctrl+Shift+V |  |
 | `Access.Read` Czytanie na głos | `Read.FromPage` | Czytaj od bieżącej strony | Read from Current Page | Viewer (renderer-viewer) | Button | Ctrl+Shift+B |  |
@@ -302,10 +313,10 @@
 | Moduł | Agent | Liczba |
 |---|---|---|
 | Shell | ui-shell | 25 |
-| Viewer | renderer-viewer | 37 |
+| Viewer | renderer-viewer | 39 |
 | Pages | pages-engine | 40 |
-| Annotations | annotations-forms | 56 |
-| Editing | edit-convert-ocr | 29 |
+| Annotations | annotations-forms | 57 |
+| Editing | edit-convert-ocr | 37 |
 | Security | security-signatures | 13 |
 
-Razem: 200 poleceń, 12 kart, 45 grup.
+Razem: 211 poleceń, 12 kart, 46 grup.

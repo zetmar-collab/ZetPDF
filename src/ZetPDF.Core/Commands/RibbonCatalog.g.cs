@@ -205,6 +205,17 @@ public static partial class RibbonCatalog
         new("Access.SetProperties", FeatureModuleId.Editing, CommandKind.Button, "\uE946", "", ""),
         new("Index.BuildFolder", FeatureModuleId.Editing, CommandKind.Button, "\uE8B7", "", ""),
         new("Index.Search", FeatureModuleId.Editing, CommandKind.Button, "\uE721", "Ctrl+Shift+F", ""),
+        new("File.CreateFromScanner", FeatureModuleId.Editing, CommandKind.Button, "\uE8FE", "", ""),
+        new("File.CreateFromWeb", FeatureModuleId.Editing, CommandKind.Button, "\uE774", "", ""),
+        new("File.BatchPrint", FeatureModuleId.Viewer, CommandKind.Button, "\uE749", "", ""),
+        new("Convert.ToXlsx", FeatureModuleId.Editing, CommandKind.Button, "\uE9F9", "", ""),
+        new("Convert.ToHtml", FeatureModuleId.Editing, CommandKind.Button, "\uE774", "", ""),
+        new("Convert.ToPdfA", FeatureModuleId.Editing, CommandKind.Button, "\uE8F1", "", ""),
+        new("Convert.CheckPdfA", FeatureModuleId.Editing, CommandKind.Button, "\uE9D5", "", ""),
+        new("Index.Manage", FeatureModuleId.Editing, CommandKind.Button, "\uE713", "", ""),
+        new("Access.AutoTag", FeatureModuleId.Editing, CommandKind.Button, "\uE8EC", "", ""),
+        new("Form.RecognizeFields", FeatureModuleId.Annotations, CommandKind.Button, "\uE8D2", "", ""),
+        new("View.PanelLayers", FeatureModuleId.Viewer, CommandKind.Button, "\uE81E", "", ""),
     };
 
     private static RibbonTabDescriptor[] CreateTabs() => new RibbonTabDescriptor[]
@@ -221,10 +232,11 @@ public static partial class RibbonCatalog
         }),
         new("Convert", false, new RibbonGroupDescriptor[]
         {
-            new("Convert.Create", new[] { "File.CreateFromFile", "File.CombineFiles", "File.CreateBlank", "File.CreateFromClipboard" }),
-            new("Convert.Export", new[] { "Convert.ToImages", "Convert.ToText", "Convert.ToDocx" }),
+            new("Convert.Create", new[] { "File.CreateFromFile", "File.CombineFiles", "File.CreateBlank", "File.CreateFromClipboard", "File.CreateFromScanner", "File.CreateFromWeb" }),
+            new("Convert.Export", new[] { "Convert.ToImages", "Convert.ToText", "Convert.ToDocx", "Convert.ToXlsx", "Convert.ToHtml" }),
             new("Convert.Ocr", new[] { "Ocr.RecognizeDocument", "Ocr.RecognizeRegion", "Ocr.QuickRecognize", "Ocr.SuspectResults" }),
             new("Convert.Color", new[] { "Convert.Grayscale" }),
+            new("Convert.Standards", new[] { "Convert.ToPdfA", "Convert.CheckPdfA" }),
         }),
         new("Edit", false, new RibbonGroupDescriptor[]
         {
@@ -252,15 +264,15 @@ public static partial class RibbonCatalog
             new("View.Layout", new[] { "View.SinglePage", "View.Continuous", "View.TwoPages", "View.TwoPagesContinuous" }),
             new("View.Mode", new[] { "View.ReadingMode", "View.FullScreen", "View.RotateLeft", "View.RotateRight" }),
             new("View.Navigation", new[] { "Nav.GoToPage", "Nav.FirstPage", "Nav.PreviousPage", "Nav.NextPage", "Nav.LastPage" }),
-            new("View.Find", new[] { "Nav.Find", "Nav.FindNext", "Nav.FindPrevious", "Index.Search", "Index.BuildFolder" }),
+            new("View.Find", new[] { "Nav.Find", "Nav.FindNext", "Nav.FindPrevious", "Index.Search", "Index.BuildFolder", "Index.Manage" }),
             new("View.Compare", new[] { "Compare.Start", "View.ParallelView", "View.SyncScroll" }),
             new("View.Read", new[] { "Read.Activate", "Read.CurrentPage", "Read.FromPage", "Read.Pause", "Read.Stop" }),
-            new("View.Panels", new[] { "View.TogglePanel", "View.PanelThumbnails", "View.PanelBookmarks", "View.PanelComments", "View.PanelAttachments", "View.PanelSignatures", "View.ToggleRibbon" }),
+            new("View.Panels", new[] { "View.TogglePanel", "View.PanelThumbnails", "View.PanelBookmarks", "View.PanelComments", "View.PanelAttachments", "View.PanelSignatures", "View.PanelLayers", "View.ToggleRibbon" }),
         }),
         new("Form", false, new RibbonGroupDescriptor[]
         {
             new("Form.Fields", new[] { "Form.TextField", "Form.CheckBox", "Form.RadioButton", "Form.ComboBox", "Form.ListBox", "Form.Button", "Form.SignatureField", "Form.DateField", "Form.BarcodeField" }),
-            new("Form.Design", new[] { "Tool.SelectAnnotation", "Form.TabOrder", "Form.HighlightFields", "Form.JavaScript" }),
+            new("Form.Design", new[] { "Tool.SelectAnnotation", "Form.TabOrder", "Form.HighlightFields", "Form.JavaScript", "Form.RecognizeFields" }),
             new("Form.Data", new[] { "Form.ImportData", "Form.ExportData", "Form.Reset" }),
         }),
         new("Protect", false, new RibbonGroupDescriptor[]
@@ -272,7 +284,7 @@ public static partial class RibbonCatalog
         }),
         new("Accessibility", false, new RibbonGroupDescriptor[]
         {
-            new("Access.Check", new[] { "Access.FullCheck", "Access.Report", "Access.SetProperties" }),
+            new("Access.Check", new[] { "Access.FullCheck", "Access.Report", "Access.SetProperties", "Access.AutoTag" }),
             new("Access.Read", new[] { "Read.Activate", "Read.CurrentPage", "Read.FromPage", "Read.Pause", "Read.Stop" }),
         }),
         new("Help", false, new RibbonGroupDescriptor[]
@@ -300,6 +312,6 @@ public static partial class RibbonCatalog
         ["Stamp.Bates"] = new[] { "Stamp.Bates.Add", "Stamp.Bates.RemoveAll" },
     };
 
-    private static string[] CreateBackstage() => new[] { "File.Open", "File.Save", "File.SaveAs", "File.Revert", "File.Close", "File.CloseAll", "File.Properties", "File.Print", "File.CreateFromFile", "File.CombineFiles", "File.CreateBlank", "File.CreateFromClipboard", "File.OptimizeReduceSize", "File.OptimizeAdvanced", "File.ActionWizard", "File.Settings", "File.Exit" };
+    private static string[] CreateBackstage() => new[] { "File.Open", "File.Save", "File.SaveAs", "File.Revert", "File.Close", "File.CloseAll", "File.Properties", "File.Print", "File.BatchPrint", "File.CreateFromFile", "File.CombineFiles", "File.CreateBlank", "File.CreateFromClipboard", "File.OptimizeReduceSize", "File.OptimizeAdvanced", "File.ActionWizard", "File.Settings", "File.Exit" };
     private static string[] CreateQuickAccess() => new[] { "File.Open", "File.Save", "Edit.Undo", "Edit.Redo", "File.Print" };
 }

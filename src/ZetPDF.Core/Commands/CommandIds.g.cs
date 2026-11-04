@@ -40,6 +40,12 @@ public static class CommandIds
         public const string OptimizeReduceSize = "File.OptimizeReduceSize";
         /// <summary>Optymalizacja zaawansowana / Advanced Optimization – moduł Pages.</summary>
         public const string OptimizeAdvanced = "File.OptimizeAdvanced";
+        /// <summary>Ze skanera / From Scanner – moduł Editing.</summary>
+        public const string CreateFromScanner = "File.CreateFromScanner";
+        /// <summary>Ze strony WWW / From Web Page – moduł Editing.</summary>
+        public const string CreateFromWeb = "File.CreateFromWeb";
+        /// <summary>Drukowanie wsadowe / Batch Print – moduł Viewer.</summary>
+        public const string BatchPrint = "File.BatchPrint";
     }
 
     public static class Edit
@@ -146,6 +152,8 @@ public static class CommandIds
         public const string ParallelView = "View.ParallelView";
         /// <summary>Synchronizuj widoki / Synchronize Views – moduł Viewer.</summary>
         public const string SyncScroll = "View.SyncScroll";
+        /// <summary>Warstwy / Layers – moduł Viewer.</summary>
+        public const string PanelLayers = "View.PanelLayers";
     }
 
     public static class Nav
@@ -180,6 +188,14 @@ public static class CommandIds
         public const string ToDocx = "Convert.ToDocx";
         /// <summary>Skala szarości / Grayscale – moduł Pages.</summary>
         public const string Grayscale = "Convert.Grayscale";
+        /// <summary>Do Excela (XLSX) / To Excel (XLSX) – moduł Editing.</summary>
+        public const string ToXlsx = "Convert.ToXlsx";
+        /// <summary>Do HTML / To HTML – moduł Editing.</summary>
+        public const string ToHtml = "Convert.ToHtml";
+        /// <summary>Konwertuj do PDF/A / Convert to PDF/A – moduł Editing.</summary>
+        public const string ToPdfA = "Convert.ToPdfA";
+        /// <summary>Sprawdź zgodność z PDF/A / Check PDF/A Compliance – moduł Editing.</summary>
+        public const string CheckPdfA = "Convert.CheckPdfA";
     }
 
     public static class Ocr
@@ -366,6 +382,8 @@ public static class CommandIds
         public const string BarcodeField = "Form.BarcodeField";
         /// <summary>Skrypty formularza / Form Scripts – moduł Annotations.</summary>
         public const string JavaScript = "Form.JavaScript";
+        /// <summary>Rozpoznaj pola formularza / Recognize Form Fields – moduł Annotations.</summary>
+        public const string RecognizeFields = "Form.RecognizeFields";
     }
 
     public static class FillSign
@@ -490,6 +508,8 @@ public static class CommandIds
         public const string Report = "Access.Report";
         /// <summary>Tytuł, język i tekst alternatywny / Title, Language &amp; Alt Text – moduł Editing.</summary>
         public const string SetProperties = "Access.SetProperties";
+        /// <summary>Automatyczne oznaczanie / Auto-Tag Document – moduł Editing.</summary>
+        public const string AutoTag = "Access.AutoTag";
     }
 
     public static class Index
@@ -498,6 +518,8 @@ public static class CommandIds
         public const string BuildFolder = "Index.BuildFolder";
         /// <summary>Wyszukiwanie zaawansowane / Advanced Search – moduł Editing.</summary>
         public const string Search = "Index.Search";
+        /// <summary>Zarządzaj indeksami / Manage Indexes – moduł Editing.</summary>
+        public const string Manage = "Index.Manage";
     }
 
 }

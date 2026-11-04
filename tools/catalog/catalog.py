@@ -252,6 +252,19 @@ cmd("Access.SetProperties", EDIT, "", "", B, "E946", "Tytuł, język i tekst alt
 cmd("Index.BuildFolder", EDIT, "", "", B, "E8B7", "Indeks pełnotekstowy folderu", "Full-text Index of Folder")
 cmd("Index.Search", EDIT, "Ctrl+Shift+F", "", B, "E721", "Wyszukiwanie zaawansowane", "Advanced Search")
 
+# ---- Rozbudowa po etapie 3
+cmd("File.CreateFromScanner", EDIT, "", "", B, "E8FE", "Ze skanera", "From Scanner")
+cmd("File.CreateFromWeb", EDIT, "", "", B, "E774", "Ze strony WWW", "From Web Page")
+cmd("File.BatchPrint", VIEWER, "", "", B, "E749", "Drukowanie wsadowe", "Batch Print")
+cmd("Convert.ToXlsx", EDIT, "", "", B, "E9F9", "Do Excela (XLSX)", "To Excel (XLSX)")
+cmd("Convert.ToHtml", EDIT, "", "", B, "E774", "Do HTML", "To HTML")
+cmd("Convert.ToPdfA", EDIT, "", "", B, "E8F1", "Konwertuj do PDF/A", "Convert to PDF/A")
+cmd("Convert.CheckPdfA", EDIT, "", "", B, "E9D5", "Sprawdź zgodność z PDF/A", "Check PDF/A Compliance")
+cmd("Index.Manage", EDIT, "", "", B, "E713", "Zarządzaj indeksami", "Manage Indexes")
+cmd("Access.AutoTag", EDIT, "", "", B, "E8EC", "Automatyczne oznaczanie", "Auto-Tag Document")
+cmd("Form.RecognizeFields", ANNOT, "", "", B, "E8D2", "Rozpoznaj pola formularza", "Recognize Form Fields")
+cmd("View.PanelLayers", VIEWER, "", "", B, "E81E", "Warstwy", "Layers")
+
 # Menu: dzieci poleceń typu Menu (rozwijane)
 MENUS = {
     "Stamp.Watermark": ["Stamp.Watermark.Add", "Stamp.Watermark.Update", "Stamp.Watermark.RemoveAll"],
@@ -273,10 +286,11 @@ TABS = [
         ("Home.Sign", "Podpis", "Sign", ["FillSign.Open"]),
     ]),
     ("Convert", False, "Konwertuj", "Convert", [
-        ("Convert.Create", "Utwórz", "Create", ["File.CreateFromFile", "File.CombineFiles", "File.CreateBlank", "File.CreateFromClipboard"]),
-        ("Convert.Export", "Eksport", "Export", ["Convert.ToImages", "Convert.ToText", "Convert.ToDocx"]),
+        ("Convert.Create", "Utwórz", "Create", ["File.CreateFromFile", "File.CombineFiles", "File.CreateBlank", "File.CreateFromClipboard", "File.CreateFromScanner", "File.CreateFromWeb"]),
+        ("Convert.Export", "Eksport", "Export", ["Convert.ToImages", "Convert.ToText", "Convert.ToDocx", "Convert.ToXlsx", "Convert.ToHtml"]),
         ("Convert.Ocr", "OCR", "OCR", ["Ocr.RecognizeDocument", "Ocr.RecognizeRegion", "Ocr.QuickRecognize", "Ocr.SuspectResults"]),
         ("Convert.Color", "Kolor", "Color", ["Convert.Grayscale"]),
+        ("Convert.Standards", "Standardy", "Standards", ["Convert.ToPdfA", "Convert.CheckPdfA"]),
     ]),
     ("Edit", False, "Edytuj", "Edit", [
         ("Edit.Content", "Edycja treści", "Content Editing", ["Edit.EditText", "Edit.EditObject", "Edit.AddText", "Edit.AddImage", "Edit.AddShape", "Edit.FindReplace"]),
@@ -300,14 +314,14 @@ TABS = [
         ("View.Layout", "Układ stron", "Page Layout", ["View.SinglePage", "View.Continuous", "View.TwoPages", "View.TwoPagesContinuous"]),
         ("View.Mode", "Tryb", "Mode", ["View.ReadingMode", "View.FullScreen", "View.RotateLeft", "View.RotateRight"]),
         ("View.Navigation", "Nawigacja", "Navigation", ["Nav.GoToPage", "Nav.FirstPage", "Nav.PreviousPage", "Nav.NextPage", "Nav.LastPage"]),
-        ("View.Find", "Wyszukiwanie", "Find", ["Nav.Find", "Nav.FindNext", "Nav.FindPrevious", "Index.Search", "Index.BuildFolder"]),
+        ("View.Find", "Wyszukiwanie", "Find", ["Nav.Find", "Nav.FindNext", "Nav.FindPrevious", "Index.Search", "Index.BuildFolder", "Index.Manage"]),
         ("View.Compare", "Porównanie", "Compare", ["Compare.Start", "View.ParallelView", "View.SyncScroll"]),
         ("View.Read", "Czytanie na głos", "Read Aloud", ["Read.Activate", "Read.CurrentPage", "Read.FromPage", "Read.Pause", "Read.Stop"]),
-        ("View.Panels", "Panele", "Panels", ["View.TogglePanel", "View.PanelThumbnails", "View.PanelBookmarks", "View.PanelComments", "View.PanelAttachments", "View.PanelSignatures", "View.ToggleRibbon"]),
+        ("View.Panels", "Panele", "Panels", ["View.TogglePanel", "View.PanelThumbnails", "View.PanelBookmarks", "View.PanelComments", "View.PanelAttachments", "View.PanelSignatures", "View.PanelLayers", "View.ToggleRibbon"]),
     ]),
     ("Form", False, "Formularz", "Form", [
         ("Form.Fields", "Pola formularza", "Form Fields", ["Form.TextField", "Form.CheckBox", "Form.RadioButton", "Form.ComboBox", "Form.ListBox", "Form.Button", "Form.SignatureField", "Form.DateField", "Form.BarcodeField"]),
-        ("Form.Design", "Projektowanie", "Design", ["Tool.SelectAnnotation", "Form.TabOrder", "Form.HighlightFields", "Form.JavaScript"]),
+        ("Form.Design", "Projektowanie", "Design", ["Tool.SelectAnnotation", "Form.TabOrder", "Form.HighlightFields", "Form.JavaScript", "Form.RecognizeFields"]),
         ("Form.Data", "Dane", "Data", ["Form.ImportData", "Form.ExportData", "Form.Reset"]),
     ]),
     ("Protect", False, "Ochrona", "Protect", [
@@ -317,7 +331,7 @@ TABS = [
         ("Protect.Signatures", "Podpisy", "Signatures", ["FillSign.Open", "Sign.PlaceSignature", "Sign.Validate", "Sign.Timestamp", "Sign.DigitalIds"]),
     ]),
     ("Accessibility", False, "Ułatwienia dostępu", "Accessibility", [
-        ("Access.Check", "Sprawdzanie", "Check", ["Access.FullCheck", "Access.Report", "Access.SetProperties"]),
+        ("Access.Check", "Sprawdzanie", "Check", ["Access.FullCheck", "Access.Report", "Access.SetProperties", "Access.AutoTag"]),
         ("Access.Read", "Czytanie na głos", "Read Aloud", ["Read.Activate", "Read.CurrentPage", "Read.FromPage", "Read.Pause", "Read.Stop"]),
     ]),
     ("Help", False, "Pomoc", "Help", [
@@ -335,7 +349,7 @@ TABS = [
 ]
 # Plik (backstage) – polecenia pokazywane w menu Plik, w tej kolejności (ostatnie pliki dodaje powłoka)
 BACKSTAGE = ["File.Open", "File.Save", "File.SaveAs", "File.Revert", "File.Close", "File.CloseAll", "File.Properties",
-             "File.Print", "File.CreateFromFile", "File.CombineFiles", "File.CreateBlank", "File.CreateFromClipboard",
+             "File.Print", "File.BatchPrint", "File.CreateFromFile", "File.CombineFiles", "File.CreateBlank", "File.CreateFromClipboard",
              "File.OptimizeReduceSize", "File.OptimizeAdvanced", "File.ActionWizard", "File.Settings", "File.Exit"]
 QAT = ["File.Open", "File.Save", "Edit.Undo", "Edit.Redo", "File.Print"]
 
