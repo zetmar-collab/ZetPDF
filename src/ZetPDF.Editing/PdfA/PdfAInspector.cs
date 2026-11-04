@@ -187,10 +187,11 @@ internal static class PdfAInspector
     /// </summary>
     private static void ReadActions(PdfDocument doc, PdfAFacts f)
     {
+        var structure = PdfATree.StructureElements(doc);
         foreach (var d in PdfATree.Dictionaries(doc))
         {
             if (d.Elements.ContainsKey("/AA")) f.CatalogAdditionalActions++;
-            if (!IsForbiddenAction(d)) continue;
+            if (!IsForbiddenAction(d, structure)) continue;
             var s = d.Elements.GetName("/S");
             if (s == "/JavaScript") f.JavaScript++;
             else { f.ForbiddenActions++; if (f.ActionNames.Count < 8) f.ActionNames.Add(s.TrimStart('/')); }
@@ -199,19 +200,20 @@ internal static class PdfAInspector
         if (f.JavaScript == 0 && PdfObjects.Resolve(doc.Internals.Catalog.Elements["/Names"]) is PdfDictionary names && names.Elements.ContainsKey("/JavaScript")) f.JavaScript = 1;
     }
 
+    /// <summary>Klucze niosące działanie akcji. Element struktury z którymkolwiek z nich traktujemy jak akcję.</summary>
+    private static readonly string[] ActionPayloadKeys = { "/JS", "/F", "/Win", "/Mac", "/Unix", "/URI", "/N", "/Sound", "/Movie", "/Annotation", "/AN", "/OP", "/Fields", "/State", "/Trans", "/3DD", "/V3D", "/Next" };
+
     /// <summary>
-    /// Akcja zabroniona. Klucz /S mają też inne słowniki (np. element struktury może mieć typ /Sound lub /Movie),
-    /// więc słowniki innego typu i elementy struktury nie są akcjami.
+    /// Akcja zabroniona. Klucze pomocnicze (/P, /K, /Type) nie zwalniają słownika, bo kontroluje je autor pliku. Klucz /S ma też element
+    /// struktury (typ może się nazywać np. /Sound), więc wyjątek dotyczy tylko słowników faktycznie osiągniętych z /StructTreeRoot
+    /// i bez ładunku akcji: taki słownik niczego nie wykona, nawet gdyby wskazywało go także /OpenAction.
     /// </summary>
-    internal static bool IsForbiddenAction(PdfDictionary a)
+    internal static bool IsForbiddenAction(PdfDictionary a, HashSet<PdfDictionary> structureElements)
     {
-        if (!a.Elements.ContainsKey("/S")) return false;
-        var type = a.Elements.GetName("/Type");
-        if (type.Length > 0 && type != "/Action") return false;
-        if (a.Elements.ContainsKey("/P") || a.Elements.ContainsKey("/K")) return false;
         var s = a.Elements.GetName("/S");
-        if (ForbiddenActionTypes.Contains(s)) return true;
-        return s == "/Named" && !AllowedNamedActions.Contains(a.Elements.GetName("/N").TrimStart('/'));
+        bool forbidden = ForbiddenActionTypes.Contains(s) || (s == "/Named" && !AllowedNamedActions.Contains(a.Elements.GetName("/N").TrimStart('/')));
+        if (!forbidden) return false;
+        return !structureElements.Contains(a) || ActionPayloadKeys.Any(a.Elements.ContainsKey);
     }
 
     private static void ReadPage(PdfPage page, int index, PdfAFacts f)
@@ -466,6 +468,27 @@ internal static class PdfATree
             {
                 foreach (var e in a.Elements)
                     if (e is PdfDictionary or PdfArray) stack.Push(e);
+            }
+        }
+        return result;
+    }
+
+    /// <summary>Elementy osiągnięte z /StructTreeRoot przez /K, iteracyjnie i ze zbiorem odwiedzonych.</summary>
+    public static HashSet<PdfDictionary> StructureElements(PdfDocument doc)
+    {
+        var result = new HashSet<PdfDictionary>(ReferenceEqualityComparer.Instance);
+        var seen = new HashSet<object>(ReferenceEqualityComparer.Instance);
+        var stack = new Stack<PdfItem?>();
+        if (PdfObjects.Resolve(doc.Internals.Catalog.Elements["/StructTreeRoot"]) is PdfDictionary root) stack.Push(root.Elements["/K"]);
+        while (stack.Count > 0)
+        {
+            var item = PdfObjects.Resolve(stack.Pop());
+            if (item is null || !seen.Add(item)) continue;
+            if (item is PdfArray list) { foreach (var e in list.Elements) stack.Push(e); }
+            else if (item is PdfDictionary d)
+            {
+                result.Add(d);
+                stack.Push(d.Elements["/K"]);
             }
         }
         return result;

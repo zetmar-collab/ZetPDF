@@ -14,7 +14,6 @@ internal static class PdfAFixer
         catalog.Elements.Remove("/AA");
         catalog.Elements.Remove("/Version");
         catalog.Elements.Remove("/Perms");
-        CleanAction(catalog, "/OpenAction");
         if (PdfObjects.Resolve(catalog.Elements["/Names"]) is PdfDictionary names)
             foreach (var key in new[] { "/JavaScript", "/EmbeddedFiles", "/Renditions", "/AlternatePresentations" }) names.Elements.Remove(key);
         if (PdfObjects.Resolve(catalog.Elements["/AcroForm"]) is PdfDictionary acro)
@@ -22,7 +21,6 @@ internal static class PdfAFixer
             acro.Elements.Remove("/XFA");
             acro.Elements.Remove("/NeedAppearances");
         }
-        CleanOutlines(catalog);
         FixOptionalContent(catalog);
 
         foreach (var page in doc.Pages)
@@ -32,9 +30,10 @@ internal static class PdfAFixer
             page.Elements.Remove("/Metadata");
             FixAnnotations(page);
         }
+        var structure = PdfATree.StructureElements(doc);
         foreach (var d in PdfATree.Dictionaries(doc))
         {
-            RemoveActions(d);
+            RemoveActions(d, structure);
             FixStream(d);
             FixGraphicsState(d);
         }
@@ -44,39 +43,18 @@ internal static class PdfAFixer
     /// Przegląd całego dokumentu, a nie tylko znanych miejsc: /AA i wpisy wskazujące akcje zabronione znikają też w drzewie pól
     /// /AcroForm i w obiektach nieoczywistych. Sama akcja przestaje być osiągalna, więc nie trafi do pliku.
     /// </summary>
-    private static void RemoveActions(PdfDictionary d)
+    private static void RemoveActions(PdfDictionary d, HashSet<PdfDictionary> structure)
     {
         d.Elements.Remove("/AA");
         foreach (var key in d.Elements.Keys.ToList())
         {
             var value = PdfObjects.Resolve(d.Elements[key]);
-            if (value is PdfDictionary a && PdfAInspector.IsForbiddenAction(a)) d.Elements.Remove(key);
+            if (value is PdfDictionary a && PdfAInspector.IsForbiddenAction(a, structure)) d.Elements.Remove(key);
             else if (value is PdfArray list)
             {
                 for (int i = list.Elements.Count - 1; i >= 0; i--)
-                    if (PdfObjects.Resolve(list.Elements[i]) is PdfDictionary e && PdfAInspector.IsForbiddenAction(e)) list.Elements.RemoveAt(i);
+                    if (PdfObjects.Resolve(list.Elements[i]) is PdfDictionary e && PdfAInspector.IsForbiddenAction(e, structure)) list.Elements.RemoveAt(i);
             }
-        }
-    }
-
-    private static void CleanAction(PdfDictionary owner, string key)
-    {
-        if (PdfObjects.Resolve(owner.Elements[key]) is not PdfDictionary a) return;
-        if (PdfAInspector.IsForbiddenAction(a)) owner.Elements.Remove(key);
-        else a.Elements.Remove("/Next");
-    }
-
-    private static void CleanOutlines(PdfDictionary catalog)
-    {
-        var seen = new HashSet<object>(ReferenceEqualityComparer.Instance);
-        var stack = new Stack<PdfItem?>();
-        stack.Push(catalog.Elements["/Outlines"]);
-        while (stack.Count > 0)
-        {
-            if (PdfObjects.Resolve(stack.Pop()) is not PdfDictionary d || !seen.Add(d)) continue;
-            CleanAction(d, "/A");
-            stack.Push(d.Elements["/First"]);
-            stack.Push(d.Elements["/Next"]);
         }
     }
 
@@ -107,7 +85,6 @@ internal static class PdfAFixer
         PdfObjects.RemoveAnnotations(page, a => PdfObjects.Subtype(a) == "/Popup" && PdfObjects.Resolve(a.Elements["/Parent"]) is PdfDictionary p && removed.Contains(p));
         foreach (var a in PdfObjects.Annotations(page))
         {
-            CleanAction(a, "/A");
             a.Elements.Remove("/AA");
             if (PdfObjects.Subtype(a) == "/Popup") continue;
             if (PdfObjects.Resolve(a.Elements["/Popup"]) is PdfDictionary pop && removed.Contains(pop)) a.Elements.Remove("/Popup");

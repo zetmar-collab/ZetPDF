@@ -321,7 +321,7 @@ public class PdfATests
             foreach (var d in PdfATree.Dictionaries(doc))
             {
                 Assert.False(d.Elements.ContainsKey("/AA"));
-                Assert.False(PdfAInspector.IsForbiddenAction(d));
+                Assert.False(PdfAInspector.IsForbiddenAction(d, PdfATree.StructureElements(doc)));
             }
             return 0;
         });
@@ -330,23 +330,94 @@ public class PdfATests
         AssertPassed(after, "Actions");
     }
 
-    [Fact]
-    public void Structure_elements_are_not_mistaken_for_actions()
+    /// <summary>Akcja JavaScript z dopisanymi /P, /K i /Type: autor pliku próbuje nie wyglądać jak akcja.</summary>
+    private static PdfDictionary DisguisedScript(PdfDocument doc)
     {
-        PdfSharpEdit.EnsureInitialized();
-        using var doc = new PdfDocument();
+        var js = new PdfDictionary(doc);
+        js.Elements["/S"] = new PdfName("/JavaScript");
+        js.Elements["/JS"] = new PdfString("app.alert(1)");
+        js.Elements["/P"] = new PdfInteger(1);
+        js.Elements["/K"] = new PdfInteger(1);
+        js.Elements["/Type"] = new PdfName("/StructElem");
+        doc.Internals.AddObject(js);
+        return js;
+    }
+
+    [Fact]
+    public async Task Disguised_script_in_open_action_and_field_is_reported_and_removed()
+    {
+        var input = PdfSharpEdit.Modify(SamplePdfFactory.Text(1), doc =>
+        {
+            doc.Internals.Catalog.Elements["/OpenAction"] = DisguisedScript(doc).Reference!;
+            var field = new PdfDictionary(doc);
+            field.Elements["/T"] = new PdfString("pole");
+            field.Elements["/FT"] = new PdfName("/Btn");
+            field.Elements["/A"] = DisguisedScript(doc).Reference!;
+            doc.Internals.AddObject(field);
+            var acro = new PdfDictionary(doc);
+            acro.Elements["/Fields"] = new PdfArray(doc, field.Reference!);
+            doc.Internals.Catalog.Elements["/AcroForm"] = acro;
+        });
+        AssertFailed(await _svc.CheckAsync(input), "JavaScript");
+        Assert.Equal(2, (await _svc.PlanAsync(input)).ActionsToRemove);
+        var pdf = await Convert(input);
+        Assert.DoesNotContain("/JavaScript", Latin(pdf));
+        Assert.DoesNotContain("app.alert", Latin(pdf));
+        AssertPassed(await _svc.CheckAsync(pdf), "JavaScript");
+    }
+
+    /// <summary>Drzewo struktury z elementami o podanych /S; drugi argument dokłada klucze do elementu.</summary>
+    private static byte[] WithStructure(string type, Action<PdfDocument, PdfDictionary>? extra = null) => PdfSharpEdit.Modify(SamplePdfFactory.Text(1), doc =>
+    {
         var element = new PdfDictionary(doc);
         element.Elements["/Type"] = new PdfName("/StructElem");
-        element.Elements["/S"] = new PdfName("/Sound");
-        Assert.False(PdfAInspector.IsForbiddenAction(element));
-        var untyped = new PdfDictionary(doc);
-        untyped.Elements["/S"] = new PdfName("/Movie");
-        untyped.Elements["/P"] = new PdfInteger(1);
-        Assert.False(PdfAInspector.IsForbiddenAction(untyped));
-        var action = new PdfDictionary(doc);
-        action.Elements["/Type"] = new PdfName("/Action");
-        action.Elements["/S"] = new PdfName("/Launch");
-        Assert.True(PdfAInspector.IsForbiddenAction(action));
+        element.Elements["/S"] = new PdfName(type);
+        element.Elements["/K"] = new PdfInteger(0);
+        doc.Internals.AddObject(element);
+        extra?.Invoke(doc, element);
+        var root = new PdfDictionary(doc);
+        root.Elements["/Type"] = new PdfName("/StructTreeRoot");
+        root.Elements["/K"] = element.Reference!;
+        doc.Internals.AddObject(root);
+        element.Elements["/P"] = root.Reference!;
+        doc.Internals.Catalog.Elements["/StructTreeRoot"] = root.Reference!;
+    });
+
+    [Theory]
+    [InlineData("/P")]
+    [InlineData("/Sound")]
+    [InlineData("/Movie")]
+    public async Task Structure_elements_are_not_mistaken_for_actions(string type)
+    {
+        var input = WithStructure(type);
+        var report = await _svc.CheckAsync(input);
+        AssertPassed(report, "Actions");
+        AssertPassed(report, "JavaScript");
+        // element zostaje w wyniku
+        var pdf = await Convert(input);
+        Assert.Contains(type, PdfSharpEdit.Read(pdf, d => ((PdfDictionary)PdfObjects.Resolve(((PdfDictionary)PdfObjects.Resolve(d.Internals.Catalog.Elements["/StructTreeRoot"])!).Elements["/K"])!).Elements.GetName("/S")));
+    }
+
+    [Fact]
+    public async Task Script_hidden_in_the_structure_tree_is_still_an_action()
+    {
+        var input = WithStructure("/JavaScript", (_, e) => e.Elements["/JS"] = new PdfString("app.alert(1)"));
+        AssertFailed(await _svc.CheckAsync(input), "JavaScript");
+    }
+
+    [Fact]
+    public async Task Same_type_outside_the_structure_tree_is_an_action()
+    {
+        var input = PdfSharpEdit.Modify(SamplePdfFactory.Text(1), doc =>
+        {
+            var sound = new PdfDictionary(doc);
+            sound.Elements["/S"] = new PdfName("/Sound");
+            sound.Elements["/K"] = new PdfInteger(0);
+            sound.Elements["/Type"] = new PdfName("/StructElem");
+            doc.Internals.AddObject(sound);
+            doc.Internals.Catalog.Elements["/OpenAction"] = sound.Reference!;
+        });
+        AssertFailed(await _svc.CheckAsync(input), "Actions");
     }
 
     // ------------------------------------------------------------------ konwersja
