@@ -126,14 +126,14 @@ public sealed class SanitizeService : ISanitizeService
         {
             if (PdfIo.Resolve(owner.Elements[key]) is not PdfDictionary action) continue;
             if (Matches(action, js, external)) { owner.Elements.Remove(key); removed++; }
-            else removed += StripNext(action, js, external, 0);
+            else removed += StripNext(action, js, external);
         }
         if (PdfIo.GetDict(owner, "/AA") is { } aa)
         {
             if (js)
             {
                 // akcje dodatkowe (wyzwalacze) to w praktyce JavaScript – usuwamy w całości, jeśli zawierają JS
-                if (aa.Elements.Values.Any(v => PdfIo.Resolve(v) is PdfDictionary ad && ContainsMatch(ad, true, false, 0))) { owner.Elements.Remove("/AA"); removed++; }
+                if (aa.Elements.Values.Any(v => PdfIo.Resolve(v) is PdfDictionary ad && ContainsMatch(ad, true, false))) { owner.Elements.Remove("/AA"); removed++; }
             }
             else
                 foreach (var k in aa.Elements.Keys.ToArray())
@@ -142,38 +142,55 @@ public sealed class SanitizeService : ISanitizeService
         return removed;
     }
 
-    private static int StripNext(PdfDictionary action, bool js, bool external, int depth)
+    /// <summary>Cały łańcuch /Next, iteracyjnie i ze zbiorem odwiedzonych: skrypt nie może się schować na dalekiej pozycji ani w cyklu.</summary>
+    private static int StripNext(PdfDictionary action, bool js, bool external)
     {
-        if (depth > 16) return 0;
         int removed = 0;
-        var next = PdfIo.Resolve(action.Elements["/Next"]);
-        if (next is PdfDictionary nd)
+        var seen = new HashSet<PdfDictionary>(ReferenceEqualityComparer.Instance);
+        var stack = new Stack<PdfDictionary>();
+        stack.Push(action);
+        while (stack.Count > 0)
         {
-            if (Matches(nd, js, external)) { action.Elements.Remove("/Next"); removed++; }
-            else removed += StripNext(nd, js, external, depth + 1);
-        }
-        else if (next is PdfArray arr)
-        {
-            for (int i = arr.Elements.Count - 1; i >= 0; i--)
-                if (PdfIo.Resolve(arr.Elements[i]) is PdfDictionary ad)
-                {
-                    if (Matches(ad, js, external)) { arr.Elements.RemoveAt(i); removed++; }
-                    else removed += StripNext(ad, js, external, depth + 1);
-                }
+            var current = stack.Pop();
+            if (!seen.Add(current)) continue;
+            var next = PdfIo.Resolve(current.Elements["/Next"]);
+            if (next is PdfDictionary nd)
+            {
+                if (Matches(nd, js, external)) { current.Elements.Remove("/Next"); removed++; }
+                else stack.Push(nd);
+            }
+            else if (next is PdfArray arr)
+            {
+                for (int i = arr.Elements.Count - 1; i >= 0; i--)
+                    if (PdfIo.Resolve(arr.Elements[i]) is PdfDictionary ad)
+                    {
+                        if (Matches(ad, js, external)) { arr.Elements.RemoveAt(i); removed++; }
+                        else stack.Push(ad);
+                    }
+            }
         }
         return removed;
     }
 
-    private static bool ContainsMatch(PdfDictionary action, bool js, bool external, int depth)
+    private static bool ContainsMatch(PdfDictionary action, bool js, bool external)
     {
-        if (depth > 16) return false;
-        if (Matches(action, js, external)) return true;
-        return PdfIo.Resolve(action.Elements["/Next"]) switch
+        var seen = new HashSet<PdfDictionary>(ReferenceEqualityComparer.Instance);
+        var stack = new Stack<PdfDictionary>();
+        stack.Push(action);
+        while (stack.Count > 0)
         {
-            PdfDictionary nd => ContainsMatch(nd, js, external, depth + 1),
-            PdfArray arr => arr.Elements.Any(e => PdfIo.Resolve(e) is PdfDictionary d && ContainsMatch(d, js, external, depth + 1)),
-            _ => false,
-        };
+            var current = stack.Pop();
+            if (!seen.Add(current)) continue;
+            if (Matches(current, js, external)) return true;
+            switch (PdfIo.Resolve(current.Elements["/Next"]))
+            {
+                case PdfDictionary nd: stack.Push(nd); break;
+                case PdfArray arr:
+                    foreach (var e in arr.Elements) if (PdfIo.Resolve(e) is PdfDictionary d) stack.Push(d);
+                    break;
+            }
+        }
+        return false;
     }
 
     private static bool Matches(PdfDictionary action, bool js, bool external)

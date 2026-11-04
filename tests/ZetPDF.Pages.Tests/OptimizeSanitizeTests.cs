@@ -73,6 +73,76 @@ public class OptimizeSanitizeTests
         Assert.Contains("/DeviceGray", Pdf.Deep(r));
     }
 
+    private static PdfSharp.Pdf.PdfDictionary Js(PdfSharp.Pdf.PdfDocument doc, bool disguised)
+    {
+        var a = new PdfSharp.Pdf.PdfDictionary(doc);
+        a.Elements["/S"] = new PdfSharp.Pdf.PdfName("/JavaScript");
+        a.Elements["/JS"] = new PdfSharp.Pdf.PdfString("zlosliwy()");
+        if (disguised)
+        {
+            a.Elements["/P"] = new PdfSharp.Pdf.PdfInteger(1);
+            a.Elements["/K"] = new PdfSharp.Pdf.PdfInteger(1);
+            a.Elements["/Type"] = new PdfSharp.Pdf.PdfName("/StructElem");
+        }
+        doc.Internals.AddObject(a);
+        return a;
+    }
+
+    private static PdfSharp.Pdf.PdfDictionary Goto(PdfSharp.Pdf.PdfDocument doc)
+    {
+        var a = new PdfSharp.Pdf.PdfDictionary(doc);
+        a.Elements["/S"] = new PdfSharp.Pdf.PdfName("/GoTo");
+        a.Elements["/D"] = new PdfSharp.Pdf.PdfArray(doc, doc.Pages[0].Reference!, new PdfSharp.Pdf.PdfName("/Fit"));
+        doc.Internals.AddObject(a);
+        return a;
+    }
+
+    /// <summary>Skrypty z dopisanymi kluczami w /OpenAction, w polu i w /AA pola, oraz daleko w łańcuchu /Next (także w cyklu).</summary>
+    [Theory]
+    [InlineData(false, 3)]
+    [InlineData(true, 3)]
+    [InlineData(true, 40)]
+    public async Task Sanitize_removes_javascript_regardless_of_keys_and_chain_length(bool disguised, int chainLength)
+    {
+        var input = ZetPDF.Core.Documents.PdfSharpEdit.Modify(SamplePdfFactory.Text(1), doc =>
+        {
+            var head = Goto(doc);
+            var current = head;
+            for (int i = 0; i < chainLength; i++)
+            {
+                var next = Goto(doc);
+                current.Elements["/Next"] = next.Reference!;
+                current = next;
+            }
+            current.Elements["/Next"] = new PdfSharp.Pdf.PdfArray(doc, Js(doc, disguised).Reference!, head.Reference!);
+            doc.Internals.Catalog.Elements["/OpenAction"] = head.Reference!;
+
+            var field = new PdfSharp.Pdf.PdfDictionary(doc);
+            field.Elements["/T"] = new PdfSharp.Pdf.PdfString("pole");
+            field.Elements["/A"] = Js(doc, disguised).Reference!;
+            var trigger = new PdfSharp.Pdf.PdfDictionary(doc);
+            var deep = Goto(doc);
+            var tail = deep;
+            for (int i = 0; i < chainLength; i++)
+            {
+                var next = Goto(doc);
+                tail.Elements["/Next"] = next.Reference!;
+                tail = next;
+            }
+            tail.Elements["/Next"] = Js(doc, disguised).Reference!;
+            trigger.Elements["/K"] = deep.Reference!;
+            field.Elements["/AA"] = trigger;
+            doc.Internals.AddObject(field);
+            var acro = new PdfSharp.Pdf.PdfDictionary(doc);
+            acro.Elements["/Fields"] = new PdfSharp.Pdf.PdfArray(doc, field.Reference!);
+            doc.Internals.Catalog.Elements["/AcroForm"] = acro;
+        });
+        var result = await new SanitizeService().SanitizeAsync(input, new SanitizeOptions());
+        var text = System.Text.Encoding.Latin1.GetString(result.Pdf);
+        Assert.DoesNotContain("/JavaScript", text);
+        Assert.DoesNotContain("zlosliwy", text);
+    }
+
     [Fact]
     public async Task Sanitize_removes_metadata_attachments_javascript_and_comments()
     {

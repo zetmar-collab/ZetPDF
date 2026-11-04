@@ -30,32 +30,51 @@ internal static class PdfAFixer
             page.Elements.Remove("/Metadata");
             FixAnnotations(page);
         }
-        var structure = PdfATree.StructureElements(doc);
+        var fields = PdfAActions.FieldTree(doc);
         foreach (var d in PdfATree.Dictionaries(doc))
         {
-            RemoveActions(d, structure);
+            RemoveActions(doc, d, fields);
             FixStream(d);
             FixGraphicsState(d);
         }
     }
 
     /// <summary>
-    /// Przegląd całego dokumentu, a nie tylko znanych miejsc: /AA i wpisy wskazujące akcje zabronione znikają też w drzewie pól
-    /// /AcroForm i w obiektach nieoczywistych. Sama akcja przestaje być osiągalna, więc nie trafi do pliku.
+    /// Bezwarunkowo, we wszystkich słownikach dokumentu: /AA znika, pole traci /A, a akcje zabronione wypadają z /A, /OpenAction i /PA z przepięciem
+    /// łańcucha /Next, tak że dozwolone zostają w tej samej kolejności. Słowniki bez ścieżki wykonania są nieosiągalne i znikają przy zapisie.
     /// </summary>
-    private static void RemoveActions(PdfDictionary d, HashSet<PdfDictionary> structure)
+    private static void RemoveActions(PdfDocument doc, PdfDictionary d, HashSet<PdfDictionary> fields)
     {
         d.Elements.Remove("/AA");
-        foreach (var key in d.Elements.Keys.ToList())
+        foreach (var key in PdfAActions.PlaceKeys)
         {
-            var value = PdfObjects.Resolve(d.Elements[key]);
-            if (value is PdfDictionary a && PdfAInspector.IsForbiddenAction(a, structure)) d.Elements.Remove(key);
-            else if (value is PdfArray list)
+            if (!d.Elements.ContainsKey(key)) continue;
+            if (key == "/A" && PdfAActions.IsField(d, fields)) { d.Elements.Remove(key); continue; }
+            switch (PdfObjects.Resolve(d.Elements[key]))
             {
-                for (int i = list.Elements.Count - 1; i >= 0; i--)
-                    if (PdfObjects.Resolve(list.Elements[i]) is PdfDictionary e && PdfAInspector.IsForbiddenAction(e, structure)) list.Elements.RemoveAt(i);
+                case PdfDictionary a when key != "/A" || !PdfAActions.IsStructureAttribute(a):
+                    var kept = PdfAActions.Chain(d.Elements[key]!).Where(x => PdfAActions.IsAllowed(x.Action)).ToList();
+                    if (kept.Count == 0) { d.Elements.Remove(key); break; }
+                    d.Elements[key] = kept[0].Raw;
+                    Relink(doc, kept);
+                    break;
+                case PdfArray list when key != "/OpenAction":
+                    for (int i = list.Elements.Count - 1; i >= 0; i--)
+                    {
+                        if (PdfObjects.Resolve(list.Elements[i]) is not PdfDictionary item || PdfAActions.IsStructureAttribute(item)) continue;
+                        if (PdfAActions.IsAllowed(item)) item.Elements.Remove("/Next");
+                        else list.Elements.RemoveAt(i);
+                    }
+                    break;
             }
         }
+    }
+
+    /// <summary>Pierwsza dozwolona akcja prowadzi do pozostałych; łańcuch jest płaski, więc nie zostaje w nim cykl ani akcja usunięta.</summary>
+    private static void Relink(PdfDocument doc, List<(PdfItem Raw, PdfDictionary Action)> kept)
+    {
+        foreach (var (_, action) in kept) action.Elements.Remove("/Next");
+        if (kept.Count > 1) kept[0].Action.Elements["/Next"] = new PdfArray(doc, kept.Skip(1).Select(x => x.Raw).ToArray());
     }
 
     private static void FixOptionalContent(PdfDictionary catalog)

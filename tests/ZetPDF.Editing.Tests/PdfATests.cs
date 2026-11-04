@@ -318,11 +318,7 @@ public class PdfATests
         Assert.DoesNotMatch(new System.Text.RegularExpressions.Regex(@"/AA\s*[<\d]"), Latin(pdf));
         PdfSharpEdit.Read(pdf, doc =>
         {
-            foreach (var d in PdfATree.Dictionaries(doc))
-            {
-                Assert.False(d.Elements.ContainsKey("/AA"));
-                Assert.False(PdfAInspector.IsForbiddenAction(d, PdfATree.StructureElements(doc)));
-            }
+            foreach (var d in PdfATree.Dictionaries(doc)) Assert.False(d.Elements.ContainsKey("/AA"));
             return 0;
         });
         var after = await _svc.CheckAsync(pdf);
@@ -399,13 +395,6 @@ public class PdfATests
     }
 
     [Fact]
-    public async Task Script_hidden_in_the_structure_tree_is_still_an_action()
-    {
-        var input = WithStructure("/JavaScript", (_, e) => e.Elements["/JS"] = new PdfString("app.alert(1)"));
-        AssertFailed(await _svc.CheckAsync(input), "JavaScript");
-    }
-
-    [Fact]
     public async Task Same_type_outside_the_structure_tree_is_an_action()
     {
         var input = PdfSharpEdit.Modify(SamplePdfFactory.Text(1), doc =>
@@ -418,6 +407,219 @@ public class PdfATests
             doc.Internals.Catalog.Elements["/OpenAction"] = sound.Reference!;
         });
         AssertFailed(await _svc.CheckAsync(input), "Actions");
+    }
+
+    private static PdfDictionary Action(PdfDocument doc, string? type, bool disguised = false)
+    {
+        var a = new PdfDictionary(doc);
+        if (type is not null) a.Elements["/S"] = new PdfName(type);
+        a.Elements["/JS"] = new PdfString("zlosliwy()");
+        if (disguised)
+        {
+            a.Elements["/P"] = new PdfInteger(1);
+            a.Elements["/K"] = new PdfInteger(1);
+            a.Elements["/Type"] = new PdfName("/StructElem");
+        }
+        doc.Internals.AddObject(a);
+        return a;
+    }
+
+    private static PdfDictionary Uri(PdfDocument doc)
+    {
+        var a = new PdfDictionary(doc);
+        a.Elements["/S"] = new PdfName("/URI");
+        a.Elements["/URI"] = new PdfString("https://example.com/");
+        doc.Internals.AddObject(a);
+        return a;
+    }
+
+    /// <summary>Akcja w każdym z miejsc: /OpenAction, /A łącza, /AA strony, zakładka, pole, /Next dozwolonej akcji.</summary>
+    private static byte[] WithActionEverywhere(string? type, bool disguised) => PdfSharpEdit.Modify(SamplePdfFactory.Text(1), doc =>
+    {
+        var catalog = doc.Internals.Catalog;
+        catalog.Elements["/OpenAction"] = Action(doc, type, disguised).Reference!;
+        var page = doc.Pages[0];
+        var trigger = new PdfDictionary(doc);
+        trigger.Elements["/O"] = Action(doc, type, disguised).Reference!;
+        page.Elements["/AA"] = trigger;
+
+        var link = new PdfDictionary(doc);
+        link.Elements["/Subtype"] = new PdfName("/Link");
+        link.Elements["/Rect"] = new PdfArray(doc, new PdfInteger(0), new PdfInteger(0), new PdfInteger(10), new PdfInteger(10));
+        link.Elements.SetInteger("/F", 4);
+        link.Elements["/A"] = Action(doc, type, disguised).Reference!;
+        PdfObjects.AddAnnotation(page, link);
+
+        var link2 = new PdfDictionary(doc);
+        link2.Elements["/Subtype"] = new PdfName("/Link");
+        link2.Elements["/Rect"] = new PdfArray(doc, new PdfInteger(20), new PdfInteger(0), new PdfInteger(30), new PdfInteger(10));
+        link2.Elements.SetInteger("/F", 4);
+        var head = Uri(doc);
+        head.Elements["/Next"] = Action(doc, type, disguised).Reference!;
+        link2.Elements["/A"] = head.Reference!;
+        PdfObjects.AddAnnotation(page, link2);
+
+        var item = new PdfDictionary(doc);
+        item.Elements["/Title"] = new PdfString("zakładka");
+        item.Elements["/A"] = Action(doc, type, disguised).Reference!;
+        doc.Internals.AddObject(item);
+        var outlines = new PdfDictionary(doc);
+        outlines.Elements["/First"] = item.Reference!;
+        outlines.Elements["/Last"] = item.Reference!;
+        doc.Internals.AddObject(outlines);
+        item.Elements["/Parent"] = outlines.Reference!;
+        catalog.Elements["/Outlines"] = outlines.Reference!;
+
+        var field = new PdfDictionary(doc);
+        field.Elements["/T"] = new PdfString("pole");
+        field.Elements["/A"] = Action(doc, type, disguised).Reference!;
+        doc.Internals.AddObject(field);
+        var acro = new PdfDictionary(doc);
+        acro.Elements["/Fields"] = new PdfArray(doc, field.Reference!);
+        catalog.Elements["/AcroForm"] = acro;
+    });
+
+    private static void AssertNoExecutionPath(byte[] pdf)
+    {
+        Assert.DoesNotContain("zlosliwy", Latin(pdf));
+        PdfSharpEdit.Read(pdf, doc =>
+        {
+            foreach (var d in PdfATree.Dictionaries(doc))
+            {
+                Assert.False(d.Elements.ContainsKey("/AA"));
+                foreach (var key in PdfAActions.PlaceKeys)
+                    foreach (var start in PdfAActions.ActionsAt(d, key))
+                        foreach (var (_, action) in PdfAActions.Chain(start)) Assert.True(PdfAActions.IsAllowed(action), key);
+            }
+            return 0;
+        });
+    }
+
+    [Theory]
+    [InlineData("/ResetForm", false)]
+    [InlineData("/Hide", false)]
+    [InlineData("/Launch", false)]
+    [InlineData("/JavaScript", false)]
+    [InlineData("/ResetForm", true)]
+    [InlineData("/Hide", true)]
+    [InlineData("/Launch", true)]
+    [InlineData("/JavaScript", true)]
+    [InlineData("/NieznanyTyp", true)]
+    [InlineData(null, false)]
+    [InlineData(null, true)]
+    public async Task Forbidden_action_is_found_and_removed_in_every_place(string? type, bool disguised)
+    {
+        var input = WithActionEverywhere(type, disguised);
+        var before = await _svc.CheckAsync(input);
+        AssertFailed(before, type == "/JavaScript" ? "JavaScript" : "Actions");
+        var pdf = await Convert(input);
+        AssertNoExecutionPath(pdf);
+        var after = await _svc.CheckAsync(pdf);
+        AssertPassed(after, "Actions");
+        AssertPassed(after, "JavaScript");
+    }
+
+    [Fact]
+    public async Task Next_cycle_ends_and_allowed_actions_stay_in_order()
+    {
+        var input = PdfSharpEdit.Modify(SamplePdfFactory.Text(1), doc =>
+        {
+            var first = Uri(doc);
+            var bad = Action(doc, "/Launch");
+            var second = Uri(doc);
+            second.Elements["/URI"] = new PdfString("https://example.org/drugi");
+            first.Elements["/Next"] = bad.Reference!;
+            bad.Elements["/Next"] = new PdfArray(doc, second.Reference!, Action(doc, "/JavaScript").Reference!);
+            second.Elements["/Next"] = first.Reference!; // cykl
+            doc.Internals.Catalog.Elements["/OpenAction"] = first.Reference!;
+        });
+        AssertFailed(await _svc.CheckAsync(input), "Actions");
+        var pdf = await Convert(input);
+        AssertNoExecutionPath(pdf);
+        PdfSharpEdit.Read(pdf, doc =>
+        {
+            var chain = PdfAActions.Chain(doc.Internals.Catalog.Elements["/OpenAction"]!);
+            Assert.Equal(new[] { "https://example.com/", "https://example.org/drugi" }, chain.Select(c => c.Action.Elements.GetString("/URI")));
+            return 0;
+        });
+    }
+
+    [Fact]
+    public async Task Forbidden_head_of_chain_gives_way_to_allowed_action()
+    {
+        var input = PdfSharpEdit.Modify(SamplePdfFactory.Text(1), doc =>
+        {
+            var bad = Action(doc, "/Launch");
+            bad.Elements["/Next"] = Uri(doc).Reference!;
+            doc.Internals.Catalog.Elements["/OpenAction"] = bad.Reference!;
+        });
+        var pdf = await Convert(input);
+        Assert.Equal("/URI", PdfSharpEdit.Read(pdf, doc => ((PdfDictionary)PdfObjects.Resolve(doc.Internals.Catalog.Elements["/OpenAction"])!).Elements.GetName("/S")));
+    }
+
+    [Fact]
+    public async Task Allowed_actions_stay_and_destination_array_is_not_an_action()
+    {
+        var input = PdfSharpEdit.Modify(SamplePdfFactory.WithBookmarks(), doc =>
+        {
+            var page = doc.Pages[0];
+            doc.Internals.Catalog.Elements["/OpenAction"] = new PdfArray(doc, page.Reference!, new PdfName("/Fit"));
+            var link = new PdfDictionary(doc);
+            link.Elements["/Subtype"] = new PdfName("/Link");
+            link.Elements["/Rect"] = new PdfArray(doc, new PdfInteger(0), new PdfInteger(0), new PdfInteger(10), new PdfInteger(10));
+            link.Elements.SetInteger("/F", 4);
+            link.Elements["/A"] = Uri(doc).Reference!;
+            PdfObjects.AddAnnotation(page, link);
+            var goTo = new PdfDictionary(doc);
+            goTo.Elements["/S"] = new PdfName("/GoTo");
+            goTo.Elements["/D"] = new PdfArray(doc, page.Reference!, new PdfName("/Fit"));
+            var link2 = new PdfDictionary(doc);
+            link2.Elements["/Subtype"] = new PdfName("/Link");
+            link2.Elements["/Rect"] = new PdfArray(doc, new PdfInteger(20), new PdfInteger(0), new PdfInteger(30), new PdfInteger(10));
+            link2.Elements.SetInteger("/F", 4);
+            link2.Elements["/A"] = goTo;
+            PdfObjects.AddAnnotation(page, link2);
+        });
+        var report = await _svc.CheckAsync(input);
+        AssertPassed(report, "Actions");
+        Assert.Equal(0, (await _svc.PlanAsync(input)).ActionsToRemove);
+        var pdf = await Convert(input);
+        PdfSharpEdit.Read(pdf, doc =>
+        {
+            Assert.IsType<PdfArray>(PdfObjects.Resolve(doc.Internals.Catalog.Elements["/OpenAction"]));
+            var kinds = PdfObjects.Annotations(doc.Pages[0]).Select(a => ((PdfDictionary)PdfObjects.Resolve(a.Elements["/A"])!).Elements.GetName("/S")).ToList();
+            Assert.Equal(new[] { "/URI", "/GoTo" }, kinds);
+            return 0;
+        });
+    }
+
+    [Fact]
+    public async Task Structure_element_with_attribute_object_is_not_touched()
+    {
+        var input = WithStructure("/P", (doc, e) =>
+        {
+            var attribute = new PdfDictionary(doc);
+            attribute.Elements["/O"] = new PdfName("/Layout");
+            e.Elements["/A"] = attribute;
+        });
+        var report = await _svc.CheckAsync(input);
+        AssertPassed(report, "Actions");
+        var pdf = await Convert(input);
+        Assert.Contains("/Layout", Latin(pdf));
+    }
+
+    [Fact]
+    public async Task Named_actions_only_navigation()
+    {
+        byte[] With(string name) => PdfSharpEdit.Modify(SamplePdfFactory.Text(1), doc =>
+        {
+            var a = new PdfDictionary(doc);
+            a.Elements["/S"] = new PdfName("/Named");
+            a.Elements["/N"] = new PdfName(name);
+            doc.Internals.Catalog.Elements["/OpenAction"] = a;
+        });
+        AssertPassed(await _svc.CheckAsync(With("/NextPage")), "Actions");
+        AssertFailed(await _svc.CheckAsync(With("/Print")), "Actions");
     }
 
     // ------------------------------------------------------------------ konwersja

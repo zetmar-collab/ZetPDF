@@ -37,8 +37,6 @@ internal sealed class PdfAFacts
 /// <summary>Odczyt faktów: bajty pliku, struktura przez PDFsharp, operatory treści stron i formularzy.</summary>
 internal static class PdfAInspector
 {
-    public static readonly HashSet<string> AllowedNamedActions = new() { "NextPage", "PrevPage", "FirstPage", "LastPage" };
-    public static readonly HashSet<string> ForbiddenActionTypes = new() { "/Launch", "/Sound", "/Movie", "/ResetForm", "/ImportData", "/Hide", "/SetOCGState", "/Rendition", "/Trans", "/GoTo3DView", "/JavaScript" };
     public static readonly HashSet<string> MultimediaAnnotationTypes = new() { "/3D", "/Sound", "/Screen", "/Movie", "/RichMedia" };
     public static readonly HashSet<string> BlendModes = new() { "/Normal", "/Compatible", "/Multiply", "/Screen", "/Overlay", "/Darken", "/Lighten", "/ColorDodge", "/ColorBurn", "/HardLight", "/SoftLight", "/Difference", "/Exclusion", "/Hue", "/Saturation", "/Color", "/Luminosity" };
     public static readonly string[] CatalogForbiddenKeys = { "/Requirements", "/NeedsRendering", "/Collection" };
@@ -181,39 +179,35 @@ internal static class PdfAInspector
         return count;
     }
 
-    /// <summary>
-    /// Akcje w całym dokumencie, a nie tylko w znanych miejscach: drzewo pól /AcroForm, zakładki, adnotacje, strony, obiekty nieoczywiste.
-    /// Każdy słownik liczony raz.
-    /// </summary>
+    /// <summary>Akcje we wszystkich słownikach dokumentu (<see cref="PdfAActions"/>). Każda liczona raz.</summary>
     private static void ReadActions(PdfDocument doc, PdfAFacts f)
     {
-        var structure = PdfATree.StructureElements(doc);
+        var fields = PdfAActions.FieldTree(doc);
+        var counted = new HashSet<PdfDictionary>(ReferenceEqualityComparer.Instance);
+        void Report(PdfDictionary action, bool always)
+        {
+            if ((!always && PdfAActions.IsAllowed(action)) || !counted.Add(action)) return;
+            var s = action.Elements.GetName("/S");
+            if (s == "/JavaScript") f.JavaScript++;
+            else { f.ForbiddenActions++; if (f.ActionNames.Count < 8) f.ActionNames.Add(s.Length > 0 ? s.TrimStart('/') : "?"); }
+        }
         foreach (var d in PdfATree.Dictionaries(doc))
         {
-            if (d.Elements.ContainsKey("/AA")) f.CatalogAdditionalActions++;
-            if (!IsForbiddenAction(d, structure)) continue;
-            var s = d.Elements.GetName("/S");
-            if (s == "/JavaScript") f.JavaScript++;
-            else { f.ForbiddenActions++; if (f.ActionNames.Count < 8) f.ActionNames.Add(s.TrimStart('/')); }
+            if (d.Elements.ContainsKey("/AA"))
+            {
+                f.CatalogAdditionalActions++;
+                if (PdfObjects.Resolve(d.Elements["/AA"]) is PdfDictionary triggers)
+                    foreach (var key in triggers.Elements.Keys)
+                        foreach (var (_, action) in PdfAActions.Chain(triggers.Elements[key]!)) Report(action, false);
+            }
+            bool field = PdfAActions.IsField(d, fields);
+            foreach (var key in PdfAActions.PlaceKeys)
+                foreach (var start in PdfAActions.ActionsAt(d, key))
+                    foreach (var (_, action) in PdfAActions.Chain(start)) Report(action, field && key == "/A"); // pole nie może mieć /A żadnego typu
         }
-        // Drzewo nazw bez rozpoznawalnych akcji też jest naruszeniem.
-        if (f.JavaScript == 0 && PdfObjects.Resolve(doc.Internals.Catalog.Elements["/Names"]) is PdfDictionary names && names.Elements.ContainsKey("/JavaScript")) f.JavaScript = 1;
-    }
-
-    /// <summary>Klucze niosące działanie akcji. Element struktury z którymkolwiek z nich traktujemy jak akcję.</summary>
-    private static readonly string[] ActionPayloadKeys = { "/JS", "/F", "/Win", "/Mac", "/Unix", "/URI", "/N", "/Sound", "/Movie", "/Annotation", "/AN", "/OP", "/Fields", "/State", "/Trans", "/3DD", "/V3D", "/Next" };
-
-    /// <summary>
-    /// Akcja zabroniona. Klucze pomocnicze (/P, /K, /Type) nie zwalniają słownika, bo kontroluje je autor pliku. Klucz /S ma też element
-    /// struktury (typ może się nazywać np. /Sound), więc wyjątek dotyczy tylko słowników faktycznie osiągniętych z /StructTreeRoot
-    /// i bez ładunku akcji: taki słownik niczego nie wykona, nawet gdyby wskazywało go także /OpenAction.
-    /// </summary>
-    internal static bool IsForbiddenAction(PdfDictionary a, HashSet<PdfDictionary> structureElements)
-    {
-        var s = a.Elements.GetName("/S");
-        bool forbidden = ForbiddenActionTypes.Contains(s) || (s == "/Named" && !AllowedNamedActions.Contains(a.Elements.GetName("/N").TrimStart('/')));
-        if (!forbidden) return false;
-        return !structureElements.Contains(a) || ActionPayloadKeys.Any(a.Elements.ContainsKey);
+        // Drzewo nazw jest miejscem na skrypty także wtedy, gdy nie da się ich rozpoznać.
+        if (PdfObjects.Resolve(doc.Internals.Catalog.Elements["/Names"]) is PdfDictionary names && names.Elements.ContainsKey("/JavaScript"))
+            f.JavaScript += Math.Max(1, CountNames(names.Elements["/JavaScript"]));
     }
 
     private static void ReadPage(PdfPage page, int index, PdfAFacts f)
@@ -468,27 +462,6 @@ internal static class PdfATree
             {
                 foreach (var e in a.Elements)
                     if (e is PdfDictionary or PdfArray) stack.Push(e);
-            }
-        }
-        return result;
-    }
-
-    /// <summary>Elementy osiągnięte z /StructTreeRoot przez /K, iteracyjnie i ze zbiorem odwiedzonych.</summary>
-    public static HashSet<PdfDictionary> StructureElements(PdfDocument doc)
-    {
-        var result = new HashSet<PdfDictionary>(ReferenceEqualityComparer.Instance);
-        var seen = new HashSet<object>(ReferenceEqualityComparer.Instance);
-        var stack = new Stack<PdfItem?>();
-        if (PdfObjects.Resolve(doc.Internals.Catalog.Elements["/StructTreeRoot"]) is PdfDictionary root) stack.Push(root.Elements["/K"]);
-        while (stack.Count > 0)
-        {
-            var item = PdfObjects.Resolve(stack.Pop());
-            if (item is null || !seen.Add(item)) continue;
-            if (item is PdfArray list) { foreach (var e in list.Elements) stack.Push(e); }
-            else if (item is PdfDictionary d)
-            {
-                result.Add(d);
-                stack.Push(d.Elements["/K"]);
             }
         }
         return result;
