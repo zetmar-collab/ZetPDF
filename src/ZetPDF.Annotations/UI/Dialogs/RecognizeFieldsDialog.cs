@@ -67,7 +67,7 @@ internal sealed class RecognizeFieldsDialog : Window
     private double _shownScale = 1;
     private CancellationTokenSource? _renderCts;
 
-    public RecognizeFieldsDialog(ILocalizationService loc, IReadOnlyList<FieldProposal> proposals, IRenderDocument document, IReadOnlyCollection<string> existingNames)
+    public RecognizeFieldsDialog(ILocalizationService loc, IReadOnlyList<FieldProposal> proposals, IRenderDocument document, IReadOnlyCollection<string> existingNames, string skippedText = "")
     {
         _existingNames = existingNames;
         _loc = loc;
@@ -76,7 +76,7 @@ internal sealed class RecognizeFieldsDialog : Window
         _rows = proposals.Select(p => new Row(p, loc[p.Kind == FormFieldKind.CheckBox ? "Annot.Recognize.Kind.CheckBox" : "Annot.Recognize.Kind.Text"])).ToList();
 
         var root = new DockPanel { Margin = new Thickness(16), Width = 1000, Height = 640 };
-        var info = new TextBlock { Text = loc.Format("Annot.Recognize.Info", _rows.Count), TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 8) };
+        var info = new TextBlock { Text = skippedText.Length > 0 ? loc.Format("Annot.Recognize.Info", _rows.Count) + " " + skippedText : loc.Format("Annot.Recognize.Info", _rows.Count), TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 8) };
         DockPanel.SetDock(info, Dock.Top);
         root.Children.Add(info);
 

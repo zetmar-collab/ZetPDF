@@ -165,7 +165,7 @@ public class FieldRecognitionTests
         });
     }
 
-    private static Task<IReadOnlyList<FieldProposal>> Recognize(byte[] pdf) => new FormService().RecognizeFieldsAsync(pdf, Renderer, Generic);
+    private static async Task<IReadOnlyList<FieldProposal>> Recognize(byte[] pdf) => (await new FormService().RecognizeFieldsAsync(pdf, Renderer, Generic)).Proposals;
 
     private static PdfRect ToPdf(XRect r, double pageHeight = 842) => new(r.X, pageHeight - r.Y - r.Height, r.X + r.Width, pageHeight - r.Y);
 
@@ -370,6 +370,124 @@ public class FieldRecognitionTests
         thread.Start();
         thread.Join();
         if (error is not null) System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(error).Throw();
+    }
+
+    // ------------------------------------------------------------------ dane niezaufane: limity i anulowanie
+
+    private static readonly PageInfo A4 = new(0, new PdfSize(595, 842), 0, new PdfPoint(0, 0));
+
+    private static RenderedBitmap WhiteBitmap()
+    {
+        double scale = FieldRecognizer.ScaleFor(A4.Size);
+        int w = (int)(595 * scale), h = (int)(842 * scale);
+        var px = new byte[w * h * 4];
+        Array.Fill(px, (byte)255);
+        return new RenderedBitmap(w, h, w * 4, px, scale);
+    }
+
+    private static void DrawHLine(RenderedBitmap bmp, int y, int x0, int x1)
+    {
+        for (int x = x0; x < x1; x++)
+        {
+            int o = y * bmp.Stride + x * 4;
+            bmp.Bgra[o] = bmp.Bgra[o + 1] = bmp.Bgra[o + 2] = 0;
+        }
+    }
+
+    /// <summary>count słów, wszystkie w tym samym miejscu albo w jednym wierszu: najgorszy przypadek dla szukania etykiet.</summary>
+    private static PageText Words(int count, bool sameSpot)
+    {
+        var chars = new List<TextChar>(count * 2);
+        for (int i = 0; i < count; i++)
+        {
+            double x = sameSpot ? 40 : 40 + (i % 500);
+            chars.Add(new TextChar('a', new PdfRect(x, 500, x + 4, 510), 10, false));
+            chars.Add(new TextChar(' ', default, 10, true));
+        }
+        return new PageText(0, new string('a', count), chars);
+    }
+
+    [Fact]
+    public void Page_with_tens_of_thousands_of_words_is_skipped_quickly_with_reason()
+    {
+        var sw = System.Diagnostics.Stopwatch.StartNew();
+        var r = FieldRecognizer.AnalyzePage(WhiteBitmap(), Words(FieldRecognizer.MaxWords + 30_000, false), A4);
+        Assert.Equal(FieldPageSkipReason.TooManyWords, r.Skipped);
+        Assert.Empty(r.Candidates);
+        Assert.True(sw.Elapsed < TimeSpan.FromSeconds(10), sw.Elapsed.ToString());
+    }
+
+    [Fact]
+    public void Page_with_too_many_lines_is_skipped_with_reason()
+    {
+        var bmp = WhiteBitmap();
+        int minWidth = (int)Math.Ceiling(30 * bmp.Scale) + 2;
+        int count = 0;
+        for (int y = 0; y + 1 < bmp.Height && count <= FieldRecognizer.MaxLines; y += 2)
+            for (int x = 0; x + minWidth < bmp.Width && count <= FieldRecognizer.MaxLines; x += minWidth + 4, count++)
+                DrawHLine(bmp, y, x, x + minWidth);
+        var r = FieldRecognizer.AnalyzePage(bmp, PageText.Empty(0), A4);
+        Assert.Equal(FieldPageSkipReason.TooManyLines, r.Skipped);
+    }
+
+    [Fact]
+    public void Worst_case_just_under_limits_finishes_in_reasonable_time()
+    {
+        // tuż pod limitem słów, wszystkie w jednym miejscu, oraz linie tuż obok nich: to szukanie etykiet było kwadratowe
+        var bmp = WhiteBitmap();
+        int y0 = (int)((842 - 505) * bmp.Scale);
+        int minWidth = (int)Math.Ceiling(30 * bmp.Scale) + 2;
+        int lines = 0;
+        for (int y = 40; y + 1 < bmp.Height && lines < FieldRecognizer.MaxLines - 1; y += 24)
+            for (int x = 100; x + minWidth < bmp.Width && lines < FieldRecognizer.MaxLines - 1; x += minWidth + 8, lines++)
+                DrawHLine(bmp, y, x, x + minWidth);
+        DrawHLine(bmp, y0, 100, 400);
+        var sw = System.Diagnostics.Stopwatch.StartNew();
+        var r = FieldRecognizer.AnalyzePage(bmp, Words(FieldRecognizer.MaxWords - 1, true), A4);
+        _output.WriteLine($"linii {lines}, czas {sw.Elapsed}, wynik {r.Skipped} {r.Candidates.Count}");
+        Assert.True(sw.Elapsed < TimeSpan.FromSeconds(20), sw.Elapsed.ToString());
+    }
+
+    [Fact]
+    public async Task Whole_document_reports_skipped_page_and_keeps_other_pages()
+    {
+        var (form, _) = FormDocument();
+        var pdf = PdfSharpEdit.Modify(form, d =>
+        {
+            var page = d.AddPage();
+            using var g = XGraphics.FromPdfPage(page);
+            var small = new XFont("Arial", 2);
+            for (int i = 0; i < FieldRecognizer.MaxWords + 2000; i++)
+                g.DrawString("x", small, XBrushes.Black, 10 + (i % 190) * 3, 10 + (i / 190) * 3);
+        });
+        var r = await new FormService().RecognizeFieldsAsync(pdf, Renderer, Generic);
+        Assert.Equal(new[] { 1 }, r.SkippedPages.Select(p => p.PageIndex).ToArray());
+        Assert.Equal(FieldPageSkipReason.TooManyWords, r.SkippedPages[0].Reason);
+        Assert.Contains(r.Proposals, p => p.Name == "Telefon");
+    }
+
+    [Fact]
+    public void Cancellation_works_during_page_analysis()
+    {
+        using var cts = new CancellationTokenSource();
+        var bmp = WhiteBitmap();
+        var words = Words(FieldRecognizer.MaxWords - 1, true);
+        cts.CancelAfter(15);
+        var sw = System.Diagnostics.Stopwatch.StartNew();
+        Assert.ThrowsAny<OperationCanceledException>(() =>
+        {
+            // pętla, bo pojedynczy przebieg może się skończyć przed anulowaniem na szybkim komputerze
+            for (int i = 0; i < 1000; i++) FieldRecognizer.AnalyzePage(bmp, words, A4, cts.Token);
+        });
+        Assert.True(sw.Elapsed < TimeSpan.FromSeconds(20), sw.Elapsed.ToString());
+    }
+
+    [Fact]
+    public async Task Cancelled_token_stops_document_recognition()
+    {
+        using var cts = new CancellationTokenSource();
+        cts.Cancel();
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => new FormService().RecognizeFieldsAsync(FormDocument().Pdf, Renderer, Generic, null, cts.Token));
     }
 
     /// <summary>Przypadki trudne, bez progu: wynik ma tylko trafić do opisu ograniczeń, a nie stroić heurystyki pod test.</summary>

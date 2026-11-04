@@ -80,7 +80,7 @@ internal sealed class InkMap
     /// Spójne składniki z poziomych przebiegów pikseli spełniających warunek. Zwraca null przy przekroczeniu limitu przebiegów
     /// (strona zaszumiona lub spreparowana), żeby pamięć była ograniczona.
     /// </summary>
-    public List<InkComponent>? Components(Func<int, int, bool> on, int minRun, int maxGap, int rowSlack, int maxRuns)
+    public List<InkComponent>? Components(Func<int, int, bool> on, int minRun, int maxGap, int rowSlack, int maxRuns, CancellationToken ct = default)
     {
         var parent = new List<int>();
         var box = new List<(int L, int T, int R, int B, long Area, bool Border)>();
@@ -107,6 +107,7 @@ internal sealed class InkMap
 
         for (int y = 0; y < Height; y++)
         {
+            if ((y & 63) == 0) ct.ThrowIfCancellationRequested();
             cur.Clear();
             int x = 0;
             while (x < Width)

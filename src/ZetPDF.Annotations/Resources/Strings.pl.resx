@@ -319,4 +319,5 @@ Zapisać ten plik?</value></data>
   <data name="Annot.Recognize.SelectAll" xml:space="preserve"><value>Zaznacz wszystkie</value></data>
   <data name="Annot.Recognize.SelectNone" xml:space="preserve"><value>Odznacz wszystkie</value></data>
   <data name="Annot.Undo.RecognizeFields" xml:space="preserve"><value>Rozpoznaj pola formularza</value></data>
+  <data name="Annot.Recognize.Skipped" xml:space="preserve"><value>Pominięto strony przekraczające limity analizy (za dużo słów, linii lub kształtów): {0}.</value></data>
 </root>

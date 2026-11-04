@@ -319,4 +319,5 @@ Save this file?</value></data>
   <data name="Annot.Recognize.SelectAll" xml:space="preserve"><value>Select all</value></data>
   <data name="Annot.Recognize.SelectNone" xml:space="preserve"><value>Clear all</value></data>
   <data name="Annot.Undo.RecognizeFields" xml:space="preserve"><value>Recognize form fields</value></data>
+  <data name="Annot.Recognize.Skipped" xml:space="preserve"><value>Pages skipped because they exceed the analysis limits (too many words, lines or shapes): {0}.</value></data>
 </root>

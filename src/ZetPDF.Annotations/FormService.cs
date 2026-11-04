@@ -81,7 +81,7 @@ public sealed class FormService : IFormService
         }, ct);
 
     /// <summary>Propozycje pól z bitmap stron i tekstu; pomija miejsca, w których już jest widżet.</summary>
-    public async Task<IReadOnlyList<ZetPDF.Annotations.Forms.Recognition.FieldProposal>> RecognizeFieldsAsync(byte[] pdf, IPdfRenderer renderer,
+    public async Task<ZetPDF.Annotations.Forms.Recognition.FieldRecognitionResult> RecognizeFieldsAsync(byte[] pdf, IPdfRenderer renderer,
         ZetPDF.Annotations.Forms.Recognition.FieldGenericNames generic, IProgress<OperationProgress>? progress = null, CancellationToken ct = default)
     {
         var widgets = await GetWidgetsAsync(pdf, ct).ConfigureAwait(false);
