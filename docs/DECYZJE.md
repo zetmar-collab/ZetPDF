@@ -174,3 +174,12 @@ Format: problem → decyzja → uzasadnienie. Decyzje oznaczone **[DO ZATWIERDZE
 - `IDialogService.ShowModeless(Window)`: właścicielem jest okno główne (nie aktywne), bez paska zadań, styl motywu, powrót od razu. Moduł sam śledzi `Window.Closed`.
 - Kalkulator: jedno okno na program; „Dodaj zaznaczenie” czyta zaznaczenie z aktywnego widoku w chwili kliknięcia, więc działa też po zmianie karty. Otwarcie dodaje zaznaczenie tylko, gdy jest nowe. „Wstaw na stronę” nie zamyka okna.
 - Test `Every_registered_command_runs_without_error_with_cancelled_dialogs` po sprawdzeniu wymagał poprawki: `PresentationSource.CurrentSources` obejmuje wszystkie wątki, więc okno innego testu działającego równolegle dawało fałszywy błąd i wyjątek przy `Close` z obcego wątku (powtarzalne po dodaniu testu z prawdziwym oknem niemodalnym). Teraz liczy tylko okna własnego wątku; okna z atrapy `ShowModeless` są zamykane po każdym poleceniu. Test wykrywa okna otwarte z pominięciem usługi, ale tylko te, które polecenie faktycznie otworzy przy anulowanych oknach. Dlatego doszedł test na źródłach: bezpośrednie `.Show()` okien w modułach tylko z jawnej listy wyjątków (`CompareWindow`, panel czytania – patrz OGRANICZENIA 27.5).
+
+
+## Rozbudowa – partia 2 (2026-11-04)
+
+## D-32. PDF do XLSX: tabele z układu tekstu
+- `TableDetector` (czysta logika): słowa PdfPig → wiersze po linii bazowej → segmenty po odstępie większym niż 0,85 rozmiaru czcionki → tabela to co najmniej dwa kolejne wiersze z dwoma segmentami. Kolumny wynikają z pionowych pasów pustego miejsca; od 4 wierszy jeden napis może biec w poprzek kolumn (nagłówek obejmujący dwie). Bez czytania linii siatki: działa tak samo dla tabel z liniami i bez nich, a PdfPig nie daje prostego dostępu do ścieżek powiązanych z tekstem.
+- Liczby: `CellNumberParser` woli zostawić tekst niż zapisać wartość tysiąc razy inną. „1,234” i „1.234” rozstrzyga tylko reszta dokumentu (wskazówka: separator z zapisów jednoznacznych, przewaga co najmniej 3:1); bez niej zostają tekstem. Numery (zera na początku, 11 i więcej cyfr, telefon z plusem), daty i wartości z jednostką zostają tekstem.
+- Komórki: `t="inlineStr"` albo liczba, elementu `<f>` nie ma w ogóle. Tekst zaczynający się od `=`, `+`, `-`, `@` (także znaki pełnej szerokości) ma styl tekstowy z `quotePrefix`, żeby przetrwał ręczną edycję w Excelu. To odpowiednik neutralizacji z eksportów CSV, ale bez zmiany treści komórki.
+- `IConversionService` dostał `PdfToXlsxAsync` (dopisanie do kontraktu, jedyna implementacja to `ConversionService`).

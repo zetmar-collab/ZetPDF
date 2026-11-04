@@ -337,4 +337,16 @@ Yes – with subfolders, No – this folder only.</value></data>
   <data name="Edit.Index.Manage.DeleteConfirm" xml:space="preserve"><value>Delete the index of {0}? The PDF files stay untouched.</value></data>
   <data name="Edit.Index.Manage.DeleteAllConfirm" xml:space="preserve"><value>Delete all indexes? The PDF files stay untouched.</value></data>
   <data name="Edit.Index.Manage.FolderMissing" xml:space="preserve"><value>The folder {0} no longer exists. You can delete its index.</value></data>
+  <data name="Edit.Convert.ToXlsx.Title" xml:space="preserve"><value>Export to Excel (XLSX)</value></data>
+  <data name="Edit.Convert.ToXlsx.Sheets" xml:space="preserve"><value>Worksheets:</value></data>
+  <data name="Edit.Convert.ToXlsx.PerPage" xml:space="preserve"><value>One sheet per page</value></data>
+  <data name="Edit.Convert.ToXlsx.PerTable" xml:space="preserve"><value>One sheet per table, the remaining text on its own sheet</value></data>
+  <data name="Edit.Convert.ToXlsx.Note" xml:space="preserve"><value>Tables are detected from the position of words, not from the file structure: merged cells, tight columns and multi-line cells may land in the wrong place, and scans need OCR first. Check the result. Ambiguous numbers such as 1,234 stay text unless the rest of the document settles the format.</value></data>
+  <data name="Edit.Convert.ToXlsx.Done" xml:space="preserve"><value>Saved: {0}. Sheets: {1}, tables detected: {2}.</value></data>
+  <data name="Edit.Convert.ToXlsx.NoTextWarning" xml:space="preserve"><value>Pages without text: {0}. They contain only a note in the workbook. Run text recognition (OCR) first if these are scans.</value></data>
+  <data name="Edit.Filter.Xlsx" xml:space="preserve"><value>Excel workbook (*.xlsx)</value></data>
+  <data name="Edit.Xlsx.Sheet.Page" xml:space="preserve"><value>Page {0}</value></data>
+  <data name="Edit.Xlsx.Sheet.Table" xml:space="preserve"><value>Table {0} (p. {1})</value></data>
+  <data name="Edit.Xlsx.Sheet.Text" xml:space="preserve"><value>Text</value></data>
+  <data name="Edit.Xlsx.NoTextOnPage" xml:space="preserve"><value>(page {0} has no text; run OCR first)</value></data>
 </root>

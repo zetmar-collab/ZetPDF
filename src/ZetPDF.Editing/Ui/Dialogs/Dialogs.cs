@@ -287,3 +287,27 @@ internal sealed class ExportOptionsDialog : DialogBase
         return true;
     }
 }
+
+/// <summary>Eksport do XLSX: zakres stron, arkusz na stronę lub na tabelę, informacja o jakości.</summary>
+internal sealed class ExportXlsxDialog : DialogBase
+{
+    private readonly PageRangePicker _range;
+    private readonly ComboBox _mode;
+
+    public ExportXlsxDialog(ILocalizationService loc, int currentPage, int count) : base(loc, "Edit.Convert.ToXlsx.Title", 520)
+    {
+        _range = new PageRangePicker(loc, currentPage, count, "xlsxrange");
+        _mode = Ui.Combo(loc, new[] { (XlsxSheetMode.PerPage, "Edit.Convert.ToXlsx.PerPage"), (XlsxSheetMode.PerTable, "Edit.Convert.ToXlsx.PerTable") }, XlsxSheetMode.PerPage);
+        System.Windows.Automation.AutomationProperties.SetName(_mode, loc["Edit.Convert.ToXlsx.Sheets"]);
+        SetBody(Ui.Form((Ui.Label(loc, "Edit.Convert.ToXlsx.Sheets"), _mode), (Ui.Label(loc, "Edit.Range.Title"), _range), (null, Ui.Label(loc, "Edit.Convert.ToXlsx.Note", secondary: true))));
+        AddOkCancel("Edit.Convert.Export");
+    }
+
+    public XlsxExportOptions Options => new() { SheetMode = Ui.Selected<XlsxSheetMode>(_mode), PageRange = _range.RangeText ?? string.Empty };
+
+    protected override bool Validate()
+    {
+        if (_range.RangeText is null) { ShowError(L["Edit.Range.Invalid"]); return false; }
+        return true;
+    }
+}

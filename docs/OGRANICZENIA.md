@@ -240,3 +240,12 @@ Zbiorczo z `docs\ograniczenia\annotations-forms.md` (pkt 17–25), `renderer-vie
 ### 27.5 Okna niemodalne
 - Dwa starsze okna niemodalne nadal woła się bezpośrednio przez `Window.Show`, nie przez `IDialogService.ShowModeless`: wyniki porównania (`SecurityCommands`) i panel czytania na głos (`ViewerModule`). Działają, ale nie dostają `WindowThemer.Prepare` z usługi; zapisane jako wyjątki w teście i do przeniesienia osobno.
 - Kalkulator: kliknięcie „Dodaj zaznaczenie” dwa razy doda te same liczby dwukrotnie (cofnięcie: „Usuń ostatni”). Okno jest podrzędne wobec głównego, więc może zasłaniać fragment dokumentu i minimalizuje się razem z nim.
+
+## 28. Rozbudowa – partia 2 (2026-11-04)
+
+### 28.1 PDF do XLSX
+- Jakość zależy od układu: tabele są wykrywane z położenia słów, bez struktury pliku i bez linii siatki. Kolumny bliżej siebie niż około 0,85 rozmiaru czcionki sklejają się w jedną komórkę. Scalone komórki nie są odtwarzane, a komórka wielowierszowa daje osobne wiersze arkusza. Tabela z jednym wierszem danych i bez nagłówka to dla programu dwa zwykłe wiersze tekstu albo tabela dwuwierszowa, zależnie od odstępów.
+- Tekst w dwóch szpaltach jest odrzucany progiem średnio 5 słów w komórce; tabela o dwóch kolumnach z długimi opisami trafi do wierszy tekstu, a krótka szpalta może zostać uznana za tabelę.
+- Tylko tekst poziomy. Strony obrócone (`/Rotate`) i tekst pionowy nie są obsługiwane poprawnie. Skany bez OCR dają w arkuszu jedynie informację o braku tekstu.
+- Liczby: procenty i wartości z jednostką (`12%`, `12,50 zł`) zostają tekstem, podobnie nawiasowy zapis ujemny `(123)`. Liczba bez wskazówki w dokumencie, np. `1,234`, zostaje tekstem. Zapis `601 234 567` zostanie odczytany jako liczba, bo nie różni się od kwoty; telefon z plusem zostaje tekstem. Formatowanie (kolory, czcionki, obramowania) nie jest przenoszone, a obrazy są pomijane.
+- Sprawdzono: testy na plikach z PDFsharp oraz otwarcie wyniku w Excelu 2024 przez automatyzację (bez naprawy pliku, `HasFormula=False` dla tekstu z `=HYPERLINK(...)`) i w openpyxl.

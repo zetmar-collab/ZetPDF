@@ -337,4 +337,16 @@ Tak – z podfolderami, Nie – tylko ten folder.</value></data>
   <data name="Edit.Index.Manage.DeleteConfirm" xml:space="preserve"><value>Usunąć indeks folderu {0}? Pliki PDF pozostaną bez zmian.</value></data>
   <data name="Edit.Index.Manage.DeleteAllConfirm" xml:space="preserve"><value>Usunąć wszystkie indeksy? Pliki PDF pozostaną bez zmian.</value></data>
   <data name="Edit.Index.Manage.FolderMissing" xml:space="preserve"><value>Folder {0} już nie istnieje. Możesz usunąć jego indeks.</value></data>
+  <data name="Edit.Convert.ToXlsx.Title" xml:space="preserve"><value>Eksport do Excela (XLSX)</value></data>
+  <data name="Edit.Convert.ToXlsx.Sheets" xml:space="preserve"><value>Arkusze:</value></data>
+  <data name="Edit.Convert.ToXlsx.PerPage" xml:space="preserve"><value>Jeden arkusz na stronę</value></data>
+  <data name="Edit.Convert.ToXlsx.PerTable" xml:space="preserve"><value>Jeden arkusz na tabelę, pozostały tekst w osobnym arkuszu</value></data>
+  <data name="Edit.Convert.ToXlsx.Note" xml:space="preserve"><value>Tabele są wykrywane z położenia słów, a nie ze struktury pliku: scalone komórki, ciasne kolumny i komórki wielowierszowe mogą trafić w złe miejsce, a skany wymagają najpierw OCR. Sprawdź wynik. Liczby niejednoznaczne, np. 1,234, zostają tekstem, chyba że reszta dokumentu rozstrzyga format.</value></data>
+  <data name="Edit.Convert.ToXlsx.Done" xml:space="preserve"><value>Zapisano: {0}. Arkusze: {1}, wykryte tabele: {2}.</value></data>
+  <data name="Edit.Convert.ToXlsx.NoTextWarning" xml:space="preserve"><value>Strony bez tekstu: {0}. W skoroszycie jest przy nich tylko informacja. Jeśli to skany, najpierw uruchom rozpoznawanie tekstu (OCR).</value></data>
+  <data name="Edit.Filter.Xlsx" xml:space="preserve"><value>Skoroszyt Excela (*.xlsx)</value></data>
+  <data name="Edit.Xlsx.Sheet.Page" xml:space="preserve"><value>Strona {0}</value></data>
+  <data name="Edit.Xlsx.Sheet.Table" xml:space="preserve"><value>Tabela {0} (str. {1})</value></data>
+  <data name="Edit.Xlsx.Sheet.Text" xml:space="preserve"><value>Tekst</value></data>
+  <data name="Edit.Xlsx.NoTextOnPage" xml:space="preserve"><value>(strona {0} nie ma tekstu; najpierw uruchom OCR)</value></data>
 </root>

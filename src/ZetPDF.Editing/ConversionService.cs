@@ -336,4 +336,29 @@ public sealed class ConversionService : IConversionService
             }
         }, ct);
     }
+
+    // ------------------------------------------------------------------ PDF → XLSX
+
+    public Task<XlsxExportResult> PdfToXlsxAsync(byte[] pdf, string outputPath, XlsxExportOptions options, IProgress<OperationProgress>? progress = null, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+        return Task.Run(() =>
+        {
+            var tmp = outputPath + "." + Guid.NewGuid().ToString("N")[..8] + ".tmp";
+            try
+            {
+                var result = XlsxWriter.Write(pdf, tmp, options, XlsxSheetLabels(), progress, ct);
+                File.Move(tmp, outputPath, overwrite: true);
+                return result;
+            }
+            finally
+            {
+                if (File.Exists(tmp)) File.Delete(tmp);
+            }
+        }, ct);
+    }
+
+    private XlsxLabels XlsxSheetLabels() => _loc is null
+        ? new XlsxLabels(p => $"Page {p}", (t, p) => $"Table {t} (p. {p})", "Text", p => $"(page {p} has no text)")
+        : new XlsxLabels(p => _loc.Format("Edit.Xlsx.Sheet.Page", p), (t, p) => _loc.Format("Edit.Xlsx.Sheet.Table", t, p), _loc["Edit.Xlsx.Sheet.Text"], p => _loc.Format("Edit.Xlsx.NoTextOnPage", p));
 }

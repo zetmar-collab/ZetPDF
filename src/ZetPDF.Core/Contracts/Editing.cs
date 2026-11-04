@@ -119,6 +119,17 @@ public sealed record DocxExportOptions
     public string PageRange { get; init; } = string.Empty;
 }
 
+public enum XlsxSheetMode { PerPage, PerTable }
+
+public sealed record XlsxExportOptions
+{
+    public XlsxSheetMode SheetMode { get; init; } = XlsxSheetMode.PerPage;
+    public string PageRange { get; init; } = string.Empty;
+}
+
+/// <param name="PagesWithoutText">Strony bez tekstu (skany bez OCR): w arkuszu jest przy nich tylko informacja.</param>
+public sealed record XlsxExportResult(int Sheets, int Tables, int PagesWithoutText);
+
 public interface IConversionService
 {
     /// <summary>Obrazy (JPG/PNG/TIFF wielostronicowy/BMP) → PDF.</summary>
@@ -126,6 +137,8 @@ public interface IConversionService
     Task<IReadOnlyList<string>> PdfToImagesAsync(byte[] pdf, ImageExportOptions options, string outputDirectory, string baseName, IProgress<OperationProgress>? progress = null, CancellationToken ct = default);
     Task<string> PdfToTextAsync(byte[] pdf, TextExportOptions options, IProgress<OperationProgress>? progress = null, CancellationToken ct = default);
     Task PdfToDocxAsync(byte[] pdf, string outputPath, DocxExportOptions options, IProgress<OperationProgress>? progress = null, CancellationToken ct = default);
+    /// <summary>Tabele z układu tekstu do XLSX; komórki wyłącznie jako tekst lub liczba, nigdy formuła.</summary>
+    Task<XlsxExportResult> PdfToXlsxAsync(byte[] pdf, string outputPath, XlsxExportOptions options, IProgress<OperationProgress>? progress = null, CancellationToken ct = default);
     /// <summary>Scala pliki różnych typów (PDF, obrazy, TXT) w jeden PDF w podanej kolejności.</summary>
     Task<byte[]> CombineFilesAsync(IReadOnlyList<string> paths, IProgress<OperationProgress>? progress = null, CancellationToken ct = default);
     /// <summary>PDF z tekstu (czcionka z polskimi znakami, zawijanie, A4).</summary>

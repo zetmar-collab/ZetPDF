@@ -75,6 +75,7 @@ internal sealed class EditingCommands
         _registry.Register(CommandIds.Convert.ToImages, Doc(ToImagesAsync, DocumentPermissions.CopyContent));
         _registry.Register(CommandIds.Convert.ToText, Doc(ToTextAsync, DocumentPermissions.CopyContent));
         _registry.Register(CommandIds.Convert.ToDocx, Doc(ToDocxAsync, DocumentPermissions.CopyContent));
+        _registry.Register(CommandIds.Convert.ToXlsx, Doc(ToXlsxAsync, DocumentPermissions.CopyContent));
 
         // ---- OCR
         _registry.Register(CommandIds.Ocr.RecognizeDocument, Doc(s => OcrAsync(s, quick: false), DocumentPermissions.ModifyContent));
@@ -337,6 +338,22 @@ internal sealed class EditingCommands
         var pdf = session.Current.GetSharedBytes();
         if (!await _ctx.RunAsync("Edit.Convert.Progress", (p, ct) => conv.PdfToDocxAsync(pdf, path, opts, p, ct))) return;
         _ctx.Status(L.Format("Edit.Convert.Saved", path));
+    }
+
+    private async Task ToXlsxAsync(IPdfDocumentSession session)
+    {
+        var view = _ctx.View;
+        var dlg = new ExportXlsxDialog(L, view?.CurrentPageIndex ?? 0, view?.PageCount ?? 1);
+        if (_ctx.ShowDialog(dlg) != true) return;
+        var path = _ctx.Dialogs?.SaveFile(L["Edit.Convert.ToXlsx.Title"], new[] { new FileFilter(L["Edit.Filter.Xlsx"], "*.xlsx") }, BaseName(session) + ".xlsx");
+        if (path is null) return;
+        var opts = dlg.Options;
+        var conv = _ctx.Get<IConversionService>();
+        var pdf = session.Current.GetSharedBytes();
+        XlsxExportResult? result = null;
+        if (!await _ctx.RunAsync("Edit.Convert.Progress", async (p, ct) => result = await conv.PdfToXlsxAsync(pdf, path, opts, p, ct)) || result is null) return;
+        _ctx.Status(L.Format("Edit.Convert.ToXlsx.Done", path, result.Sheets, result.Tables));
+        if (result.PagesWithoutText > 0) _ctx.Message("Edit.Convert.ToXlsx.NoTextWarning", result.PagesWithoutText);
     }
 
     // ------------------------------------------------------------------ OCR
