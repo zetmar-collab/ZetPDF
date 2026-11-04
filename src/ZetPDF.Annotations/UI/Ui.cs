@@ -84,4 +84,10 @@ internal static class Ui
     }
 
     public static bool? Show(IDialogService? dialogs, Window w) => dialogs is not null ? dialogs.ShowDialog(w) : w.ShowDialog();
+
+    public static void ShowModeless(IDialogService? dialogs, Window w)
+    {
+        if (dialogs is not null) dialogs.ShowModeless(w);
+        else w.Show();
+    }
 }

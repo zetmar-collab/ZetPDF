@@ -158,6 +158,12 @@ public interface IDialogService
     /// <summary>Pokazuje okno modułu (ustawia Owner, styl motywu). Zwraca DialogResult.</summary>
     bool? ShowDialog(Window dialog);
 
+    /// <summary>
+    /// Pokazuje okno niemodalne modułu i wraca od razu: okno główne pozostaje dostępne (np. zaznaczanie tekstu w dokumencie), a pokazywane
+    /// okno jest podrzędne wobec głównego (nad nim, zamykane razem z nim). Ustawia Owner i styl motywu. Zamknięcie obsługuje moduł (Window.Closed).
+    /// </summary>
+    void ShowModeless(Window window);
+
     /// <summary>Pokazuje błąd z wyjątku (przetłumaczony opis + zapis do dziennika).</summary>
     void ShowError(Exception exception, string? contextText = null);
 }

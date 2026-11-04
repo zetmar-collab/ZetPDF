@@ -236,3 +236,7 @@ Zbiorczo z `docs\ograniczenia\annotations-forms.md` (pkt 17–25), `renderer-vie
 
 ### 27.4 Zapis załączników
 - Ostrzeżenie opiera się na rozszerzeniu, nie na zawartości: plik wykonywalny z rozszerzeniem `.txt` nie wywoła ostrzeżenia. Nie obejmuje archiwów (`.zip`, `.iso`) z programami w środku ani dokumentów z makrami.
+
+### 27.5 Okna niemodalne
+- Dwa starsze okna niemodalne nadal woła się bezpośrednio przez `Window.Show`, nie przez `IDialogService.ShowModeless`: wyniki porównania (`SecurityCommands`) i panel czytania na głos (`ViewerModule`). Działają, ale nie dostają `WindowThemer.Prepare` z usługi; zapisane jako wyjątki w teście i do przeniesienia osobno.
+- Kalkulator: kliknięcie „Dodaj zaznaczenie” dwa razy doda te same liczby dwukrotnie (cofnięcie: „Usuń ostatni”). Okno jest podrzędne wobec głównego, więc może zasłaniać fragment dokumentu i minimalizuje się razem z nim.

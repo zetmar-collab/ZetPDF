@@ -62,6 +62,7 @@ public class ModuleSmokeTests
         public string? AskPassword(string documentName, bool isRetry) => null;
         public Task<bool> RunWithProgressAsync(string title, Func<IProgress<OperationProgress>, CancellationToken, Task> work, bool cancellable = true) => Task.FromResult(false);
         public bool? ShowDialog(Window dialog) => false;
+        public void ShowModeless(Window window) { }
         public void ShowError(Exception exception, string? contextText = null) { }
     }
 }

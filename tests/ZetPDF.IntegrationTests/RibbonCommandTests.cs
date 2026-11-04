@@ -214,8 +214,12 @@ public class RibbonCommandTests
             }
             catch (Exception ex) { failures.Add($"{d.Id}: wyjątek {ex.GetType().Name}: {ex.Message}"); }
             foreach (var e in c.Host.Dialogs.Errors) failures.Add($"{d.Id}: ShowError {e.GetType().Name}: {e.Message}");
-            // okna pokazane bez IDialogService (np. Window.Show) – zamknij i zgłoś
-            foreach (var w in PresentationSource.CurrentSources.OfType<HwndSource>().Select(s => s.RootVisual).OfType<Window>().ToList())
+            // okna niemodalne przeszły przez IDialogService: atrapa ich nie pokazuje, kolejne polecenia nie mogą ich widzieć jako otwartych
+            foreach (var w in c.Host.Dialogs.ModelessShown) w.Close();
+            c.Host.Dialogs.ModelessShown.Clear();
+            // okna pokazane bez IDialogService (np. Window.Show) – zamknij i zgłoś; CurrentSources obejmuje wszystkie wątki,
+            // a inne testy działają równolegle na własnych wątkach STA, więc liczą się tylko okna tego wątku
+            foreach (var w in PresentationSource.CurrentSources.OfType<HwndSource>().Where(s => s.CheckAccess()).Select(s => s.RootVisual).OfType<Window>().ToList())
             {
                 failures.Add($"{d.Id}: otwarte okno {w.GetType().Name} z pominięciem IDialogService");
                 w.Close();

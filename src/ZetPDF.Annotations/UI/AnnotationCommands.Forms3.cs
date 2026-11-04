@@ -11,6 +11,7 @@ internal sealed partial class AnnotationCommands
 {
     private readonly Measure.CalculatorTape _calcTape = new();
     private string? _calcLastSelection;
+    private CalculatorWindow? _calcWindow;
     private ClickTool? _calcInsertTool;
     private string _calcInsertText = string.Empty;
 
@@ -24,28 +25,43 @@ internal sealed partial class AnnotationCommands
     }
 
     /// <summary>
-    /// Kalkulator: okno modalne (IDialogService), taśma zachowywana między otwarciami. Przy otwarciu dodaje liczby z nowego
-    /// zaznaczenia tekstu; „Wstaw na stronę” zamyka okno i uruchamia narzędzie wskazania miejsca.
+    /// Kalkulator: okno niemodalne (IDialogService.ShowModeless), jedno na program, taśma zachowywana między otwarciami. Przy otwarciu
+    /// dodaje liczby z nowego zaznaczenia tekstu, potem przyciskiem „Dodaj zaznaczenie” (zawsze z aktywnej karty). „Wstaw na stronę”
+    /// uruchamia narzędzie wskazania miejsca, okno zostaje otwarte.
     /// </summary>
     private void ShowCalculator()
     {
-        string? insert = null;
-        CalculatorWindow? dlg = null;
-        dlg = new CalculatorWindow(_loc, () => _ctx.ActiveView?.TextSelection?.Text, text =>
+        if (_calcWindow is { } open)
         {
-            insert = text;
-            dlg!.Close();
-        }, _calcTape);
-        var selection = _ctx.ActiveView?.TextSelection?.Text;
-        if (!string.IsNullOrWhiteSpace(selection) && selection != _calcLastSelection)
-        {
-            _calcLastSelection = selection;
-            dlg.AddSelection();
+            AddNewCalcSelection(open);
+            open.Activate();
+            return;
         }
-        Ui.Show(Dialogs, dlg);
-        if (insert is null) return;
+        var window = new CalculatorWindow(_loc, ReadCalcSelection, StartCalcInsert, _calcTape);
+        window.Closed += (_, _) => { if (ReferenceEquals(_calcWindow, window)) _calcWindow = null; };
+        _calcWindow = window;
+        AddNewCalcSelection(window);
+        Ui.ShowModeless(Dialogs, window);
+    }
+
+    private string? ReadCalcSelection()
+    {
+        var text = _ctx.ActiveView?.TextSelection?.Text;
+        if (!string.IsNullOrWhiteSpace(text)) _calcLastSelection = text;
+        return text;
+    }
+
+    /// <summary>Otwarcie okna dodaje zaznaczenie tylko, gdy jest nowe: to samo nie liczy się dwa razy po ponownym otwarciu.</summary>
+    private void AddNewCalcSelection(CalculatorWindow window)
+    {
+        var selection = _ctx.ActiveView?.TextSelection?.Text;
+        if (!string.IsNullOrWhiteSpace(selection) && selection != _calcLastSelection) window.AddSelection();
+    }
+
+    private void StartCalcInsert(string text)
+    {
         if (!CanAnnotate() || _calcInsertTool is null) { _ctx.Shell?.SetStatus(_loc["Annot.Calc.NoDocument"]); return; }
-        _calcInsertText = insert;
+        _calcInsertText = text;
         _ctx.Shell?.SetStatus(_loc["Annot.Calc.InsertHint"]);
         Activate(_calcInsertTool);
     }

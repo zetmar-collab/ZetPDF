@@ -239,6 +239,16 @@ public sealed class DialogService : IDialogService, IOwnerProtectionPrompts
         return dialog.ShowDialog();
     }
 
+    public void ShowModeless(Window window)
+    {
+        // Właścicielem jest okno główne, nie aktywne: inne okno mogłoby zamknąć się wcześniej i zabrać ze sobą to niemodalne.
+        var owner = Application.Current?.MainWindow is { IsLoaded: true, IsVisible: true } main && !ReferenceEquals(main, window) ? main : null;
+        if (window.Owner is null && owner is not null) window.Owner = owner;
+        if (window.Owner is not null) window.ShowInTaskbar = false;
+        WindowThemer.Prepare(window);
+        window.Show();
+    }
+
     public void ShowError(Exception exception, string? contextText = null)
     {
         _log.LogError(exception, "Error shown to user: {Context}", contextText);

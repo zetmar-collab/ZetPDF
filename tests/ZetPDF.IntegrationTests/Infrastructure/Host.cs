@@ -119,6 +119,8 @@ internal sealed class FakeDialogService : IDialogService
     }
 
     public bool? ShowDialog(Window dialog) { DialogsShown.Add(dialog.GetType()); return false; }
+    public List<Window> ModelessShown { get; } = new();
+    public void ShowModeless(Window window) => ModelessShown.Add(window);
     public void ShowError(Exception exception, string? contextText = null) => Errors.Add(exception);
 }
 

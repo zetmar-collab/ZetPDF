@@ -8,8 +8,8 @@ using ZetPDF.Core.Theming;
 namespace ZetPDF.Annotations.UI.Dialogs;
 
 /// <summary>
-/// Kalkulator księgowy (okno modalne przez IDialogService; taśma zachowywana między otwarciami): liczby wpisywane
-/// i z zaznaczonego tekstu dokumentu (przy otwarciu i przyciskiem), operacje
+/// Kalkulator księgowy (okno niemodalne przez IDialogService.ShowModeless – dokument pozostaje dostępny; taśma zachowywana
+/// między otwarciami): liczby wpisywane i z zaznaczonego tekstu dokumentu (przy otwarciu i przyciskiem „Dodaj zaznaczenie”), operacje
 /// + − × ÷, cofnięcie wpisu, historia wyników, kopiowanie wyniku, wstawienie wyniku na stronę (polecenie z Cofnij/Ponów).
 /// </summary>
 internal sealed class CalculatorWindow : Window

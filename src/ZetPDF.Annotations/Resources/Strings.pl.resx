@@ -225,7 +225,7 @@
   <data name="Annot.Calc.Op.Subtract" xml:space="preserve"><value>Odejmij</value></data>
   <data name="Annot.Calc.Op.Multiply" xml:space="preserve"><value>Pomnóż</value></data>
   <data name="Annot.Calc.Op.Divide" xml:space="preserve"><value>Podziel</value></data>
-  <data name="Annot.Calc.FromSelection" xml:space="preserve"><value>Dodaj zaznaczone liczby</value></data>
+  <data name="Annot.Calc.FromSelection" xml:space="preserve"><value>Dodaj zaznaczenie</value></data>
   <data name="Annot.Calc.RemoveLast" xml:space="preserve"><value>Usuń ostatni</value></data>
   <data name="Annot.Calc.Clear" xml:space="preserve"><value>Wyczyść</value></data>
   <data name="Annot.Calc.Total" xml:space="preserve"><value>Wynik</value></data>
