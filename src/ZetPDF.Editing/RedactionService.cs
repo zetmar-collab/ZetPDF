@@ -54,13 +54,10 @@ public sealed class RedactionService : IRedactionService
                 var s = text.Text;
                 foreach (var phrase in phrases)
                 {
-                    var cmp = search.Options.HasFlag(TextSearchOptions.MatchCase) ? StringComparison.Ordinal : StringComparison.CurrentCultureIgnoreCase;
-                    int idx = 0;
-                    while ((idx = s.IndexOf(phrase, idx, cmp)) >= 0)
+                    foreach (System.Text.RegularExpressions.Match m in PhraseRegex(phrase, search.Options).Matches(s))
                     {
-                        if (!search.Options.HasFlag(TextSearchOptions.WholeWord) || IsWholeWord(s, idx, phrase.Length))
-                            Add(list, text, pi, idx, phrase.Length, SensitiveDataPattern.None);
-                        idx += Math.Max(1, phrase.Length);
+                        if (!search.Options.HasFlag(TextSearchOptions.WholeWord) || IsWholeWord(s, m.Index, m.Length))
+                            Add(list, text, pi, m.Index, m.Length, SensitiveDataPattern.None);
                     }
                 }
                 if (search.Patterns != SensitiveDataPattern.None)
@@ -72,11 +69,37 @@ public sealed class RedactionService : IRedactionService
         }, ct);
     }
 
+    /// <summary>
+    /// Fraza jako wyrażenie: dowolny biały znak (także koniec wiersza) między słowami, a wewnątrz słowa dopuszczalne
+    /// przeniesienie do następnego wiersza. Fraza złamana w dokumencie też musi zostać znaleziona – inaczej zostałaby w pliku.
+    /// </summary>
+    internal static System.Text.RegularExpressions.Regex PhraseRegex(string phrase, TextSearchOptions options)
+    {
+        const string wordBreak = @"(?:[-­‐\u0002￾]?\s*[\r\n]+\s*|[­\u0002￾])?";
+        var sb = new StringBuilder();
+        bool afterSpace = true;
+        foreach (var ch in phrase.Trim())
+        {
+            if (char.IsWhiteSpace(ch))
+            {
+                if (!afterSpace) sb.Append(@"\s+");
+                afterSpace = true;
+                continue;
+            }
+            if (!afterSpace) sb.Append(wordBreak);
+            sb.Append(System.Text.RegularExpressions.Regex.Escape(ch.ToString()));
+            afterSpace = false;
+        }
+        var regexOptions = System.Text.RegularExpressions.RegexOptions.CultureInvariant;
+        if (!options.HasFlag(TextSearchOptions.MatchCase)) regexOptions |= System.Text.RegularExpressions.RegexOptions.IgnoreCase;
+        return new System.Text.RegularExpressions.Regex(sb.ToString(), regexOptions, TimeSpan.FromSeconds(30));
+    }
+
     private static void Add(List<RedactionCandidate> list, PageText text, int page, int index, int length, SensitiveDataPattern pattern)
     {
         var rects = PageTextTools.RangeRects(text, index, length);
         if (rects.Count == 0) return;
-        var value = text.Text.Substring(index, length);
+        var value = System.Text.RegularExpressions.Regex.Replace(text.Text.Substring(index, length), @"\s+", " ");
         if (list.Any(c => c.PageIndex == page && c.Text == value && c.Quads.Count == rects.Count && c.Quads[0].Bounds == rects[0])) return;
         list.Add(new RedactionCandidate(page, value, pattern, rects.Select(PdfQuad.FromRect).ToList()));
     }
@@ -199,6 +222,7 @@ public sealed class RedactionService : IRedactionService
             // 2. Przebudowa stron (PDFsharp).
             return PdfSharpEdit.Modify(pdf, doc =>
             {
+                var removedAnnotations = new HashSet<PdfDictionary>(ReferenceEqualityComparer.Instance);
                 var removedTokens = new HashSet<string>(StringComparer.CurrentCultureIgnoreCase);
                 foreach (var (pageIndex, data) in rendered)
                 {
@@ -226,15 +250,83 @@ public sealed class RedactionService : IRedactionService
                     TextLayerWriter.Write(page, words, LayerStyle.HiddenText("redaction-text"));
 
                     PdfObjects.RemoveAnnotations(page, a =>
-                        PdfObjects.Subtype(a) == "/Redact" ||
-                        (options.RemoveIntersectingAnnotations && PdfObjects.Rect(a.Elements["/Rect"]) is { } r && areas.Any(x => x.IntersectsWith(r))));
+                    {
+                        bool remove = PdfObjects.Subtype(a) == "/Redact" ||
+                            (options.RemoveIntersectingAnnotations && PdfObjects.Rect(a.Elements["/Rect"]) is { } r && areas.Any(x => x.IntersectsWith(r)));
+                        if (remove) removedAnnotations.Add(a);
+                        return remove;
+                    });
                 }
                 // Oznaczenia /Redact na stronach bez obszarów (puste) – też usuwamy.
                 foreach (var page in doc.Pages) PdfObjects.RemoveAnnotations(page, a => PdfObjects.Subtype(a) == "/Redact");
 
+                RemoveDependentAnnotations(doc, removedAnnotations);
+                RemoveHiddenCopiesOfContent(doc);
                 if (options.ScrubMetadata) ScrubMetadata(doc, removedTokens.Where(t => t.Length >= 3 && !t.Contains('*')).ToList());
             });
         }, ct);
+    }
+
+    /// <summary>
+    /// Usunięty komentarz nie może zostać osiągalny w pliku: okienko /Popup trzyma go przez /Parent, a odpowiedź przez /IRT.
+    /// Pole formularza z kilkoma widżetami usuwamy w całości, bo wartość /V jest wspólna.
+    /// </summary>
+    private static void RemoveDependentAnnotations(PdfDocument doc, HashSet<PdfDictionary> removed)
+    {
+        var removedFields = new HashSet<PdfDictionary>(ReferenceEqualityComparer.Instance);
+        foreach (var w in removed.Where(a => PdfObjects.Subtype(a) == "/Widget"))
+            if (PdfObjects.Resolve(w.Elements["/Parent"]) is PdfDictionary field) removedFields.Add(field);
+
+        bool Depends(PdfDictionary a)
+        {
+            if (PdfObjects.Subtype(a) == "/Widget") return PdfObjects.Resolve(a.Elements["/Parent"]) is PdfDictionary f && removedFields.Contains(f);
+            return (PdfObjects.Resolve(a.Elements["/Parent"]) is PdfDictionary p && removed.Contains(p))
+                || (PdfObjects.Resolve(a.Elements["/IRT"]) is PdfDictionary irt && removed.Contains(irt));
+        }
+
+        bool changed;
+        do
+        {
+            changed = false;
+            foreach (var page in doc.Pages)
+            {
+                PdfObjects.RemoveAnnotations(page, a =>
+                {
+                    if (!Depends(a)) return false;
+                    removed.Add(a);
+                    changed = true;
+                    return true;
+                });
+            }
+        }
+        while (changed);
+
+        // Pozostałe adnotacje nie mogą wskazywać usuniętych (np. /Popup przecinający obszar, którego komentarz został).
+        foreach (var page in doc.Pages)
+        {
+            foreach (var a in PdfObjects.Annotations(page))
+            {
+                if (PdfObjects.Resolve(a.Elements["/Popup"]) is PdfDictionary popup && removed.Contains(popup)) a.Elements.Remove("/Popup");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Miejsca poza treścią strony, które mogą przechowywać jej tekst: drzewo znaczników (/ActualText, /Alt, /E)
+    /// i dane formularza XFA. Drzewo usuwamy w całości – zredagowana strona i tak jest obrazem, a częściowe
+    /// czyszczenie łatwo coś pomija. Dokument traci tagi dostępności (można je sprawdzić kartą Ułatwienia dostępu).
+    /// </summary>
+    private static void RemoveHiddenCopiesOfContent(PdfDocument doc)
+    {
+        var catalog = doc.Internals.Catalog.Elements;
+        catalog.Remove("/StructTreeRoot");
+        catalog.Remove("/MarkInfo");
+        foreach (var page in doc.Pages)
+        {
+            page.Elements.Remove("/StructParents");
+            foreach (var a in PdfObjects.Annotations(page)) a.Elements.Remove("/StructParent");
+        }
+        if (PdfObjects.Resolve(catalog["/AcroForm"]) is PdfDictionary acro) acro.Elements.Remove("/XFA");
     }
 
     private static PdfReference AddIndirect(PdfDocument doc, PdfObject obj)
