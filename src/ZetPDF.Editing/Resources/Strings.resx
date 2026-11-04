@@ -494,4 +494,13 @@ Yes – with subfolders, No – this folder only.</value></data>
   <data name="Edit.Office.ConvertFailed" xml:space="preserve"><value>Microsoft Office could not convert this file (it may be damaged or password-protected): {0}.</value></data>
   <data name="Edit.Office.Timeout" xml:space="preserve"><value>Microsoft Office did not finish the conversion in time and was closed.</value></data>
   <data name="Edit.Filter.Office" xml:space="preserve"><value>Office documents (*.docx, *.xlsx, *.pptx)</value></data>
+  <data name="Edit.Undo.AutoTag" xml:space="preserve"><value>Auto-tag document</value></data>
+  <data name="Edit.AutoTag.Progress" xml:space="preserve"><value>Tagging document...</value></data>
+  <data name="Edit.AutoTag.ReplaceQuestion" xml:space="preserve"><value>This document is already tagged. Replace the existing structure with automatic tags? Manual tagging work will be lost (you can undo this).</value></data>
+  <data name="Edit.AutoTag.Report" xml:space="preserve"><value>Pages tagged: {0}. Headings: {1}, paragraphs: {2}, lists: {3}, figures: {4}, artifacts: {5}.</value></data>
+  <data name="Edit.AutoTag.Skipped.Unreadable" xml:space="preserve"><value>Pages skipped, content could not be read: {0}.</value></data>
+  <data name="Edit.AutoTag.Skipped.TooLarge" xml:space="preserve"><value>Pages skipped, content exceeds the limits: {0}.</value></data>
+  <data name="Edit.AutoTag.Skipped.RenderChanged" xml:space="preserve"><value>Pages left untagged because tagging would change their appearance: {0}.</value></data>
+  <data name="Edit.AutoTag.Note" xml:space="preserve"><value>This is a basic version: tables are not recognized, vector drawings are artifacts, figures have no alternative text, and form fields and links are not in the structure. The reading order follows the file and must be checked by hand.</value></data>
+  <data name="Edit.AutoTag.Error.Render" xml:space="preserve"><value>Tagging changed the appearance of pages and was stopped. The document was not changed.</value></data>
 </root>

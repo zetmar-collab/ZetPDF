@@ -124,6 +124,34 @@ internal sealed class AccessibilityController
         _ctx.Status(L.Format("Edit.Convert.Saved", path));
     }
 
+    /// <summary>Access.AutoTag: pytanie przy dokumencie już oznaczonym, oznaczanie jako polecenie Cofnij/Ponów, raport, sprawdzenie ułatwień.</summary>
+    public async Task AutoTagAsync(IPdfDocumentSession session)
+    {
+        var service = _ctx.Get<AutoTagService>();
+        if (await service.IsTaggedAsync(session.Current.GetSharedBytes()) && _ctx.Dialogs?.Confirm(L["Edit.AutoTag.ReplaceQuestion"], L["Cmd.Access.AutoTag"]) != true) return;
+        AutoTagResult? result = null;
+        await _ctx.ExecuteAsync(session, "Edit.Undo.AutoTag", async (pdf, progress, ct) =>
+        {
+            result = await service.TagAsync(pdf, new AutoTagOptions { Language = SuggestLanguage() }, progress, ct);
+            return result.Pdf;
+        }, DocumentChangeKind.PageContent | DocumentChangeKind.Metadata, DocumentPermissions.ModifyContent, "Edit.AutoTag.Progress");
+        if (result is null) return;
+        await CheckAsync(session);
+        _ctx.Dialogs?.ShowMessage(BuildAutoTagReport(result), L["Cmd.Access.AutoTag"], result.SkippedPages.Count > 0 ? MessageSeverity.Warning : MessageSeverity.Info);
+    }
+
+    public string BuildAutoTagReport(AutoTagResult r)
+    {
+        var text = new StringBuilder(L.Format("Edit.AutoTag.Report", r.TaggedPages, r.Headings, r.Paragraphs, r.Lists, r.Figures, r.Artifacts));
+        foreach (var (reason, key) in new[] { (AutoTagSkipReason.Unreadable, "Edit.AutoTag.Skipped.Unreadable"), (AutoTagSkipReason.TooLarge, "Edit.AutoTag.Skipped.TooLarge"), (AutoTagSkipReason.RenderChanged, "Edit.AutoTag.Skipped.RenderChanged") })
+        {
+            var pages = r.SkippedPages.Where(p => p.Reason == reason).Select(p => p.PageIndex).ToList();
+            if (pages.Count > 0) text.Append("\n\n").Append(L.Format(key, AccessibilityService.PageList(pages)));
+        }
+        text.Append("\n\n").Append(L["Edit.AutoTag.Note"]);
+        return text.ToString();
+    }
+
     public string Detail(AccessCheckResult r) => r.DetailArgs.Count == 0 ? L[r.DetailKey] : L.Format(r.DetailKey, r.DetailArgs.ToArray());
 }
 
@@ -137,6 +165,7 @@ internal static class AccessibilityCommands
         {
             registry.Register(CommandIds.Access.FullCheck, new ActiveDocumentCommand(ctx.Documents, ctx.Dialogs, s => controller.CheckAsync(s)));
             registry.Register(CommandIds.Access.Report, new ActiveDocumentCommand(ctx.Documents, ctx.Dialogs, controller.ReportAsync));
+            registry.Register(CommandIds.Access.AutoTag, new ActiveDocumentCommand(ctx.Documents, ctx.Dialogs, controller.AutoTagAsync, DocumentPermissions.ModifyContent));
             registry.Register(CommandIds.Access.SetProperties, new ActiveDocumentCommand(ctx.Documents, ctx.Dialogs, controller.SetPropertiesAsync, DocumentPermissions.ModifyContent));
         }
         panels?.Register(new PanelDescriptor(AccessibilityController.PanelId, "Edit.Access.Panel.Title", "", 60, _ => new AccessibilityPanel(ctx, controller)));

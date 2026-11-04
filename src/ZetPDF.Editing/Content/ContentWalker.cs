@@ -8,7 +8,7 @@ using ZetPDF.Ocr.Pdf;
 namespace ZetPDF.Editing.Content;
 
 /// <summary>Glif w strumieniu: operator, pozycja w nim, kod, prostokąt w przestrzeni użytkownika strony.</summary>
-internal sealed record GlyphInfo(int OpIndex, int GlyphIndex, int Code, PdfRect Box, double Advance, double FontSize, double HScale, bool TwoByte);
+internal sealed record GlyphInfo(int OpIndex, int GlyphIndex, int Code, PdfRect Box, double Advance, double FontSize, double HScale, bool TwoByte, string? Font = null);
 
 /// <summary>Obiekt strony z zakresem operatorów [Start, End] w sekwencji najwyższego poziomu.</summary>
 internal sealed record ContentObject(PageObjectKind Kind, int Start, int End, PdfRect Bounds, PdfMatrix Matrix, string? XObjectName = null);
@@ -24,9 +24,13 @@ internal sealed class ContentWalker
     private readonly PdfPage _page;
     private readonly Dictionary<string, FontMetrics> _fonts = new();
 
-    public ContentWalker(PdfPage page)
+    private readonly int _maxGlyphs;
+
+    /// <param name="maxGlyphs">Limit glifów (pamięć zależy od danych z pliku); po przekroczeniu <see cref="ContentTokenException"/>.</param>
+    public ContentWalker(PdfPage page, int maxGlyphs = int.MaxValue)
     {
         _page = page;
+        _maxGlyphs = maxGlyphs;
         Sequence = PageContent.Parse(page);
         Walk();
     }
@@ -173,7 +177,8 @@ internal sealed class ContentWalker
                     double tx = (w0 * st.Fs + st.Tc + (space ? st.Tw : 0)) * st.Th;
                     var trm = new PdfMatrix(st.Fs * st.Th, 0, 0, st.Fs, 0, st.Ts).Then(tm).Then(st.Ctm);
                     var box = Bounds(trm, new PdfPoint(0, -0.2), new PdfPoint(w0, -0.2), new PdfPoint(0, 0.8), new PdfPoint(w0, 0.8));
-                    Glyphs.Add(new GlyphInfo(opIndex, g++, code, box, tx, st.Fs, st.Th, font.TwoByte));
+                    if (Glyphs.Count >= _maxGlyphs) throw new ContentTokenException("Too many glyphs.");
+                    Glyphs.Add(new GlyphInfo(opIndex, g++, code, box, tx, st.Fs, st.Th, font.TwoByte, st.Font));
                     if (!space && code != 0) textBounds = textBounds is { } tb ? tb.Union(box) : box;
                     tm = PdfMatrix.Translation(tx, 0).Then(tm);
                 }

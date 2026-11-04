@@ -494,4 +494,13 @@ Tak – z podfolderami, Nie – tylko ten folder.</value></data>
   <data name="Edit.Office.ConvertFailed" xml:space="preserve"><value>Microsoft Office nie zdołał przekonwertować tego pliku (może być uszkodzony lub chroniony hasłem): {0}.</value></data>
   <data name="Edit.Office.Timeout" xml:space="preserve"><value>Microsoft Office nie zakończył konwersji w wyznaczonym czasie i został zamknięty.</value></data>
   <data name="Edit.Filter.Office" xml:space="preserve"><value>Dokumenty Office (*.docx, *.xlsx, *.pptx)</value></data>
+  <data name="Edit.Undo.AutoTag" xml:space="preserve"><value>Automatyczne oznaczanie</value></data>
+  <data name="Edit.AutoTag.Progress" xml:space="preserve"><value>Oznaczanie dokumentu...</value></data>
+  <data name="Edit.AutoTag.ReplaceQuestion" xml:space="preserve"><value>Ten dokument jest już oznaczony. Zastąpić istniejącą strukturę oznaczeniami automatycznymi? Ręczna praca nad tagami przepadnie (można to cofnąć).</value></data>
+  <data name="Edit.AutoTag.Report" xml:space="preserve"><value>Oznaczone strony: {0}. Nagłówki: {1}, akapity: {2}, listy: {3}, figury: {4}, artefakty: {5}.</value></data>
+  <data name="Edit.AutoTag.Skipped.Unreadable" xml:space="preserve"><value>Pominięte strony, treści nie da się odczytać: {0}.</value></data>
+  <data name="Edit.AutoTag.Skipped.TooLarge" xml:space="preserve"><value>Pominięte strony, treść przekracza limity: {0}.</value></data>
+  <data name="Edit.AutoTag.Skipped.RenderChanged" xml:space="preserve"><value>Strony pozostawione bez oznaczeń, bo oznaczanie zmieniłoby ich wygląd: {0}.</value></data>
+  <data name="Edit.AutoTag.Note" xml:space="preserve"><value>To wersja podstawowa: tabele nie są rozpoznawane, rysunki wektorowe są artefaktami, figury nie mają tekstu alternatywnego, a pola formularzy i łącza nie wchodzą do struktury. Kolejność odczytu wynika z pliku i trzeba ją sprawdzić ręcznie.</value></data>
+  <data name="Edit.AutoTag.Error.Render" xml:space="preserve"><value>Oznaczanie zmieniało wygląd stron i zostało przerwane. Dokument nie został zmieniony.</value></data>
 </root>
