@@ -40,6 +40,37 @@ public sealed class AppPaths : IAppPaths
     public string ActionsDirectory => Path.Combine(AppDataDirectory, "actions");
     public string DigitalIdsDirectory => Path.Combine(AppDataDirectory, "digital-ids");
 
+    /// <summary>Usuwa foldery tymczasowe procesów, które już nie działają (zostają po awarii programu).</summary>
+    public int CleanupOrphanedTemp()
+    {
+        int removed = 0;
+        try
+        {
+            if (!Directory.Exists(TempRoot)) return 0;
+            foreach (var dir in Directory.EnumerateDirectories(TempRoot))
+            {
+                if (!int.TryParse(Path.GetFileName(dir), out var pid) || pid == Environment.ProcessId || IsZetPdfProcess(pid)) continue;
+                try { Directory.Delete(dir, recursive: true); removed++; }
+                catch (IOException) { }
+                catch (UnauthorizedAccessException) { }
+            }
+        }
+        catch (IOException) { }
+        catch (UnauthorizedAccessException) { }
+        return removed;
+    }
+
+    private static bool IsZetPdfProcess(int pid)
+    {
+        try
+        {
+            using var p = System.Diagnostics.Process.GetProcessById(pid);
+            return !p.HasExited && string.Equals(p.ProcessName, System.Diagnostics.Process.GetCurrentProcess().ProcessName, StringComparison.OrdinalIgnoreCase);
+        }
+        catch (ArgumentException) { return false; }
+        catch (InvalidOperationException) { return false; }
+    }
+
     /// <summary>Usuwa folder tymczasowy procesu (wołane przy zamknięciu aplikacji).</summary>
     public void CleanupTemp()
     {
@@ -71,12 +102,8 @@ public sealed class FileService : IFileService
             }
             if (File.Exists(full))
             {
-                var backup = full + ".bak";
-                File.Replace(temp, full, backup, ignoreMetadataErrors: true);
-                if (!keepBackup)
-                {
-                    try { File.Delete(backup); } catch (IOException) { } catch (UnauthorizedAccessException) { }
-                }
+                // Bez keepBackup nie ruszamy cudzego pliku <nazwa>.bak – File.Replace nadpisałby go.
+                File.Replace(temp, full, keepBackup ? full + ".bak" : null, ignoreMetadataErrors: true);
             }
             else
             {

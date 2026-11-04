@@ -33,6 +33,8 @@ public partial class App : Application
     {
         base.OnStartup(e);
         _paths = new AppPaths();
+        var startupPaths = _paths;
+        _ = Task.Run(startupPaths.CleanupOrphanedTemp);
         DispatcherUnhandledException += OnDispatcherUnhandledException;
         TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
         AppDomain.CurrentDomain.UnhandledException += (_, a) => _log?.LogCritical(a.ExceptionObject as Exception, "Unhandled exception (terminating: {Terminating})", a.IsTerminating);

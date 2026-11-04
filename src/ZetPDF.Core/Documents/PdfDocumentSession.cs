@@ -106,10 +106,10 @@ public sealed class PdfDocumentSession : IPdfDocumentSession, IDisposable
 
     internal IEnumerable<DocumentSnapshot> LiveSnapshots() { yield return _current; }
 
-    /// <summary>Po zapisie: zapamiętuje zapisaną wersję, ścieżkę i nazwę.</summary>
-    internal void MarkSaved(string path)
+    /// <summary>Po zapisie: zapamiętuje zapisaną wersję (tę z początku zapisu), ścieżkę i nazwę.</summary>
+    internal void MarkSaved(string path, long savedVersion)
     {
-        _savedVersion = _current.Version;
+        _savedVersion = savedVersion;
         FilePath = path;
         DisplayName = Path.GetFileName(path);
         RaiseState();

@@ -90,9 +90,11 @@ public sealed class DocumentManager : IDocumentManager
     {
         var target = path ?? session.FilePath ?? throw new InvalidOperationException("Document has no file path – use Save As.").WithMessageKey("Core.Error.NoFilePath");
         target = Path.GetFullPath(target);
-        var bytes = await GetBytesForSaveAsync(session, ct);
+        // Zapisana wersja to ten zrzut – edycje wykonane w trakcie zapisu zostają niezapisane.
+        var snapshot = session.Current;
+        var bytes = await GetBytesForSaveAsync(session, snapshot, ct);
         await _files.WriteAllBytesSafeAsync(target, bytes, keepBackup: false, ct);
-        if (session is PdfDocumentSession s) s.MarkSaved(target);
+        if (session is PdfDocumentSession s) s.MarkSaved(target, snapshot.Version);
         _recent.Add(target);
         _log.LogInformation("Saved {File} ({Bytes} B)", target, bytes.Length);
     }
@@ -150,9 +152,11 @@ public sealed class DocumentManager : IDocumentManager
         return enc;
     }
 
-    public async Task<byte[]> GetBytesForSaveAsync(IPdfDocumentSession session, CancellationToken ct = default)
+    public Task<byte[]> GetBytesForSaveAsync(IPdfDocumentSession session, CancellationToken ct = default) =>
+        GetBytesForSaveAsync(session, session.Current, ct);
+
+    private async Task<byte[]> GetBytesForSaveAsync(IPdfDocumentSession session, DocumentSnapshot snapshot, CancellationToken ct)
     {
-        var snapshot = session.Current;
         var encryption = GetEffectiveSaveEncryption(session);
         var plain = snapshot.GetBytes();
         SaveTransform[] transforms;

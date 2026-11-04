@@ -166,13 +166,15 @@ internal sealed class UndoRedoHistory : IUndoRedoService
 
         long used = 0;
         var seen = new HashSet<DocumentSnapshot>(ReferenceEqualityComparer.Instance);
-        bool protect = _session.SecurityInfo.IsEncrypted || newest.Encryption is not null;
         foreach (var s in ordered)
         {
             if (!seen.Add(s) || !s.IsInMemory) continue;
             used += s.Length;
-            if (used > budget && !ReferenceEquals(s, newest) && !ReferenceEquals(s, _session.Current))
-                s.SpillToDisk(_storage.TempDirectory, protect);
+            if (used <= budget || ReferenceEquals(s, newest) || ReferenceEquals(s, _session.Current)) continue;
+            // Zrzuty na dysku zawsze chronione DPAPI (mogą zostać po awarii). Błąd zapisu (pełny dysk)
+            // nie może przerwać edycji: zrzut zostaje w pamięci.
+            try { s.SpillToDisk(_storage.TempDirectory, protect: true); }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Security.Cryptography.CryptographicException) { return; }
         }
     }
 

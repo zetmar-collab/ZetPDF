@@ -88,7 +88,12 @@ public sealed class DocumentSnapshot
                 Directory.CreateDirectory(directory);
                 var path = Path.Combine(directory, $"snap-{Guid.NewGuid():N}.bin");
                 var payload = protect ? ProtectedData.Protect(_memory, null, DataProtectionScope.CurrentUser) : _memory;
-                File.WriteAllBytes(path, payload);
+                try { File.WriteAllBytes(path, payload); }
+                catch
+                {
+                    try { File.Delete(path); } catch (IOException) { } catch (UnauthorizedAccessException) { }
+                    throw;
+                }
                 _file = path;
                 _protected = protect;
                 _memory = null;
