@@ -472,4 +472,21 @@ Yes – with subfolders, No – this folder only.</value></data>
   <data name="Edit.Scan.Error.Busy" xml:space="preserve"><value>The scanner is busy. Try again in a moment.</value></data>
   <data name="Edit.Scan.Error.General" xml:space="preserve"><value>The scanner reported an error.</value></data>
   <data name="Edit.Scan.Error.Timeout" xml:space="preserve"><value>The scanner did not finish in time.</value></data>
+  <data name="Edit.Web.Title" xml:space="preserve"><value>Create PDF from a web page</value></data>
+  <data name="Edit.Web.Source" xml:space="preserve"><value>Address or file:</value></data>
+  <data name="Edit.Web.Browse" xml:space="preserve"><value>Choose an HTML file…</value></data>
+  <data name="Edit.Web.Create" xml:space="preserve"><value>Download and create PDF</value></data>
+  <data name="Edit.Web.NetworkNotice" xml:space="preserve"><value>The page will be downloaded from the internet by Microsoft Edge, and its server will see your IP address. ZetPDF connects only after you confirm here.</value></data>
+  <data name="Edit.Web.LocalNote" xml:space="preserve"><value>Allowed: http, https and local .html or .htm files. A local file can also load resources from the internet if it refers to them.</value></data>
+  <data name="Edit.Web.Progress" xml:space="preserve"><value>Creating PDF with Microsoft Edge</value></data>
+  <data name="Edit.Web.NoEdge" xml:space="preserve"><value>Microsoft Edge was not found on this computer. It is needed to create a PDF from a web page.</value></data>
+  <data name="Edit.Web.Error.Timeout" xml:space="preserve"><value>The page did not finish loading in time.</value></data>
+  <data name="Edit.Web.Error.NoOutput" xml:space="preserve"><value>Microsoft Edge did not create a PDF. Check the address and your connection.</value></data>
+  <data name="Edit.Web.Invalid.Empty" xml:space="preserve"><value>Enter an address or choose a file.</value></data>
+  <data name="Edit.Web.Invalid.LeadingDash" xml:space="preserve"><value>The address cannot start with a dash.</value></data>
+  <data name="Edit.Web.Invalid.UnsupportedScheme" xml:space="preserve"><value>Only http and https addresses and local HTML files are allowed.</value></data>
+  <data name="Edit.Web.Invalid.NotHtml" xml:space="preserve"><value>Only .html and .htm files can be used.</value></data>
+  <data name="Edit.Web.Invalid.FileNotFound" xml:space="preserve"><value>This file does not exist.</value></data>
+  <data name="Edit.Web.Invalid.NetworkPath" xml:space="preserve"><value>Network paths are not allowed; copy the file to this computer.</value></data>
+  <data name="Edit.Web.Invalid.InvalidAddress" xml:space="preserve"><value>This is not a valid address.</value></data>
 </root>

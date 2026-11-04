@@ -41,9 +41,12 @@ Gdzie są dane
   - Zmienna środowiskowa ZETPDF_HOME=<folder> przenosi wszystkie te foldery (np. wersja przenośna, testy).
 
 Prywatność
-  - Brak telemetrii, brak sprawdzania aktualizacji, brak kont. Program nie łączy się z siecią.
-  - Jedyny wyjątek: znacznik czasu podpisu cyfrowego (TSA) pod adresem, który sam wpiszesz w Ustawieniach –
-    tylko wtedy, gdy zaznaczysz tę opcję przy podpisywaniu (wysyłany jest wyłącznie skrót SHA-256).
+  - Brak telemetrii, brak sprawdzania aktualizacji, brak kont. Program nie łączy się sam z siecią.
+  - Dwa wyjątki, zawsze na Twoje polecenie:
+    1) znacznik czasu podpisu cyfrowego (TSA) pod adresem, który sam wpiszesz w Ustawieniach – tylko wtedy,
+       gdy zaznaczysz tę opcję przy podpisywaniu (wysyłany jest wyłącznie skrót SHA-256);
+    2) polecenie Konwertuj > Ze strony WWW: po wpisaniu adresu i zatwierdzeniu w oknie stronę pobiera
+       zainstalowana przeglądarka Microsoft Edge (osobny, tymczasowy profil usuwany po zakończeniu).
   - Łącza w dokumentach otwierają się w przeglądarce dopiero po potwierdzeniu.
 
 Znane ograniczenia
@@ -99,7 +102,10 @@ Where data is stored
   - Environment variable ZETPDF_HOME=<folder> relocates all of them (portable use, tests).
 
 Privacy
-  - No telemetry, no update checks, no accounts. The program does not connect to the network.
+  - No telemetry, no update checks, no accounts. The program never connects to the network on its own.
+  - Two exceptions, always on your command: (1) the digital signature timestamp (TSA), see below;
+    (2) Convert > From Web Page: after you enter an address and confirm in the window, the installed Microsoft Edge
+    downloads the page (separate temporary profile, removed afterwards).
   - The only exception: the digital signature time stamp (TSA) at the address you enter in Settings, only when
     you tick that option while signing (only a SHA-256 hash is sent).
   - Links in documents open in the browser only after confirmation.

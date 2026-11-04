@@ -472,4 +472,21 @@ Tak – z podfolderami, Nie – tylko ten folder.</value></data>
   <data name="Edit.Scan.Error.Busy" xml:space="preserve"><value>Skaner jest zajęty. Spróbuj ponownie za chwilę.</value></data>
   <data name="Edit.Scan.Error.General" xml:space="preserve"><value>Skaner zgłosił błąd.</value></data>
   <data name="Edit.Scan.Error.Timeout" xml:space="preserve"><value>Skaner nie zakończył pracy w wyznaczonym czasie.</value></data>
+  <data name="Edit.Web.Title" xml:space="preserve"><value>Utwórz PDF ze strony WWW</value></data>
+  <data name="Edit.Web.Source" xml:space="preserve"><value>Adres lub plik:</value></data>
+  <data name="Edit.Web.Browse" xml:space="preserve"><value>Wybierz plik HTML…</value></data>
+  <data name="Edit.Web.Create" xml:space="preserve"><value>Pobierz i utwórz PDF</value></data>
+  <data name="Edit.Web.NetworkNotice" xml:space="preserve"><value>Strona zostanie pobrana z internetu przez Microsoft Edge, a jej serwer zobaczy Twój adres IP. ZetPDF łączy się dopiero po zatwierdzeniu w tym oknie.</value></data>
+  <data name="Edit.Web.LocalNote" xml:space="preserve"><value>Dozwolone: http, https oraz lokalne pliki .html i .htm. Plik lokalny też może pobrać zasoby z internetu, jeśli się do nich odwołuje.</value></data>
+  <data name="Edit.Web.Progress" xml:space="preserve"><value>Tworzenie PDF przez Microsoft Edge</value></data>
+  <data name="Edit.Web.NoEdge" xml:space="preserve"><value>Na tym komputerze nie znaleziono przeglądarki Microsoft Edge. Jest potrzebna do utworzenia PDF ze strony WWW.</value></data>
+  <data name="Edit.Web.Error.Timeout" xml:space="preserve"><value>Strona nie załadowała się w wyznaczonym czasie.</value></data>
+  <data name="Edit.Web.Error.NoOutput" xml:space="preserve"><value>Microsoft Edge nie utworzył pliku PDF. Sprawdź adres i połączenie.</value></data>
+  <data name="Edit.Web.Invalid.Empty" xml:space="preserve"><value>Wpisz adres lub wybierz plik.</value></data>
+  <data name="Edit.Web.Invalid.LeadingDash" xml:space="preserve"><value>Adres nie może zaczynać się od myślnika.</value></data>
+  <data name="Edit.Web.Invalid.UnsupportedScheme" xml:space="preserve"><value>Dozwolone są tylko adresy http i https oraz lokalne pliki HTML.</value></data>
+  <data name="Edit.Web.Invalid.NotHtml" xml:space="preserve"><value>Można użyć tylko plików .html i .htm.</value></data>
+  <data name="Edit.Web.Invalid.FileNotFound" xml:space="preserve"><value>Ten plik nie istnieje.</value></data>
+  <data name="Edit.Web.Invalid.NetworkPath" xml:space="preserve"><value>Ścieżki sieciowe są niedozwolone; skopiuj plik na ten komputer.</value></data>
+  <data name="Edit.Web.Invalid.InvalidAddress" xml:space="preserve"><value>To nie jest poprawny adres.</value></data>
 </root>

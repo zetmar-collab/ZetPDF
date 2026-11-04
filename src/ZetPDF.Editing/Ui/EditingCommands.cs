@@ -73,6 +73,7 @@ internal sealed class EditingCommands
         _registry.Register(CommandIds.File.CombineFiles, new SimpleCommand(CombineAsync, _ctx));
         _registry.Register(CommandIds.File.CreateFromClipboard, new SimpleCommand(FromClipboardAsync, _ctx));
         _registry.Register(CommandIds.File.CreateFromScanner, new SimpleCommand(FromScannerAsync, _ctx));
+        _registry.Register(CommandIds.File.CreateFromWeb, new SimpleCommand(FromWebAsync, _ctx));
         _registry.Register(CommandIds.Convert.ToImages, Doc(ToImagesAsync, DocumentPermissions.CopyContent));
         _registry.Register(CommandIds.Convert.ToText, Doc(ToTextAsync, DocumentPermissions.CopyContent));
         _registry.Register(CommandIds.Convert.ToDocx, Doc(ToDocxAsync, DocumentPermissions.CopyContent));
@@ -290,6 +291,18 @@ internal sealed class EditingCommands
             return;
         }
         if (pdf is not null) await _ctx.Documents.CreateNewAsync(pdf, L["Edit.Clipboard.DocumentName"]);
+    }
+
+    /// <summary>Jedyne, obok TSA, połączenie sieciowe: tylko na to polecenie i po zatwierdzeniu adresu w oknie.</summary>
+    private async Task FromWebAsync()
+    {
+        var printer = _ctx.Get<Conversion.IWebPdfPrinter>();
+        if (!printer.IsAvailable) { _ctx.Message("Edit.Web.NoEdge"); return; }
+        var dlg = new WebToPdfDialog(L, () => _ctx.Dialogs?.OpenFiles(L["Edit.Web.Browse"], new[] { new FileFilter(L["Edit.Filter.Html"], "*.html", "*.htm") })?.FirstOrDefault());
+        if (_ctx.ShowDialog(dlg) != true || dlg.Source is not { } source) return;
+        byte[]? pdf = null;
+        if (!await _ctx.RunAsync("Edit.Web.Progress", async (_, ct) => pdf = await printer.PrintAsync(source, ct))) return;
+        if (pdf is not null) await _ctx.Documents.CreateNewAsync(pdf, source.SuggestedName);
     }
 
     private async Task FromScannerAsync()

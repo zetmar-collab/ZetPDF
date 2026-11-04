@@ -272,3 +272,8 @@ Zbiorczo z `docs\ograniczenia\annotations-forms.md` (pkt 17–25), `renderer-vie
 - Anulowanie w trakcie transferu porzuca wątek, ale skaner dokończy stronę. Strony zeskanowane przed anulowaniem trafiają do dokumentu. Brak obszaru skanowania, jasności, kontrastu, dupleksu (zależy od urządzenia), profili ustawień oraz okna podglądu. Nieobsługiwana rozdzielczość lub tryb nie są zgłaszane; wynik dostanie ustawienia domyślne urządzenia. Limit 1000 stron w jednym przebiegu podajnika.
 - Czarno-biały: intencja „tekst”; sterownik decyduje o progu.
 - Okno nie było oglądane na pulpicie.
+
+### 28.5 PDF ze strony WWW
+- **Program nie łączy się sam z siecią, tylko na to polecenie i przy TSA.** Serwer strony zobaczy adres IP użytkownika, a Edge mimo wyłączonych usług w tle może wykonać własne połączenia, nad którymi ZetPDF nie ma kontroli. Lokalny plik HTML też może pobierać zasoby z internetu, jeśli się do nich odwołuje, i uruchamia swoje skrypty w przeglądarce.
+- Wymaga Microsoft Edge (bez niej komunikat). Limit 2 minuty. Strony logowania, wyskakujące zgody na ciasteczka i treść ładowana dopiero po przewinięciu nie są obsługiwane; PDF pokazuje to, co widać po załadowaniu w świeżym profilu. Układ jak na wydruku, bez wyboru rozmiaru papieru. Pełne witryny (poziomy łączy z raportu Foxita) nie są obsługiwane.
+- Sprawdzono prawdziwą Edge tylko dla lokalnego pliku HTML z polskimi znakami i polską ścieżką (test). **Pobierania z internetu nie uruchamiano** w testach. Kończenie procesów przy limicie sprawdzono na procesach zastępczych (cmd, ping), a nie na prawdziwej Edge. Okno nie było oglądane na pulpicie.
