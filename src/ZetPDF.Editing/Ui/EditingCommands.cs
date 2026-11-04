@@ -72,6 +72,7 @@ internal sealed class EditingCommands
         _registry.Register(CommandIds.File.CreateFromFile, new SimpleCommand(CreateFromFileAsync, _ctx));
         _registry.Register(CommandIds.File.CombineFiles, new SimpleCommand(CombineAsync, _ctx));
         _registry.Register(CommandIds.File.CreateFromClipboard, new SimpleCommand(FromClipboardAsync, _ctx));
+        _registry.Register(CommandIds.File.CreateFromScanner, new SimpleCommand(FromScannerAsync, _ctx));
         _registry.Register(CommandIds.Convert.ToImages, Doc(ToImagesAsync, DocumentPermissions.CopyContent));
         _registry.Register(CommandIds.Convert.ToText, Doc(ToTextAsync, DocumentPermissions.CopyContent));
         _registry.Register(CommandIds.Convert.ToDocx, Doc(ToDocxAsync, DocumentPermissions.CopyContent));
@@ -289,6 +290,34 @@ internal sealed class EditingCommands
             return;
         }
         if (pdf is not null) await _ctx.Documents.CreateNewAsync(pdf, L["Edit.Clipboard.DocumentName"]);
+    }
+
+    private async Task FromScannerAsync()
+    {
+        var backend = _ctx.Get<Scanning.IScannerBackend>();
+        if (!backend.IsAvailable) { _ctx.Message("Edit.Scan.Unavailable"); return; }
+        var workflow = new Scanning.ScanWorkflow(backend);
+        IReadOnlyList<Scanning.ScannerInfo> devices = Array.Empty<Scanning.ScannerInfo>();
+        if (!await _ctx.RunAsync("Edit.Scan.Progress", async (_, ct) => devices = await workflow.ListDevicesAsync(ct))) return;
+        if (devices.Count == 0) { _ctx.Message("Edit.Scan.NoScanner"); return; }
+        var dlg = new ScannerDialog(L, devices);
+        if (_ctx.ShowDialog(dlg) != true) return;
+        var settings = dlg.Settings;
+        bool runOcr = dlg.RunOcr;
+
+        var pages = await workflow.CollectAsync(settings,
+            step => _ctx.RunAsync("Edit.Scan.Progress", (_, ct) => step(ct)),
+            count => _ctx.Dialogs?.Confirm(L.Format("Edit.Scan.NextPrompt", count), L["Edit.Scan.NextTitle"], MessageSeverity.Info) == true);
+        if (pages.Count == 0) { _ctx.Message("Edit.Scan.NothingScanned"); return; }
+
+        var ocr = runOcr ? _ctx.Services.GetService(typeof(IOcrService)) as IOcrService : null;
+        if (ocr is not null && !await ocr.IsAvailableAsync()) { _ctx.Message("Edit.Scan.OcrUnavailable"); ocr = null; }
+        var ocrOptions = ocr is null ? null : new OcrOptions { Languages = _ctx.Settings.OcrLanguages, SkipPagesWithText = false, SuspectThreshold = _ctx.SettingsService?.Current.OcrSuspectThreshold ?? 70 };
+        var conv = _ctx.Get<IConversionService>();
+        var temp = _ctx.Get<IAppPaths>().TempDirectory;
+        byte[]? pdf = null;
+        if (!await _ctx.RunAsync("Edit.Scan.Building", async (p, ct) => pdf = await Scanning.ScanWorkflow.BuildPdfAsync(pages, conv, temp, ocr, ocrOptions, p, ct))) return;
+        if (pdf is not null) await _ctx.Documents.CreateNewAsync(pdf, L["Edit.Scan.DocumentName"]);
     }
 
     private string BaseName(IPdfDocumentSession s) => Path.GetFileNameWithoutExtension(s.FilePath ?? s.DisplayName);

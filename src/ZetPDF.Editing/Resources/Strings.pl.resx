@@ -446,4 +446,30 @@ Tak – z podfolderami, Nie – tylko ten folder.</value></data>
   <data name="Edit.PdfA.Rule.XmpSchemas.Desc" xml:space="preserve"><value>Nie sprawdzono: czy wszystkie właściwości XMP są zdefiniowane lub opisane schematem rozszerzenia oraz czy zgadzają się ze słownikiem Info.</value></data>
   <data name="Edit.PdfA.Rule.FileStructure" xml:space="preserve"><value>Szczegóły struktury pliku</value></data>
   <data name="Edit.PdfA.Rule.FileStructure.Desc" xml:space="preserve"><value>Nie sprawdzono: szczegółów tablicy odsyłaczy, słów kluczowych strumieni, ich długości oraz budowy profili ICC i obrazów JPEG 2000.</value></data>
+  <data name="Edit.Scan.Title" xml:space="preserve"><value>Utwórz PDF ze skanera</value></data>
+  <data name="Edit.Scan.Device" xml:space="preserve"><value>Skaner:</value></data>
+  <data name="Edit.Scan.Dpi" xml:space="preserve"><value>Rozdzielczość (DPI):</value></data>
+  <data name="Edit.Scan.Mode" xml:space="preserve"><value>Kolor:</value></data>
+  <data name="Edit.Scan.Mode.Color" xml:space="preserve"><value>Kolor</value></data>
+  <data name="Edit.Scan.Mode.Gray" xml:space="preserve"><value>Skala szarości</value></data>
+  <data name="Edit.Scan.Mode.Mono" xml:space="preserve"><value>Czarno-biały</value></data>
+  <data name="Edit.Scan.Feeder" xml:space="preserve"><value>Użyj podajnika dokumentów (wszystkie strony)</value></data>
+  <data name="Edit.Scan.NoFeederNote" xml:space="preserve"><value>Ten skaner nie ma podajnika. Po każdej stronie można skanować następną.</value></data>
+  <data name="Edit.Scan.Ocr" xml:space="preserve"><value>Od razu rozpoznaj tekst (OCR)</value></data>
+  <data name="Edit.Scan.Start" xml:space="preserve"><value>Skanuj</value></data>
+  <data name="Edit.Scan.Progress" xml:space="preserve"><value>Skanowanie</value></data>
+  <data name="Edit.Scan.Building" xml:space="preserve"><value>Tworzenie dokumentu</value></data>
+  <data name="Edit.Scan.NextPrompt" xml:space="preserve"><value>Zeskanowane strony: {0}. Skanować następną? Najpierw połóż ją na szybie. Wybierz Nie, aby zakończyć i utworzyć dokument.</value></data>
+  <data name="Edit.Scan.NextTitle" xml:space="preserve"><value>Skanuj następną</value></data>
+  <data name="Edit.Scan.NoScanner" xml:space="preserve"><value>Nie znaleziono skanera. Sprawdź, czy jest podłączony i włączony oraz czy ma zainstalowany sterownik.</value></data>
+  <data name="Edit.Scan.Unavailable" xml:space="preserve"><value>Skanowanie jest niedostępne: w tym systemie brakuje usługi Windows Image Acquisition (WIA).</value></data>
+  <data name="Edit.Scan.NothingScanned" xml:space="preserve"><value>Niczego nie zeskanowano.</value></data>
+  <data name="Edit.Scan.DocumentName" xml:space="preserve"><value>Skan.pdf</value></data>
+  <data name="Edit.Scan.OcrUnavailable" xml:space="preserve"><value>Rozpoznawanie tekstu jest niedostępne, więc dokument zawiera tylko obrazy.</value></data>
+  <data name="Edit.Scan.Error.NoPaper" xml:space="preserve"><value>Podajnik jest pusty. Włóż strony i spróbuj ponownie.</value></data>
+  <data name="Edit.Scan.Error.Jam" xml:space="preserve"><value>Papier zaciął się w skanerze.</value></data>
+  <data name="Edit.Scan.Error.Offline" xml:space="preserve"><value>Skaner nie odpowiada. Sprawdź, czy jest podłączony i włączony.</value></data>
+  <data name="Edit.Scan.Error.Busy" xml:space="preserve"><value>Skaner jest zajęty. Spróbuj ponownie za chwilę.</value></data>
+  <data name="Edit.Scan.Error.General" xml:space="preserve"><value>Skaner zgłosił błąd.</value></data>
+  <data name="Edit.Scan.Error.Timeout" xml:space="preserve"><value>Skaner nie zakończył pracy w wyznaczonym czasie.</value></data>
 </root>

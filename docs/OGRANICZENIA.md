@@ -266,3 +266,9 @@ Zbiorczo z `docs\ograniczenia\annotations-forms.md` (pkt 17–25), `renderer-vie
 - Transparencja jest tylko sygnalizowana. Grupa `/CS /DeviceCMYK` daje rasteryzację strony.
 - Dokument z oznaczeniem PDF/A po edycji w ZetPDF traci je przy zapisie, bo PDFsharp odtwarza XMP; trzeba przekonwertować ponownie. Krok PDF/A w Kreatorze musi być ostatni, a po nim nie ma sensu krok „Chroń hasłem”. Kreator nie może prosić o zgodę, dlatego pliki z załącznikami, adnotacjami do usunięcia, XFA, podpisami i stronami do rasteryzacji zostają zwykłym PDF z ostrzeżeniem w raporcie. Stare, zapisane działania użytkownika nie dostają kroku same.
 - Plik wyniku ma aktualizację przyrostową (stary pakiet XMP, bez `pdfaid`, zostaje w pliku jako nieużywany obiekt). Bez profilu sRGB w Windows konwersja kończy się komunikatem. Okna nie były klikane na pulpicie; działają testy poleceń z anulowanymi oknami, a logika ma testy na usłudze.
+
+### 28.4 Skanowanie (WIA)
+- **Prawdziwego skanera nie sprawdzono, bo w systemie żadnego nie ma.** Na tym komputerze przetestowano tylko przepływ na atrapie i listę urządzeń przez prawdziwe COM WIA (pusta lista). Przypisywanie właściwości, `Transfer`, podajnik, kody błędów urządzenia i odczyt danych obrazu nie zostały nigdy uruchomione na urządzeniu; mogą wymagać poprawek.
+- Anulowanie w trakcie transferu porzuca wątek, ale skaner dokończy stronę. Strony zeskanowane przed anulowaniem trafiają do dokumentu. Brak obszaru skanowania, jasności, kontrastu, dupleksu (zależy od urządzenia), profili ustawień oraz okna podglądu. Nieobsługiwana rozdzielczość lub tryb nie są zgłaszane; wynik dostanie ustawienia domyślne urządzenia. Limit 1000 stron w jednym przebiegu podajnika.
+- Czarno-biały: intencja „tekst”; sterownik decyduje o progu.
+- Okno nie było oglądane na pulpicie.

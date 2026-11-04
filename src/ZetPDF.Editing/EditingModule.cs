@@ -29,6 +29,7 @@ public sealed class EditingModule : IFeatureModule
         services.AddSingleton<IConversionService>(sp => new ConversionService(sp.GetRequiredService<IPdfRenderer>(), sp.GetService<ILocalizationService>()));
         services.AddSingleton<IRedactionService>(sp => new RedactionService(sp.GetRequiredService<IPdfRenderer>(), sp.GetService<ILocalizationService>()));
         services.AddSingleton<IPdfAService>(sp => new PdfA.PdfAService(sp.GetRequiredService<IPdfRenderer>(), sp.GetService<ILocalizationService>()));
+        services.AddSingleton<Scanning.IScannerBackend, Scanning.WiaScannerBackend>();
         services.AddSingleton<AccessibilityService>();
         services.AddSingleton(sp => new FullTextIndex(Path.Combine(sp.GetRequiredService<IAppPaths>().LocalDataDirectory, "index")));
     }

@@ -446,4 +446,30 @@ Yes – with subfolders, No – this folder only.</value></data>
   <data name="Edit.PdfA.Rule.XmpSchemas.Desc" xml:space="preserve"><value>Not checked: whether all XMP properties are predefined or described by an extension schema, and whether they match the document information dictionary.</value></data>
   <data name="Edit.PdfA.Rule.FileStructure" xml:space="preserve"><value>File structure details</value></data>
   <data name="Edit.PdfA.Rule.FileStructure.Desc" xml:space="preserve"><value>Not checked: details of the cross-reference table, stream keywords, stream lengths and the inner structure of ICC profiles and JPEG 2000 images.</value></data>
+  <data name="Edit.Scan.Title" xml:space="preserve"><value>Create PDF from scanner</value></data>
+  <data name="Edit.Scan.Device" xml:space="preserve"><value>Scanner:</value></data>
+  <data name="Edit.Scan.Dpi" xml:space="preserve"><value>Resolution (DPI):</value></data>
+  <data name="Edit.Scan.Mode" xml:space="preserve"><value>Colour:</value></data>
+  <data name="Edit.Scan.Mode.Color" xml:space="preserve"><value>Colour</value></data>
+  <data name="Edit.Scan.Mode.Gray" xml:space="preserve"><value>Greyscale</value></data>
+  <data name="Edit.Scan.Mode.Mono" xml:space="preserve"><value>Black and white</value></data>
+  <data name="Edit.Scan.Feeder" xml:space="preserve"><value>Use the document feeder (all pages)</value></data>
+  <data name="Edit.Scan.NoFeederNote" xml:space="preserve"><value>This scanner has no feeder. After each page you can scan the next one.</value></data>
+  <data name="Edit.Scan.Ocr" xml:space="preserve"><value>Recognize text (OCR) right away</value></data>
+  <data name="Edit.Scan.Start" xml:space="preserve"><value>Scan</value></data>
+  <data name="Edit.Scan.Progress" xml:space="preserve"><value>Scanning</value></data>
+  <data name="Edit.Scan.Building" xml:space="preserve"><value>Creating the document</value></data>
+  <data name="Edit.Scan.NextPrompt" xml:space="preserve"><value>Pages scanned: {0}. Scan the next page? Put it on the glass first. Choose No to finish and create the document.</value></data>
+  <data name="Edit.Scan.NextTitle" xml:space="preserve"><value>Scan next page</value></data>
+  <data name="Edit.Scan.NoScanner" xml:space="preserve"><value>No scanner found. Check that it is connected and turned on, and that its driver is installed.</value></data>
+  <data name="Edit.Scan.Unavailable" xml:space="preserve"><value>Scanning is not available: Windows Image Acquisition (WIA) is missing from this system.</value></data>
+  <data name="Edit.Scan.NothingScanned" xml:space="preserve"><value>Nothing was scanned.</value></data>
+  <data name="Edit.Scan.DocumentName" xml:space="preserve"><value>Scan.pdf</value></data>
+  <data name="Edit.Scan.OcrUnavailable" xml:space="preserve"><value>Text recognition is not available, so the document has images only.</value></data>
+  <data name="Edit.Scan.Error.NoPaper" xml:space="preserve"><value>The feeder is empty. Put in the pages and try again.</value></data>
+  <data name="Edit.Scan.Error.Jam" xml:space="preserve"><value>The paper is jammed in the scanner.</value></data>
+  <data name="Edit.Scan.Error.Offline" xml:space="preserve"><value>The scanner is not responding. Check that it is connected and turned on.</value></data>
+  <data name="Edit.Scan.Error.Busy" xml:space="preserve"><value>The scanner is busy. Try again in a moment.</value></data>
+  <data name="Edit.Scan.Error.General" xml:space="preserve"><value>The scanner reported an error.</value></data>
+  <data name="Edit.Scan.Error.Timeout" xml:space="preserve"><value>The scanner did not finish in time.</value></data>
 </root>
