@@ -409,4 +409,16 @@ Usunąć go z listy ostatnich plików?</value></data>
   <data name="Shell.Save.SignedCopy" xml:space="preserve"><value>Zapisz kopię…</value></data>
   <data name="Shell.Save.SignedOverwrite" xml:space="preserve"><value>Nadpisz</value></data>
   <data name="Shell.SaveAs.AlreadyOpen" xml:space="preserve"><value>„{0}” jest otwarty w innej karcie. Zamknij tę kartę albo wybierz inną nazwę.</value></data>
+  <data name="Cmd.File.CreateFromScanner" xml:space="preserve"><value>Ze skanera</value></data>
+  <data name="Cmd.File.CreateFromWeb" xml:space="preserve"><value>Ze strony WWW</value></data>
+  <data name="Cmd.File.BatchPrint" xml:space="preserve"><value>Drukowanie wsadowe</value></data>
+  <data name="Cmd.Convert.ToXlsx" xml:space="preserve"><value>Do Excela (XLSX)</value></data>
+  <data name="Cmd.Convert.ToHtml" xml:space="preserve"><value>Do HTML</value></data>
+  <data name="Cmd.Convert.ToPdfA" xml:space="preserve"><value>Konwertuj do PDF/A</value></data>
+  <data name="Cmd.Convert.CheckPdfA" xml:space="preserve"><value>Sprawdź zgodność z PDF/A</value></data>
+  <data name="Cmd.Index.Manage" xml:space="preserve"><value>Zarządzaj indeksami</value></data>
+  <data name="Cmd.Access.AutoTag" xml:space="preserve"><value>Automatyczne oznaczanie</value></data>
+  <data name="Cmd.Form.RecognizeFields" xml:space="preserve"><value>Rozpoznaj pola formularza</value></data>
+  <data name="Cmd.View.PanelLayers" xml:space="preserve"><value>Warstwy</value></data>
+  <data name="Ribbon.Group.Convert.Standards" xml:space="preserve"><value>Standardy</value></data>
 </root>

@@ -409,4 +409,16 @@ Remove it from the recent files list?</value></data>
   <data name="Shell.Save.SignedCopy" xml:space="preserve"><value>Save as copy…</value></data>
   <data name="Shell.Save.SignedOverwrite" xml:space="preserve"><value>Overwrite</value></data>
   <data name="Shell.SaveAs.AlreadyOpen" xml:space="preserve"><value>“{0}” is open in another tab. Close that tab or choose a different name.</value></data>
+  <data name="Cmd.File.CreateFromScanner" xml:space="preserve"><value>From Scanner</value></data>
+  <data name="Cmd.File.CreateFromWeb" xml:space="preserve"><value>From Web Page</value></data>
+  <data name="Cmd.File.BatchPrint" xml:space="preserve"><value>Batch Print</value></data>
+  <data name="Cmd.Convert.ToXlsx" xml:space="preserve"><value>To Excel (XLSX)</value></data>
+  <data name="Cmd.Convert.ToHtml" xml:space="preserve"><value>To HTML</value></data>
+  <data name="Cmd.Convert.ToPdfA" xml:space="preserve"><value>Convert to PDF/A</value></data>
+  <data name="Cmd.Convert.CheckPdfA" xml:space="preserve"><value>Check PDF/A Compliance</value></data>
+  <data name="Cmd.Index.Manage" xml:space="preserve"><value>Manage Indexes</value></data>
+  <data name="Cmd.Access.AutoTag" xml:space="preserve"><value>Auto-Tag Document</value></data>
+  <data name="Cmd.Form.RecognizeFields" xml:space="preserve"><value>Recognize Form Fields</value></data>
+  <data name="Cmd.View.PanelLayers" xml:space="preserve"><value>Layers</value></data>
+  <data name="Ribbon.Group.Convert.Standards" xml:space="preserve"><value>Standards</value></data>
 </root>
