@@ -46,7 +46,7 @@ public sealed class SignatureService : ISignatureService
         {
             ["Type"] = new CosName("Sig"),
             ["Filter"] = new CosName("Adobe.PPKLite"),
-            ["SubFilter"] = new CosName("adbe.pkcs7.detached"),
+            ["SubFilter"] = new CosName(request.Pades ? "ETSI.CAdES.detached" : "adbe.pkcs7.detached"),
             ["M"] = CosString.FromText(PdfSignatureWriter.PdfDate(time)),
             ["Name"] = CosString.FromText(signerName),
         };
@@ -66,7 +66,7 @@ public sealed class SignatureService : ISignatureService
             {
                 return await PdfSignatureWriter.SignAsync(finalPdf, password, placement, sig,
                     ctx => SignatureAppearanceBuilder.Build(ctx.Width, ctx.Height, lines, request.Appearance.Image),
-                    (data, token) => CmsSignatureBuilder.SignAsync(data, cert, time, tsaUrl is null ? null : _tsa, tsaUrl, silent: false, token),
+                    (data, token) => CmsSignatureBuilder.SignAsync(data, cert, time, tsaUrl is null ? null : _tsa, tsaUrl, silent: false, token, request.Pades),
                     reserve, ct).ConfigureAwait(false);
             }
             catch (SignatureSpaceException ex) when (attempt < 2)

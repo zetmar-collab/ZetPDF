@@ -225,6 +225,9 @@ internal sealed class CosDocument
         _cache.Clear(); // obiekty wczytane przed uwierzytelnieniem (np. /Encrypt) – bez odszyfrowania
     }
 
+    /// <summary>Numery obiektów z tablicy odsyłaczy.</summary>
+    public IEnumerable<int> ObjectNumbers => _xref.Keys;
+
     public int GetGeneration(int number) => _xref.TryGetValue(number, out var e) && e.Type == 1 ? e.Generation : 0;
 
     public bool Exists(int number) => _xref.TryGetValue(number, out var e) && e.Type != 0;

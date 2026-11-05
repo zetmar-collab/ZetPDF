@@ -52,8 +52,37 @@ public sealed record SignRequest
     public string Location { get; init; } = string.Empty;
     public string ContactInfo { get; init; } = string.Empty;
     public SignatureAppearance Appearance { get; init; } = new();
-    /// <summary>Adres TSA (z Ustawień); null/pusty = bez znacznika czasu. Jedyne połączenie sieciowe programu.</summary>
+    /// <summary>Adres TSA (z Ustawień); null/pusty = bez znacznika czasu. Połączenie sieciowe na polecenie użytkownika.</summary>
     public string? TsaUrl { get; init; }
+    /// <summary>Podpis w profilu PAdES (ETSI.CAdES.detached, ESS signing-certificate-v2, bez atrybutu czasu podpisu).</summary>
+    public bool Pades { get; init; }
+}
+
+/// <summary>Stan unieważnienia podpisu według danych, które przeszły weryfikację kryptograficzną.</summary>
+public enum SignatureRevocationStatus { NotChecked, Good, Revoked, Unknown }
+
+public sealed record LongTermSignatureStatus(string FieldName, SignatureRevocationStatus Status);
+
+/// <summary>Wynik pobrania danych długoterminowych. <see cref="Pdf"/>: dokument z dopisanym /DSS albo bez zmian przy samym sprawdzaniu. Problemy: tekst techniczny na adres.</summary>
+public sealed record LongTermResult(byte[] Pdf, int Certificates, int OcspResponses, int Crls, SignatureRevocationStatus Status, IReadOnlyList<LongTermSignatureStatus> Signatures, IReadOnlyList<string> Problems);
+
+/// <summary>
+/// Dane długoterminowe podpisu (PAdES B-LT, B-LTA). Jedyne metody tego kontraktu, które łączą się z siecią, to dwie wymienione niżej; wywołuje je wyłącznie polecenie
+/// użytkownika po pokazaniu adresów. Weryfikacja <see cref="ISignatureService.ValidateAsync"/> pozostaje bez sieci i korzysta z /DSS.
+/// </summary>
+public interface ILongTermSignatureService
+{
+    /// <summary>Adresy OCSP, CRL i wystawców z certyfikatu podpisującego i jego łańcucha (bez sieci).</summary>
+    IReadOnlyList<string> GetCertificateUrls(X509Certificate2 certificate);
+
+    /// <summary>Adresy z certyfikatów podpisów dokumentu (bez sieci).</summary>
+    Task<IReadOnlyList<string>> GetDocumentUrlsAsync(byte[] pdf, string? password, CancellationToken ct = default);
+
+    /// <summary>SIEĆ. Pobiera dane i dopisuje /DSS przyrostowo.</summary>
+    Task<LongTermResult> AddLongTermDataAsync(byte[] pdf, string? password, IReadOnlyList<string> extraUrls, CancellationToken ct = default);
+
+    /// <summary>SIEĆ. Sprawdza unieważnienia, dokument bez zmian.</summary>
+    Task<LongTermResult> CheckOnlineAsync(byte[] pdf, string? password, IReadOnlyList<string> extraUrls, CancellationToken ct = default);
 }
 
 public enum SignatureStatus { Valid, ValidButModifiedAfter, Invalid, UnknownSigner, Error }
@@ -77,6 +106,13 @@ public sealed record SignatureValidationResult
     public string Details { get; init; } = string.Empty;
     public int PageIndex { get; init; }
     public PdfRect Rect { get; init; }
+    /// <summary>Stan unieważnienia z danych /DSS, bez sieci.</summary>
+    public SignatureRevocationStatus RevocationStatus { get; init; }
+    public bool HasDss { get; init; }
+    /// <summary>Po podpisie doszły wyłącznie dane długoterminowe: /DSS i znaczniki czasu dokumentu.</summary>
+    public bool ModifiedOnlyByLongTermData { get; init; }
+    /// <summary>Poziom według struktury pliku (B-B, B-T, B-LT, B-LTA) albo pusty. To nie jest wynik zewnętrznego walidatora.</summary>
+    public string BaselineLevel { get; init; } = string.Empty;
 }
 
 public sealed record DigitalIdRequest(string Name, string Organization, string Email, int ValidityYears, string Password);

@@ -184,6 +184,9 @@ internal sealed class SecurityCommands
         var dlg = new SignDialog(_loc, Signatures, _services.GetRequiredService<IAppPaths>(), Dialogs, settings, tsa, !rect.IsEmpty);
         if (Dialogs.ShowDialog(dlg) != true || dlg.Certificate is null) return;
         Settings?.SetModuleSettings("Security", settings);
+        var longTerm = _services.GetService<ILongTermSignatureService>();
+        var useLongTerm = dlg.LongTerm && longTerm is not null;
+        if (useLongTerm && !ConfirmConnection(longTerm!.GetCertificateUrls(dlg.Certificate).Concat(dlg.ExtraUrls).Distinct().ToList(), tsa)) return;
         var target = AskTarget(session, "Security.Sign.FileSuffix");
         if (target is null) return;
 
@@ -198,13 +201,37 @@ internal sealed class SecurityCommands
             Location = dlg.Location,
             ContactInfo = dlg.ContactInfo,
             Appearance = dlg.Appearance,
-            TsaUrl = dlg.UseTsa ? tsa : null, // połączenie sieciowe tylko na wyraźne życzenie użytkownika
+            TsaUrl = dlg.UseTsa || useLongTerm ? tsa : null, // połączenie sieciowe tylko na wyraźne życzenie użytkownika
+            Pades = useLongTerm,
         };
         byte[]? signed = null;
-        if (!await Dialogs.RunWithProgressAsync(_loc["Security.Sign.Progress"], async (_, ct) => signed = await Signatures.SignAsync(pdf, request, password, ct), cancellable: dlg.UseTsa)
+        LongTermResult? ltv = null;
+        if (!await Dialogs.RunWithProgressAsync(_loc["Security.Sign.Progress"], async (_, ct) =>
+            {
+                signed = await Signatures.SignAsync(pdf, request, password, ct);
+                if (!useLongTerm) return;
+                ltv = await longTerm!.AddLongTermDataAsync(signed, password, dlg.ExtraUrls, ct);
+                signed = ltv.Pdf;
+                if (dlg.ArchiveTimestamp) signed = await Signatures.TimestampDocumentAsync(signed, tsa, password, ct);
+            }, cancellable: dlg.UseTsa || useLongTerm)
             || signed is null) return;
         await WriteAndOpenAsync(session, target, signed, reopen);
         Shell?.SetStatus(_loc["Security.Sign.Done"]);
+        if (ltv is not null) ShowLongTermResult(ltv);
+    }
+
+    /// <summary>Okno przed każdym połączeniem: które adresy i co ujawnia.</summary>
+    internal bool ConfirmConnection(IReadOnlyList<string> urls, string? tsa = null)
+    {
+        var list = urls.Count == 0 ? _loc["Security.LongTerm.NoUrls"] : string.Join(Environment.NewLine, urls.Take(32));
+        return Dialogs.Confirm(_loc.Format("Security.LongTerm.Confirm", list, string.IsNullOrWhiteSpace(tsa) ? "-" : tsa), _loc["Security.LongTerm.Title"]);
+    }
+
+    internal void ShowLongTermResult(LongTermResult r)
+    {
+        var text = _loc.Format("Security.LongTerm.Result", r.Certificates, r.OcspResponses, r.Crls, _loc["Security.Validate.Detail.Revocation." + r.Status]);
+        if (r.Problems.Count > 0) text += Environment.NewLine + Environment.NewLine + _loc["Security.LongTerm.Problems"] + Environment.NewLine + string.Join(Environment.NewLine, r.Problems.Take(16));
+        Dialogs.ShowMessage(text, _loc["Security.LongTerm.Title"], r.Status == SignatureRevocationStatus.Good && r.Problems.Count == 0 ? MessageSeverity.Info : MessageSeverity.Warning);
     }
 
     private async Task WriteAndOpenAsync(IPdfDocumentSession session, string target, byte[] data, string? reopenPassword)

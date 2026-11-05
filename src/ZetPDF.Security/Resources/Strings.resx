@@ -348,4 +348,24 @@
   <data name="Security.Action.PdfA.RulesFailing" xml:space="preserve"><value>Saved as a regular PDF, not PDF/A: the converted file still broke PDF/A rules.</value></data>
   <data name="Security.Param.AllowRasterize" xml:space="preserve"><value>Allow changing pages into images</value></data>
   <data name="Security.Param.AllowContentRemoval" xml:space="preserve"><value>Allow removing attachments, annotations and XFA, and invalidating signatures</value></data>
+  <data name="Security.Sign.LongTerm.Group" xml:space="preserve"><value>Long-term signature</value></data>
+  <data name="Security.Sign.LongTerm" xml:space="preserve"><value>Add long-term data (PAdES B-LT, connects to the addresses from the certificate)</value></data>
+  <data name="Security.Sign.LongTerm.Archive" xml:space="preserve"><value>Add a document time stamp (PAdES B-LTA)</value></data>
+  <data name="Security.Sign.LongTerm.Info" xml:space="preserve"><value>Off by default. Requires a time stamp server in Settings. Before connecting, the program lists the addresses. Revocation servers will see which certificate is being checked.</value></data>
+  <data name="Security.Sign.LongTerm.ExtraUrls" xml:space="preserve"><value>Additional OCSP or CRL addresses, one per line</value></data>
+  <data name="Security.LongTerm.Title" xml:space="preserve"><value>Long-term signature data</value></data>
+  <data name="Security.LongTerm.Confirm" xml:space="preserve"><value>The program will connect to these addresses over the network:&#13;&#10;{0}&#13;&#10;Time stamp server: {1}&#13;&#10;&#13;&#10;These servers will see your IP address and which certificate is being checked. Continue?</value></data>
+  <data name="Security.LongTerm.NoUrls" xml:space="preserve"><value>(the certificates have no addresses)</value></data>
+  <data name="Security.LongTerm.Result" xml:space="preserve"><value>Added or found: certificates {0}, OCSP responses {1}, revocation lists {2}. Status: {3}</value></data>
+  <data name="Security.LongTerm.Problems" xml:space="preserve"><value>Problems:</value></data>
+  <data name="Security.LongTerm.FileSuffix" xml:space="preserve"><value>_long-term</value></data>
+  <data name="Security.LongTerm.Error.Scheme" xml:space="preserve"><value>Only http and https addresses are allowed.</value></data>
+  <data name="Security.Panel.CheckOnline" xml:space="preserve"><value>Check revocation online...</value></data>
+  <data name="Security.Panel.AddLongTerm" xml:space="preserve"><value>Add long-term data to a copy...</value></data>
+  <data name="Security.Validate.Detail.OnlyLongTermAfter" xml:space="preserve"><value>After signing, only long-term data (DSS, document time stamps) was added.</value></data>
+  <data name="Security.Validate.Detail.Revocation.NotChecked" xml:space="preserve"><value>revocation not checked</value></data>
+  <data name="Security.Validate.Detail.Revocation.Good" xml:space="preserve"><value>The certificate was not revoked according to verified data.</value></data>
+  <data name="Security.Validate.Detail.Revocation.Revoked" xml:space="preserve"><value>THE CERTIFICATE WAS REVOKED according to verified data.</value></data>
+  <data name="Security.Validate.Detail.Revocation.Unknown" xml:space="preserve"><value>Revocation status unknown: no verified, current data for the whole chain.</value></data>
+  <data name="Security.Validate.Detail.Level" xml:space="preserve"><value>Level by file structure: PAdES {0}. Not confirmed by an external validator.</value></data>
 </root>

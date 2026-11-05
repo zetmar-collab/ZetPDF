@@ -47,6 +47,7 @@ Partia 2 rozbudowy (2026-11-04): **bez nowych pakietów**. Składniki systemu u�
 | xunit.abstractions | 2.0.3 | Apache-2.0 (licenseUrl do license.txt repozytorium xunit) |
 | xunit.analyzers | 1.18.0 | Apache-2.0 |
 | xunit.runner.visualstudio | 3.1.4 | Apache-2.0 |
+| BouncyCastle.Cryptography | 2.6.2 | MIT (tylko `ZetPDF.Security.Tests`: niezależna budowa odpowiedzi OCSP w mini-CA; kod programu nie używa tego pakietu) |
 | Microsoft.NET.Test.Sdk, Microsoft.TestPlatform.ObjectModel, Microsoft.TestPlatform.TestHost, Microsoft.CodeCoverage | 17.14.1 | MIT |
 | Newtonsoft.Json | 13.0.3 | MIT |
 | System.Collections.Immutable, System.Reflection.Metadata | 8.0.0 | MIT |

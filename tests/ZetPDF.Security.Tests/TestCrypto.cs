@@ -48,7 +48,7 @@ internal sealed class FakeTimestampClient : ITimestampClient
         if (!Rfc3161TimestampRequest.TryDecode(request, out var req, out _) || req is null) throw new InvalidOperationException("bad request");
 
         // TSTInfo
-        var serial = BitConverter.GetBytes(RandomNumberGenerator.GetInt32(1, int.MaxValue)).Reverse().ToArray();
+        var serial = BitConverter.GetBytes(RandomNumberGenerator.GetInt32(0x40000000, int.MaxValue)).Reverse().ToArray(); // bez wiodących zer: kodowanie DER
         var info = new Rfc3161TimestampTokenInfo(new Oid("1.2.3.4.5"), req.HashAlgorithmId, req.GetMessageHash(), serial, Time,
             nonce: req.GetNonce());
         var tstInfo = info.Encode();

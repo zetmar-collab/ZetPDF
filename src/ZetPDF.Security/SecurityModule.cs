@@ -24,6 +24,8 @@ public sealed class SecurityModule : IFeatureModule
         services.AddSingleton<ISecurityService>(sp => sp.GetRequiredService<SecurityService>());
         services.AddSingleton<ITimestampClient, HttpTimestampClient>();
         services.AddSingleton<ISignatureService>(sp => new SignatureService(sp.GetRequiredService<IAppPaths>(), sp.GetRequiredService<ITimestampClient>(), sp.GetService<ILocalizationService>()));
+        services.AddSingleton<Signatures.IRevocationTransport, Signatures.HttpRevocationTransport>();
+        services.AddSingleton<ILongTermSignatureService>(sp => new Signatures.LongTermService(sp.GetRequiredService<Signatures.IRevocationTransport>()));
         services.AddSingleton<ICompareService>(sp => new CompareService(sp));
         services.AddSingleton<IActionWizard>(sp => new ActionWizard(sp, sp.GetRequiredService<IAppPaths>()));
     }

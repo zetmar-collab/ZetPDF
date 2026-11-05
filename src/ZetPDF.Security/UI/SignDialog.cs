@@ -46,7 +46,8 @@ internal sealed class SignDialog : SecurityDialog
     private readonly PasswordBox _pfxPassword = new();
     private readonly ComboBox _reason = new() { IsEditable = true };
     private readonly TextBox _location = new(), _contact = new();
-    private readonly CheckBox _showName, _showDate, _showReason, _showLocation, _invisible, _useTsa;
+    private readonly CheckBox _showName, _showDate, _showReason, _showLocation, _invisible, _useTsa, _longTerm, _archive;
+    private readonly TextBox _extraUrls = new() { AcceptsReturn = true, MinHeight = 44, TextWrapping = TextWrapping.Wrap };
     private readonly TextBox _image = new() { IsReadOnly = true };
     private readonly string _tsaUrl;
 
@@ -83,6 +84,16 @@ internal sealed class SignDialog : SecurityDialog
         _useTsa.IsEnabled = _tsaUrl.Length > 0;
         var tsaInfo = Ui.Plain(_tsaUrl.Length > 0 ? loc.Format("Security.Sign.TsaInfo", _tsaUrl) : loc["Security.Sign.TsaNotConfigured"], secondary: true);
 
+        // Domyślnie wyłączone: to połączenie z adresami z certyfikatu. Bez TSA nie ma poziomu B-LT.
+        _longTerm = Ui.Check(loc, "Security.Sign.LongTerm", false);
+        _longTerm.IsEnabled = _tsaUrl.Length > 0;
+        _archive = Ui.Check(loc, "Security.Sign.LongTerm.Archive", false);
+        _archive.IsEnabled = false;
+        _extraUrls.IsEnabled = false;
+        System.Windows.Automation.AutomationProperties.SetName(_extraUrls, loc["Security.Sign.LongTerm.ExtraUrls"]);
+        _longTerm.Checked += (_, _) => { _useTsa.IsChecked = true; _useTsa.IsEnabled = false; _archive.IsEnabled = true; _extraUrls.IsEnabled = true; };
+        _longTerm.Unchecked += (_, _) => { _useTsa.IsEnabled = _tsaUrl.Length > 0; _archive.IsEnabled = false; _archive.IsChecked = false; _extraUrls.IsEnabled = false; };
+
         var idRow = new DockPanel();
         var idButtons = Ui.Row(browse, create);
         DockPanel.SetDock(idButtons, Dock.Right);
@@ -114,6 +125,12 @@ internal sealed class SignDialog : SecurityDialog
         tsaPanel.Children.Add(_useTsa);
         tsaPanel.Children.Add(tsaInfo);
         body.Children.Add(Ui.Group(loc, "Security.Sign.TsaGroup", tsaPanel));
+        var longTermPanel = new StackPanel();
+        longTermPanel.Children.Add(_longTerm);
+        longTermPanel.Children.Add(_archive);
+        longTermPanel.Children.Add(Ui.Plain(loc["Security.Sign.LongTerm.Info"], secondary: true));
+        longTermPanel.Children.Add(Form((Ui.Text(loc, "Security.Sign.LongTerm.ExtraUrls"), _extraUrls)));
+        body.Children.Add(Ui.Group(loc, "Security.Sign.LongTerm.Group", longTermPanel));
         body.Children.Add(Ui.Plain(loc["Security.Sign.SaveNote"], secondary: true));
         SetBody(body);
         AddOkCancel("Security.Sign.SignButton");
@@ -161,6 +178,9 @@ internal sealed class SignDialog : SecurityDialog
     public string? PfxPath { get; private set; }
     public bool Invisible => _invisible.IsChecked == true;
     public bool UseTsa => _useTsa.IsChecked == true && _tsaUrl.Length > 0;
+    public bool LongTerm => _longTerm.IsChecked == true && _tsaUrl.Length > 0;
+    public bool ArchiveTimestamp => LongTerm && _archive.IsChecked == true;
+    public IReadOnlyList<string> ExtraUrls => _extraUrls.Text.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
     public string Reason => _reason.Text.Trim();
     public string Location => _location.Text.Trim();
     public string ContactInfo => _contact.Text.Trim();

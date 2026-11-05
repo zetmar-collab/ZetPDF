@@ -15,7 +15,7 @@ public interface ITimestampClient
 }
 
 /// <summary>
-/// HTTP(S) POST application/timestamp-query. JEDYNE połączenie sieciowe ZetPDF – wykonywane tylko, gdy użytkownik
+/// HTTP(S) POST application/timestamp-query. Połączenie sieciowe wykonywane tylko, gdy użytkownik
 /// wpisał adres TSA w Ustawieniach i świadomie wybrał znacznik czasu.
 /// </summary>
 public sealed class HttpTimestampClient : ITimestampClient
@@ -43,7 +43,7 @@ internal static class CmsSignatureBuilder
     public const string Sha256Oid = "2.16.840.1.101.3.4.2.1";
 
     public static async Task<byte[]> SignAsync(byte[] data, X509Certificate2 certificate, DateTimeOffset signingTime,
-        ITimestampClient? tsaClient, Uri? tsaUrl, bool silent, CancellationToken ct)
+        ITimestampClient? tsaClient, Uri? tsaUrl, bool silent, CancellationToken ct, bool pades = false)
     {
         if (!certificate.HasPrivateKey) throw new CryptographicException("The certificate has no private key.").WithMessageKey("Security.Sign.Error.NoPrivateKey");
         var cms = new SignedCms(new ContentInfo(data), detached: true);
@@ -55,7 +55,17 @@ internal static class CmsSignatureBuilder
         };
         foreach (var extra in BuildChainOffline(certificate, signingTime))
             signer.Certificates.Add(extra);
-        signer.SignedAttributes.Add(new Pkcs9SigningTime(signingTime.UtcDateTime));
+        if (pades)
+        {
+            // ESS signing-certificate-v2 z SHA-256; PAdES nie dopuszcza atrybutu czasu podpisu, czas niesie /M i znacznik
+            var ess = new System.Formats.Asn1.AsnWriter(System.Formats.Asn1.AsnEncodingRules.DER);
+            using (ess.PushSequence())
+            using (ess.PushSequence())
+            using (ess.PushSequence())
+                ess.WriteOctetString(SHA256.HashData(certificate.RawData));
+            signer.SignedAttributes.Add(new AsnEncodedData(new Oid("1.2.840.113549.1.9.16.2.47"), ess.Encode()));
+        }
+        else signer.SignedAttributes.Add(new Pkcs9SigningTime(signingTime.UtcDateTime));
         cms.ComputeSignature(signer, silent);
 
         if (tsaClient is not null && tsaUrl is not null)

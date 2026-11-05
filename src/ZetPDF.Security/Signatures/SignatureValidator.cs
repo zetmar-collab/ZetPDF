@@ -21,6 +21,7 @@ internal static class SignatureValidator
         var doc = CosDocument.Open(pdf, password);
         var pages = doc.GetPageReferences();
         var results = new List<SignatureValidationResult>();
+        var dss = DssData.Read(doc);
         foreach (var field in doc.GetFields().Where(f => f.FieldType == "Sig"))
         {
             var sigDict = doc.ResolveDict(field.Dictionary["V"]);
@@ -30,7 +31,7 @@ internal static class SignatureValidator
             SignatureValidationResult result;
             try
             {
-                result = ValidateOne(doc, pdf, field.FullName, sigDict, culture);
+                result = ValidateOne(doc, pdf, field.FullName, sigDict, culture, password, dss);
             }
             catch (Exception ex) when (ex is CryptographicException or FormatException or ArgumentException or InvalidOperationException or IndexOutOfRangeException or NotSupportedException)
             {
@@ -46,7 +47,31 @@ internal static class SignatureValidator
         return results;
     }
 
-    private static SignatureValidationResult ValidateOne(CosDocument doc, byte[] pdf, string fieldName, CosDictionary sig, CultureInfo culture)
+    /// <summary>Bajty /Contents z luki w /ByteRange, razem z dopełnieniem zerami (klucz /VRI). Działa też w plikach zaszyfrowanych.</summary>
+    internal static byte[] ContentsBytes(CosDocument doc, byte[] pdf, CosDictionary sig)
+    {
+        var br = (doc.Resolve(sig["ByteRange"]) as CosArray)?.Items.Select(i => (doc.Resolve(i) as CosNumber)?.AsLong ?? -1).ToArray();
+        if (br is null || br.Length != 4 || br.Any(v => v < 0) || br[0] != 0 || br[0] + br[1] > br[2] || br[2] + br[3] > pdf.LongLength) throw new FormatException("Bad ByteRange.");
+        int gapStart = (int)(br[0] + br[1]), gapEnd = (int)br[2];
+        while (gapStart < gapEnd && CosParser.IsWhitespace(pdf[gapStart])) gapStart++;
+        while (gapEnd > gapStart && CosParser.IsWhitespace(pdf[gapEnd - 1])) gapEnd--;
+        if (gapEnd - gapStart < 2 || pdf[gapStart] != '<' || pdf[gapEnd - 1] != '>') throw new FormatException("Bad ByteRange.");
+        return HexToBytes(pdf, gapStart + 1, gapEnd - 1);
+    }
+
+    private static bool AnyDocTimestampAfter(CosDocument doc, long end)
+    {
+        foreach (var field in doc.GetFields().Where(f => f.FieldType == "Sig"))
+        {
+            var sig = doc.ResolveDict(field.Dictionary["V"]);
+            if (sig?.GetName("Type") != "DocTimeStamp") continue;
+            var br = (doc.Resolve(sig["ByteRange"]) as CosArray)?.Items.Select(i => (doc.Resolve(i) as CosNumber)?.AsLong ?? -1).ToArray();
+            if (br is { Length: 4 } && br[2] + br[3] > end) return true;
+        }
+        return false;
+    }
+
+    private static SignatureValidationResult ValidateOne(CosDocument doc, byte[] pdf, string fieldName, CosDictionary sig, CultureInfo culture, string? password, DssData dss)
     {
         var details = new List<string>();
         var br = (doc.Resolve(sig["ByteRange"]) as CosArray)?.Items.Select(i => (doc.Resolve(i) as CosNumber)?.AsLong ?? -1).ToArray();
@@ -136,11 +161,22 @@ internal static class SignatureValidator
         }
 
         var checkTime = tsTime ?? signingTime ?? DateTimeOffset.Now;
+        // Dane z /DSS, bez sieci: uznane tylko po weryfikacji kryptograficznej przez wystawcę z łańcucha.
+        var revocation = SignatureRevocationStatus.NotChecked;
+        bool isDocTs = subFilter == "ETSI.RFC3161" || sig.GetName("Type") == "DocTimeStamp";
+        if (dss.Any && !isDocTs && cert is not null)
+        {
+            var pool = extra.Cast<X509Certificate2>().Concat(dss.ParsedCertificates());
+            revocation = RevocationEvaluator.Evaluate(CertPath.Build(cert, pool), dss.Ocsp, dss.Crls, checkTime, hasTs);
+            extra.AddRange(dss.ParsedCertificates().ToArray());
+        }
+        bool onlyLongTerm = !covers && LongTermRevision.OnlyLongTermAfter(doc, pdf, end, password);
         bool validAtTime = cert is not null && checkTime.UtcDateTime >= cert.NotBefore.ToUniversalTime() && checkTime.UtcDateTime <= cert.NotAfter.ToUniversalTime();
         bool trusted = cert is not null && IsTrusted(cert, extra, checkTime);
 
         details.Add(Text(culture, integrity ? "Security.Validate.Detail.IntegrityOk" : "Security.Validate.Detail.IntegrityFailed"));
-        details.Add(Text(culture, covers ? "Security.Validate.Detail.Covers" : "Security.Validate.Detail.ModifiedAfter"));
+        details.Add(Text(culture, covers ? "Security.Validate.Detail.Covers" : onlyLongTerm ? "Security.Validate.Detail.OnlyLongTermAfter" : "Security.Validate.Detail.ModifiedAfter"));
+        if (revocation != SignatureRevocationStatus.NotChecked) details.Add(Text(culture, "Security.Validate.Detail.Revocation." + revocation));
         if (cert is null) details.Add(Text(culture, "Security.Validate.Detail.NoCertificate"));
         else
         {
@@ -151,10 +187,17 @@ internal static class SignatureValidator
         if (hasTs && tsTime is { } t) details.Add(Text(culture, "Security.Validate.Detail.Timestamp", t.ToLocalTime().ToString("G", culture)));
         details.Add(Text(culture, "Security.Validate.Detail.Offline"));
 
+        string level = isDocTs || subFilter != "ETSI.CAdES.detached" ? string.Empty
+            : !hasTs ? "B-B"
+            : revocation != SignatureRevocationStatus.Good ? "B-T"
+            : AnyDocTimestampAfter(doc, end) ? "B-LTA" : "B-LT";
+        if (level.Length > 0) details.Add(Text(culture, "Security.Validate.Detail.Level", level));
+
         var status = !integrity ? SignatureStatus.Invalid
             : cert is null ? SignatureStatus.UnknownSigner
             : !validAtTime ? SignatureStatus.Invalid
-            : !covers ? SignatureStatus.ValidButModifiedAfter
+            : revocation == SignatureRevocationStatus.Revoked ? SignatureStatus.Invalid
+            : !covers && !onlyLongTerm ? SignatureStatus.ValidButModifiedAfter
             : !trusted ? SignatureStatus.UnknownSigner
             : SignatureStatus.Valid;
 
@@ -171,6 +214,10 @@ internal static class SignatureValidator
             CoversWholeDocument = covers,
             CertificateValidAtSigningTime = validAtTime,
             ChainTrusted = trusted,
+            RevocationStatus = revocation,
+            HasDss = dss.Any,
+            ModifiedOnlyByLongTermData = onlyLongTerm,
+            BaselineLevel = level,
             Details = string.Join(Environment.NewLine, details),
         };
     }

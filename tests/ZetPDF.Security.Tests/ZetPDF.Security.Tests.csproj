@@ -7,6 +7,8 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\ZetPDF.TestData\ZetPDF.TestData.csproj" />
+    <!-- Tylko testy: mini-CA OCSP niezależna od kodu programu. Licencja MIT, nie trafia do ZetPDF.exe. -->
+    <PackageReference Include="BouncyCastle.Cryptography" Version="2.6.2" />
     <ProjectReference Include="..\..\src\ZetPDF.Core\ZetPDF.Core.csproj" />
     <ProjectReference Include="..\..\src\ZetPDF.Security\ZetPDF.Security.csproj" />
     <!-- PDFium tylko w testach: sprawdzamy, że pliki zaszyfrowane/podpisane przez ZetPDF otwiera inny silnik. -->

@@ -21,7 +21,7 @@ Przeczytaj przed rozpoczęciem pracy: `POLECENIE_dla_Claude_Code.md` (zadanie), 
 - Uchwyty PDFium zawsze zwalniane (`IDisposable`, `using`). Dostęp do PDFium tylko przez warstwę renderującą, która serializuje wywołania (PDFium nie jest wątkowo bezpieczny).
 - Zapis pliku: najpierw do pliku tymczasowego w tym samym folderze, potem podmiana (`File.Replace` z kopią `.bak` lub atomowe przeniesienie). Nigdy nie nadpisuj oryginału bez tego.
 - Ścieżki z polskimi znakami i spacjami muszą działać (testuj na `C:\...\Próbny folder\zażółć gęślą.pdf`).
-- Program nie łączy się sam z siecią. Wyjątki, oba na wyraźne polecenie użytkownika: znacznik czasu TSA pod adresem wpisanym przez użytkownika oraz polecenie Ze strony WWW (Microsoft Edge, DECYZJE D-36). Brak telemetrii, brak sprawdzania aktualizacji.
+- Program nie łączy się sam z siecią. Wyjątki, wszystkie na wyraźne polecenie użytkownika: znacznik czasu TSA pod adresem wpisanym przez użytkownika, polecenie Ze strony WWW (Microsoft Edge, DECYZJE D-36) oraz dane unieważnień podpisu (OCSP, CRL) spod adresów z certyfikatu lub wpisanych przez użytkownika, po pokazaniu adresów (DECYZJE D-46). Pliki z dysku przed parserami przechodzą przez sondę (D-44). Brak telemetrii, brak sprawdzania aktualizacji.
 - Biblioteki: tylko licencje MIT, BSD, Apache 2.0, MS-PL lub podobne permisywne. Zakaz AGPL/GPL/LGPL-only-z-linkowaniem-statycznym (iText 7, MuPDF, Ghostscript itp.). Przed dodaniem biblioteki sprawdź jej licencję na nuget.org / w repozytorium i dopisz ją do swojego raportu.
 - Nie wymyślaj API. Jeśli nie wiesz, jak działa metoda biblioteki, sprawdź źródła/dokumentację albo napisz mały test w `%TEMP%` lub w katalogu `scratch\` (ignorowanym), uruchom go i dopiero wtedy używaj.
 

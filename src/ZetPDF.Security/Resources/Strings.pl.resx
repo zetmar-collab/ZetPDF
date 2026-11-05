@@ -348,4 +348,24 @@
   <data name="Security.Action.PdfA.RulesFailing" xml:space="preserve"><value>Zapisano jako zwykły PDF, a nie PDF/A: po konwersji plik nadal naruszał reguły PDF/A.</value></data>
   <data name="Security.Param.AllowRasterize" xml:space="preserve"><value>Zezwalaj na zamianę stron na obrazy</value></data>
   <data name="Security.Param.AllowContentRemoval" xml:space="preserve"><value>Zezwalaj na usunięcie załączników, adnotacji i XFA oraz unieważnienie podpisów</value></data>
+  <data name="Security.Sign.LongTerm.Group" xml:space="preserve"><value>Podpis długoterminowy</value></data>
+  <data name="Security.Sign.LongTerm" xml:space="preserve"><value>Dodaj dane długoterminowe (PAdES B-LT, połączenie z adresami z certyfikatu)</value></data>
+  <data name="Security.Sign.LongTerm.Archive" xml:space="preserve"><value>Dodaj znacznik czasu dokumentu (PAdES B-LTA)</value></data>
+  <data name="Security.Sign.LongTerm.Info" xml:space="preserve"><value>Domyślnie wyłączone. Wymaga serwera znaczników czasu w Ustawieniach. Przed połączeniem program pokaże adresy. Serwery unieważnień zobaczą, jaki certyfikat jest sprawdzany.</value></data>
+  <data name="Security.Sign.LongTerm.ExtraUrls" xml:space="preserve"><value>Dodatkowe adresy OCSP lub CRL, po jednym w wierszu</value></data>
+  <data name="Security.LongTerm.Title" xml:space="preserve"><value>Dane długoterminowe podpisu</value></data>
+  <data name="Security.LongTerm.Confirm" xml:space="preserve"><value>Program połączy się przez sieć z tymi adresami:&#13;&#10;{0}&#13;&#10;Serwer znaczników czasu: {1}&#13;&#10;&#13;&#10;Te serwery zobaczą Twój adres IP i to, jaki certyfikat jest sprawdzany. Kontynuować?</value></data>
+  <data name="Security.LongTerm.NoUrls" xml:space="preserve"><value>(certyfikaty nie mają adresów)</value></data>
+  <data name="Security.LongTerm.Result" xml:space="preserve"><value>Dodano lub znaleziono: certyfikaty {0}, odpowiedzi OCSP {1}, listy CRL {2}. Stan: {3}</value></data>
+  <data name="Security.LongTerm.Problems" xml:space="preserve"><value>Problemy:</value></data>
+  <data name="Security.LongTerm.FileSuffix" xml:space="preserve"><value>_dlugoterminowy</value></data>
+  <data name="Security.LongTerm.Error.Scheme" xml:space="preserve"><value>Dozwolone są tylko adresy http i https.</value></data>
+  <data name="Security.Panel.CheckOnline" xml:space="preserve"><value>Sprawdź unieważnienia online...</value></data>
+  <data name="Security.Panel.AddLongTerm" xml:space="preserve"><value>Dopisz dane długoterminowe do kopii...</value></data>
+  <data name="Security.Validate.Detail.OnlyLongTermAfter" xml:space="preserve"><value>Po podpisaniu dopisano wyłącznie dane długoterminowe (DSS, znaczniki czasu dokumentu).</value></data>
+  <data name="Security.Validate.Detail.Revocation.NotChecked" xml:space="preserve"><value>nie sprawdzono unieważnienia</value></data>
+  <data name="Security.Validate.Detail.Revocation.Good" xml:space="preserve"><value>Certyfikat nie był unieważniony według zweryfikowanych danych.</value></data>
+  <data name="Security.Validate.Detail.Revocation.Revoked" xml:space="preserve"><value>CERTYFIKAT ZOSTAŁ UNIEWAŻNIONY według zweryfikowanych danych.</value></data>
+  <data name="Security.Validate.Detail.Revocation.Unknown" xml:space="preserve"><value>Stan unieważnienia nieznany: brak zweryfikowanych, aktualnych danych dla całego łańcucha.</value></data>
+  <data name="Security.Validate.Detail.Level" xml:space="preserve"><value>Poziom według budowy pliku: PAdES {0}. Niepotwierdzone zewnętrznym walidatorem.</value></data>
 </root>

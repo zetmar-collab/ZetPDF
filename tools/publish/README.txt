@@ -47,11 +47,14 @@ Gdzie są dane
 
 Prywatność
   - Brak telemetrii, brak sprawdzania aktualizacji, brak kont. Program nie łączy się sam z siecią.
-  - Dwa wyjątki, zawsze na Twoje polecenie:
+  - Trzy wyjątki, zawsze na Twoje polecenie:
     1) znacznik czasu podpisu cyfrowego (TSA) pod adresem, który sam wpiszesz w Ustawieniach – tylko wtedy,
        gdy zaznaczysz tę opcję przy podpisywaniu (wysyłany jest wyłącznie skrót SHA-256);
     2) polecenie Konwertuj > Ze strony WWW: po wpisaniu adresu i zatwierdzeniu w oknie stronę pobiera
-       zainstalowana przeglądarka Microsoft Edge (osobny, tymczasowy profil usuwany po zakończeniu).
+       zainstalowana przeglądarka Microsoft Edge (osobny, tymczasowy profil usuwany po zakończeniu);
+    3) podpisy długoterminowe: opcja w oknie podpisu (domyślnie wyłączona) oraz przyciski w panelu Podpisy pobierają dane
+       unieważnień (OCSP, CRL) spod adresów zapisanych w certyfikacie podpisu lub wpisanych przez Ciebie. Program przed
+       połączeniem pokazuje adresy. Te serwery zobaczą Twój adres IP i to, jaki certyfikat jest sprawdzany.
   - Łącza w dokumentach otwierają się w przeglądarce dopiero po potwierdzeniu.
 
 Znane ograniczenia
@@ -113,10 +116,13 @@ Where data is stored
 
 Privacy
   - No telemetry, no update checks, no accounts. The program never connects to the network on its own.
-  - Two exceptions, always on your command: (1) the digital signature timestamp (TSA), see below;
+  - Three exceptions, always on your command: (1) the digital signature timestamp (TSA), see below;
     (2) Convert > From Web Page: after you enter an address and confirm in the window, the installed Microsoft Edge
-    downloads the page (separate temporary profile, removed afterwards).
-  - The only exception: the digital signature time stamp (TSA) at the address you enter in Settings, only when
+    downloads the page (separate temporary profile, removed afterwards);
+    (3) long-term signatures: an option in the signing window (off by default) and buttons in the Signatures panel download
+    revocation data (OCSP, CRL) from the addresses in the signing certificate or typed by you. The program lists the
+    addresses before connecting. These servers will see your IP address and which certificate is being checked.
+  - The time stamp goes to the address you enter in Settings, only when
     you tick that option while signing (only a SHA-256 hash is sent).
   - Links in documents open in the browser only after confirmation.
 
