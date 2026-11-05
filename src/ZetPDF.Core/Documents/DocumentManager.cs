@@ -311,6 +311,9 @@ public sealed class DocumentManager : IDocumentManager
 
     private async Task<Loaded?> LoadAsync(byte[] original, string displayName, string? password, CancellationToken ct)
     {
+        // PDFium ma własny limit zagnieżdżenia, ale PDFsharp nie: plik zbyt głęboki wywróciłby program przy pierwszej edycji.
+        var guard = await Task.Run(() => PdfStructureGuard.Check(original, ct), ct);
+        if (guard.UnverifiedObjectStreamBytes > 0 && original.AsSpan().IndexOf("/Encrypt"u8) < 0) PdfStructureGuard.CheckUnverified(original, password, guard);
         bool retry = false;
         while (true)
         {
@@ -353,8 +356,8 @@ public sealed class DocumentManager : IDocumentManager
         try
         {
             using var doc = password is null
-                ? PdfReader.Open(new MemoryStream(pdf, false), PdfDocumentOpenMode.Import)
-                : PdfReader.Open(new MemoryStream(pdf, false), password, PdfDocumentOpenMode.Import);
+                ? PdfSharpEdit.OpenGuarded(pdf, null, PdfDocumentOpenMode.Import)
+                : PdfSharpEdit.OpenGuarded(pdf, password, PdfDocumentOpenMode.Import);
             bool encrypted = doc.SecurityHandler.Elements.ContainsKey("/Filter");
             var perms = encrypted ? PdfSecurityHelper.FromPValue(doc.SecurityHandler.Elements.GetInteger("/P")) : DocumentPermissions.All;
             return new PdfProbeResult(PdfProbeStatus.Ok, doc.PageCount, encrypted, doc.SecurityHandler.Elements.GetInteger("/R"), perms);

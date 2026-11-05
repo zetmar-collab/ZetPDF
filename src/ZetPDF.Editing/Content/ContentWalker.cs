@@ -27,11 +27,11 @@ internal sealed class ContentWalker
     private readonly int _maxGlyphs;
 
     /// <param name="maxGlyphs">Limit glifów (pamięć zależy od danych z pliku); po przekroczeniu <see cref="ContentTokenException"/>.</param>
-    public ContentWalker(PdfPage page, int maxGlyphs = int.MaxValue)
+    public ContentWalker(PdfPage page, int maxGlyphs = int.MaxValue, byte[]? content = null)
     {
         _page = page;
         _maxGlyphs = maxGlyphs;
-        Sequence = PageContent.Parse(page);
+        Sequence = content is null ? PageContent.Parse(page) : ZetPDF.Core.Documents.PdfContentParser.Parse(content);
         Walk();
     }
 
@@ -177,7 +177,7 @@ internal sealed class ContentWalker
                     double tx = (w0 * st.Fs + st.Tc + (space ? st.Tw : 0)) * st.Th;
                     var trm = new PdfMatrix(st.Fs * st.Th, 0, 0, st.Fs, 0, st.Ts).Then(tm).Then(st.Ctm);
                     var box = Bounds(trm, new PdfPoint(0, -0.2), new PdfPoint(w0, -0.2), new PdfPoint(0, 0.8), new PdfPoint(w0, 0.8));
-                    if (Glyphs.Count >= _maxGlyphs) throw new ContentTokenException("Too many glyphs.");
+                    if (Glyphs.Count >= _maxGlyphs) throw new ZetPDF.Core.Documents.ContentTokenException("Too many glyphs.", isLimit: true);
                     Glyphs.Add(new GlyphInfo(opIndex, g++, code, box, tx, st.Fs, st.Th, font.TwoByte, st.Font));
                     if (!space && code != 0) textBounds = textBounds is { } tb ? tb.Union(box) : box;
                     tm = PdfMatrix.Translation(tx, 0).Then(tm);

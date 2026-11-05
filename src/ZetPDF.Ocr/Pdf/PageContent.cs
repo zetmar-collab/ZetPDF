@@ -37,26 +37,34 @@ public static class PageContent
     /// <summary>Zdekodowane bajty strumienia (bez zmiany obiektu).</summary>
     public static byte[] Decoded(PdfDictionary stream)
     {
-        var s = stream.Stream;
-        if (s is null) return Array.Empty<byte>();
-        if (stream.Elements["/Filter"] is null) return s.Value;
-        return s.UnfilteredValue;
+        return ZetPDF.Core.Documents.PdfStreamLimits.Decode(stream);
     }
 
     /// <summary>Połączona, zdekodowana treść strony.</summary>
-    public static byte[] ReadAll(PdfPage page)
+    public static byte[] ReadAll(PdfPage page) => ReadAll(page, ZetPDF.Core.Documents.PdfStreamLimits.DefaultContentBytes);
+
+    /// <summary>Połączona treść z limitem łącznego rozmiaru, sprawdzanym także w trakcie dekompresji (<see cref="ZetPDF.Core.Documents.PdfContentLimitException"/>).</summary>
+    public static byte[] ReadAll(PdfPage page, int maxBytes) => ReadAll(page, maxBytes, out _);
+
+    /// <summary>Jak wyżej, z przesunięciami początków strumieni w wyniku, bez ponownego dekodowania.</summary>
+    public static byte[] ReadAll(PdfPage page, int maxBytes, out int[] streamStarts)
     {
         using var ms = new MemoryStream();
+        var starts = new List<int>();
         foreach (var s in Streams(page))
         {
-            ms.Write(Decoded(s));
+            starts.Add((int)ms.Length);
+            int left = maxBytes - (int)ms.Length;
+            if (left <= 0) throw new ZetPDF.Core.Documents.PdfContentLimitException("Page content exceeds the size limit.");
+            ms.Write(ZetPDF.Core.Documents.PdfStreamLimits.Decode(s, left));
             ms.WriteByte((byte)'\n');
         }
+        streamStarts = starts.ToArray();
         return ms.ToArray();
     }
 
     /// <summary>Sparsowana treść strony (wszystkie strumienie razem).</summary>
-    public static CSequence Parse(PdfPage page) => ContentReader.ReadContent(ReadAll(page));
+    public static CSequence Parse(PdfPage page) => ZetPDF.Core.Documents.PdfContentParser.Parse(ReadAll(page));
 
     /// <summary>Zastępuje całą treść strony jednym strumieniem.</summary>
     public static void Replace(PdfPage page, byte[] content)

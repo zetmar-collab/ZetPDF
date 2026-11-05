@@ -36,6 +36,10 @@ public sealed class AutoTagService
 {
     // Limity na dane z pliku; strona ponad limit jest pomijana i wymieniana w wyniku.
     public const int MaxContentBytes = 32 * 1024 * 1024;
+    /// <summary>Budżety całego dokumentu: bajty treści odczytane, bajty treści przepisane, elementy modeli w pamięci.</summary>
+    public const long MaxDocumentDecodedBytes = 1024L * 1024 * 1024;
+    public const long MaxDocumentRewrittenBytes = 512L * 1024 * 1024;
+    public const long MaxDocumentItems = 2_000_000;
     public const int MaxOpsPerPage = 500_000;
     public const int MaxGlyphsPerPage = 1_000_000;
     public const int MaxLinesPerPage = 20_000;
@@ -100,7 +104,7 @@ public sealed class AutoTagService
 
     private enum Role { P, H1, H2, H3, H4, H5, H6, LI, Figure }
 
-    private sealed record TextOp(int Op, PdfRect Box, double Size, bool Bold, int Glyphs, (long Frame, long Block, int Stream) Scope);
+    private sealed record TextOp(int Start, int End, PdfRect Box, double Size, bool Bold, int Glyphs, (long Frame, long Block, int Stream) Scope);
 
     private sealed class Line
     {
@@ -117,7 +121,7 @@ public sealed class AutoTagService
     {
         public Role Role = Role.P;
         public List<Line> Lines { get; } = new();
-        public int FigureOp = -1;
+        public (int Start, int End) FigureRange;
         public PdfRect Box;
     }
 
@@ -125,15 +129,14 @@ public sealed class AutoTagService
     {
         public int Index;
         public required PdfPage Page;
-        public required byte[] Data;
+        /// <summary>Bajtów całej treści; same bajty nie są trzymane między analizą a zapisem.</summary>
+        public required int DataLength;
         public required int[] StreamStarts;
-        public required List<OpToken> Tokens;
-        public required int[] SeqToToken;
         public List<(int Start, int Length)> Removals { get; } = new();
         /// <summary>Elementy strony w kolejności strumienia: linie tekstu albo figury.</summary>
         public List<object> Items { get; } = new();
-        /// <summary>Zakresy operatorów (indeksy tokenów) do oznaczenia jako artefakt.</summary>
-        public List<(int First, int Last)> ArtifactOps { get; } = new();
+        /// <summary>Zakresy bajtów do oznaczenia jako artefakt.</summary>
+        public List<(int Start, int End)> ArtifactRanges { get; } = new();
         public List<Block> Blocks { get; } = new();
     }
 
@@ -149,6 +152,8 @@ public sealed class AutoTagService
         {
             var models = new List<PageModel>();
             using var pig = TryOpenPig(pdf);
+            long decoded = 0, items = 0;
+            var knownStreamSize = new Dictionary<PdfDictionary, long>(ReferenceEqualityComparer.Instance);
             for (int i = 0; i < doc.PageCount; i++)
             {
                 ct.ThrowIfCancellationRequested();
@@ -156,11 +161,23 @@ public sealed class AutoTagService
                 if (skipped.ContainsKey(i)) continue;
                 try
                 {
-                    var data = PageContent.ReadAll(doc.Pages[i]);
-                    if (data.Length > MaxContentBytes) { skipped[i] = AutoTagSkipReason.TooLarge; continue; }
-                    var model = Analyze(doc.Pages[i], i, data, pig, ct);
-                    if (model is null) skipped[i] = AutoTagSkipReason.TooLarge;
-                    else models.Add(model);
+                    // Strumień współdzielony przez strony: znany rozmiar liczy się do budżetu przed ponownym dekodowaniem.
+                    var streams = PageContent.Streams(doc.Pages[i]);
+                    long known = streams.Sum(s => knownStreamSize.GetValueOrDefault(s));
+                    if (decoded + known > MaxDocumentDecodedBytes) { skipped[i] = AutoTagSkipReason.TooLarge; continue; }
+                    var data = PageContent.ReadAll(doc.Pages[i], MaxContentBytes, out var streamStarts);
+                    foreach (var s in streams) knownStreamSize.TryAdd(s, data.Length / Math.Max(1, streams.Count));
+                    decoded += data.Length;
+                    if (decoded > MaxDocumentDecodedBytes) { skipped[i] = AutoTagSkipReason.TooLarge; continue; }
+                    var model = Analyze(doc.Pages[i], i, data, streamStarts, pig, ct);
+                    if (model is null) { skipped[i] = AutoTagSkipReason.TooLarge; continue; }
+                    items += model.Items.Count + model.ArtifactRanges.Count + model.Removals.Count + model.Items.OfType<Line>().Sum(l => l.Ops.Count);
+                    if (items > MaxDocumentItems) { skipped[i] = AutoTagSkipReason.TooLarge; continue; }
+                    models.Add(model);
+                }
+                catch (PdfContentLimitException)
+                {
+                    skipped[i] = AutoTagSkipReason.TooLarge;
                 }
                 catch (Exception ex) when (ex is not OperationCanceledException and not OutOfMemoryException)
                 {
@@ -168,7 +185,7 @@ public sealed class AutoTagService
                 }
             }
             Classify(models, ct);
-            WriteStructure(doc, models, options, counters, progress, ct);
+            WriteStructure(doc, models, options, counters, skipped, progress, ct);
         });
         return new AutoTagResult(bytes, counters.Tagged, counters.Headings, counters.Paragraphs, counters.Lists, counters.Figures, counters.Artifacts,
             skipped.OrderBy(kv => kv.Key).Select(kv => new AutoTagSkippedPage(kv.Key, kv.Value)).ToList());
@@ -183,27 +200,20 @@ public sealed class AutoTagService
     // ------------------------------------------------------------------ analiza
 
     /// <summary>Null, gdy strona przekracza limit linii lub operatorów.</summary>
-    private static PageModel? Analyze(PdfPage page, int index, byte[] data, PigDocument? pig, CancellationToken ct)
+    private static PageModel? Analyze(PdfPage page, int index, byte[] data, int[] starts, PigDocument? pig, CancellationToken ct)
     {
         List<OpToken> tokens;
         ContentWalker walker;
         try
         {
             tokens = ContentTokenizer.Scan(data, MaxOpsPerPage, ct);
-            walker = new ContentWalker(page, MaxGlyphsPerPage); // inny wyjątek parsera: strona nieczytelna
+            walker = new ContentWalker(page, MaxGlyphsPerPage, data); // inny wyjątek parsera: strona nieczytelna
         }
-        catch (ContentTokenException ex) when (ex.Message.StartsWith("Too many", StringComparison.Ordinal)) { return null; }
+        catch (ContentTokenException ex) when (ex.IsLimit) { return null; }
         var seqToToken = MapOperators(walker.Sequence, tokens);
 
-        var starts = new List<int>();
-        int offset = 0;
-        foreach (var s in PageContent.Streams(page))
-        {
-            starts.Add(offset);
-            offset += PageContent.Decoded(s).Length + 1;
-        }
-
-        var model = new PageModel { Page = page, Index = index, Data = data, StreamStarts = starts.ToArray(), Tokens = tokens, SeqToToken = seqToToken };
+        var model = new PageModel { Page = page, Index = index, DataLength = data.Length, StreamStarts = starts };
+        (int Start, int End) Range(int firstSeq, int lastSeq) => (tokens[seqToToken[firstSeq]].Start, tokens[seqToToken[lastSeq]].End);
         var fonts = new Dictionary<string, bool>();
         var glyphsByOp = walker.Glyphs.GroupBy(g => g.OpIndex).ToDictionary(g => g.Key, g => g.ToList());
         var objectAt = walker.Objects.Where(o => o.Kind != PageObjectKind.Text).GroupBy(o => o.Start).ToDictionary(g => g.Key, g => g.First());
@@ -259,20 +269,19 @@ public sealed class AutoTagService
                 if (obj.Kind == PageObjectKind.Shape)
                 {
                     // ścieżki to ozdoba: tabela, ramka, wykres wektorowy (ograniczenie wersji podstawowej)
-                    int last = seqToToken[obj.End];
-                    if (!CrossesFrame(walker.Sequence, i, obj.End)) model.ArtifactOps.Add((seqToToken[i], last));
+                    if (!CrossesFrame(walker.Sequence, i, obj.End)) model.ArtifactRanges.Add(Range(i, obj.End));
                 }
                 else
                 {
                     if (model.Items.Count >= MaxLinesPerPage) return null;
-                    model.Items.Add(new Block { Role = Role.Figure, FigureOp = i, Box = obj.Bounds });
+                    model.Items.Add(new Block { Role = Role.Figure, FigureRange = Range(i, i), Box = obj.Bounds });
                     line = null;
                 }
                 continue;
             }
             if (name is "sh" or "EI" or "BI" or "ID")
             {
-                if (artifactDepth == 0 && seqToToken[i] >= 0 && name is "sh" or "EI") model.ArtifactOps.Add((seqToToken[i], seqToToken[i]));
+                if (artifactDepth == 0 && seqToToken[i] >= 0 && name is "sh" or "EI") model.ArtifactRanges.Add(Range(i, i));
                 continue;
             }
             if (name is not ("Tj" or "TJ" or "'" or "\"")) continue;
@@ -281,14 +290,15 @@ public sealed class AutoTagService
             if (!glyphsByOp.TryGetValue(i, out var glyphs) || glyphs.Count == 0 || glyphs.All(g => g.Code == 32 && !g.TwoByte))
             {
                 // same spacje: w środku wiersza zostają w zakresie jego znacznika, poza wierszem to artefakt
-                if (line is null) model.ArtifactOps.Add((seqToToken[i], seqToToken[i]));
+                if (line is null) model.ArtifactRanges.Add(Range(i, i));
                 continue;
             }
             var visible = glyphs.Where(g => g.Code != 32 || g.TwoByte).ToList();
             var box = visible.Select(g => g.Box).Aggregate((a, b) => a.Union(b));
             double size = visible.Max(g => g.Box.Height);
             var scope = (frame, block, StreamOf(starts, tokens[seqToToken[i]].End - 1));
-            var text = new TextOp(i, box, size, IsBold(page, visible[0].Font, fonts), visible.Count, scope);
+            var (opStart, opEnd) = Range(i, i);
+            var text = new TextOp(opStart, opEnd, box, size, IsBold(page, visible[0].Font, fonts), visible.Count, scope);
 
             bool sameLine = line is not null && Math.Abs(line.Box.Bottom - box.Bottom) < 0.5 * Math.Max(line.Size, size)
                 && box.Left - line.Box.Right < 3 * Math.Max(line.Size, size) && box.Right > line.Box.Left;
@@ -584,8 +594,9 @@ public sealed class AutoTagService
 
     // ------------------------------------------------------------------ zapis
 
-    private static void WriteStructure(PdfDocument doc, List<PageModel> models, AutoTagOptions options, Counters counters, IProgress<OperationProgress>? progress, CancellationToken ct)
+    private static void WriteStructure(PdfDocument doc, List<PageModel> models, AutoTagOptions options, Counters counters, Dictionary<int, AutoTagSkipReason> skipped, IProgress<OperationProgress>? progress, CancellationToken ct)
     {
+        long rewritten = 0;
         var catalog = doc.Internals.Catalog;
         var root = new PdfDictionary(doc);
         doc.Internals.AddObject(root);
@@ -605,15 +616,22 @@ public sealed class AutoTagService
         {
             ct.ThrowIfCancellationRequested();
             progress?.Report(OperationProgress.Of(doc.PageCount + m.Index, doc.PageCount * 2));
+            // Każda strona dostaje własną kopię zmienionych strumieni, także współdzielonych.
+            rewritten += m.DataLength;
+            if (rewritten > MaxDocumentRewrittenBytes)
+            {
+                skipped[m.Index] = AutoTagSkipReason.TooLarge;
+                continue;
+            }
             var edits = new List<(int Offset, string Insert, int RemoveLength)>();
             foreach (var (start, length) in m.Removals) edits.Add((start, string.Empty, length));
             var parents = new PdfArray(doc);
             int mcid = 0;
 
-            void Mark(string tag, int firstToken, int lastToken, PdfDictionary element, PdfArray kids)
+            void Mark(string tag, int start, int end, PdfDictionary element, PdfArray kids)
             {
-                edits.Add((m.Tokens[firstToken].Start, $"{tag} <</MCID {mcid.ToString(CultureInfo.InvariantCulture)}>> BDC\n", 0));
-                edits.Add((m.Tokens[lastToken].End, "\nEMC\n", 0));
+                edits.Add((start, $"{tag} <</MCID {mcid.ToString(CultureInfo.InvariantCulture)}>> BDC\n", 0));
+                edits.Add((end, "\nEMC\n", 0));
                 kids.Elements.Add(new PdfInteger(mcid));
                 parents.Elements.Add(element.Reference!);
                 mcid++;
@@ -629,14 +647,12 @@ public sealed class AutoTagService
                     if (IsPageBackground(m.Page, block, m.Items))
                     {
                         // skan pod warstwą tekstu: tło, nie ilustracja
-                        int t = m.SeqToToken[block.FigureOp];
-                        m.ArtifactOps.Add((t, t));
+                        m.ArtifactRanges.Add(block.FigureRange);
                         continue;
                     }
                     var fig = NewElement(doc, "/Figure", document, m.Page);
                     var figKids = new PdfArray(doc);
-                    int token = m.SeqToToken[block.FigureOp];
-                    Mark("/Figure", token, token, fig, figKids);
+                    Mark("/Figure", block.FigureRange.Start, block.FigureRange.End, fig, figKids);
                     fig.Elements["/K"] = figKids;
                     var attrs = new PdfDictionary(doc);
                     attrs.Elements["/O"] = new PdfName("/Layout");
@@ -683,7 +699,7 @@ public sealed class AutoTagService
                     {
                         int j = i;
                         while (j + 1 < line.Ops.Count && line.Ops[j + 1].Scope == line.Ops[i].Scope) j++;
-                        Mark(type, m.SeqToToken[line.Ops[i].Op], m.SeqToToken[line.Ops[j].Op], holder, kids);
+                        Mark(type, line.Ops[i].Start, line.Ops[j].End, holder, kids);
                         i = j + 1;
                     }
                 }
@@ -693,12 +709,12 @@ public sealed class AutoTagService
             // Tekst odrzucony z bloków (powtarzane nagłówki, stopki) i ścieżki: artefakty.
             foreach (var line in m.Items.OfType<Line>().Where(l => l.Artifact))
             {
-                foreach (var op in line.Ops) m.ArtifactOps.Add((m.SeqToToken[op.Op], m.SeqToToken[op.Op]));
+                foreach (var op in line.Ops) m.ArtifactRanges.Add((op.Start, op.End));
             }
-            foreach (var (first, last) in m.ArtifactOps)
+            foreach (var (start, end) in m.ArtifactRanges)
             {
-                edits.Add((m.Tokens[first].Start, "/Artifact BMC\n", 0));
-                edits.Add((m.Tokens[last].End, "\nEMC\n", 0));
+                edits.Add((start, "/Artifact BMC\n", 0));
+                edits.Add((end, "\nEMC\n", 0));
                 counters.Artifacts++;
             }
 
@@ -779,6 +795,7 @@ public sealed class AutoTagService
     {
         if (edits.Count == 0) return;
         var streams = PageContent.Streams(m.Page);
+        var data = PageContent.ReadAll(m.Page, MaxContentBytes);
         // Zamknięcia przed otwarciami w tym samym miejscu: sąsiednie zakresy nie mogą się przeplatać.
         var ordered = edits.Select((e, i) => (e.Offset, e.Insert, e.RemoveLength, i))
             .OrderBy(e => e.Offset).ThenBy(e => e.Insert.StartsWith('\n') ? 0 : 1).ThenBy(e => e.i).ToList();
@@ -787,7 +804,7 @@ public sealed class AutoTagService
         for (int s = 0; s < streams.Count; s++)
         {
             int start = m.StreamStarts[s];
-            int end = s + 1 < streams.Count ? m.StreamStarts[s + 1] - 1 : m.Data.Length - 1;
+            int end = s + 1 < streams.Count ? m.StreamStarts[s + 1] - 1 : data.Length - 1;
             int firstEdit = cursor;
             while (cursor < ordered.Count && ordered[cursor].Offset <= end) cursor++;
             var here = ordered.GetRange(firstEdit, cursor - firstEdit);
@@ -800,12 +817,12 @@ public sealed class AutoTagService
             int pos = start;
             foreach (var e in here)
             {
-                if (e.Offset > pos) ms.Write(m.Data, pos, e.Offset - pos);
+                if (e.Offset > pos) ms.Write(data, pos, e.Offset - pos);
                 pos = Math.Max(pos, e.Offset);
                 if (e.Insert.Length > 0) ms.Write(Encoding.ASCII.GetBytes(e.Insert));
                 pos += e.RemoveLength;
             }
-            if (end > pos) ms.Write(m.Data, pos, end - pos);
+            if (end > pos) ms.Write(data, pos, end - pos);
             var copy = new PdfDictionary(doc);
             foreach (var key in streams[s].Elements.Keys)
                 if (key is not ("/Filter" or "/DecodeParms" or "/Length" or "/DL" or "/F" or "/FFilter" or "/FDecodeParms"))

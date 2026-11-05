@@ -21,7 +21,9 @@ public static class PdfSecurityHelper
         PdfSharpEdit.EnsureInitialized();
         try
         {
-            using var doc = PdfReader.Open(new MemoryStream(pdf, false), PdfDocumentOpenMode.Import);
+            // Strumienie obiektów, których nie da się rozpakować, to prawie zawsze szyfrowanie; bez otwierania nieznanej struktury.
+            if (PdfStructureGuard.Check(pdf).UnverifiedObjectStreamBytes > 0 && pdf.AsSpan().IndexOf("/Encrypt"u8) >= 0) return true;
+            using var doc = PdfSharpEdit.OpenGuarded(pdf, null, PdfDocumentOpenMode.Import);
             return doc.SecurityHandler.Elements.ContainsKey("/Filter");
         }
         catch (PdfReaderException)
@@ -41,8 +43,8 @@ public static class PdfSecurityHelper
         try
         {
             doc = password is null
-                ? PdfReader.Open(new MemoryStream(original, false), PdfDocumentOpenMode.Import)
-                : PdfReader.Open(new MemoryStream(original, false), password, PdfDocumentOpenMode.Import);
+                ? PdfSharpEdit.OpenGuarded(original, null, PdfDocumentOpenMode.Import)
+                : PdfSharpEdit.OpenGuarded(original, password, PdfDocumentOpenMode.Import);
         }
         catch (PdfReaderException ex)
         {
@@ -70,7 +72,7 @@ public static class PdfSecurityHelper
     {
         try
         {
-            using var d = PdfReader.Open(new MemoryStream(original, false), password ?? string.Empty, PdfDocumentOpenMode.Modify);
+            using var d = PdfSharpEdit.OpenGuarded(original, password ?? string.Empty, PdfDocumentOpenMode.Modify);
             return true;
         }
         catch (PdfReaderException)
@@ -84,7 +86,7 @@ public static class PdfSecurityHelper
     {
         try
         {
-            using var d = PdfReader.Open(new MemoryStream(original, false), PdfDocumentOpenMode.Import);
+            using var d = PdfSharpEdit.OpenGuarded(original, null, PdfDocumentOpenMode.Import);
             return true;
         }
         catch (PdfReaderException)
@@ -127,7 +129,7 @@ public static class PdfSecurityHelper
         PdfSharpEdit.EnsureInitialized();
         try
         {
-            using var doc = PdfReader.Open(new MemoryStream(original, false), ownerPassword ?? string.Empty, PdfDocumentOpenMode.Modify);
+            using var doc = PdfSharpEdit.OpenGuarded(original, ownerPassword ?? string.Empty, PdfDocumentOpenMode.Modify);
             doc.SecurityHandler.SetEncryptionToNoneAndResetPasswords();
             return PdfSharpEdit.Save(doc);
         }

@@ -30,18 +30,31 @@ public static class PdfSharpEdit
         }
     }
 
+    /// <summary>
+    /// Jedyne wejście do PdfReader: najpierw <see cref="PdfStructureGuard"/>, potem otwarcie na wątku z dużym stosem. Plik z niesprawdzalnymi
+    /// strumieniami obiektów (szyfrowanie) dostaje stos 1 GB; patrz docs/DECYZJE.md D-42. Wyjątki PdfReader przechodzą bez zmian.
+    /// </summary>
+    public static PdfDocument OpenGuarded(byte[] pdf, string? password, PdfDocumentOpenMode mode)
+    {
+        EnsureInitialized();
+        var guard = PdfStructureGuard.Check(pdf);
+        PdfStructureGuard.CheckUnverified(pdf, password, guard);
+        return BigStack.Run(() => password is null
+            ? PdfReader.Open(new MemoryStream(pdf, writable: false), mode)
+            : PdfReader.Open(new MemoryStream(pdf, writable: false), password, mode),
+            guard.UnverifiedObjectStreamBytes > 0 ? BigStack.LargeBytes : BigStack.DefaultBytes);
+    }
+
     /// <summary>Otwiera do modyfikacji. Pamiętaj o Dispose.</summary>
     public static PdfDocument OpenForModify(byte[] pdf)
     {
-        EnsureInitialized();
-        return PdfReader.Open(new MemoryStream(pdf, writable: false), PdfDocumentOpenMode.Modify);
+        return OpenGuarded(pdf, null, PdfDocumentOpenMode.Modify);
     }
 
     /// <summary>Otwiera do odczytu/importu stron (szybciej, bez możliwości zapisu tego dokumentu).</summary>
     public static PdfDocument OpenForImport(byte[] pdf)
     {
-        EnsureInitialized();
-        return PdfReader.Open(new MemoryStream(pdf, writable: false), PdfDocumentOpenMode.Import);
+        return OpenGuarded(pdf, null, PdfDocumentOpenMode.Import);
     }
 
     /// <summary>Zapisuje dokument do bajtów.</summary>

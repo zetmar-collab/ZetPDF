@@ -6,7 +6,6 @@ using ZetPDF.Core.Commands;
 using ZetPDF.Core.Contracts;
 using ZetPDF.Core.Documents;
 using ZetPDF.Editing.Accessibility;
-using ZetPDF.Editing.Content;
 using ZetPDF.Ocr.Pdf;
 using ZetPDF.Rendering;
 using ZetPDF.TestData;
@@ -277,6 +276,7 @@ public class AutoTagTests
     [InlineData("q 1 0 0 1 0 0 cm /P BMC 10 10 m Q")] // BMC bez EMC
     [InlineData("EMC 0 0 10 10 re f")] // EMC bez BMC
     [InlineData("BT (urwany napis")] // urwany napis
+    [InlineData("q ] Q")] // niepasujące zamknięcie
     public async Task Unreadable_page_is_skipped_and_reported_without_failing(string content)
     {
         var pdf = WithRawPage(content);
@@ -322,6 +322,74 @@ public class AutoTagTests
         var sw = System.Diagnostics.Stopwatch.StartNew();
         await new AutoTagService().TagAsync(longLine, Options);
         Assert.True(sw.Elapsed < TimeSpan.FromSeconds(60), sw.Elapsed.ToString());
+    }
+
+    private static byte[] FlateContent(PdfDocument doc, PdfPage page, byte[] plain)
+    {
+        var z = new MemoryStream();
+        using (var zl = new System.IO.Compression.ZLibStream(z, System.IO.Compression.CompressionLevel.Optimal, true)) zl.Write(plain);
+        return z.ToArray();
+    }
+
+    [Fact]
+    public async Task Compression_bomb_on_a_page_is_skipped_with_information_without_memory_spike()
+    {
+        var pdf = PdfSharpEdit.Modify(Report(1), doc =>
+        {
+            var page = doc.AddPage();
+            var raw = FlateContent(doc, page, new byte[AutoTagService.MaxContentBytes + 16 * 1024 * 1024]);
+            var d = new PdfDictionary(doc);
+            d.CreateStream(raw);
+            d.Elements["/Filter"] = new PdfName("/FlateDecode");
+            doc.Internals.AddObject(d);
+            page.Elements["/Contents"] = d.Reference!;
+        });
+        long before = GC.GetTotalAllocatedBytes(true);
+        var r = await new AutoTagService().TagAsync(pdf, Options);
+        Assert.Contains(r.SkippedPages, p => p.PageIndex == 1 && p.Reason == AutoTagSkipReason.TooLarge);
+        Assert.Equal(1, r.TaggedPages);
+        Assert.True(GC.GetTotalAllocatedBytes(true) - before < 400L * 1024 * 1024);
+    }
+
+    [Fact]
+    public async Task Many_pages_sharing_one_large_stream_stop_at_the_document_budget()
+    {
+        // 300 stron współdzieli strumień 8 MB: bez budżetu 2,4 GB odczytu i tyle samo kopii przy zapisie
+        var pdf = PdfSharpEdit.Modify(Report(1), doc =>
+        {
+            var content = new StringBuilder();
+            while (content.Length < 8 * 1024 * 1024) content.Append("q 1 0 0 1 0 0 cm 0 0 10 10 re n Q\n");
+            var d = new PdfDictionary(doc);
+            d.CreateStream(Encoding.ASCII.GetBytes(content.ToString()));
+            doc.Internals.AddObject(d);
+            for (int i = 0; i < 300; i++)
+            {
+                var page = doc.AddPage();
+                page.Elements["/Contents"] = d.Reference!;
+            }
+        });
+        var r = await new AutoTagService().TagAsync(pdf, Options);
+        Assert.Contains(r.SkippedPages, p => p.Reason == AutoTagSkipReason.TooLarge);
+        Assert.True(r.SkippedPages.Count + r.TaggedPages == 301, r.SkippedPages.Count + " " + r.TaggedPages);
+    }
+
+    [Fact]
+    public void Page_content_read_has_common_limit_for_ocr_redaction_and_pdfa()
+    {
+        PdfSharpEdit.Read(PdfSharpEdit.Modify(Report(1), doc =>
+        {
+            var raw = FlateContent(doc, doc.Pages[0], new byte[8 * 1024 * 1024]);
+            var d = new PdfDictionary(doc);
+            d.CreateStream(raw);
+            d.Elements["/Filter"] = new PdfName("/FlateDecode");
+            doc.Internals.AddObject(d);
+            doc.Pages[0].Elements["/Contents"] = d.Reference!;
+        }), doc =>
+        {
+            Assert.Throws<PdfContentLimitException>(() => PageContent.ReadAll(doc.Pages[0], 1024 * 1024));
+            Assert.Equal(8 * 1024 * 1024 + 1, PageContent.ReadAll(doc.Pages[0]).Length);
+            return 0;
+        });
     }
 
     [Fact]

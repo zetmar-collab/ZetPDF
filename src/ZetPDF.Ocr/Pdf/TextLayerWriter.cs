@@ -76,7 +76,7 @@ public static class TextLayerWriter
         var glyphs = new List<List<(string Font, string Codes)>>();
         foreach (var s in added)
         {
-            var seq = ContentReader.ReadContent(PageContent.Decoded(s));
+            var seq = ZetPDF.Core.Documents.PdfContentParser.Parse(PageContent.Decoded(s));
             string fontName = "/F0";
             List<(string, string)>? group = null;
             foreach (var op in seq.OfType<COperator>())

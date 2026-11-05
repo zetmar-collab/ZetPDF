@@ -389,7 +389,7 @@ public sealed class RedactionService : IRedactionService
         if (PdfObjects.Resolve(catalog["/Metadata"]) is PdfDictionary xmp && xmp.Stream is not null)
         {
             string text;
-            try { text = Encoding.UTF8.GetString(xmp.Stream.UnfilteredValue); } catch (Exception) { text = string.Empty; }
+            try { text = Encoding.UTF8.GetString(ZetPDF.Core.Documents.PdfStreamLimits.Decode(xmp, ZetPDF.Core.Documents.PdfStreamLimits.SmallDataBytes)); } catch (Exception) { text = string.Empty; }
             if (Contains(text)) catalog.Remove("/Metadata");
         }
         if (PdfObjects.Resolve(catalog["/Outlines"]) is PdfDictionary outlines) ScrubOutlines(outlines, tokens, 0);

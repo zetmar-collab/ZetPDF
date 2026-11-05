@@ -180,7 +180,7 @@ public sealed class ConversionService : IConversionService
                 var ext = Path.GetExtension(path).ToLowerInvariant();
                 if (ext == ".pdf")
                 {
-                    using var src = PdfReader.Open(new MemoryStream(File.ReadAllBytes(path)), PdfDocumentOpenMode.Import);
+                    using var src = PdfSharpEdit.OpenGuarded(File.ReadAllBytes(path), null, PdfDocumentOpenMode.Import);
                     foreach (var p in src.Pages) output.AddPage(p);
                 }
                 else if (ImageExtensions.Contains(ext))
@@ -195,7 +195,7 @@ public sealed class ConversionService : IConversionService
                     try
                     {
                         _office.ConvertToPdfAsync(path, tmp, ct).GetAwaiter().GetResult();
-                        using var src = PdfReader.Open(new MemoryStream(File.ReadAllBytes(tmp)), PdfDocumentOpenMode.Import);
+                        using var src = PdfSharpEdit.OpenGuarded(File.ReadAllBytes(tmp), null, PdfDocumentOpenMode.Import);
                         foreach (var p in src.Pages) output.AddPage(p);
                     }
                     finally

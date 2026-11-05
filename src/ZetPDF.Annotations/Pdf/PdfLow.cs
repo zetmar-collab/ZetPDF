@@ -66,7 +66,7 @@ internal static class PdfLow
 
     private static string DecodeStreamText(PdfDictionary sd)
     {
-        var b = sd.Stream.UnfilteredValue ?? Array.Empty<byte>();
+        var b = ZetPDF.Core.Documents.PdfStreamLimits.Decode(sd, ZetPDF.Core.Documents.PdfStreamLimits.SmallDataBytes);
         if (b.Length >= 2 && b[0] == 0xFE && b[1] == 0xFF) return Encoding.BigEndianUnicode.GetString(b, 2, b.Length - 2);
         if (b.Length >= 3 && b[0] == 0xEF && b[1] == 0xBB && b[2] == 0xBF) return Encoding.UTF8.GetString(b, 3, b.Length - 3);
         return Encoding.Latin1.GetString(b);

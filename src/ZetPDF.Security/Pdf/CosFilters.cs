@@ -30,17 +30,24 @@ internal static class CosFilters
     {
         try
         {
-            using var z = new ZLibStream(new MemoryStream(data), CompressionMode.Decompress);
-            using var ms = new MemoryStream();
-            z.CopyTo(ms);
-            return ms.ToArray();
+            return ZetPDF.Core.Documents.PdfStreamLimits.InflateLimited(data, ZetPDF.Core.Documents.PdfStreamLimits.DefaultContentBytes);
         }
         catch (InvalidDataException) when (data.Length > 2)
         {
             // bez nagłówka zlib albo uszkodzona suma kontrolna – próba surowego deflate
             using var d = new DeflateStream(new MemoryStream(data, 2, data.Length - 2), CompressionMode.Decompress);
             using var ms = new MemoryStream();
-            try { d.CopyTo(ms); } catch (InvalidDataException) { }
+            var buffer = new byte[81920];
+            try
+            {
+                int read;
+                while ((read = d.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    if (ms.Length + read > ZetPDF.Core.Documents.PdfStreamLimits.DefaultContentBytes) throw new FormatException("Decoded stream exceeds the size limit.");
+                    ms.Write(buffer, 0, read);
+                }
+            }
+            catch (InvalidDataException) { }
             return ms.ToArray();
         }
     }

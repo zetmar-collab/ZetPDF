@@ -44,15 +44,35 @@ internal sealed class CosParser
         if (o is CosNumber n1 && n1.IsInteger && n1.AsLong >= 0)
         {
             int save = Position;
-            var o2 = TryReadPrimitiveNoThrow();
+            // Spekulacyjnie tylko liczba, nigdy tablica lub słownik: inaczej „1 [1 [1 [ …” czytałoby każdy poziom dwa razy.
+            var o2 = NextIsDigit() ? TryReadPrimitiveNoThrow() : null;
             if (o2 is CosNumber n2 && n2.IsInteger && n2.AsLong >= 0)
             {
-                var o3 = TryReadPrimitiveNoThrow();
+                SkipWhitespace();
+                var o3 = Position < _end && _data[Position] == 'R' ? TryReadPrimitiveNoThrow() : null;
                 if (o3 is CosKeyword { Value: "R" }) return new CosReference(n1.AsInt, n2.AsInt);
             }
             Position = save;
         }
         return o;
+    }
+
+    private bool NextIsDigit()
+    {
+        SkipWhitespace();
+        return Position < _end && _data[Position] >= '0' && _data[Position] <= '9';
+    }
+
+    private int _depth;
+
+    /// <summary>Limit zagnieżdżenia: parser jest rekurencyjny, a dane z pliku niezaufane.</summary>
+    public const int MaxDepth = 256;
+
+    private T Nested<T>(Func<T> read)
+    {
+        if (++_depth > MaxDepth) throw new FormatException("Nesting too deep.");
+        try { return read(); }
+        finally { _depth--; }
     }
 
     private CosObject? TryReadPrimitiveNoThrow()
@@ -70,9 +90,9 @@ internal sealed class CosParser
         {
             case (byte)'/': return ReadName();
             case (byte)'(': return ReadLiteralString();
-            case (byte)'[': return ReadArray();
+            case (byte)'[': return Nested(ReadArray);
             case (byte)'<':
-                if (Position + 1 < _end && _data[Position + 1] == '<') return ReadDictionaryOrStreamDict();
+                if (Position + 1 < _end && _data[Position + 1] == '<') return Nested(ReadDictionaryOrStreamDict);
                 return ReadHexString();
             case (byte)']':
             case (byte)'>':

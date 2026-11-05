@@ -203,7 +203,7 @@ internal static class PdfIo
 
     private static bool IsSingleOperator(PdfDictionary d, string op)
     {
-        try { return Encoding.Latin1.GetString(d.Stream?.UnfilteredValue ?? Array.Empty<byte>()).Trim() == op; }
+        try { return Encoding.Latin1.GetString(d.Stream is null ? Array.Empty<byte>() : ZetPDF.Core.Documents.PdfStreamLimits.Decode(d, ZetPDF.Core.Documents.PdfStreamLimits.SmallDataBytes)).Trim() == op; }
         catch (Exception) { return false; }
     }
 
@@ -234,7 +234,8 @@ internal static class PdfIo
     public static byte[] StreamData(PdfDictionary d)
     {
         if (d.Stream is null) return Array.Empty<byte>();
-        try { return d.Stream.UnfilteredValue ?? Array.Empty<byte>(); }
+        try { return ZetPDF.Core.Documents.PdfStreamLimits.Decode(d); }
+        catch (ZetPDF.Core.Documents.PdfContentLimitException) { throw; } // pusta treść oznaczałaby utratę danych przy zapisie
         catch (Exception) { return Array.Empty<byte>(); }
     }
 

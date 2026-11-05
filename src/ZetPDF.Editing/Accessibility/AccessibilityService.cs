@@ -164,7 +164,7 @@ public sealed class AccessibilityService
         if (PdfObjects.Resolve(doc.Internals.Catalog.Elements["/Metadata"]) is not PdfDictionary meta || meta.Stream is null) return null;
         try
         {
-            var xml = Encoding.UTF8.GetString(meta.Stream.UnfilteredValue);
+            var xml = Encoding.UTF8.GetString(ZetPDF.Core.Documents.PdfStreamLimits.Decode(meta, ZetPDF.Core.Documents.PdfStreamLimits.SmallDataBytes));
             var m = XmpTitle.Match(xml);
             return m.Success ? WebUtility.HtmlDecode(m.Groups["t"].Value) : null;
         }
@@ -306,7 +306,7 @@ public sealed class AccessibilityService
         if (PdfObjects.Resolve(doc.Internals.Catalog.Elements["/Metadata"]) is not PdfDictionary meta || meta.Stream is null) return;
         try
         {
-            var xml = Encoding.UTF8.GetString(meta.Stream.UnfilteredValue);
+            var xml = Encoding.UTF8.GetString(ZetPDF.Core.Documents.PdfStreamLimits.Decode(meta, ZetPDF.Core.Documents.PdfStreamLimits.SmallDataBytes));
             var m = XmpTitle.Match(xml);
             if (!m.Success) return;
             var g = m.Groups["t"];

@@ -408,7 +408,7 @@ internal static class PdfAInspector
             int tr = 0;
             try
             {
-                foreach (var op in ContentReader.ReadContent(data).OfType<COperator>())
+                foreach (var op in ZetPDF.Core.Documents.PdfContentParser.Parse(data).OfType<COperator>())
                 {
                     switch (op.OpCode.Name)
                     {

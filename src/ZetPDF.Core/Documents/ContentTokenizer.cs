@@ -1,26 +1,43 @@
 using System.Text;
 
-namespace ZetPDF.Editing.Content;
+namespace ZetPDF.Core.Documents;
 
 /// <summary>Operator w bajtach treści: [Start, End) obejmuje operandy i nazwę; dla obrazu w treści całe BI … EI.</summary>
-internal readonly record struct OpToken(string Name, int Start, int End, bool InlineImage);
+public readonly record struct OpToken(string Name, int Start, int End, bool InlineImage);
 
-/// <summary>Treść nie daje się bezpiecznie przeczytać: zbyt głębokie zagnieżdżenie, zbyt wiele operatorów, urwany napis.</summary>
-internal sealed class ContentTokenException(string message) : Exception(message);
+/// <summary>Treść nie daje się bezpiecznie przeczytać: zagnieżdżenie, niepasujące zamknięcie, urwany napis albo limit operatorów.</summary>
+public sealed class ContentTokenException(string message, bool isLimit = false) : Exception(message)
+{
+    /// <summary>Przekroczony limit (treść poprawna, ale zbyt duża), a nie błąd składni.</summary>
+    public bool IsLimit { get; } = isLimit;
+}
 
 /// <summary>
-/// Minimalny, iteracyjny skaner strumienia treści: znajduje granice operatorów w oryginalnych bajtach, żeby dało się wstawiać znaczniki
-/// bez ponownego zapisu reszty treści. Uruchamiany przed parserem PDFsharp, który jest rekurencyjny: zagnieżdżenie głębsze niż
-/// <see cref="MaxDepth"/> kończy się wyjątkiem, zanim tablica z pliku zdąży przepełnić stos (tego nie da się złapać).
+/// Iteracyjny, ścisły skaner strumienia treści: znajduje granice operatorów w oryginalnych bajtach. Tablice i słowniki śledzone osobno,
+/// niepasujące zamknięcie to odrzucenie. To kontrola dodatkowa: bezpieczeństwo względem parsera PDFsharp nie opiera się na zgodności
+/// obu parserów, patrz <see cref="PdfContentParser"/>.
 /// </summary>
-internal static class ContentTokenizer
+public static class ContentTokenizer
 {
     public const int MaxDepth = 64;
 
-    public static List<OpToken> Scan(byte[] data, int maxOps, CancellationToken ct = default)
+    public static List<OpToken> Scan(byte[] data, int maxOps = int.MaxValue, CancellationToken ct = default)
     {
         var ops = new List<OpToken>();
+        var open = new byte[MaxDepth];
         int i = 0, n = data.Length, depth = 0, opStart = -1;
+
+        void Push(byte kind)
+        {
+            if (depth >= MaxDepth) throw new ContentTokenException("Nesting too deep.");
+            open[depth++] = kind;
+        }
+        void Pop(byte kind)
+        {
+            if (depth == 0 || open[depth - 1] != kind) throw new ContentTokenException("Mismatched closing bracket.");
+            depth--;
+        }
+
         while (i < n)
         {
             if ((i & 0xFFFF) == 0) ct.ThrowIfCancellationRequested();
@@ -40,28 +57,25 @@ internal static class ContentTokenizer
                 case (byte)'<':
                     if (i + 1 < n && data[i + 1] == '<')
                     {
-                        if (++depth > MaxDepth) throw new ContentTokenException("Nesting too deep.");
+                        Push((byte)'<');
                         i += 2;
                         continue;
                     }
                     while (i < n && data[i] != '>') i++;
+                    if (i >= n) throw new ContentTokenException("Unterminated hex string.");
                     i++;
                     continue;
                 case (byte)'>':
-                    if (i + 1 < n && data[i + 1] == '>')
-                    {
-                        depth = Math.Max(0, depth - 1);
-                        i += 2;
-                        continue;
-                    }
-                    i++;
+                    if (i + 1 >= n || data[i + 1] != '>') throw new ContentTokenException("Stray closing bracket.");
+                    Pop((byte)'<');
+                    i += 2;
                     continue;
                 case (byte)'[':
-                    if (++depth > MaxDepth) throw new ContentTokenException("Nesting too deep.");
+                    Push((byte)'[');
                     i++;
                     continue;
                 case (byte)']':
-                    depth = Math.Max(0, depth - 1);
+                    Pop((byte)'[');
                     i++;
                     continue;
                 case (byte)'{':
@@ -99,7 +113,7 @@ internal static class ContentTokenizer
 
     private static void Add(List<OpToken> ops, OpToken op, int maxOps)
     {
-        if (ops.Count >= maxOps) throw new ContentTokenException("Too many operators.");
+        if (ops.Count >= maxOps) throw new ContentTokenException("Too many operators.", isLimit: true);
         ops.Add(op);
     }
 
