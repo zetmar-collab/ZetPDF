@@ -250,3 +250,8 @@ Edi = ZetPDF.Editing.Tests, Sec = ZetPDF.Security.Tests, App = ZetPDF.App.Tests,
 - Prawdziwy serwer TSA (brak sieci) – tylko atrapa (testy autora) i nieosiągalny adres lokalny.
 - Kontrast i ucięcia tekstów w obu językach (wizualnie) – poza zakresem testów automatycznych testera.
 - Edycja tekstu w czcionkach nieobsługiwanych (Type3, standardowe 14 bez /Widths) – opisane w `docs\ograniczenia\edit-convert-ocr.md`, nie zgłaszane jako błąd.
+
+## Wersja 0.2.0-test (2026-11-05)
+
+Czysty build, `dotnet test ZetPDF.sln -c Release`: 1282 zaliczone, 0 niepowodzeń, 1 pominięty (Word: brak aplikacji). Testy schowka bywają pomijane przy zablokowanym ekranie.
+

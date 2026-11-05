@@ -196,3 +196,15 @@ Po każdej naprawie: build Release 0/0 i testy (końcowo 752/752 ×3).
 - Klikania myszą: rysowania pomiarów, okna skali i kalibracji, tworzenia pola kodu kreskowego, budowania indeksu z okna wyboru folderu, edycji skryptu w oknie Skrypty formularza, przeciągania rozdzielacza widoku równoległego (pokryte testami usług i budowy okien, nie pulpitem).
 - Odczytu kodów QR/PDF417 zewnętrznym skanerem (test dekoduje render PDFium przez ZXing).
 - Zgodności pomiarów i skryptów z innym czytnikiem (Acrobat) – brak w systemie.
+
+## 10. Rozbudowa po etapie 3 – wersja 0.2.0-test
+
+**Build i testy (czysty build):** 0 błędów, 0 ostrzeżeń; 1282 testy zaliczone, 0 niepowodzeń, 1 pominięty (Word, brak aplikacji). Tłumaczenia: 0 błędów. Kontrast motywów: OK.
+
+**Test exe (`dist\ZetPDF.exe` 0.2.0-test, foldery z polskimi znakami, osobny profil):** `--diag-smoke`: 500 stron OK; formularz OK; AES-256 z hasłem właściciela OK; AES-256 z hasłem użytkownika: otwarcie i zapis działają, jedno zgłoszenie opisane niżej; plik uszkodzony: okno błędu, bez awarii.
+
+**Instalator `ZetPDF-Setup-0.2.0-test.exe`:** cicha instalacja do folderu z polskimi znakami, uruchomienie i odinstalowanie bez pozostałości. Kreatora nie przeklikano.
+
+**Czego nie sprawdzono:** klikania nowych okien na pulpicie; fizycznej drukarki i druku dwustronnego; skanera; Worda i PowerPointa; pobierania strony z internetu; prawdziwego serwera OCSP/CRL/TSA; zewnętrznej walidacji PDF/A i PAdES (veraPDF i podobne nie są zainstalowane), przez co zgodność z tymi standardami nie jest potwierdzona.
+
+**Poprawki z przeglądu i przeglądu bezpieczeństwa:** opis w `docs\DECYZJE.md` (D-27 do D-46), ograniczenia w `docs\OGRANICZENIA.md` (rozdz. 27–29).
