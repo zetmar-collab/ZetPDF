@@ -223,33 +223,6 @@ internal sealed class CosDocument
         _cache.Clear(); // obiekty wczytane przed uwierzytelnieniem (np. /Encrypt) – bez odszyfrowania
     }
 
-    /// <summary>
-    /// Czyta wszystkie obiekty pliku, także ze strumieni obiektów, po odszyfrowaniu. False tylko przy zagnieżdżeniu ponad limit parsera;
-    /// inny błąd (złe hasło, nieobsługiwany format) to brak wiedzy, a nie dowód.
-    /// </summary>
-    public static bool AllObjectsWithinDepthLimit(byte[] data, string? password)
-    {
-        CosDocument doc;
-        try { doc = Open(data, password); }
-        catch (Exception ex) when (ex is not OutOfMemoryException) { return !IsDepth(ex); }
-        foreach (int number in doc._xref.Keys.Take(5_000_000).ToArray())
-        {
-            try { if (doc.Exists(number)) doc.GetObject(number); }
-            catch (Exception ex) when (ex is not OutOfMemoryException)
-            {
-                if (IsDepth(ex)) return false;
-            }
-        }
-        return true;
-    }
-
-    private static bool IsDepth(Exception ex)
-    {
-        for (var e = ex; e is not null; e = e.InnerException)
-            if (e.Message.Contains("Nesting too deep", StringComparison.Ordinal)) return true;
-        return false;
-    }
-
     public int GetGeneration(int number) => _xref.TryGetValue(number, out var e) && e.Type == 1 ? e.Generation : 0;
 
     public bool Exists(int number) => _xref.TryGetValue(number, out var e) && e.Type != 0;

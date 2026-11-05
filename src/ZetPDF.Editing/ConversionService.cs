@@ -180,7 +180,9 @@ public sealed class ConversionService : IConversionService
                 var ext = Path.GetExtension(path).ToLowerInvariant();
                 if (ext == ".pdf")
                 {
-                    using var src = PdfSharpEdit.OpenGuarded(File.ReadAllBytes(path), null, PdfDocumentOpenMode.Import);
+                    var fileBytes = File.ReadAllBytes(path);
+                    PdfFileProbes.EnsureSafeAsync(fileBytes, null, ct).GetAwaiter().GetResult();
+                    using var src = PdfSharpEdit.OpenGuarded(fileBytes, null, PdfDocumentOpenMode.Import);
                     foreach (var p in src.Pages) output.AddPage(p);
                 }
                 else if (ImageExtensions.Contains(ext))

@@ -21,8 +21,6 @@ public static class PdfSecurityHelper
         PdfSharpEdit.EnsureInitialized();
         try
         {
-            // Strumienie obiektów, których nie da się rozpakować, to prawie zawsze szyfrowanie; bez otwierania nieznanej struktury.
-            if (PdfStructureGuard.Check(pdf).UnverifiedObjectStreamBytes > 0 && pdf.AsSpan().IndexOf("/Encrypt"u8) >= 0) return true;
             using var doc = PdfSharpEdit.OpenGuarded(pdf, null, PdfDocumentOpenMode.Import);
             return doc.SecurityHandler.Elements.ContainsKey("/Filter");
         }

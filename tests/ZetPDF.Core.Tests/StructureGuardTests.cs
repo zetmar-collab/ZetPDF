@@ -9,8 +9,8 @@ using ZetPDF.TestData;
 namespace ZetPDF.Core.Tests;
 
 /// <summary>
-/// Pliki i treść spreparowane pod przepełnienie stosu PDFsharp. Kontrola musi odrzucić je PRZED parserem: gdyby przepuściła, proces testów padnie
-/// (StackOverflow), co też będzie widoczne. Pomiary w osobnym procesie: scratch\DepthProbe, wynik w docs/DECYZJE.md D-42.
+/// Szybkie odrzucanie, parser treści i dekodowanie z limitem. Skan nie decyduje o bezpieczeństwie: pliki ze strumieniami obiektów i zaszyfrowane
+/// sprawdza sonda w osobnym procesie (ZetPDF.App.Tests.PdfProbeProcessTests).
 /// </summary>
 public class StructureGuardTests
 {
@@ -18,7 +18,6 @@ public class StructureGuardTests
     private static string Arrays(int d) => new string('[', d) + "1" + new string(']', d);
     private static string Dicts(int d) => string.Concat(Enumerable.Repeat("<</A ", d)) + "1" + string.Concat(Enumerable.Repeat(">>", d));
 
-    /// <summary>Minimalny PDF z obiektem 4 podanym wprost.</summary>
     private static byte[] Plain(string nested)
     {
         var ms = new MemoryStream();
@@ -36,49 +35,13 @@ public class StructureGuardTests
         return ms.ToArray();
     }
 
-    /// <summary>Obiekt 4 w strumieniu obiektów, z tabelą odsyłaczy jako strumieniem.</summary>
-    private static byte[] InObjectStream(string nested, string extraDict = "")
-    {
-        var ms = new MemoryStream();
-        void W(string s) => ms.Write(Latin(s));
-        var off = new long[7];
-        W("%PDF-1.5\n");
-        off[1] = ms.Position; W("1 0 obj\n<</Type/Catalog/Pages 2 0 R>>\nendobj\n");
-        off[2] = ms.Position; W("2 0 obj\n<</Type/Pages/Kids[3 0 R]/Count 1>>\nendobj\n");
-        off[3] = ms.Position; W("3 0 obj\n<</Type/Page/Parent 2 0 R/MediaBox[0 0 100 100]/X 4 0 R>>\nendobj\n");
-        var z = new MemoryStream();
-        using (var zl = new ZLibStream(z, CompressionLevel.Optimal, true)) zl.Write(Latin("4 0 " + nested + "\n"));
-        off[5] = ms.Position;
-        W("5 0 obj\n<</Type/ObjStm/N 1/First 4/Filter/FlateDecode" + extraDict + "/Length " + z.Length + ">>\nstream\n");
-        ms.Write(z.ToArray());
-        W("\nendstream\nendobj\n");
-        long x = ms.Position;
-        var xr = new MemoryStream();
-        void E(int t, long a, int b)
-        {
-            xr.WriteByte((byte)t);
-            xr.WriteByte((byte)(a >> 16));
-            xr.WriteByte((byte)(a >> 8));
-            xr.WriteByte((byte)a);
-            xr.WriteByte((byte)b);
-        }
-        E(0, 0, 0); E(1, off[1], 0); E(1, off[2], 0); E(1, off[3], 0); E(2, 5, 0); E(1, off[5], 0); E(1, x, 0);
-        W("6 0 obj\n<</Type/XRef/Size 7/W[1 3 1]/Root 1 0 R/Length " + xr.Length + ">>\nstream\n");
-        ms.Write(xr.ToArray());
-        W("\nendstream\nendobj\nstartxref\n" + x + "\n%%EOF\n");
-        return ms.ToArray();
-    }
-
     public static IEnumerable<object[]> DeepFiles()
     {
         foreach (int d in new[] { 300, 10_000, 100_000, 1_000_000 })
         {
             yield return new object[] { "tablice " + d, Plain(Arrays(d)) };
             yield return new object[] { "słowniki " + d, Plain(Dicts(d)) };
-            yield return new object[] { "strumień obiektów, tablice " + d, InObjectStream(Arrays(d)) };
-            yield return new object[] { "strumień obiektów, słowniki " + d, InObjectStream(Dicts(d)) };
         }
-        // Zmylenie skanera: nawias zamykający w napisie, niepasujące zamknięcia, słowa kluczowe w tablicy.
         yield return new object[] { "nawias w napisie", Plain(string.Concat(Enumerable.Repeat("[(])", 20_000))) };
         yield return new object[] { "niepasujące zamknięcia", Plain(string.Concat(Enumerable.Repeat("[>>", 20_000))) };
         yield return new object[] { "endobj w tablicy", Plain(string.Concat(Enumerable.Repeat("[ endobj ", 20_000))) };
@@ -88,11 +51,10 @@ public class StructureGuardTests
 
     [Theory]
     [MemberData(nameof(DeepFiles))]
-    public void Deep_file_is_rejected_before_pdfsharp(string name, byte[] pdf)
+    public void Obvious_depth_is_rejected_before_pdfsharp(string name, byte[] pdf)
     {
         Assert.NotEmpty(name);
-        var ex = Assert.Throws<PdfCorruptException>(() => PdfStructureGuard.Check(pdf));
-        Assert.Contains("nested", ex.Message);
+        Assert.Throws<PdfCorruptException>(() => PdfStructureGuard.RejectObviousDepth(pdf));
         Assert.Throws<PdfCorruptException>(() => PdfSharpEdit.Read(pdf, d => d.PageCount));
         Assert.Throws<PdfCorruptException>(() => PdfSharpEdit.Modify(pdf, _ => { }));
     }
@@ -100,37 +62,8 @@ public class StructureGuardTests
     [Fact]
     public void Object_hidden_inside_a_fake_stream_region_is_still_seen()
     {
-        // „stream” zatrzymuje skan obiektu, ale każdy nowy „n g obj”, także wewnątrz danych, to nowy punkt startu
         var pdf = Plain("<<>>\nstream\n 7 0 obj\n" + Arrays(5000) + "\nendobj\nendstream");
-        Assert.Throws<PdfCorruptException>(() => PdfStructureGuard.Check(pdf));
-    }
-
-    [Fact]
-    public void Object_stream_entry_offset_into_a_string_is_seen()
-    {
-        // przesunięcie w nagłówku wskazuje wnętrze napisu, a dla parsera tablice są prawdziwe
-        var inner = "(" + Arrays(5000) + ")";
-        var z = new MemoryStream();
-        var body = "4 1 " + inner;
-        using (var zl = new ZLibStream(z, CompressionLevel.Optimal, true)) zl.Write(Latin(body));
-        var pdf = Latin("%PDF-1.5\n5 0 obj\n<</Type/ObjStm/N 1/First 4/Filter/FlateDecode>>\nstream\n").Concat(z.ToArray()).Concat(Latin("\nendstream\nendobj\n")).ToArray();
-        Assert.Throws<PdfCorruptException>(() => PdfStructureGuard.Check(pdf));
-    }
-
-    [Fact]
-    public void Inflation_bomb_in_object_stream_is_rejected_without_allocating_it()
-    {
-        var z = new MemoryStream();
-        using (var zl = new ZLibStream(z, CompressionLevel.Optimal, true))
-        {
-            var block = new byte[1024 * 1024];
-            Array.Fill(block, (byte)' ');
-            for (int i = 0; i < 400; i++) zl.Write(block);
-        }
-        var pdf = Latin("%PDF-1.5\n5 0 obj\n<</Type/ObjStm/N 1/First 4/Filter/FlateDecode>>\nstream\n").Concat(z.ToArray()).Concat(Latin("\nendstream\nendobj\n")).ToArray();
-        long before = GC.GetTotalAllocatedBytes(true);
-        Assert.Throws<PdfCorruptException>(() => PdfStructureGuard.Check(pdf));
-        Assert.True(GC.GetTotalAllocatedBytes(true) - before < 1500L * 1024 * 1024);
+        Assert.Throws<PdfCorruptException>(() => PdfStructureGuard.RejectObviousDepth(pdf));
     }
 
     [Fact]
@@ -138,47 +71,42 @@ public class StructureGuardTests
     {
         var pdf = Plain("[ " + string.Concat(Enumerable.Repeat("1 0 obj ", 200_000)) + "]");
         var sw = System.Diagnostics.Stopwatch.StartNew();
-        Assert.Throws<PdfCorruptException>(() => PdfStructureGuard.Check(pdf));
+        Assert.Throws<PdfCorruptException>(() => PdfStructureGuard.RejectObviousDepth(pdf));
         Assert.True(sw.Elapsed < TimeSpan.FromSeconds(30), sw.Elapsed.ToString());
     }
 
     [Fact]
-    public void Normal_documents_pass_and_shallow_nesting_opens()
+    public void Normal_documents_pass_the_quick_scan_and_open()
     {
-        foreach (var pdf in new[] { SamplePdfFactory.Text(3), SamplePdfFactory.WithForm(), SamplePdfFactory.WithAnnotations(), SamplePdfFactory.WithBookmarks(), Plain(Arrays(100)), InObjectStream(Arrays(100)) })
+        foreach (var pdf in new[] { SamplePdfFactory.Text(3), SamplePdfFactory.WithForm(), SamplePdfFactory.WithAnnotations(), SamplePdfFactory.WithBookmarks(), Plain(Arrays(100)) })
         {
-            Assert.Equal(0, PdfStructureGuard.Check(pdf).UnverifiedObjectStreamBytes);
+            PdfStructureGuard.RejectObviousDepth(pdf);
             Assert.True(PdfSharpEdit.Read(pdf, d => d.PageCount) > 0);
         }
     }
 
     [Fact]
-    public void Encrypted_sample_passes_and_binary_data_does_not_count()
+    public void Text_encrypt_in_content_means_nothing()
     {
-        Assert.Equal(0, PdfStructureGuard.Check(SamplePdfFactory.EncryptedAes256()).UnverifiedObjectStreamBytes);
+        // ten plik nie jest zaszyfrowany, choć zawiera taki napis
+        var pdf = Plain("(/Encrypt 9 0 R)");
+        Assert.False(PdfSecurityHelper.IsEncrypted(pdf));
+    }
+
+    [Fact]
+    public void Random_binary_stream_does_not_count()
+    {
         var random = new byte[4 * 1024 * 1024];
         new Random(7).NextBytes(random);
         var pdf = Latin("%PDF-1.4\n1 0 obj\n<</Length " + random.Length + ">>\nstream\n").Concat(random).Concat(Latin("\nendstream\nendobj\n")).ToArray();
-        PdfStructureGuard.Check(pdf);
+        PdfStructureGuard.RejectObviousDepth(pdf);
     }
 
     [Fact]
-    public void Unverifiable_object_stream_without_encryption_is_rejected()
+    public async Task Default_probe_rejects_everything_and_errors_fail_closed()
     {
-        // dwa filtry: skaner tego nie rozpakuje, a PDFsharp tak, więc to droga ukrycia zagnieżdżenia
-        var pdf = InObjectStream(Arrays(100)).AsSpan().ToArray();
-        var text = Encoding.Latin1.GetString(pdf).Replace("/Filter/FlateDecode", "/Filter[/FlateDecode]/Foo/ASCIIDecode", StringComparison.Ordinal);
-        var bytes = Encoding.Latin1.GetBytes(text);
-        Assert.True(PdfStructureGuard.Check(bytes).UnverifiedObjectStreamBytes > 0);
-        Assert.Throws<PdfCorruptException>(() => PdfSharpEdit.Read(bytes, d => d.PageCount));
-    }
-
-    [Fact]
-    public void Object_stream_that_cannot_be_inflated_is_reported_as_unverified()
-    {
-        var pdf = Latin("%PDF-1.5\n/Encrypt 9 0 R\n5 0 obj\n<</Type/ObjStm/N 1/First 4/Filter/FlateDecode/Length 16>>\nstream\nxxxxxxxxxxxxxxxx\nendstream\nendobj\n");
-        Assert.True(PdfStructureGuard.Check(pdf).UnverifiedObjectStreamBytes > 0);
-        Assert.True(PdfSecurityHelper.IsEncrypted(pdf));
+        Assert.False(await new UnconfiguredPdfProbe().IsSafeAsync(SamplePdfFactory.Text(1), null, default));
+        Assert.False(await new ProcessPdfProbe(@"C:\nie ma takiego pliku.exe").IsSafeAsync(SamplePdfFactory.Text(1), null, default));
     }
 
     // ------------------------------------------------------------------ treść
@@ -187,10 +115,8 @@ public class StructureGuardTests
     [InlineData(100)]
     [InlineData(10_000)]
     [InlineData(400_000)]
-    public void Deep_content_never_reaches_parser_on_a_small_stack(int depth)
-    {
+    public void Deep_content_never_reaches_parser_on_a_small_stack(int depth) =>
         Assert.Throws<ContentTokenException>(() => PdfContentParser.Parse(Latin(new string('[', depth) + "(x)" + new string(']', depth) + " TJ")));
-    }
 
     [Theory]
     [InlineData("q ] Q")]
@@ -228,50 +154,131 @@ public class StructureGuardTests
         }, timeout: TimeSpan.FromMilliseconds(50)));
     }
 
-    // ------------------------------------------------------------------ dekompresja
+    // ------------------------------------------------------------------ dekompresja i filtry
 
-    private static PdfDictionary FlateStream(PdfDocument doc, byte[] plain)
+    private static byte[] Deflate(byte[] plain)
     {
         var z = new MemoryStream();
         using (var zl = new ZLibStream(z, CompressionLevel.Optimal, true)) zl.Write(plain);
+        return z.ToArray();
+    }
+
+    private static PdfDictionary Stream(PdfDocument doc, byte[] raw, PdfItem filter)
+    {
         var d = new PdfDictionary(doc);
-        d.CreateStream(z.ToArray());
-        d.Elements["/Filter"] = new PdfName("/FlateDecode");
+        d.CreateStream(raw);
+        d.Elements["/Filter"] = filter;
         return d;
+    }
+
+    private static string A85(byte[] data)
+    {
+        var sb = new StringBuilder();
+        for (int i = 0; i < data.Length; i += 4)
+        {
+            int n = Math.Min(4, data.Length - i);
+            uint v = 0;
+            for (int k = 0; k < 4; k++) v = v << 8 | (k < n ? data[i + k] : (byte)0);
+            var g = new char[5];
+            for (int k = 4; k >= 0; k--)
+            {
+                g[k] = (char)('!' + v % 85);
+                v /= 85;
+            }
+            sb.Append(g, 0, n + 1);
+        }
+        return sb.Append("~>").ToString();
     }
 
     [Fact]
     public void Stream_limit_stops_during_inflation()
     {
         using var doc = new PdfDocument();
-        var bomb = FlateStream(doc, new byte[64 * 1024 * 1024]);
+        var bomb = Stream(doc, Deflate(new byte[64 * 1024 * 1024]), new PdfName("/FlateDecode"));
         Assert.True(bomb.Stream.Value.Length < 200 * 1024);
         long before = GC.GetTotalAllocatedBytes(true);
         Assert.Throws<PdfContentLimitException>(() => PdfStreamLimits.Decode(bomb, 1024 * 1024));
         Assert.True(GC.GetTotalAllocatedBytes(true) - before < 16 * 1024 * 1024);
-        var small = FlateStream(doc, Latin("q Q"));
-        Assert.Equal(Latin("q Q"), PdfStreamLimits.Decode(small, 1024));
+        Assert.Equal(Latin("q Q"), PdfStreamLimits.Decode(Stream(doc, Deflate(Latin("q Q")), new PdfName("/FlateDecode")), 1024));
     }
 
     [Theory]
     [InlineData("/ASCIIHexDecode", "4142>", "AB")]
-    [InlineData("/AHx", "4142>", "AB")]
-    public void Other_filters_still_decode(string filter, string raw, string expected)
+    [InlineData("/AHx", "41 42>", "AB")]
+    [InlineData("/RunLengthDecode", "\u0001AB\u00FFC\u0080", "ABCC")]
+    public void Other_filters_decode(string filter, string raw, string expected)
     {
         using var doc = new PdfDocument();
-        var d = new PdfDictionary(doc);
-        d.CreateStream(Latin(raw));
-        d.Elements["/Filter"] = new PdfName(filter);
-        Assert.Equal(Latin(expected), PdfStreamLimits.Decode(d));
+        Assert.Equal(Latin(expected), PdfStreamLimits.Decode(Stream(doc, Latin(raw), new PdfName(filter))));
     }
 
     [Fact]
-    public void Lzw_with_big_input_is_refused_by_ratio_bound()
+    public void Ascii85_matches_original()
     {
         using var doc = new PdfDocument();
-        var d = new PdfDictionary(doc);
-        d.CreateStream(new byte[100 * 1024]);
-        d.Elements["/Filter"] = new PdfName("/LZWDecode");
-        Assert.Throws<PdfContentLimitException>(() => PdfStreamLimits.Decode(d, 1024 * 1024));
+        var plain = Latin("Treść strumienia, dłuższa niż grupa pięciu znaków!");
+        Assert.Equal(plain, PdfStreamLimits.Decode(Stream(doc, Latin(A85(plain)), new PdfName("/ASCII85Decode"))));
+    }
+
+    [Fact]
+    public void Lzw_matches_known_vector_from_pdf_specification()
+    {
+        // przykład z ISO 32000-1, 7.4.4.2: 45 45 45 45 45 65 45 45 45 66
+        using var doc = new PdfDocument();
+        var raw = new byte[] { 0x80, 0x0B, 0x60, 0x50, 0x22, 0x0C, 0x0C, 0x85, 0x01 };
+        var expected = new byte[] { 45, 45, 45, 45, 45, 65, 45, 45, 45, 66 };
+        Assert.Equal(expected, PdfStreamLimits.Decode(Stream(doc, raw, new PdfName("/LZWDecode"))));
+    }
+
+    [Fact]
+    public void Filter_names_with_hash_escapes_arrays_and_references_are_recognized()
+    {
+        using var doc = new PdfDocument();
+        var raw = Deflate(Latin("q Q"));
+        Assert.Equal(Latin("q Q"), PdfStreamLimits.Decode(Stream(doc, raw, new PdfName("/Fl#61teDecode"))));
+        Assert.Equal(Latin("q Q"), PdfStreamLimits.Decode(Stream(doc, raw, new PdfArray(doc, new PdfName("/Fl#61te#44ecode")))));
+        var indirect = new PdfArray(doc, new PdfName("/FlateDecode"));
+        doc.Internals.AddObject(indirect);
+        Assert.Equal(Latin("q Q"), PdfStreamLimits.Decode(Stream(doc, raw, indirect.Reference!)));
+    }
+
+    [Fact]
+    public void Bomb_behind_a_filter_chain_stops_at_the_limit()
+    {
+        using var doc = new PdfDocument();
+        var inner = Deflate(new byte[8 * 1024 * 1024]);
+        var hexed = Encoding.ASCII.GetBytes(Convert.ToHexString(inner) + ">");
+        var chain = Stream(doc, hexed, new PdfArray(doc, new PdfName("/AHx"), new PdfName("/Fl")));
+        Assert.Throws<PdfContentLimitException>(() => PdfStreamLimits.Decode(chain, 1024 * 1024));
+        var doubled = Stream(doc, Deflate(Deflate(new byte[8 * 1024 * 1024])), new PdfArray(doc, new PdfName("/Fl"), new PdfName("/Fl")));
+        Assert.Throws<PdfContentLimitException>(() => PdfStreamLimits.Decode(doubled, 1024 * 1024));
+        Assert.Equal(8 * 1024 * 1024, PdfStreamLimits.Decode(doubled).Length);
+    }
+
+    [Fact]
+    public void Unsupported_or_too_long_chain_is_unreadable_not_passed_to_pdfsharp()
+    {
+        using var doc = new PdfDocument();
+        Assert.Throws<PdfStreamUnreadableException>(() => PdfStreamLimits.Decode(Stream(doc, Latin("x"), new PdfName("/DCTDecode"))));
+        Assert.Throws<PdfStreamUnreadableException>(() => PdfStreamLimits.Decode(Stream(doc, Latin("x"), new PdfName("/Nieznany"))));
+        var longChain = new PdfArray(doc);
+        for (int i = 0; i <= PdfStreamLimits.MaxFilters; i++) longChain.Elements.Add(new PdfName("/AHx"));
+        Assert.Throws<PdfStreamUnreadableException>(() => PdfStreamLimits.Decode(Stream(doc, Latin("41>"), longChain)));
+        Assert.Throws<PdfStreamUnreadableException>(() => PdfStreamLimits.Decode(Stream(doc, Latin("nie jest zlib"), new PdfName("/FlateDecode"))));
+    }
+
+    [Fact]
+    public void Predictor_stream_decodes_through_the_same_limit()
+    {
+        using var doc = new PdfDocument();
+        // PNG Up, kolumny 3: wiersz 1 = 1 2 3, wiersz 2 = 1 1 1 względem poprzedniego
+        var raw = Deflate(new byte[] { 2, 1, 2, 3, 2, 1, 1, 1 });
+        var d = Stream(doc, raw, new PdfName("/FlateDecode"));
+        var parms = new PdfDictionary(doc);
+        parms.Elements["/Predictor"] = new PdfInteger(12);
+        parms.Elements["/Columns"] = new PdfInteger(3);
+        d.Elements["/DecodeParms"] = parms;
+        Assert.Equal(new byte[] { 1, 2, 3, 2, 3, 4 }, PdfStreamLimits.Decode(d));
+        Assert.Throws<PdfContentLimitException>(() => PdfStreamLimits.Decode(d, 2));
     }
 }

@@ -14,6 +14,7 @@ using ZetPDF.Viewer.View;
 namespace ZetPDF.Viewer.Tests;
 
 /// <summary>Warstwy: odczyt /Order, ukrycie zmienia piksele bez zmiany pliku sesji, zapis jako polecenie, plik spreparowany.</summary>
+[Collection(PdfiumCollection.Name)]
 public class LayersTests
 {
     /// <summary>Warstwa A (czerwony prostokąt) i B (niebieski), B domyślnie włączona.</summary>

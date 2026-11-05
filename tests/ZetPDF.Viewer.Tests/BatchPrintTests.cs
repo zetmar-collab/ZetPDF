@@ -10,6 +10,7 @@ using ZetPDF.Viewer.Printing;
 namespace ZetPDF.Viewer.Tests;
 
 /// <summary>Kolejność broszury, układ arkusza, druk do XPS, druk wsadowy. Fizycznej drukarki w testach nie ma.</summary>
+[Collection(PdfiumCollection.Name)]
 public class BatchPrintTests
 {
     private const int B = BookletImposition.Blank;

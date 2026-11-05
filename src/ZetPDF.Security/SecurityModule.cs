@@ -2,7 +2,6 @@ using System.Resources;
 using Microsoft.Extensions.DependencyInjection;
 using ZetPDF.Core.Commands;
 using ZetPDF.Core.Contracts;
-using ZetPDF.Core.Documents;
 using ZetPDF.Security.Signatures;
 
 namespace ZetPDF.Security;
@@ -31,7 +30,6 @@ public sealed class SecurityModule : IFeatureModule
 
     public void Initialize(IServiceProvider services)
     {
-        PdfStructureGuard.EncryptedVerifier = Pdf.CosDocument.AllObjectsWithinDepthLimit;
         services.GetRequiredService<ILocalizationService>().RegisterResources(Strings);
         var registry = services.GetService<ICommandRegistry>();
         if (registry is not null && services.GetService<IDocumentManager>() is not null)

@@ -84,7 +84,7 @@ public sealed class DocumentManager : IDocumentManager
 
     public async Task<IPdfDocumentSession> CreateNewAsync(byte[] pdf, string displayName, CancellationToken ct = default)
     {
-        var loaded = await LoadAsync(pdf, displayName, null, ct) ?? throw new PdfPasswordRequiredException();
+        var loaded = await LoadAsync(pdf, displayName, null, ct, fromDisk: false) ?? throw new PdfPasswordRequiredException();
         return CreateSession(null, displayName, loaded, startModified: true);
     }
 
@@ -309,11 +309,10 @@ public sealed class DocumentManager : IDocumentManager
 
     private readonly record struct Loaded(DocumentSnapshot Snapshot, PdfSecurityInfo Info, DocumentPermissions Permissions);
 
-    private async Task<Loaded?> LoadAsync(byte[] original, string displayName, string? password, CancellationToken ct)
+    /// <param name="fromDisk">Plik spoza programu: po ustaleniu hasła przechodzi przez sondę. Wyniki własnych operacji nie.</param>
+    private async Task<Loaded?> LoadAsync(byte[] original, string displayName, string? password, CancellationToken ct, bool fromDisk = true)
     {
-        // PDFium ma własny limit zagnieżdżenia, ale PDFsharp nie: plik zbyt głęboki wywróciłby program przy pierwszej edycji.
-        var guard = await Task.Run(() => PdfStructureGuard.Check(original, ct), ct);
-        if (guard.UnverifiedObjectStreamBytes > 0 && original.AsSpan().IndexOf("/Encrypt"u8) < 0) PdfStructureGuard.CheckUnverified(original, password, guard);
+        await Task.Run(() => PdfStructureGuard.RejectObviousDepth(original, ct), ct);
         bool retry = false;
         while (true)
         {
@@ -321,6 +320,7 @@ public sealed class DocumentManager : IDocumentManager
             switch (probe.Status)
             {
                 case PdfProbeStatus.Ok:
+                    if (fromDisk) await PdfFileProbes.EnsureSafeAsync(original, password, ct);
                     return await DecryptAndAnalyzeAsync(original, probe, password, ct);
                 case PdfProbeStatus.Corrupt:
                     throw new PdfCorruptException(probe.ErrorMessage ?? "The file is damaged or is not a PDF document.");

@@ -155,6 +155,7 @@ public sealed class FullTextIndex
         try
         {
             var bytes = File.ReadAllBytes(path);
+            ZetPDF.Core.Documents.PdfFileProbes.EnsureSafeAsync(bytes).GetAwaiter().GetResult();
             return new IndexedFile(relative, size, ticks, IndexedFileStatus.Ok, ExtractPages(bytes));
         }
         catch (UglyToad.PdfPig.Exceptions.PdfDocumentEncryptedException ex)

@@ -19,14 +19,6 @@ public class CosDepthTests
     }
 
     [Fact]
-    public void Verifier_detects_depth_and_passes_normal_files()
-    {
-        Assert.True(CosDocument.AllObjectsWithinDepthLimit(ZetPDF.TestData.SamplePdfFactory.EncryptedAes256(), ZetPDF.TestData.SamplePdfFactory.UserPassword));
-        var deep = "%PDF-1.4 1 0 obj " + new string((char)91, 5000) + " endobj trailer <</Root 1 0 R>> ";
-        Assert.False(CosDocument.AllObjectsWithinDepthLimit(Encoding.Latin1.GetBytes(deep), null));
-    }
-
-    [Fact]
     public void Integers_before_arrays_do_not_cause_exponential_reread()
     {
         var data = Encoding.Latin1.GetBytes(string.Concat(Enumerable.Repeat("1 [", 200)) + new string(']', 200));

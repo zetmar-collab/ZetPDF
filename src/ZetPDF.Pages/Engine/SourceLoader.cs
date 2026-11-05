@@ -16,7 +16,7 @@ internal sealed class SourceLoader
 
     public async Task<byte[]> LoadFileAsync(string path, string? password, CancellationToken ct)
     {
-        var bytes = await File.ReadAllBytesAsync(path, ct).ConfigureAwait(false);
+        var bytes = await PdfFileProbes.ReadVerifiedAsync(path, password, ct).ConfigureAwait(false);
         return await DecryptAsync(bytes, password, ct).ConfigureAwait(false);
     }
 

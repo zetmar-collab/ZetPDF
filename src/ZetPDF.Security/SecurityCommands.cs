@@ -104,6 +104,7 @@ internal sealed class SecurityCommands
         {
             var pwd = Dialogs.AskPassword(session.DisplayName, retry);
             if (pwd is null) return null;
+            await PdfFileProbes.EnsureSafeAsync(original, pwd);
             PdfSecurityInfo info;
             try { info = await Security.AnalyzeAsync(original, pwd); }
             catch (PdfPasswordRequiredException) { continue; }
@@ -251,12 +252,13 @@ internal sealed class SecurityCommands
             if (!s.Can(DocumentPermissions.CopyContent)) throw new DocumentPermissionException(DocumentPermissions.CopyContent);
             return s.Current.GetSharedBytes();
         }
-        var bytes = await File.ReadAllBytesAsync(src.Path!);
+        var bytes = await PdfFileProbes.ReadVerifiedAsync(src.Path!);
         if (!PdfSecurityHelper.IsEncrypted(bytes)) return bytes;
         for (bool retry = false; ; retry = true)
         {
             var pwd = Dialogs.AskPassword(src.Name, retry);
             if (pwd is null) return null;
+            await PdfFileProbes.EnsureSafeAsync(bytes, pwd);
             PdfSecurityInfo info;
             try { info = await Security.AnalyzeAsync(bytes, pwd); }
             catch (PdfPasswordRequiredException) { continue; }

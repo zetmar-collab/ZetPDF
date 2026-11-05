@@ -176,7 +176,7 @@ public sealed class ActionWizard : IActionWizard
             progress?.Report(new OperationProgress((double)i / Math.Max(1, inputFiles.Count), name, i + 1, inputFiles.Count));
             try
             {
-                var bytes = await File.ReadAllBytesAsync(input, ct).ConfigureAwait(false);
+                var bytes = await PdfFileProbes.ReadVerifiedAsync(input, null, ct).ConfigureAwait(false);
                 if (PdfSecurityHelper.IsEncrypted(bytes)) throw new ActionStepException(Txt("Security.Action.Error.Encrypted"));
                 int s = 0;
                 string? warning = null;

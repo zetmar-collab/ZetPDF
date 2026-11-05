@@ -10,4 +10,7 @@
     <ProjectReference Include="..\..\src\ZetPDF.Core\ZetPDF.Core.csproj" />
     <ProjectReference Include="..\..\src\ZetPDF.App\ZetPDF.App.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="TestFiles\enc_objstm.pdf" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>

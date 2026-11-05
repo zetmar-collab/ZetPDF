@@ -63,6 +63,7 @@ public sealed class OwnerProtectionGuard
                     bool retry = false;
                     while (_prompts.AskOwnerPassword(session.DisplayName, retry) is { } owner)
                     {
+                        if (owner.Length > 0) await PdfFileProbes.EnsureSafeAsync(source, owner);
                         if (owner.Length > 0 && await Task.Run(() => PdfSecurityHelper.IsOwnerPassword(source, owner)))
                         {
                             dm.SetSaveEncryptionOverride(session, new PdfEncryptionSettings(null, owner, generated.Method, generated.Permissions));

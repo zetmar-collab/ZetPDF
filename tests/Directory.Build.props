@@ -12,5 +12,6 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <Using Include="Xunit" />
+    <Compile Include="$(MSBuildThisFileDirectory)TestProbeSetup.cs" Link="TestProbeSetup.cs" />
   </ItemGroup>
 </Project>

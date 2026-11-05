@@ -67,6 +67,6 @@
   <data name="Core.Error.InvalidPath" xml:space="preserve"><value>Invalid file path: {0}</value></data>
   <data name="Core.Error.PageRangeOutside" xml:space="preserve"><value>Page range “{0}” is outside 1–{1}.</value></data>
   <data name="Core.Error.PageRangeInvalid" xml:space="preserve"><value>Invalid page range “{0}”. Example: 1-3,5.</value></data>
-  <data name="Core.Error.TooComplex" xml:space="preserve"><value>The file is damaged: its structure is nested too deeply or is too complex to read safely.</value></data>
+  <data name="Core.Error.TooComplex" xml:space="preserve"><value>The file is damaged or too complex to open safely.</value></data>
   <data name="Core.Error.ContentTooLarge" xml:space="preserve"><value>The document content is too large after decompression and was not processed.</value></data>
 </root>

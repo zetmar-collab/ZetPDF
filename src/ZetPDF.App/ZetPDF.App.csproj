@@ -5,6 +5,7 @@
     <UseWPF>true</UseWPF>
     <RootNamespace>ZetPDF.App</RootNamespace>
     <AssemblyName>ZetPDF</AssemblyName>
+    <StartupObject>ZetPDF.App.Program</StartupObject>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <!-- Publikacja: patrz docs/ARCHITEKTURA.md, sekcja "Publikacja" (self-contained, single-file, win-x64). -->
     <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>

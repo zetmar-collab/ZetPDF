@@ -235,8 +235,8 @@ internal static class PdfIo
     {
         if (d.Stream is null) return Array.Empty<byte>();
         try { return ZetPDF.Core.Documents.PdfStreamLimits.Decode(d); }
-        catch (ZetPDF.Core.Documents.PdfContentLimitException) { throw; } // pusta treść oznaczałaby utratę danych przy zapisie
-        catch (Exception) { return Array.Empty<byte>(); }
+        // Pusta treść oznaczałaby utratę danych przy zapisie, dlatego wyjątek limitu i nieczytelnego strumienia przechodzą dalej.
+        catch (Exception ex) when (ex is not ZetPDF.Core.Documents.PdfContentLimitException and not ZetPDF.Core.Documents.PdfStreamUnreadableException) { return Array.Empty<byte>(); }
     }
 
     /// <summary>Zastępuje dane strumienia (bez filtra; kompresja przy zapisie wg opcji dokumentu).</summary>

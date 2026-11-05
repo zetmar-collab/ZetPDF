@@ -35,6 +35,7 @@ public partial class App : Application
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+        ZetPDF.Core.Documents.PdfFileProbes.Current = new ZetPDF.Core.Documents.ProcessPdfProbe(Environment.ProcessPath!);
         if (TryForwardToRunningInstance(e.Args)) return;
         _paths = new AppPaths();
         var startupPaths = _paths;

@@ -67,6 +67,6 @@
   <data name="Core.Error.InvalidPath" xml:space="preserve"><value>Nieprawidłowa ścieżka pliku: {0}</value></data>
   <data name="Core.Error.PageRangeOutside" xml:space="preserve"><value>Zakres stron „{0}” wykracza poza 1–{1}.</value></data>
   <data name="Core.Error.PageRangeInvalid" xml:space="preserve"><value>Nieprawidłowy zakres stron „{0}”. Przykład: 1-3,5.</value></data>
-  <data name="Core.Error.TooComplex" xml:space="preserve"><value>Plik jest uszkodzony: jego struktura jest zagnieżdżona zbyt głęboko lub zbyt złożona, żeby odczytać ją bezpiecznie.</value></data>
+  <data name="Core.Error.TooComplex" xml:space="preserve"><value>Plik jest uszkodzony lub zbyt złożony, żeby otworzyć go bezpiecznie.</value></data>
   <data name="Core.Error.ContentTooLarge" xml:space="preserve"><value>Treść dokumentu po rozpakowaniu jest zbyt duża i nie została przetworzona.</value></data>
 </root>
