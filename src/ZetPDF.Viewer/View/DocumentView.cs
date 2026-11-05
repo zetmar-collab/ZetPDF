@@ -1075,13 +1075,39 @@ public sealed class DocumentView : IDocumentView
 
     private void OnSessionChanged(object? sender, DocumentChangedEventArgs e) => _ = ReloadAsync(e.Kind, e.AffectedPages);
 
+    private IReadOnlyDictionary<int, bool> _layerOverrides = new Dictionary<int, bool>();
+
+    /// <summary>Widoczność warstw w tym widoku, różna od pliku (indeks w /OCGs → widoczna). Nie trafia do pliku ani do historii.</summary>
+    internal IReadOnlyDictionary<int, bool> LayerOverrides => _layerOverrides;
+
+    /// <summary>Nowy stan warstw i render z kopii bajtów; sesja i znacznik zmian zostają bez zmian.</summary>
+    internal Task SetLayerOverridesAsync(IReadOnlyDictionary<int, bool> overrides)
+    {
+        _layerOverrides = overrides;
+        return ReloadAsync(DocumentChangeKind.PageContent, null);
+    }
+
+    /// <summary>Po zapisaniu widoczności w dokumencie plik ma już ten stan.</summary>
+    internal void ForgetLayerOverrides() => _layerOverrides = new Dictionary<int, bool>();
+
     private async Task ReloadAsync(DocumentChangeKind kind, IReadOnlyList<int>? affected)
     {
         int version = ++_reloadVersion;
         IRenderDocument doc;
         try
         {
-            doc = await _renderer.OpenAsync(Session.Current.GetSharedBytes());
+            var bytes = Session.Current.GetSharedBytes();
+            if (_layerOverrides.Count > 0)
+            {
+                try { bytes = await Layers.LayerDocument.ApplyToCopyAsync(bytes, _layerOverrides); }
+                catch (Exception ex) when (ex is not OutOfMemoryException)
+                {
+                    // Kopia się nie udała (plik nieczytelny dla PDFsharp): widok pokazuje stan z pliku, panel zgłosi błąd przy kolejnej zmianie.
+                    _log?.LogWarning(ex, "Cannot apply layer visibility");
+                }
+            }
+            if (version != _reloadVersion || _disposed) return;
+            doc = await _renderer.OpenAsync(bytes);
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {

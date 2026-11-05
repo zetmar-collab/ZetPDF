@@ -32,6 +32,7 @@ public partial class MainWindow : RibbonWindow
         [PanelIds.Bookmarks] = "",
         [PanelIds.Comments] = "",
         [PanelIds.Attachments] = "",
+        [PanelIds.Layers] = "",
         [PanelIds.Signatures] = "",
     };
 

@@ -138,4 +138,12 @@ Open it?</value></data>
   <data name="Viewer.Batch.Status.SkippedUnreadable" xml:space="preserve"><value>skipped, the file cannot be read</value></data>
   <data name="Viewer.Batch.Status.Failed" xml:space="preserve"><value>printing failed</value></data>
   <data name="Viewer.Batch.Status.Cancelled" xml:space="preserve"><value>cancelled</value></data>
+  <data name="Viewer.Layers.Title" xml:space="preserve"><value>Layers</value></data>
+  <data name="Viewer.Layers.None" xml:space="preserve"><value>This document has no layers.</value></data>
+  <data name="Viewer.Layers.Count" xml:space="preserve"><value>Layers in the document: {0}.</value></data>
+  <data name="Viewer.Layers.Truncated" xml:space="preserve"><value>The document has more layers than can be shown; showing the first {0}.</value></data>
+  <data name="Viewer.Layers.Note" xml:space="preserve"><value>Show or hide applies to this view and its thumbnails and does not change the file. Printing uses the state saved in the document.</value></data>
+  <data name="Viewer.Layers.Save" xml:space="preserve"><value>Save visibility in document</value></data>
+  <data name="Viewer.Layers.Reset" xml:space="preserve"><value>Restore state from document</value></data>
+  <data name="Viewer.Undo.LayerVisibility" xml:space="preserve"><value>Save layer visibility</value></data>
 </root>

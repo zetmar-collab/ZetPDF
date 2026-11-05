@@ -138,4 +138,12 @@ Czy otworzyć?</value></data>
   <data name="Viewer.Batch.Status.SkippedUnreadable" xml:space="preserve"><value>pominięty, nie można odczytać pliku</value></data>
   <data name="Viewer.Batch.Status.Failed" xml:space="preserve"><value>błąd druku</value></data>
   <data name="Viewer.Batch.Status.Cancelled" xml:space="preserve"><value>anulowany</value></data>
+  <data name="Viewer.Layers.Title" xml:space="preserve"><value>Warstwy</value></data>
+  <data name="Viewer.Layers.None" xml:space="preserve"><value>Ten dokument nie ma warstw.</value></data>
+  <data name="Viewer.Layers.Count" xml:space="preserve"><value>Warstwy w dokumencie: {0}.</value></data>
+  <data name="Viewer.Layers.Truncated" xml:space="preserve"><value>Dokument ma więcej warstw, niż można pokazać; widać pierwsze {0}.</value></data>
+  <data name="Viewer.Layers.Note" xml:space="preserve"><value>Pokazywanie i ukrywanie dotyczy tego widoku i jego miniatur, a plik się nie zmienia. Druk używa stanu zapisanego w dokumencie.</value></data>
+  <data name="Viewer.Layers.Save" xml:space="preserve"><value>Zapisz widoczność w dokumencie</value></data>
+  <data name="Viewer.Layers.Reset" xml:space="preserve"><value>Przywróć stan z dokumentu</value></data>
+  <data name="Viewer.Undo.LayerVisibility" xml:space="preserve"><value>Zapisz widoczność warstw</value></data>
 </root>

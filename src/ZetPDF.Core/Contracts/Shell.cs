@@ -97,6 +97,7 @@ public static class PanelIds
     public const string Comments = "Panel.Comments";       // annotations-forms
     public const string Attachments = "Panel.Attachments"; // annotations-forms
     public const string Signatures = "Panel.Signatures";   // security-signatures
+    public const string Layers = "Panel.Layers";           // renderer-viewer
 }
 
 /// <summary>Kontekstowe karty wstążki.</summary>

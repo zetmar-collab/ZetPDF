@@ -53,10 +53,11 @@ public sealed class ViewerModule : IFeatureModule
         var panels = services.GetService<IPanelRegistry>();
         panels?.Register(new PanelDescriptor(PanelIds.Thumbnails, "Viewer.Panel.Thumbnails", "", 10, sp => new ThumbnailsPanel(sp)));
         panels?.Register(new PanelDescriptor(PanelIds.Bookmarks, "Viewer.Panel.Bookmarks", "", 20, sp => new BookmarksPanel(sp)));
+        panels?.Register(new PanelDescriptor(PanelIds.Layers, "Viewer.Layers.Title", "", 45, sp => new Layers.LayersPanel(sp)));
     }
 }
 
-/// <summary>Obsługa poleceń wstążki należących do Viewer (37 poleceń z katalogu).</summary>
+/// <summary>Obsługa poleceń wstążki należących do Viewer (39 poleceń z katalogu).</summary>
 internal sealed class ViewerCommands
 {
     private readonly IServiceProvider _services;
@@ -85,6 +86,7 @@ internal sealed class ViewerCommands
     public void RegisterAll()
     {
         // druk
+        _registry.Register(CommandIds.View.PanelLayers, new RelayCommandLite(() => _services.GetService<IShellService>()?.ShowPanel(PanelIds.Layers), () => true));
         _registry.Register(CommandIds.File.BatchPrint, new RelayCommandLite(() => _ = BatchPrintAsync(), () => true));
         _registry.Register(CommandIds.File.Print, new ActiveDocumentCommand(_documents, Dialogs,
             s => _services.GetRequiredService<IPrintService>().ShowPrintDialogAsync(s, _viewer.GetView(s)?.CurrentPageIndex ?? 0), DocumentPermissions.Print));
