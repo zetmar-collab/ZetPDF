@@ -69,4 +69,7 @@
   <data name="Core.Error.PageRangeInvalid" xml:space="preserve"><value>Nieprawidłowy zakres stron „{0}”. Przykład: 1-3,5.</value></data>
   <data name="Core.Error.TooComplex" xml:space="preserve"><value>Plik jest uszkodzony lub zbyt złożony, żeby otworzyć go bezpiecznie.</value></data>
   <data name="Core.Error.ContentTooLarge" xml:space="preserve"><value>Treść dokumentu po rozpakowaniu jest zbyt duża i nie została przetworzona.</value></data>
+  <data name="Core.Error.ProbeIncomplete" xml:space="preserve"><value>Nie udało się w pełni sprawdzić pliku w wyznaczonym czasie, więc został pominięty.</value></data>
+  <data name="Core.Probe.Incomplete.Title" xml:space="preserve"><value>Plik niesprawdzony do końca</value></data>
+  <data name="Core.Probe.Incomplete" xml:space="preserve"><value>Nie udało się w pełni sprawdzić pliku w wyznaczonym czasie. Otworzyć mimo to? Plik pochodzący z niepewnego źródła może zamknąć program; niezapisane zmiany zabezpiecza autozapis.</value></data>
 </root>

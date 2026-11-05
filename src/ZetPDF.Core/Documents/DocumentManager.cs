@@ -320,7 +320,7 @@ public sealed class DocumentManager : IDocumentManager
             switch (probe.Status)
             {
                 case PdfProbeStatus.Ok:
-                    if (fromDisk) await PdfFileProbes.EnsureSafeAsync(original, password, ct);
+                    if (fromDisk && !await PdfFileProbes.EnsureSafeInteractiveAsync(original, password, Dialogs, _services.GetService<ILocalizationService>(), ct)) return null;
                     return await DecryptAndAnalyzeAsync(original, probe, password, ct);
                 case PdfProbeStatus.Corrupt:
                     throw new PdfCorruptException(probe.ErrorMessage ?? "The file is damaged or is not a PDF document.");

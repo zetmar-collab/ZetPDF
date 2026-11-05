@@ -12,6 +12,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <Using Include="Xunit" />
+    <Using Include="ZetPDF.Tests.Shared" />
     <Compile Include="$(MSBuildThisFileDirectory)TestProbeSetup.cs" Link="TestProbeSetup.cs" />
   </ItemGroup>
 </Project>

@@ -74,6 +74,14 @@ public sealed class DialogService : IDialogService, IOwnerProtectionPrompts
                 new MessageWindow.ButtonSpec(_loc["Core.Button.No"], 0, IsCancel: true),
             }, 0) == 1;
 
+    public bool ConfirmDanger(string text, string? title = null) =>
+        Show(title ?? _loc["Shell.AppTitle"], text, MessageSeverity.Warning, false,
+            new[]
+            {
+                new MessageWindow.ButtonSpec(_loc["Core.Button.Yes"], 1),
+                new MessageWindow.ButtonSpec(_loc["Core.Button.No"], 0, IsDefault: true, IsCancel: true),
+            }, 0) == 1;
+
     public YesNoCancel AskYesNoCancel(string text, string? title = null) =>
         (YesNoCancel)Show(title ?? _loc["Shell.AppTitle"], text, null, true,
             new[]

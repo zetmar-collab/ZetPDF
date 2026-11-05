@@ -166,7 +166,7 @@ internal sealed class BatchPrintReportWindow : Window
     public static string Describe(ILocalizationService loc, BatchPrintEntry e)
     {
         string status = loc["Viewer.Batch.Status." + e.Status];
-        return e.Status is BatchPrintStatus.Failed or BatchPrintStatus.SkippedUnreadable && !string.IsNullOrEmpty(e.Detail)
+        return e.Status is BatchPrintStatus.Failed or BatchPrintStatus.SkippedUnreadable or BatchPrintStatus.SkippedCorrupt && !string.IsNullOrEmpty(e.Detail)
             ? $"{Path.GetFileName(e.Path)}: {status} ({e.Detail})"
             : $"{Path.GetFileName(e.Path)}: {status}";
     }

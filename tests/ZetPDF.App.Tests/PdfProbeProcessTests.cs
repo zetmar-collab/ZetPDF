@@ -117,10 +117,10 @@ public class PdfProbeProcessTests
     }
 
     [Fact]
-    public async Task Timeout_means_rejected_and_cancel_is_cancel()
+    public async Task Process_timeout_is_incomplete_not_ok_and_cancel_is_cancel()
     {
         var pdf = SamplePdfFactory.Text(1);
-        Assert.False(await new ProcessPdfProbe(Exe(), TimeSpan.FromMilliseconds(1)).IsSafeAsync(pdf, null, default));
+        Assert.Equal(PdfProbeVerdict.Incomplete, await new ProcessPdfProbe(Exe(), TimeSpan.FromMilliseconds(1)).CheckAsync(pdf, null, default));
         using var cts = new CancellationTokenSource();
         cts.Cancel();
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => new ProcessPdfProbe(Exe()).IsSafeAsync(pdf, null, cts.Token));
@@ -136,6 +136,86 @@ public class PdfProbeProcessTests
         await p.WaitForExitAsync();
         Assert.NotEqual(PdfProbeProtocol.ExitOk, p.ExitCode);
         Assert.NotEqual(PdfProbeProtocol.ExitManagedError, p.ExitCode);
+    }
+
+    [Fact]
+    public async Task Five_hundred_pages_pass_within_the_budget()
+    {
+        var sw = Stopwatch.StartNew();
+        Assert.Equal(PdfProbeVerdict.Safe, await new ProcessPdfProbe(Exe()).CheckAsync(SamplePdfFactory.Large(500), null, default));
+        _output.WriteLine("500 stron: " + sw.ElapsedMilliseconds + " ms");
+    }
+
+    private sealed class IncompleteProbe : IPdfFileProbe
+    {
+        public int Calls { get; private set; }
+
+        public Task<PdfProbeVerdict> CheckAsync(byte[] pdf, string? password, CancellationToken ct)
+        {
+            Calls++;
+            return Task.FromResult(PdfProbeVerdict.Incomplete);
+        }
+    }
+
+    public class Answer : System.Reflection.DispatchProxy
+    {
+        public bool Reply { get; set; }
+        public List<string> Asked { get; } = new();
+
+        protected override object? Invoke(System.Reflection.MethodInfo? method, object?[]? args)
+        {
+            if (method!.Name == nameof(IDialogService.ConfirmDanger))
+            {
+                Asked.Add((string)args![0]!);
+                return Reply;
+            }
+            return method.ReturnType.IsValueType && method.ReturnType != typeof(void) ? Activator.CreateInstance(method.ReturnType) : null;
+        }
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Incomplete_check_asks_with_default_no_in_interactive_mode_and_skips_in_batch(bool accept)
+    {
+        var fake = new IncompleteProbe();
+        var previous = PdfFileProbes.Current;
+        PdfFileProbes.Current = fake;
+        try
+        {
+            var pdf = SamplePdfFactory.Text(1);
+            await Assert.ThrowsAsync<PdfProbeIncompleteException>(() => PdfFileProbes.EnsureSafeAsync(pdf));
+
+            var dialogs = System.Reflection.DispatchProxy.Create<IDialogService, Answer>();
+            var answer = (Answer)(object)dialogs;
+            answer.Reply = accept;
+            var loc = new ZetPDF.Core.Localization.LocalizationService(initial: new System.Globalization.CultureInfo("pl"));
+            Assert.Equal(accept, await PdfFileProbes.EnsureSafeInteractiveAsync(pdf, null, dialogs, loc));
+            Assert.Single(answer.Asked);
+            if (accept)
+            {
+                // zgoda dotyczy tych bajtów: kolejne wywołania wsadowe już nie pytają
+                int calls = fake.Calls;
+                await PdfFileProbes.EnsureSafeAsync(pdf);
+                Assert.Equal(calls, fake.Calls);
+            }
+            // bez okna dialogowego nie ma zgody
+            await Assert.ThrowsAsync<PdfProbeIncompleteException>(() => PdfFileProbes.EnsureSafeInteractiveAsync(SamplePdfFactory.Text(2), null, null, null));
+        }
+        finally
+        {
+            PdfFileProbes.Current = previous;
+        }
+    }
+
+    [Fact]
+    public void Budget_scales_with_size_and_pages_and_has_an_upper_limit()
+    {
+        var small = ZetPDF.App.PdfProbeRunnerAccess.Budget(1024, 1);
+        var large = ZetPDF.App.PdfProbeRunnerAccess.Budget(50L * 1024 * 1024, 500);
+        var huge = ZetPDF.App.PdfProbeRunnerAccess.Budget(long.MaxValue / 2, 100_000);
+        Assert.True(small < large);
+        Assert.Equal(TimeSpan.FromSeconds(240), huge);
     }
 
     [Fact]

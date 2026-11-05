@@ -268,6 +268,53 @@ public class StructureGuardTests
     }
 
     [Fact]
+    public void Zip_bomb_with_png_predictor_stops_during_inflation()
+    {
+        using var doc = new PdfDocument();
+        var d = Stream(doc, Deflate(new byte[64 * 1024 * 1024]), new PdfName("/FlateDecode"));
+        var parms = new PdfDictionary(doc);
+        parms.Elements["/Predictor"] = new PdfInteger(15);
+        parms.Elements["/Columns"] = new PdfInteger(100);
+        d.Elements["/DecodeParms"] = parms;
+        long before = GC.GetTotalAllocatedBytes(true);
+        Assert.Throws<PdfContentLimitException>(() => PdfStreamLimits.Decode(d, 1024 * 1024));
+        Assert.True(GC.GetTotalAllocatedBytes(true) - before < 16 * 1024 * 1024);
+    }
+
+    [Theory]
+    [InlineData(10, 3, 8, new byte[] { 0, 1, 2, 3, 1, 1, 1, 1 }, new byte[] { 1, 2, 3, 1, 2, 3 })]
+    [InlineData(11, 3, 8, new byte[] { 1, 1, 1, 1 }, new byte[] { 1, 2, 3 })]
+    [InlineData(13, 2, 8, new byte[] { 0, 4, 6, 3, 2, 2 }, new byte[] { 4, 6, 4, 7 })]
+    [InlineData(14, 2, 8, new byte[] { 0, 10, 20, 4, 1, 1 }, new byte[] { 10, 20, 11, 21 })]
+    [InlineData(2, 3, 8, new byte[] { 1, 1, 1 }, new byte[] { 1, 2, 3 })]
+    [InlineData(2, 4, 4, new byte[] { 0x11, 0x11 }, new byte[] { 0x12, 0x34 })]
+    public void Predictors_decode_correctly(int predictor, int columns, int bits, byte[] input, byte[] expected)
+    {
+        using var doc = new PdfDocument();
+        var d = Stream(doc, Deflate(input), new PdfName("/FlateDecode"));
+        var parms = new PdfDictionary(doc);
+        parms.Elements["/Predictor"] = new PdfInteger(predictor);
+        parms.Elements["/Columns"] = new PdfInteger(columns);
+        parms.Elements["/BitsPerComponent"] = new PdfInteger(bits);
+        d.Elements["/DecodeParms"] = new PdfArray(doc, parms);
+        Assert.Equal(expected, PdfStreamLimits.Decode(d));
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(3)]
+    public void Bad_predictor_parameters_are_unreadable(int bits)
+    {
+        using var doc = new PdfDocument();
+        var d = Stream(doc, Deflate(new byte[] { 0, 1 }), new PdfName("/FlateDecode"));
+        var parms = new PdfDictionary(doc);
+        parms.Elements["/Predictor"] = new PdfInteger(12);
+        parms.Elements["/BitsPerComponent"] = new PdfInteger(bits);
+        d.Elements["/DecodeParms"] = parms;
+        Assert.Throws<PdfStreamUnreadableException>(() => PdfStreamLimits.Decode(d));
+    }
+
+    [Fact]
     public void Predictor_stream_decodes_through_the_same_limit()
     {
         using var doc = new PdfDocument();

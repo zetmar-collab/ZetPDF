@@ -148,6 +148,9 @@ public interface IDialogService
 
     void ShowMessage(string text, string? title = null, MessageSeverity severity = MessageSeverity.Info);
     bool Confirm(string text, string? title = null, MessageSeverity severity = MessageSeverity.Warning);
+
+    /// <summary>Pytanie z domyślną odpowiedzią Nie (Enter nie zatwierdza ryzyka).</summary>
+    bool ConfirmDanger(string text, string? title = null) => Confirm(text, title);
     YesNoCancel AskYesNoCancel(string text, string? title = null);
 
     /// <summary>Okno hasła. isRetry = poprzednie było złe. Zwraca null przy anulowaniu.</summary>

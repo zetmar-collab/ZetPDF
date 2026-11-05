@@ -145,7 +145,11 @@ internal static class PdfAFixer
         if (d.Elements.GetName("/Type") == "/Metadata") return;
         var filter = PdfObjects.Resolve(d.Elements["/Filter"]);
         bool lzw = filter is PdfName { Value: "/LZWDecode" } || (filter is PdfArray arr && arr.Elements.OfType<PdfName>().Any(n => n.Value == "/LZWDecode"));
-        if (lzw && d.Stream.TryUncompress()) d.Stream.Zip();
+        if (lzw)
+        {
+            ZetPDF.Core.Documents.PdfStreamLimits.Decode(d); // limit, zanim PDFsharp rozpakuje całość
+            if (d.Stream.TryUncompress()) d.Stream.Zip();
+        }
     }
 
     private static void FixGraphicsState(PdfDictionary d)

@@ -14,6 +14,8 @@ internal sealed class CosDocument
     private readonly record struct XrefEntry(int Type, long Offset, int Generation, int StreamNumber, int StreamIndex);
 
     private readonly Dictionary<int, XrefEntry> _xref = new();
+    private const long MaxInflatedTotal = 1024L * 1024 * 1024;
+    private long _inflatedTotal;
     private readonly Dictionary<int, CosObject> _cache = new();
     private readonly Dictionary<int, (byte[] Data, int First, List<(int Num, int Offset)> Index)> _objStreams = new();
     private int _encryptObjectNumber = -1;
@@ -339,6 +341,9 @@ internal sealed class CosDocument
         {
             var s = GetObject(streamNumber) as CosStream ?? throw new FormatException($"Object stream {streamNumber} missing.");
             var data = CosFilters.Decode(s, Resolve);
+            _inflatedTotal += data.Length;
+            // strumienie obiektów są trzymane w pamięci, więc limit dotyczy ich sumy
+            if (_inflatedTotal > MaxInflatedTotal) throw new FormatException("Object streams exceed the size limit.");
             int n = (Resolve(s.Dictionary["N"]) as CosNumber)?.AsInt ?? 0;
             int first = (Resolve(s.Dictionary["First"]) as CosNumber)?.AsInt ?? 0;
             var p = new CosParser(data);

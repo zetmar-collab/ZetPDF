@@ -2,19 +2,26 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
+using ZetPDF.Core.Localization;
 
 namespace ZetPDF.Core.Documents;
 
-/// <summary>Sprawdzenie pliku spoza zaufanych źródeł. True tylko po udanym przejściu; każda niepewność to false.</summary>
+/// <summary>Wynik sondy. Incomplete: bez awarii, ale nie sprawdzono do końca w wyznaczonym czasie.</summary>
+public enum PdfProbeVerdict { Safe, Incomplete, Rejected }
+
+/// <summary>Sprawdzenie pliku spoza zaufanych źródeł. Safe tylko po udanym przejściu.</summary>
 public interface IPdfFileProbe
 {
-    Task<bool> IsSafeAsync(byte[] pdf, string? password, CancellationToken ct);
+    Task<PdfProbeVerdict> CheckAsync(byte[] pdf, string? password, CancellationToken ct);
 }
+
+/// <summary>Plik nie został sprawdzony do końca: operacja z użytkownikiem pyta, operacja wsadowa pomija plik.</summary>
+public sealed class PdfProbeIncompleteException(string message) : ZetPDF.Core.Contracts.PdfCorruptException(message);
 
 /// <summary>Stan domyślny: sonda nieskonfigurowana odrzuca wszystko. Program ustawia <see cref="ProcessPdfProbe"/> na starcie.</summary>
 public sealed class UnconfiguredPdfProbe : IPdfFileProbe
 {
-    public Task<bool> IsSafeAsync(byte[] pdf, string? password, CancellationToken ct) => Task.FromResult(false);
+    public Task<PdfProbeVerdict> CheckAsync(byte[] pdf, string? password, CancellationToken ct) => Task.FromResult(PdfProbeVerdict.Rejected);
 }
 
 /// <summary>
@@ -23,13 +30,68 @@ public sealed class UnconfiguredPdfProbe : IPdfFileProbe
 /// </summary>
 public static class PdfFileProbes
 {
-    public static IPdfFileProbe Current { get; set; } = new UnconfiguredPdfProbe();
+    private const int MaxRemembered = 128;
+    private static readonly HashSet<string> Passed = new(StringComparer.Ordinal);
+    private static IPdfFileProbe _current = new UnconfiguredPdfProbe();
 
-    /// <summary>Wyjątek pliku uszkodzonego lub zbyt złożonego, gdy sonda go nie przepuści.</summary>
+    public static IPdfFileProbe Current
+    {
+        get => _current;
+        set
+        {
+            _current = value;
+            lock (Passed) Passed.Clear();
+        }
+    }
+
+    private static string Key(byte[] pdf, string? password) =>
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(pdf)) + ":" + (password is null ? "-" : Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(Encoding.UTF8.GetBytes(password))));
+
+    private static void Remember(string key)
+    {
+        lock (Passed)
+        {
+            if (Passed.Count >= MaxRemembered) Passed.Clear();
+            Passed.Add(key);
+        }
+    }
+
+    /// <summary>
+    /// Tryb bez pytania (Kreator, indeks, operacje wsadowe). Wyjątek pliku uszkodzonego lub zbyt złożonego albo <see cref="PdfProbeIncompleteException"/>.
+    /// Te same bajty i hasło sprawdzone wcześniej lub zaakceptowane przez użytkownika nie idą do sondy ponownie.
+    /// </summary>
     public static async Task EnsureSafeAsync(byte[] pdf, string? password = null, CancellationToken ct = default)
     {
+        var key = Key(pdf, password);
+        lock (Passed)
+            if (Passed.Contains(key)) return;
         await Task.Run(() => PdfStructureGuard.RejectObviousDepth(pdf, ct), ct).ConfigureAwait(false);
-        if (!await Current.IsSafeAsync(pdf, password, ct).ConfigureAwait(false)) throw PdfStructureGuard.TooComplex();
+        switch (await Current.CheckAsync(pdf, password, ct).ConfigureAwait(false))
+        {
+            case PdfProbeVerdict.Safe:
+                Remember(key);
+                return;
+            case PdfProbeVerdict.Incomplete:
+                throw new PdfProbeIncompleteException("The file could not be fully checked in the allotted time.").WithMessageKey("Core.Error.ProbeIncomplete");
+            default:
+                throw PdfStructureGuard.TooComplex();
+        }
+    }
+
+    /// <summary>Tryb z użytkownikiem: przy niepełnym sprawdzeniu pytanie z domyślnym Nie. False, gdy użytkownik odmówił.</summary>
+    public static async Task<bool> EnsureSafeInteractiveAsync(byte[] pdf, string? password, ZetPDF.Core.Contracts.IDialogService? dialogs, ZetPDF.Core.Contracts.ILocalizationService? loc, CancellationToken ct = default)
+    {
+        try
+        {
+            await EnsureSafeAsync(pdf, password, ct);
+            return true;
+        }
+        catch (PdfProbeIncompleteException) when (dialogs is not null && loc is not null)
+        {
+            if (!dialogs.ConfirmDanger(loc["Core.Probe.Incomplete"], loc["Core.Probe.Incomplete.Title"])) return false;
+            Remember(Key(pdf, password));
+            return true;
+        }
     }
 
     /// <summary>Wczytuje plik z dysku i sprawdza go sondą.</summary>
@@ -49,6 +111,9 @@ public static class PdfProbeProtocol
 
     /// <summary>Parser zgłosił zwykły błąd (uszkodzony plik, złe hasło): bez awarii, więc program główny zachowa się tak samo bezpiecznie.</summary>
     public const int ExitManagedError = 3;
+
+    /// <summary>Bez awarii, ale budżet czasu nie pozwolił sprawdzić wszystkiego. Tak samo liczy się limit czasu procesu.</summary>
+    public const int ExitIncomplete = 4;
 
     public const long MaxPassword = 64 * 1024;
 
@@ -103,16 +168,16 @@ public sealed class ProcessPdfProbe : IPdfFileProbe
     public ProcessPdfProbe(string executable, TimeSpan? baseTimeout = null)
     {
         _executable = executable;
-        _baseTimeout = baseTimeout ?? TimeSpan.FromSeconds(60);
+        _baseTimeout = baseTimeout ?? TimeSpan.FromSeconds(360);
     }
 
     /// <summary>Limit pamięci sondy: stała część i kilkukrotność pliku.</summary>
     internal static long MemoryLimit(long fileBytes) => Math.Min(1536L * 1024 * 1024 + fileBytes * 8, 8L * 1024 * 1024 * 1024);
 
-    public async Task<bool> IsSafeAsync(byte[] pdf, string? password, CancellationToken ct)
+    public async Task<PdfProbeVerdict> CheckAsync(byte[] pdf, string? password, CancellationToken ct)
     {
         using var job = JobObject.TryCreate(MemoryLimit(pdf.Length));
-        if (job is null) return false;
+        if (job is null) return PdfProbeVerdict.Rejected;
         Process? process = null;
         try
         {
@@ -126,12 +191,12 @@ public sealed class ProcessPdfProbe : IPdfFileProbe
             };
             start.ArgumentList.Add(PdfProbeProtocol.Argument);
             process = Process.Start(start);
-            if (process is null) return false;
+            if (process is null) return PdfProbeVerdict.Rejected;
             process.OutputDataReceived += (_, _) => { };
             process.ErrorDataReceived += (_, _) => { };
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
-            if (!job.Assign(process)) return false;
+            if (!job.Assign(process)) return PdfProbeVerdict.Rejected;
 
             using var timeout = CancellationTokenSource.CreateLinkedTokenSource(ct);
             timeout.CancelAfter(_baseTimeout + TimeSpan.FromSeconds(pdf.Length / (5 * 1024 * 1024)));
@@ -145,15 +210,24 @@ public sealed class ProcessPdfProbe : IPdfFileProbe
                 // sonda padła w trakcie czytania danych; wynik i tak daje kod wyjścia
             }
             await process.WaitForExitAsync(timeout.Token).ConfigureAwait(false);
-            return process.ExitCode is PdfProbeProtocol.ExitOk or PdfProbeProtocol.ExitManagedError;
+            return process.ExitCode switch
+            {
+                PdfProbeProtocol.ExitOk or PdfProbeProtocol.ExitManagedError => PdfProbeVerdict.Safe,
+                PdfProbeProtocol.ExitIncomplete => PdfProbeVerdict.Incomplete,
+                _ => PdfProbeVerdict.Rejected,
+            };
         }
         catch (OperationCanceledException) when (!ct.IsCancellationRequested)
         {
-            return false; // limit czasu
+            return PdfProbeVerdict.Incomplete; // limit czasu procesu: bez awarii, ale bez wyniku
         }
-        catch (Exception ex) when (ex is Win32Exception or InvalidOperationException or IOException or UnauthorizedAccessException)
+        catch (OperationCanceledException)
         {
-            return false;
+            throw;
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            return PdfProbeVerdict.Rejected; // każdy błąd uruchomienia lub komunikacji
         }
         finally
         {

@@ -146,7 +146,8 @@ internal sealed class PagesCommands
     /// <summary>Hasło pliku źródłowego (pętla okna hasła). Ok=false, gdy anulowano.</summary>
     private async Task<(bool Ok, string? Password, int PageCount)> SourceAsync(string path)
     {
-        var bytes = await PdfFileProbes.ReadVerifiedAsync(path);
+        var bytes = await File.ReadAllBytesAsync(path);
+        if (!await PdfFileProbes.EnsureSafeInteractiveAsync(bytes, null, _dialogs, _loc)) return (false, null, 0);
         bool encrypted = await Task.Run(() => PdfSecurityHelper.IsEncrypted(bytes));
         if (!encrypted || _renderer is null)
         {
@@ -164,7 +165,7 @@ internal sealed class PagesCommands
         {
             var pw = _dialogs.AskPassword(Path.GetFileName(path), retry);
             if (pw is null) return (false, null, 0);
-            await PdfFileProbes.EnsureSafeAsync(bytes, pw);
+            if (!await PdfFileProbes.EnsureSafeInteractiveAsync(bytes, pw, _dialogs, _loc)) return (false, null, 0);
             if (_renderer is not null)
             {
                 var probe = await _renderer.ProbeAsync(bytes, pw);

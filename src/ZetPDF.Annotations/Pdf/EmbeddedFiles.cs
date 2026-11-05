@@ -66,10 +66,13 @@ internal static class EmbeddedFiles
         return Dict(ef, "/UF") ?? Dict(ef, "/F");
     }
 
+    /// <summary>Limit rozpakowanego załącznika.</summary>
+    public const int MaxAttachmentBytes = 1024 * 1024 * 1024;
+
     public static byte[] Data(PdfDictionary spec)
     {
         var s = EmbeddedStream(spec) ?? throw new InvalidDataException("File specification has no embedded data.").WithMessageKey("Annot.Error.AttachmentNoData");
-        return s.Stream?.UnfilteredValue ?? Array.Empty<byte>();
+        return ZetPDF.Core.Documents.PdfStreamLimits.Decode(s, MaxAttachmentBytes);
     }
 
     public static long Size(PdfDictionary spec)
@@ -77,7 +80,9 @@ internal static class EmbeddedFiles
         var s = EmbeddedStream(spec);
         if (s is null) return 0;
         if (Dict(s, "/Params") is { } p && p.Elements.ContainsKey("/Size")) return (long)Number(p, "/Size");
-        return s.Stream?.UnfilteredValue?.LongLength ?? 0;
+        // lista załączników nie może rozpakowywać bomby: bez /Size podajemy rozmiar tylko do limitu
+        try { return ZetPDF.Core.Documents.PdfStreamLimits.Decode(s, ZetPDF.Core.Documents.PdfStreamLimits.SmallDataBytes).LongLength; }
+        catch (Exception ex) when (ex is ZetPDF.Core.Documents.PdfContentLimitException or ZetPDF.Core.Documents.PdfStreamUnreadableException) { return 0; }
     }
 
     public static DateTimeOffset? Modified(PdfDictionary spec)

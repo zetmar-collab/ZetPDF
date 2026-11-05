@@ -114,42 +114,121 @@ public static class PdfStreamLimits
             return data;
         }
         if (filters.Count > MaxFilters) throw new PdfStreamUnreadableException("Filter chain too long.");
-        foreach (var filter in filters)
+        for (int i = 0; i < filters.Count; i++)
         {
+            var filter = filters[i];
             data = filter switch
             {
                 "/FlateDecode" or "/Fl" => InflateLimited(data, maxBytes),
-                "/LZWDecode" or "/LZW" => LzwDecodeLimited(data, maxBytes, EarlyChange(stream)),
+                "/LZWDecode" or "/LZW" => LzwDecodeLimited(data, maxBytes, EarlyChange(ParmsFor(stream, i))),
                 "/ASCII85Decode" or "/A85" => Ascii85Limited(data, maxBytes),
                 "/ASCIIHexDecode" or "/AHx" => AsciiHexLimited(data, maxBytes),
                 "/RunLengthDecode" or "/RL" => RunLengthLimited(data, maxBytes),
                 _ => throw new PdfStreamUnreadableException("Unsupported filter: " + filter),
             };
+            if (filter is "/FlateDecode" or "/Fl" or "/LZWDecode" or "/LZW" && ParmsFor(stream, i) is { } parms) data = ApplyPredictor(data, parms, maxBytes);
         }
-        // Predyktor nie powiększa danych, a rozmiar jest już sprawdzony.
-        if (Resolve(stream.Elements["/DecodeParms"]) is { } parms && HasPredictor(parms))
+        return data;
+    }
+
+    /// <summary>Parametry filtra numer i: tablica równoległa do /Filter albo jeden słownik.</summary>
+    private static PdfSharp.Pdf.PdfDictionary? ParmsFor(PdfSharp.Pdf.PdfDictionary stream, int index) => Resolve(stream.Elements["/DecodeParms"]) switch
+    {
+        PdfSharp.Pdf.PdfDictionary d => d,
+        PdfSharp.Pdf.PdfArray a when index < a.Elements.Count => Resolve(a.Elements[index]) as PdfSharp.Pdf.PdfDictionary,
+        _ => null,
+    };
+
+    /// <summary>Predyktor PNG i TIFF na danych już zdekodowanych z limitem. Wynik nie jest większy od wejścia.</summary>
+    internal static byte[] ApplyPredictor(byte[] data, PdfSharp.Pdf.PdfDictionary parms, int maxBytes)
+    {
+        int predictor = parms.Elements.ContainsKey("/Predictor") ? parms.Elements.GetInteger("/Predictor") : 1;
+        if (predictor <= 1) return data;
+        int colors = parms.Elements.ContainsKey("/Colors") ? parms.Elements.GetInteger("/Colors") : 1;
+        int bits = parms.Elements.ContainsKey("/BitsPerComponent") ? parms.Elements.GetInteger("/BitsPerComponent") : 8;
+        int columns = parms.Elements.ContainsKey("/Columns") ? parms.Elements.GetInteger("/Columns") : 1;
+        if (colors is < 1 or > 32 || bits is not (1 or 2 or 4 or 8 or 16) || columns is < 1 or > (1 << 24)) throw new PdfStreamUnreadableException("Bad predictor parameters.");
+        long rowLong = (colors * bits * (long)columns + 7) / 8;
+        if (rowLong > maxBytes) throw TooLarge();
+        int row = (int)rowLong, bpp = Math.Max(1, colors * bits / 8);
+        if (predictor == 2) return TiffPredictor(data, row, colors, bits);
+        if (predictor < 10) throw new PdfStreamUnreadableException("Unknown predictor.");
+
+        using var output = new MemoryStream(Math.Min(data.Length, maxBytes));
+        var previous = new byte[row];
+        var current = new byte[row];
+        for (int offset = 0; offset < data.Length; offset += row + 1)
         {
-            try { return PdfSharp.Pdf.Filters.Filtering.Decode(s.Value!, Resolve(stream.Elements["/Filter"])!, parms) ?? throw new PdfStreamUnreadableException("Predictor failed."); }
-            catch (Exception ex) when (ex is not PdfStreamUnreadableException and not OutOfMemoryException) { throw new PdfStreamUnreadableException(ex.Message); }
+            int type = data[offset];
+            int count = Math.Min(row, data.Length - offset - 1);
+            if (count <= 0) break;
+            Array.Copy(data, offset + 1, current, 0, count);
+            if (count < row) Array.Clear(current, count, row - count);
+            for (int x = 0; x < count; x++)
+            {
+                int left = x >= bpp ? current[x - bpp] : 0, up = previous[x], corner = x >= bpp ? previous[x - bpp] : 0;
+                current[x] = (byte)(type switch
+                {
+                    0 => current[x],
+                    1 => current[x] + left,
+                    2 => current[x] + up,
+                    3 => current[x] + (left + up) / 2,
+                    4 => current[x] + Paeth(left, up, corner),
+                    _ => throw new PdfStreamUnreadableException("Bad PNG filter type."),
+                });
+            }
+            if (output.Length + count > maxBytes) throw TooLarge();
+            output.Write(current, 0, count);
+            (previous, current) = (current, previous);
+        }
+        return output.ToArray();
+    }
+
+    private static int Paeth(int a, int b, int c)
+    {
+        int p = a + b - c, pa = Math.Abs(p - a), pb = Math.Abs(p - b), pc = Math.Abs(p - c);
+        return pa <= pb && pa <= pc ? a : pb <= pc ? b : c;
+    }
+
+    private static byte[] TiffPredictor(byte[] input, int row, int colors, int bits)
+    {
+        var data = (byte[])input.Clone();
+        for (int start = 0; start < data.Length; start += row)
+        {
+            int end = Math.Min(start + row, data.Length);
+            if (bits == 8)
+            {
+                for (int i = start + colors; i < end; i++) data[i] += data[i - colors];
+            }
+            else if (bits == 16)
+            {
+                for (int i = start + colors * 2; i + 1 < end; i += 2)
+                {
+                    int sum = (data[i] << 8 | data[i + 1]) + (data[i - colors * 2] << 8 | data[i - colors * 2 + 1]);
+                    data[i] = (byte)(sum >> 8);
+                    data[i + 1] = (byte)sum;
+                }
+            }
+            else
+            {
+                int mask = (1 << bits) - 1, samples = (end - start) * 8 / bits;
+                var last = new int[colors];
+                for (int s = 0; s < samples; s++)
+                {
+                    int bit = s * bits, index = start + bit / 8, shift = 8 - bits - bit % 8;
+                    int value = (data[index] >> shift & mask) + last[s % colors] & mask;
+                    last[s % colors] = value;
+                    data[index] = (byte)(data[index] & ~(mask << shift) | value << shift);
+                }
+            }
         }
         return data;
     }
 
     private static PdfSharp.Pdf.PdfItem? Resolve(PdfSharp.Pdf.PdfItem? item) => item is PdfSharp.Pdf.Advanced.PdfReference r ? r.Value : item;
 
-    private static bool HasPredictor(PdfSharp.Pdf.PdfItem parms) => parms switch
-    {
-        PdfSharp.Pdf.PdfDictionary d => d.Elements.GetInteger("/Predictor") > 1,
-        PdfSharp.Pdf.PdfArray a => a.Elements.Select(Resolve).OfType<PdfSharp.Pdf.PdfDictionary>().Any(d => d.Elements.GetInteger("/Predictor") > 1),
-        _ => false,
-    };
-
-    private static bool EarlyChange(PdfSharp.Pdf.PdfDictionary stream)
-    {
-        var parms = Resolve(stream.Elements["/DecodeParms"]);
-        var dict = parms as PdfSharp.Pdf.PdfDictionary ?? (parms as PdfSharp.Pdf.PdfArray)?.Elements.Select(Resolve).OfType<PdfSharp.Pdf.PdfDictionary>().FirstOrDefault(d => d.Elements.ContainsKey("/EarlyChange"));
-        return dict is null || !dict.Elements.ContainsKey("/EarlyChange") || dict.Elements.GetInteger("/EarlyChange") != 0;
-    }
+    private static bool EarlyChange(PdfSharp.Pdf.PdfDictionary? parms) =>
+        parms is null || !parms.Elements.ContainsKey("/EarlyChange") || parms.Elements.GetInteger("/EarlyChange") != 0;
 
     /// <summary>Nazwy filtrów ze słownika: nazwa lub tablica, także przez referencje. Zapis #xx rozwinięty, inny typ to błąd.</summary>
     internal static List<string> Filters(PdfSharp.Pdf.PdfDictionary stream)

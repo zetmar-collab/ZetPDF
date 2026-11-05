@@ -69,4 +69,7 @@
   <data name="Core.Error.PageRangeInvalid" xml:space="preserve"><value>Invalid page range “{0}”. Example: 1-3,5.</value></data>
   <data name="Core.Error.TooComplex" xml:space="preserve"><value>The file is damaged or too complex to open safely.</value></data>
   <data name="Core.Error.ContentTooLarge" xml:space="preserve"><value>The document content is too large after decompression and was not processed.</value></data>
+  <data name="Core.Error.ProbeIncomplete" xml:space="preserve"><value>The file could not be fully checked in the allotted time and was skipped.</value></data>
+  <data name="Core.Probe.Incomplete.Title" xml:space="preserve"><value>File not fully checked</value></data>
+  <data name="Core.Probe.Incomplete" xml:space="preserve"><value>The file could not be fully checked in the allotted time. Open it anyway? A file from an untrusted source may close the program; unsaved changes are protected by auto-save.</value></data>
 </root>

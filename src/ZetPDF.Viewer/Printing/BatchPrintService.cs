@@ -126,6 +126,7 @@ public sealed class BatchPrintService
             try
             {
                 var bytes = await File.ReadAllBytesAsync(entry.Path, ct).ConfigureAwait(false);
+                await ZetPDF.Core.Documents.PdfFileProbes.EnsureSafeAsync(bytes, entry.Password, ct).ConfigureAwait(false);
                 using var doc = await _renderer.OpenAsync(bytes, entry.Password, ct).ConfigureAwait(false);
                 await target(doc, options, entry.Path, inner, ct).ConfigureAwait(false);
                 entry.Status = BatchPrintStatus.Printed;
@@ -134,6 +135,12 @@ public sealed class BatchPrintService
             {
                 foreach (var rest in toPrint.Skip(i)) rest.Status = BatchPrintStatus.Cancelled;
                 break;
+            }
+            catch (PdfCorruptException ex)
+            {
+                // sonda: plik zbyt złożony albo niesprawdzony do końca; tryb wsadowy nie pyta, tylko pomija
+                entry.Status = BatchPrintStatus.SkippedCorrupt;
+                entry.Detail = ex.Message;
             }
             catch (Exception ex) when (ex is not OutOfMemoryException)
             {
