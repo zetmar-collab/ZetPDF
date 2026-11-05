@@ -141,6 +141,8 @@ internal static class LongTermRevision
             if (numbers.Count > MaxObjects) return false;
             int catalogNumber = earlier.CatalogReference.Number;
             if (current.CatalogReference.Number != catalogNumber) return false;
+            if (!SameTrailerInfo(earlier, current)) return false;
+            if (DefinesDanglingReference(earlier, current, numbers)) return false;
             foreach (int n in numbers)
             {
                 if (!earlier.Exists(n)) continue;
@@ -160,6 +162,41 @@ internal static class LongTermRevision
         {
             return false; // niepewność to brak zwolnienia
         }
+    }
+
+    private static bool SameTrailerInfo(CosDocument earlier, CosDocument current) => Same(earlier.Trailer["Info"], current.Trailer["Info"]);
+
+    /// <summary>
+    /// Cień: obiekt zdefiniowany dopiero po podpisie, do którego wcześniejsza rewizja już się odwołuje (jako do niezdefiniowanego, czyli null). Zmienia on znaczenie
+    /// podpisanej treści, choć żaden istniejący obiekt się nie zmienił. Skan obejmuje wszystkie obiekty wcześniejszej rewizji i jej trailer, bez rekurencji.
+    /// </summary>
+    private static bool DefinesDanglingReference(CosDocument earlier, CosDocument current, List<int> earlierNumbers)
+    {
+        var added = new HashSet<int>(current.ObjectNumbers.Where(n => current.Exists(n) && !earlier.Exists(n)));
+        if (added.Count == 0) return false;
+        var stack = new Stack<CosObject>();
+        stack.Push(earlier.Trailer);
+        foreach (int n in earlierNumbers)
+            if (earlier.Exists(n)) stack.Push(earlier.GetObject(n));
+        while (stack.Count > 0)
+        {
+            switch (stack.Pop())
+            {
+                case CosReference r:
+                    if (added.Contains(r.Number)) return true;
+                    break;
+                case CosArray a:
+                    foreach (var item in a.Items) stack.Push(item);
+                    break;
+                case CosDictionary d:
+                    foreach (var e in d.Entries) stack.Push(e.Value);
+                    break;
+                case CosStream s:
+                    stack.Push(s.Dictionary);
+                    break;
+            }
+        }
+        return false;
     }
 
     private static bool CatalogOnlyLongTerm(CosDictionary before, CosDictionary after, CosDocument earlier, CosDocument current)
@@ -334,27 +371,47 @@ public sealed class LongTermService : ILongTermSignatureService
         return urls.Distinct().ToList();
     }, ct);
 
-    public async Task<LongTermResult> AddLongTermDataAsync(byte[] pdf, string? password, IReadOnlyList<string> extraUrls, CancellationToken ct = default)
+    public async Task<LongTermResult> AddLongTermDataAsync(byte[] pdf, string? password, LongTermConnectionPlan plan, CancellationToken ct = default)
     {
-        var run = await CollectAsync(pdf, password, extraUrls, ct).ConfigureAwait(false);
+        var run = await CollectAsync(pdf, password, plan, ct).ConfigureAwait(false);
         var output = run.Entries.Count == 0 ? pdf : DssWriter.Write(pdf, password, run.Entries);
         return run.Result with { Pdf = output };
     }
 
-    public async Task<LongTermResult> CheckOnlineAsync(byte[] pdf, string? password, IReadOnlyList<string> extraUrls, CancellationToken ct = default) =>
-        (await CollectAsync(pdf, password, extraUrls, ct).ConfigureAwait(false)).Result;
+    public async Task<LongTermResult> CheckOnlineAsync(byte[] pdf, string? password, LongTermConnectionPlan plan, CancellationToken ct = default) =>
+        (await CollectAsync(pdf, password, plan, ct).ConfigureAwait(false)).Result;
 
     private sealed record Run(LongTermResult Result, List<DssWriter.VriEntry> Entries);
 
-    private async Task<Run> CollectAsync(byte[] pdf, string? password, IReadOnlyList<string> extraUrls, CancellationToken ct)
+    /// <summary>Granica połączeń jednego przebiegu: tylko zatwierdzone adresy; pozostałe trafiają na listę do kolejnej zgody i nie są wywoływane.</summary>
+    private sealed class Gate(IEnumerable<string> approved)
+    {
+        private readonly HashSet<string> _approved = new(approved, StringComparer.Ordinal);
+        private readonly List<string> _pending = new();
+
+        public IReadOnlyList<string> Pending => _pending;
+
+        public bool Allows(Uri url)
+        {
+            if (_approved.Contains(url.AbsoluteUri)) return true;
+            if (_pending.Count < MaxPendingUrls && !_pending.Contains(url.AbsoluteUri)) _pending.Add(url.AbsoluteUri);
+            return false;
+        }
+    }
+
+    private const int MaxPendingUrls = 32;
+    private const int MaxDownloadedCertificates = 8;
+
+    private async Task<Run> CollectAsync(byte[] pdf, string? password, LongTermConnectionPlan plan, CancellationToken ct)
     {
         var extras = new List<Uri>();
-        foreach (var text in extraUrls.Where(t => !string.IsNullOrWhiteSpace(t)))
+        foreach (var text in plan.Extra.Where(t => !string.IsNullOrWhiteSpace(t)))
         {
             if (!Uri.TryCreate(text.Trim(), UriKind.Absolute, out var u) || !RevocationSources.IsAllowed(u))
-                throw new ArgumentException("Only http and https addresses are allowed.", nameof(extraUrls)).WithMessageKey("Security.LongTerm.Error.Scheme");
+                throw new ArgumentException("Only http and https addresses are allowed.", nameof(plan)).WithMessageKey("Security.LongTerm.Error.Scheme");
             extras.Add(u);
         }
+        var gate = new Gate(plan.Approved.Concat(extras.Select(u => u.AbsoluteUri)));
         var doc = CosDocument.Open(pdf, password);
         var dss = DssData.Read(doc);
         var signatures = ReadSignatures(doc, pdf);
@@ -372,7 +429,7 @@ public sealed class LongTermService : ILongTermSignatureService
                 statuses.Add(new LongTermSignatureStatus(info.FieldName, SignatureRevocationStatus.Unknown));
                 continue;
             }
-            var path = await BuildPathAsync(info, dss, downloadedIssuers, problems, ct).ConfigureAwait(false);
+            var path = await BuildPathAsync(info, dss, downloadedIssuers, gate, plan.AllowLocalNetwork, problems, ct).ConfigureAwait(false);
             var ocsp = new List<byte[]>();
             var crls = new List<byte[]>();
             var overall = SignatureRevocationStatus.Good;
@@ -386,7 +443,7 @@ public sealed class LongTermService : ILongTermSignatureService
                     problems.Add(c.Subject + ": no issuer");
                     continue;
                 }
-                var status = await FetchOneAsync(c, path[i + 1], extras, ocsp, crls, problems, ct).ConfigureAwait(false);
+                var status = await FetchOneAsync(c, path[i + 1], extras, gate, plan.AllowLocalNetwork, ocsp, crls, problems, ct).ConfigureAwait(false);
                 if (status == SignatureRevocationStatus.Revoked) overall = status;
                 else if (status != SignatureRevocationStatus.Good && overall != SignatureRevocationStatus.Revoked) overall = SignatureRevocationStatus.Unknown;
             }
@@ -400,11 +457,11 @@ public sealed class LongTermService : ILongTermSignatureService
         var worst = statuses.Count == 0 ? SignatureRevocationStatus.Unknown
             : statuses.Any(s => s.Status == SignatureRevocationStatus.Revoked) ? SignatureRevocationStatus.Revoked
             : statuses.All(s => s.Status == SignatureRevocationStatus.Good) ? SignatureRevocationStatus.Good : SignatureRevocationStatus.Unknown;
-        return new Run(new LongTermResult(pdf, certCount, ocspCount, crlCount, worst, statuses, problems), entries);
+        return new Run(new LongTermResult(pdf, certCount, ocspCount, crlCount, worst, statuses, problems) { PendingUrls = gate.Pending.ToList() }, entries);
     }
 
     /// <summary>Ścieżka z wystawcami z podpisu, DSS i magazynów; brakujących szuka pod adresem wystawcy z certyfikatu, a pobrany musi podpisywać potomka.</summary>
-    private async Task<List<X509Certificate2>> BuildPathAsync(SignatureInfo info, DssData dss, List<X509Certificate2> downloaded, List<string> problems, CancellationToken ct)
+    private async Task<List<X509Certificate2>> BuildPathAsync(SignatureInfo info, DssData dss, List<X509Certificate2> downloaded, Gate gate, bool allowLocal, List<string> problems, CancellationToken ct)
     {
         var pool = Pool(info, dss).Concat(downloaded).ToList();
         var path = CertPath.Build(info.Certificate!, pool);
@@ -414,9 +471,15 @@ public sealed class LongTermService : ILongTermSignatureService
             foreach (var url in RevocationSources.From(path[^1]).Issuers)
             {
                 ct.ThrowIfCancellationRequested();
+                if (!gate.Allows(url)) continue;
+                if (downloaded.Count >= MaxDownloadedCertificates)
+                {
+                    problems.Add(url.AbsoluteUri + ": too many downloaded certificates");
+                    break;
+                }
                 try
                 {
-                    var data = await _transport.GetAsync(url, ct).ConfigureAwait(false);
+                    var data = await _transport.GetAsync(url, allowLocal, ct).ConfigureAwait(false);
                     if (data.Length > RevocationLimits.MaxResponseBytes) continue;
                     var candidate = new X509Certificate2(data);
                     if (!CertCrypto.VerifyIssuedBy(path[^1], candidate)) continue;
@@ -437,18 +500,20 @@ public sealed class LongTermService : ILongTermSignatureService
     }
 
     /// <summary>OCSP, potem CRL. Do wyniku trafia tylko odpowiedź po weryfikacji kryptograficznej przez wystawcę z łańcucha.</summary>
-    private async Task<SignatureRevocationStatus> FetchOneAsync(X509Certificate2 certificate, X509Certificate2 issuer, IReadOnlyList<Uri> extras, List<byte[]> ocsp, List<byte[]> crls, List<string> problems, CancellationToken ct)
+    private async Task<SignatureRevocationStatus> FetchOneAsync(X509Certificate2 certificate, X509Certificate2 issuer, IReadOnlyList<Uri> extras, Gate gate, bool allowLocal, List<byte[]> ocsp, List<byte[]> crls, List<string> problems, CancellationToken ct)
     {
         var urls = RevocationSources.From(certificate);
         byte[] request = OcspMessages.BuildRequest(certificate, issuer);
         foreach (var url in urls.Ocsp.Concat(extras))
         {
-            var verified = await TryAsync(url, () => _transport.PostOcspAsync(url, request, ct), d => OcspMessages.Verify(d, certificate, issuer), ocsp, problems, ct).ConfigureAwait(false);
+            if (!gate.Allows(url)) continue;
+            var verified = await TryAsync(url, () => _transport.PostOcspAsync(url, request, allowLocal, ct), d => OcspMessages.Verify(d, certificate, issuer), ocsp, problems, ct).ConfigureAwait(false);
             if (verified is { Status: SignatureRevocationStatus.Good or SignatureRevocationStatus.Revoked }) return verified.Status;
         }
         foreach (var url in urls.Crl.Concat(extras))
         {
-            var verified = await TryAsync(url, () => _transport.GetAsync(url, ct), d => CrlMessages.Verify(d, certificate, issuer), crls, problems, ct).ConfigureAwait(false);
+            if (!gate.Allows(url)) continue;
+            var verified = await TryAsync(url, () => _transport.GetAsync(url, allowLocal, ct), d => CrlMessages.Verify(d, certificate, issuer), crls, problems, ct).ConfigureAwait(false);
             if (verified is not null) return verified.Status;
         }
         return SignatureRevocationStatus.Unknown;

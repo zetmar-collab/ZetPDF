@@ -115,15 +115,19 @@ internal sealed class FakeRevocationTransport : IRevocationTransport
     public Func<Uri, byte[]>? Get { get; init; }
     public List<string> Calls { get; } = new();
 
-    public Task<byte[]> GetAsync(Uri url, CancellationToken ct)
+    public List<bool> AllowLocalFlags { get; } = new();
+
+    public Task<byte[]> GetAsync(Uri url, bool allowLocalNetwork, CancellationToken ct)
     {
+        AllowLocalFlags.Add(allowLocalNetwork);
         Calls.Add("GET " + url.AbsoluteUri);
         if (url.AbsoluteUri == MiniCa.RootCertUrl) return Task.FromResult(Ca.Root.RawData);
         return Get is null ? throw new HttpRequestException("brak") : Task.FromResult(Get(url));
     }
 
-    public Task<byte[]> PostOcspAsync(Uri url, byte[] request, CancellationToken ct)
+    public Task<byte[]> PostOcspAsync(Uri url, byte[] request, bool allowLocalNetwork, CancellationToken ct)
     {
+        AllowLocalFlags.Add(allowLocalNetwork);
         Calls.Add("POST " + url.AbsoluteUri);
         if (url.AbsoluteUri == MiniCa.RootOcspUrl) return Task.FromResult(Ca.OcspRoot(request));
         return Ocsp is null ? throw new HttpRequestException("brak") : Task.FromResult(Ocsp(url, request));
@@ -134,7 +138,7 @@ public class LongTermTests
 {
     private const string Tsa = "http://tsa.invalid/";
     private static readonly PdfRect Box = new(72, 600, 300, 680);
-    private static readonly IReadOnlyList<string> NoExtra = Array.Empty<string>();
+    private static readonly LongTermConnectionPlan NoExtra = LongTermConnectionPlan.Of(new[] { MiniCa.OcspUrl, MiniCa.CrlUrl, MiniCa.IssuerUrl, MiniCa.RootOcspUrl, MiniCa.RootCertUrl });
 
     private static async Task<byte[]> SignedAsync(MiniCa ca, SignatureService? svc = null, byte[]? pdf = null, string? password = null)
     {
@@ -376,9 +380,9 @@ public class LongTermTests
         Assert.Empty(read.Crl);
         var fake = new FakeRevocationTransport { Ca = ca, Get = url => url.AbsoluteUri == MiniCa.IssuerUrl ? ca.Intermediate.RawData : Array.Empty<byte>() };
         var svc = new LongTermService(fake);
-        await Assert.ThrowsAsync<ArgumentException>(() => svc.CheckOnlineAsync(await0(ca), null, new[] { "file:///C:/windows/x" }));
-        await Assert.ThrowsAsync<ArgumentException>(() => svc.CheckOnlineAsync(await0(ca), null, new[] { "http://user:haslo@x.invalid/" }));
-        var result = await svc.CheckOnlineAsync(await0(ca), null, new[] { "https://moj.serwer.invalid/ocsp" });
+        await Assert.ThrowsAsync<ArgumentException>(() => svc.CheckOnlineAsync(await0(ca), null, LongTermConnectionPlan.Of(Array.Empty<string>(), new[] { "file:///C:/windows/x" })));
+        await Assert.ThrowsAsync<ArgumentException>(() => svc.CheckOnlineAsync(await0(ca), null, LongTermConnectionPlan.Of(Array.Empty<string>(), new[] { "http://user:haslo@x.invalid/" })));
+        var result = await svc.CheckOnlineAsync(await0(ca), null, LongTermConnectionPlan.Of(new[] { MiniCa.IssuerUrl, MiniCa.RootCertUrl, MiniCa.RootOcspUrl }, new[] { "https://moj.serwer.invalid/ocsp" }));
         Assert.Contains(fake.Calls, c => c.Contains("moj.serwer.invalid"));
         Assert.DoesNotContain(fake.Calls, c => c.Contains("ftp:") || c.Contains("file:"));
         Assert.NotEqual(SignatureRevocationStatus.Good, result.Status);
@@ -432,6 +436,101 @@ public class LongTermTests
     public void Signature_without_long_term_option_stays_as_before()
     {
         Assert.False(new SignRequest { Certificate = new SigningCertificate(CertificateSource.PfxFile, TestCerts.Signer()) }.Pades);
+    }
+
+    [Fact]
+    public async Task Address_from_downloaded_certificate_is_not_contacted_without_consent()
+    {
+        var ca = CaWithIssuerUrl();
+        var signed = await SignedAsync(ca);
+        // okno pokazało tylko adresy z certyfikatu podpisującego; pośredni wskazuje nowe adresy
+        var shown = LongTermConnectionPlan.Of(new[] { MiniCa.OcspUrl, MiniCa.CrlUrl, MiniCa.IssuerUrl });
+        var fake = Good(ca);
+        var result = await new LongTermService(fake).CheckOnlineAsync(signed, null, shown);
+        Assert.DoesNotContain(fake.Calls, c => c.Contains(MiniCa.RootOcspUrl) || c.Contains(MiniCa.RootCertUrl));
+        Assert.Contains(MiniCa.RootCertUrl, result.PendingUrls);
+        Assert.NotEqual(SignatureRevocationStatus.Good, result.Status);
+
+        // druga runda po zgodzie
+        var asked = new List<IReadOnlyList<string>>();
+        var fake2 = Good(ca);
+        var svc = new LongTermService(fake2);
+        var final = await ZetPDF.Security.UI.LongTermRounds.RunAsync(shown, step => WrapStep(step), (pending, allow) => { asked.Add(pending); return allow; }, (plan, ct) => svc.CheckOnlineAsync(signed, null, plan, ct));
+        Assert.Equal(SignatureRevocationStatus.Good, final!.Status);
+        Assert.Empty(final.PendingUrls);
+        Assert.Contains(asked, list => list.Contains(MiniCa.RootCertUrl));
+
+        // odmowa: nowy adres nigdy nie zostaje wywołany
+        var fake3 = Good(ca);
+        var svc3 = new LongTermService(fake3);
+        var refused = await ZetPDF.Security.UI.LongTermRounds.RunAsync(shown, step => WrapStep(step), (_, _) => null, (plan, ct) => svc3.CheckOnlineAsync(signed, null, plan, ct));
+        Assert.DoesNotContain(fake3.Calls, c => c.Contains(MiniCa.RootCertUrl) || c.Contains(MiniCa.RootOcspUrl));
+        Assert.Contains(MiniCa.RootCertUrl, refused!.PendingUrls);
+    }
+
+    private static async Task<LongTermResult?> WrapStep(Func<CancellationToken, Task<LongTermResult>> step) => await step(default);
+
+    [Fact]
+    public async Task Consent_rounds_are_limited()
+    {
+        int round = 0;
+        var result = await ZetPDF.Security.UI.LongTermRounds.RunAsync(LongTermConnectionPlan.Of(Array.Empty<string>()), step => WrapStep(step), (_, allow) => allow, (_, _) =>
+        {
+            round++;
+            return Task.FromResult(new LongTermResult(Array.Empty<byte>(), 0, 0, 0, SignatureRevocationStatus.Unknown, Array.Empty<LongTermSignatureStatus>(), Array.Empty<string>()) { PendingUrls = new[] { "http://kolejny" + round + ".invalid/" } });
+        });
+        Assert.Equal(ZetPDF.Security.UI.LongTermRounds.MaxRounds, round);
+        Assert.NotEmpty(result!.PendingUrls);
+    }
+
+    [Fact]
+    public async Task Only_approved_addresses_are_called_even_from_the_signer_certificate()
+    {
+        var ca = CaWithIssuerUrl();
+        var fake = Good(ca);
+        var result = await new LongTermService(fake).CheckOnlineAsync(await SignedAsync(ca), null, LongTermConnectionPlan.Of(Array.Empty<string>()));
+        Assert.Empty(fake.Calls);
+        Assert.Contains(MiniCa.IssuerUrl, result.PendingUrls);
+    }
+
+    [Fact]
+    public async Task Shadow_object_defined_after_signature_is_not_excused()
+    {
+        // przed podpisem strona wskazuje obiekt jeszcze niezdefiniowany (dla czytnika to null)
+        var plain = SamplePdfFactory.Text(1);
+        var prepare = CosDocument.Open(plain, null);
+        int dangling = prepare.Size + 500;
+        var before = new IncrementalUpdate(prepare);
+        var pageRef = prepare.GetPageReferences()[0];
+        var page = (CosDictionary)prepare.ResolveDict(pageRef)!.Clone();
+        page["Thumb"] = new CosReference(dangling, 0);
+        before.Set(pageRef, page);
+        var ca = CaWithIssuerUrl();
+        var svc = TestEnv.Signatures();
+        var signed = await SignedAsync(ca, svc, before.Write());
+
+        var doc = CosDocument.Open(signed, null);
+        var after = new IncrementalUpdate(doc);
+        after.Set(new CosReference(dangling, 0), new CosStream(new CosDictionary(), new byte[] { 1, 2, 3 }));
+        var r = First(await svc.ValidateAsync(after.Write(), null));
+        Assert.False(r.ModifiedOnlyByLongTermData);
+        Assert.Equal(SignatureStatus.ValidButModifiedAfter, r.Status);
+
+        // nowy obiekt, do którego stary graf się nie odwołuje, to nie cień
+        var unrelated = new IncrementalUpdate(doc);
+        unrelated.Set(new CosReference(dangling + 1, 0), new CosStream(new CosDictionary(), new byte[] { 1 }));
+        Assert.True(First(await svc.ValidateAsync(unrelated.Write(), null)).ModifiedOnlyByLongTermData);
+    }
+
+    [Fact]
+    public void Handlers_do_not_use_proxy_for_revocation_and_do_not_follow_redirects()
+    {
+        using var revocation = HttpRevocationTransport.CreateHandler();
+        Assert.False(revocation.UseProxy);
+        Assert.False(revocation.AllowAutoRedirect);
+        Assert.NotNull(revocation.ConnectCallback);
+        using var tsa = HttpTimestampClient.CreateHandler();
+        Assert.False(tsa.AllowAutoRedirect);
     }
 
     public class NullDialogs : System.Reflection.DispatchProxy
@@ -492,24 +591,116 @@ public class LongTermTests
     public async Task Transport_limits_size_scheme_and_does_not_follow_redirects()
     {
         using (var big = new HttpRevocationTransport(new StubHandler(_ => new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(new byte[RevocationLimits.MaxResponseBytes + 1]) })))
-            await Assert.ThrowsAsync<InvalidDataException>(() => big.GetAsync(new Uri("http://x.invalid/"), default));
+            await Assert.ThrowsAsync<InvalidDataException>(() => big.GetAsync(new Uri("http://x.invalid/"), false, default));
         using var redirect = new HttpRevocationTransport(new StubHandler(_ => new HttpResponseMessage(HttpStatusCode.Redirect)));
-        await Assert.ThrowsAsync<HttpRequestException>(() => redirect.GetAsync(new Uri("http://x.invalid/"), default));
-        await Assert.ThrowsAsync<ArgumentException>(() => redirect.GetAsync(new Uri("ftp://x.invalid/"), default));
-        await Assert.ThrowsAsync<ArgumentException>(() => redirect.PostOcspAsync(new Uri("file:///C:/x"), new byte[1], default));
+        await Assert.ThrowsAsync<HttpRequestException>(() => redirect.GetAsync(new Uri("http://x.invalid/"), false, default));
+        await Assert.ThrowsAsync<ArgumentException>(() => redirect.GetAsync(new Uri("ftp://x.invalid/"), false, default));
+        await Assert.ThrowsAsync<ArgumentException>(() => redirect.PostOcspAsync(new Uri("file:///C:/x"), new byte[1], false, default));
+    }
+
+    // adres, zablokowany bez opcji, zablokowany z opcją sieci lokalnej
+    [Theory]
+    [InlineData("10.0.0.1", true, false)]
+    [InlineData("10.255.255.255", true, false)]
+    [InlineData("172.16.0.1", true, false)]
+    [InlineData("172.31.255.255", true, false)]
+    [InlineData("172.32.0.1", false, false)]
+    [InlineData("172.15.0.1", false, false)]
+    [InlineData("192.168.1.1", true, false)]
+    [InlineData("100.64.0.1", true, false)]
+    [InlineData("100.127.255.255", true, false)]
+    [InlineData("100.128.0.1", false, false)]
+    [InlineData("127.0.0.1", true, true)]
+    [InlineData("127.1.2.3", true, true)]
+    [InlineData("0.0.0.0", true, true)]
+    [InlineData("0.1.2.3", true, true)]
+    [InlineData("169.254.169.254", true, true)]
+    [InlineData("192.0.0.1", true, true)]
+    [InlineData("198.18.0.1", true, true)]
+    [InlineData("198.19.255.255", true, true)]
+    [InlineData("198.20.0.1", false, false)]
+    [InlineData("224.0.0.1", true, true)]
+    [InlineData("240.0.0.1", true, true)]
+    [InlineData("255.255.255.255", true, true)]
+    [InlineData("93.184.216.34", false, false)]
+    [InlineData("::", true, true)]
+    [InlineData("::1", true, true)]
+    [InlineData("fe80::1", true, true)]
+    [InlineData("febf::1", true, true)]
+    [InlineData("ff02::1", true, true)]
+    [InlineData("fc00::1", true, false)]
+    [InlineData("fd12:3456::1", true, false)]
+    [InlineData("2606:2800:220:1::1", false, false)]
+    [InlineData("::ffff:127.0.0.1", true, true)]
+    [InlineData("::ffff:10.0.0.1", true, false)]
+    [InlineData("::ffff:169.254.169.254", true, true)]
+    [InlineData("::ffff:93.184.216.34", false, false)]
+    [InlineData("64:ff9b::7f00:1", true, true)]
+    [InlineData("64:ff9b::a00:1", true, false)]
+    [InlineData("64:ff9b::a9fe:a9fe", true, true)]
+    [InlineData("64:ff9b::5db8:d822", false, false)]
+    [InlineData("2002:7f00:1::", true, true)]
+    [InlineData("2002:c0a8:101::", true, false)]
+    [InlineData("::7f00:1", true, true)]
+    public void Address_table(string address, bool forbidden, bool forbiddenWithOption)
+    {
+        var ip = IPAddress.Parse(address);
+        Assert.Equal(forbidden, HttpRevocationTransport.IsForbiddenAddress(ip));
+        Assert.Equal(forbiddenWithOption, HttpRevocationTransport.IsForbiddenAddress(ip, allowLocalNetwork: true));
+    }
+
+    [Fact]
+    public async Task Local_option_reaches_the_transport_and_is_off_by_default()
+    {
+        var ca = CaWithIssuerUrl();
+        var signed = await SignedAsync(ca);
+        var off = Good(ca);
+        await new LongTermService(off).CheckOnlineAsync(signed, null, NoExtra);
+        Assert.NotEmpty(off.AllowLocalFlags);
+        Assert.All(off.AllowLocalFlags, Assert.False);
+        var on = Good(ca);
+        await new LongTermService(on).CheckOnlineAsync(signed, null, NoExtra with { AllowLocalNetwork = true });
+        Assert.All(on.AllowLocalFlags, Assert.True);
+        Assert.False(LongTermConnectionPlan.Of(Array.Empty<string>()).AllowLocalNetwork);
     }
 
     [Theory]
-    [InlineData("127.0.0.1", true)]
-    [InlineData("::1", true)]
-    [InlineData("169.254.169.254", true)]
-    [InlineData("fe80::1", true)]
-    [InlineData("224.0.0.1", true)]
-    [InlineData("::ffff:127.0.0.1", true)]
-    [InlineData("10.1.2.3", false)]
-    [InlineData("93.184.216.34", false)]
-    public void Forbidden_addresses(string address, bool forbidden) =>
-        Assert.Equal(forbidden, HttpRevocationTransport.IsForbiddenAddress(IPAddress.Parse(address)));
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Real_connection_to_this_computer_is_refused_with_or_without_the_option(bool allowLocal)
+    {
+        using var listener = new System.Net.Sockets.TcpListener(IPAddress.Loopback, 0);
+        listener.Start();
+        int port = ((IPEndPoint)listener.LocalEndpoint).Port;
+        using var transport = new HttpRevocationTransport();
+        await Assert.ThrowsAnyAsync<HttpRequestException>(() => transport.GetAsync(new Uri($"http://127.0.0.1:{port}/"), allowLocal, default));
+        await Assert.ThrowsAnyAsync<HttpRequestException>(() => transport.PostOcspAsync(new Uri($"http://localhost:{port}/"), new byte[1], allowLocal, default));
+        Assert.False(listener.Pending());
+    }
+
+    [Fact]
+    public void Confirm_window_has_local_option_off_by_default()
+    {
+        Exception? error = null;
+        var thread = new Thread(() =>
+        {
+            try
+            {
+                var loc = new ZetPDF.Core.Localization.LocalizationService(initial: new System.Globalization.CultureInfo("pl"));
+                loc.RegisterResources(SecurityModule.Strings);
+                var window = new ZetPDF.Security.UI.LongTermConfirmDialog(loc, "adresy", false);
+                Assert.False(window.AllowLocalNetwork);
+                window.Close();
+                // anulowanie okna to brak połączenia
+                Assert.Null(ZetPDF.Security.UI.LongTermConfirmDialog.Ask(System.Reflection.DispatchProxy.Create<IDialogService, NullDialogs>(), loc, "adresy", false));
+            }
+            catch (Exception ex) { error = ex; }
+        });
+        thread.SetApartmentState(ApartmentState.STA);
+        thread.Start();
+        thread.Join();
+        if (error is not null) System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(error).Throw();
+    }
 
     [Fact]
     public void Malformed_dss_entries_are_ignored()

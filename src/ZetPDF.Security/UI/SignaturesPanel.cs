@@ -107,9 +107,9 @@ internal sealed class SignaturesPanel : UserControl
         try
         {
             var (pdf, pwd) = await GetValidationSourceAsync(session, default);
-            var urls = await service.GetDocumentUrlsAsync(pdf, pwd);
+            var urls = (await service.GetDocumentUrlsAsync(pdf, pwd)).Take(LongTermRounds.MaxListedUrls).ToList();
             var list = urls.Count == 0 ? _loc["Security.LongTerm.NoUrls"] : string.Join(Environment.NewLine, urls.Take(32));
-            if (!dialogs.Confirm(_loc.Format("Security.LongTerm.Confirm", list, "-"), _loc["Security.LongTerm.Title"])) return;
+            if (LongTermConfirmDialog.Ask(dialogs, _loc, _loc.Format("Security.LongTerm.Confirm", list, "-"), false) is not { } allowLocal) return;
             string? target = null;
             if (write)
             {
@@ -117,15 +117,11 @@ internal sealed class SignaturesPanel : UserControl
                     session.FilePath is null ? null : Path.GetDirectoryName(session.FilePath));
                 if (target is null) return;
             }
-            LongTermResult? result = null;
-            if (!await dialogs.RunWithProgressAsync(_loc["Security.LongTerm.Title"], async (_, ct) =>
-                    result = write ? await service.AddLongTermDataAsync(pdf, pwd, Array.Empty<string>(), ct) : await service.CheckOnlineAsync(pdf, pwd, Array.Empty<string>(), ct))
-                || result is null) return;
+            var result = await LongTermRounds.RunAsync(dialogs, _loc, LongTermConnectionPlan.Of(urls, null, allowLocal),
+                (plan, ct) => write ? service.AddLongTermDataAsync(pdf, pwd, plan, ct) : service.CheckOnlineAsync(pdf, pwd, plan, ct));
+            if (result is null) return;
             if (target is not null) await _services.GetRequiredService<IFileService>().WriteAllBytesSafeAsync(target, result.Pdf);
-            var text = _loc.Format("Security.LongTerm.Result", result.Certificates, result.OcspResponses, result.Crls, _loc["Security.Validate.Detail.Revocation." + result.Status]);
-            foreach (var s in result.Signatures) text += Environment.NewLine + s.FieldName + ": " + _loc["Security.Validate.Detail.Revocation." + s.Status];
-            if (result.Problems.Count > 0) text += Environment.NewLine + Environment.NewLine + _loc["Security.LongTerm.Problems"] + Environment.NewLine + string.Join(Environment.NewLine, result.Problems.Take(16));
-            dialogs.ShowMessage(text, _loc["Security.LongTerm.Title"], result.Status == SignatureRevocationStatus.Good && result.Problems.Count == 0 ? MessageSeverity.Info : MessageSeverity.Warning);
+            dialogs.ShowMessage(LongTermRounds.Describe(_loc, result), _loc["Security.LongTerm.Title"], result.Status == SignatureRevocationStatus.Good && result.Problems.Count == 0 && result.PendingUrls.Count == 0 ? MessageSeverity.Info : MessageSeverity.Warning);
         }
         catch (OperationCanceledException) { }
         catch (Exception ex) when (ex is not OutOfMemoryException)

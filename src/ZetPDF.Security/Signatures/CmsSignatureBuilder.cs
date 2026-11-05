@@ -20,7 +20,10 @@ public interface ITimestampClient
 /// </summary>
 public sealed class HttpTimestampClient : ITimestampClient
 {
-    private static readonly HttpClient Http = new() { Timeout = TimeSpan.FromSeconds(30) };
+    /// <summary>Adres wpisuje użytkownik, więc proxy systemu zostaje; bez przekierowań, odpowiedź ograniczona rozmiarem.</summary>
+    internal static SocketsHttpHandler CreateHandler() => new() { AllowAutoRedirect = false, UseCookies = false };
+
+    private static readonly HttpClient Http = new(CreateHandler()) { Timeout = TimeSpan.FromSeconds(30), MaxResponseContentBufferSize = 16 * 1024 * 1024 };
 
     public async Task<byte[]> RequestAsync(Uri tsaUrl, byte[] request, CancellationToken ct)
     {

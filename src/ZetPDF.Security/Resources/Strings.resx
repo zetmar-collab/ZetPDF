@@ -368,4 +368,9 @@
   <data name="Security.Validate.Detail.Revocation.Revoked" xml:space="preserve"><value>THE CERTIFICATE WAS REVOKED according to verified data.</value></data>
   <data name="Security.Validate.Detail.Revocation.Unknown" xml:space="preserve"><value>Revocation status unknown: no verified, current data for the whole chain.</value></data>
   <data name="Security.Validate.Detail.Level" xml:space="preserve"><value>Level by file structure: PAdES {0}. Not confirmed by an external validator.</value></data>
+  <data name="Security.LongTerm.ConfirmMore" xml:space="preserve"><value>A certificate downloaded along the way points to new addresses that were not on the previous list:&#13;&#10;{0}&#13;&#10;&#13;&#10;These servers will see your IP address and which certificate is being checked. Connect to them as well?</value></data>
+  <data name="Security.LongTerm.NotContacted" xml:space="preserve"><value>Addresses that were not contacted:</value></data>
+  <data name="Security.LongTerm.AllowLocal" xml:space="preserve"><value>Allow addresses in the local network</value></data>
+  <data name="Security.LongTerm.AllowLocal.Info" xml:space="preserve"><value>Off by default and not remembered. Turn it on only if your company revocation server is in the local network: the addresses come from the certificate, and a crafted certificate could otherwise send queries into your network. This computer and link-local addresses stay blocked.</value></data>
+  <data name="Security.LongTerm.Connect" xml:space="preserve"><value>Connect</value></data>
 </root>

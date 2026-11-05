@@ -368,4 +368,9 @@
   <data name="Security.Validate.Detail.Revocation.Revoked" xml:space="preserve"><value>CERTYFIKAT ZOSTAŁ UNIEWAŻNIONY według zweryfikowanych danych.</value></data>
   <data name="Security.Validate.Detail.Revocation.Unknown" xml:space="preserve"><value>Stan unieważnienia nieznany: brak zweryfikowanych, aktualnych danych dla całego łańcucha.</value></data>
   <data name="Security.Validate.Detail.Level" xml:space="preserve"><value>Poziom według budowy pliku: PAdES {0}. Niepotwierdzone zewnętrznym walidatorem.</value></data>
+  <data name="Security.LongTerm.ConfirmMore" xml:space="preserve"><value>Certyfikat pobrany po drodze wskazuje nowe adresy, których nie było na poprzedniej liście:&#13;&#10;{0}&#13;&#10;&#13;&#10;Te serwery zobaczą Twój adres IP i to, jaki certyfikat jest sprawdzany. Połączyć się także z nimi?</value></data>
+  <data name="Security.LongTerm.NotContacted" xml:space="preserve"><value>Adresy, z którymi się nie połączono:</value></data>
+  <data name="Security.LongTerm.AllowLocal" xml:space="preserve"><value>Zezwól na adresy w sieci lokalnej</value></data>
+  <data name="Security.LongTerm.AllowLocal.Info" xml:space="preserve"><value>Domyślnie wyłączone i niezapamiętywane. Włącz tylko wtedy, gdy firmowy serwer unieważnień jest w sieci lokalnej: adresy pochodzą z certyfikatu, a spreparowany certyfikat mógłby kierować zapytania do Twojej sieci. Ten komputer i adresy łącza pozostają zablokowane.</value></data>
+  <data name="Security.LongTerm.Connect" xml:space="preserve"><value>Połącz</value></data>
 </root>

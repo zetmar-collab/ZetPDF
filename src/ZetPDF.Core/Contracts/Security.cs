@@ -64,7 +64,21 @@ public enum SignatureRevocationStatus { NotChecked, Good, Revoked, Unknown }
 public sealed record LongTermSignatureStatus(string FieldName, SignatureRevocationStatus Status);
 
 /// <summary>Wynik pobrania danych długoterminowych. <see cref="Pdf"/>: dokument z dopisanym /DSS albo bez zmian przy samym sprawdzaniu. Problemy: tekst techniczny na adres.</summary>
-public sealed record LongTermResult(byte[] Pdf, int Certificates, int OcspResponses, int Crls, SignatureRevocationStatus Status, IReadOnlyList<LongTermSignatureStatus> Signatures, IReadOnlyList<string> Problems);
+public sealed record LongTermResult(byte[] Pdf, int Certificates, int OcspResponses, int Crls, SignatureRevocationStatus Status, IReadOnlyList<LongTermSignatureStatus> Signatures, IReadOnlyList<string> Problems)
+{
+    /// <summary>Adresy spoza zatwierdzonego zbioru (np. z certyfikatu pobranego po drodze). NIE zostały wywołane; wymagają kolejnej zgody.</summary>
+    public IReadOnlyList<string> PendingUrls { get; init; } = Array.Empty<string>();
+}
+
+/// <summary>Adresy zatwierdzone przez użytkownika w oknie. Połączenie pod inny adres nie nastąpi. <see cref="Extra"/>: wpisane ręcznie, zatwierdzone z założenia.</summary>
+public sealed record LongTermConnectionPlan(IReadOnlyCollection<string> Approved, IReadOnlyList<string> Extra)
+{
+    /// <summary>Zgoda na adresy w sieci lokalnej (opcja w oknie, domyślnie wyłączona, niezapamiętywana). Pętli zwrotnej i adresów łącza nie obejmuje.</summary>
+    public bool AllowLocalNetwork { get; init; }
+
+    public static LongTermConnectionPlan Of(IEnumerable<string> approved, IReadOnlyList<string>? extra = null, bool allowLocalNetwork = false) =>
+        new(approved.ToList(), extra ?? Array.Empty<string>()) { AllowLocalNetwork = allowLocalNetwork };
+}
 
 /// <summary>
 /// Dane długoterminowe podpisu (PAdES B-LT, B-LTA). Jedyne metody tego kontraktu, które łączą się z siecią, to dwie wymienione niżej; wywołuje je wyłącznie polecenie
@@ -79,10 +93,10 @@ public interface ILongTermSignatureService
     Task<IReadOnlyList<string>> GetDocumentUrlsAsync(byte[] pdf, string? password, CancellationToken ct = default);
 
     /// <summary>SIEĆ. Pobiera dane i dopisuje /DSS przyrostowo.</summary>
-    Task<LongTermResult> AddLongTermDataAsync(byte[] pdf, string? password, IReadOnlyList<string> extraUrls, CancellationToken ct = default);
+    Task<LongTermResult> AddLongTermDataAsync(byte[] pdf, string? password, LongTermConnectionPlan plan, CancellationToken ct = default);
 
     /// <summary>SIEĆ. Sprawdza unieważnienia, dokument bez zmian.</summary>
-    Task<LongTermResult> CheckOnlineAsync(byte[] pdf, string? password, IReadOnlyList<string> extraUrls, CancellationToken ct = default);
+    Task<LongTermResult> CheckOnlineAsync(byte[] pdf, string? password, LongTermConnectionPlan plan, CancellationToken ct = default);
 }
 
 public enum SignatureStatus { Valid, ValidButModifiedAfter, Invalid, UnknownSigner, Error }

@@ -12,8 +12,8 @@ namespace ZetPDF.Security.Signatures;
 /// <summary>Transport OCSP i CRL. Odpowiedź jest niezaufana; limit rozmiaru obowiązuje też w implementacjach testowych przez <see cref="RevocationLimits"/>.</summary>
 public interface IRevocationTransport
 {
-    Task<byte[]> GetAsync(Uri url, CancellationToken ct);
-    Task<byte[]> PostOcspAsync(Uri url, byte[] request, CancellationToken ct);
+    Task<byte[]> GetAsync(Uri url, bool allowLocalNetwork, CancellationToken ct);
+    Task<byte[]> PostOcspAsync(Uri url, byte[] request, bool allowLocalNetwork, CancellationToken ct);
 }
 
 internal static class RevocationLimits
@@ -26,22 +26,28 @@ internal static class RevocationLimits
 
 /// <summary>
 /// Połączenie sieciowe na wyraźne polecenie użytkownika (docs/DECYZJE.md D-46): tylko http i https, bez przekierowań (mogłyby prowadzić pod adres, którego
-/// użytkownik nie widział), bez połączeń do adresów pętli zwrotnej i lokalnych łącza (adres z certyfikatu w obcym dokumencie nie może sięgać do usług na tym
-/// komputerze), limit czasu i rozmiaru odpowiedzi.
+/// użytkownik nie widział), bez połączeń do pętli zwrotnej, sieci lokalnej i adresów zarezerwowanych (adres z certyfikatu w obcym dokumencie nie może sięgać do usług na tym
+/// komputerze ani w sieci użytkownika; sieć lokalną dopuszcza tylko opcja w oknie), limit czasu i rozmiaru odpowiedzi.
 /// </summary>
 public sealed class HttpRevocationTransport : IRevocationTransport, IDisposable
 {
     private readonly HttpClient _http;
 
-    public HttpRevocationTransport() : this(new SocketsHttpHandler
+    public HttpRevocationTransport() : this(CreateHandler())
+    {
+    }
+
+    /// <summary>Bez proxy: przy proxy ConnectCallback łączyłby się z proxy, a kontrola adresów nie obejmowałaby celu.</summary>
+    internal static SocketsHttpHandler CreateHandler() => new()
     {
         AllowAutoRedirect = false,
         UseCookies = false,
+        UseProxy = false,
+        // bez ponownego użycia połączeń: połączenie zestawione ze zgodą na sieć lokalną nie może posłużyć zapytaniu bez tej zgody
+        PooledConnectionLifetime = TimeSpan.Zero,
         ConnectTimeout = TimeSpan.FromSeconds(10),
         ConnectCallback = ConnectAsync,
-    })
-    {
-    }
+    };
 
     internal HttpRevocationTransport(HttpMessageHandler handler)
     {
@@ -50,26 +56,55 @@ public sealed class HttpRevocationTransport : IRevocationTransport, IDisposable
 
     public void Dispose() => _http.Dispose();
 
-    /// <summary>Czy z tego adresu IP nie wolno korzystać.</summary>
-    public static bool IsForbiddenAddress(IPAddress address)
+    private static readonly HttpRequestOptionsKey<bool> AllowLocalKey = new("ZetPDF.AllowLocalNetwork");
+
+    /// <summary>
+    /// Czy z tego adresu IP nie wolno korzystać, po rozwiązaniu DNS. Adresy IPv4 zapisane w IPv6 (::ffff:, NAT64, ::a.b.c.d, 6to4) liczą się jako IPv4. Sieć lokalną
+    /// dopuszcza tylko opcja z okna; pętli zwrotnej, adresów łącza i zarezerwowanych nie dopuszcza nic.
+    /// </summary>
+    public static bool IsForbiddenAddress(IPAddress address, bool allowLocalNetwork = false)
     {
-        if (address.IsIPv4MappedToIPv6) address = address.MapToIPv4();
-        if (IPAddress.IsLoopback(address) || address.Equals(IPAddress.Any) || address.Equals(IPAddress.IPv6Any) || address.Equals(IPAddress.None)) return true;
-        if (address.IsIPv6LinkLocal || address.IsIPv6Multicast || address.IsIPv6SiteLocal) return true;
-        if (address.AddressFamily == AddressFamily.InterNetwork)
+        if (address.AddressFamily == AddressFamily.InterNetworkV6)
         {
-            var b = address.GetAddressBytes();
-            if (b[0] == 169 && b[1] == 254) return true; // adresy łącza i usługi metadanych
-            if (b[0] >= 224) return true; // multicast i zarezerwowane
-            if (b[0] == 0) return true;
+            if (EmbeddedIpv4(address) is { } embedded) address = embedded;
+            else
+            {
+                var v6 = address.GetAddressBytes();
+                if (address.Equals(IPAddress.IPv6Any) || address.Equals(IPAddress.IPv6Loopback)) return true;
+                if (v6[0] == 0xFF) return true; // multicast
+                if (v6[0] == 0xFE && (v6[1] & 0xC0) == 0x80) return true; // fe80::/10
+                bool local = (v6[0] & 0xFE) == 0xFC || (v6[0] == 0xFE && (v6[1] & 0xC0) == 0xC0); // fc00::/7, dawne fec0::/10
+                return local && !allowLocalNetwork;
+            }
         }
-        return false;
+        if (address.AddressFamily != AddressFamily.InterNetwork) return true;
+        var b = address.GetAddressBytes();
+        if (b[0] == 0 || b[0] == 127 || b[0] >= 224) return true; // 0/8, 127/8, 224/4 i wyżej
+        if (b[0] == 169 && b[1] == 254) return true; // adresy łącza i usługi metadanych
+        if (b[0] == 192 && b[1] == 0 && b[2] == 0) return true; // 192.0.0/24
+        if (b[0] == 198 && (b[1] & 0xFE) == 18) return true; // 198.18/15
+        bool lan = b[0] == 10 || (b[0] == 172 && (b[1] & 0xF0) == 16) || (b[0] == 192 && b[1] == 168) || (b[0] == 100 && (b[1] & 0xC0) == 64);
+        return lan && !allowLocalNetwork;
+    }
+
+    private static IPAddress? EmbeddedIpv4(IPAddress address)
+    {
+        if (address.IsIPv4MappedToIPv6) return address.MapToIPv4();
+        var v6 = address.GetAddressBytes();
+        // NAT64 64:ff9b::/96
+        if (v6[0] == 0 && v6[1] == 0x64 && v6[2] == 0xFF && v6[3] == 0x9B && v6.AsSpan(4, 8).IndexOfAnyExcept((byte)0) < 0) return new IPAddress(v6.AsSpan(12, 4));
+        // 6to4 2002::/16
+        if (v6[0] == 0x20 && v6[1] == 0x02) return new IPAddress(v6.AsSpan(2, 4));
+        // przestarzałe ::a.b.c.d (bez :: i ::1, które sprawdza wołający)
+        if (v6.AsSpan(0, 12).IndexOfAnyExcept((byte)0) < 0 && !address.Equals(IPAddress.IPv6Any) && !address.Equals(IPAddress.IPv6Loopback)) return new IPAddress(v6.AsSpan(12, 4));
+        return null;
     }
 
     private static async ValueTask<Stream> ConnectAsync(SocketsHttpConnectionContext context, CancellationToken ct)
     {
+        context.InitialRequestMessage.Options.TryGetValue(AllowLocalKey, out bool allowLocal);
         var addresses = await Dns.GetHostAddressesAsync(context.DnsEndPoint.Host, ct).ConfigureAwait(false);
-        var allowed = addresses.Where(a => !IsForbiddenAddress(a)).ToArray();
+        var allowed = addresses.Where(a => !IsForbiddenAddress(a, allowLocal)).ToArray();
         if (allowed.Length == 0) throw new HttpRequestException("Address not allowed.");
         var socket = new Socket(SocketType.Stream, ProtocolType.Tcp) { NoDelay = true };
         try
@@ -84,19 +119,21 @@ public sealed class HttpRevocationTransport : IRevocationTransport, IDisposable
         }
     }
 
-    public async Task<byte[]> GetAsync(Uri url, CancellationToken ct)
+    public async Task<byte[]> GetAsync(Uri url, bool allowLocalNetwork, CancellationToken ct)
     {
         RevocationSources.RequireAllowed(url);
         using var msg = new HttpRequestMessage(HttpMethod.Get, url);
+        msg.Options.Set(AllowLocalKey, allowLocalNetwork);
         return await SendAsync(msg, ct).ConfigureAwait(false);
     }
 
-    public async Task<byte[]> PostOcspAsync(Uri url, byte[] request, CancellationToken ct)
+    public async Task<byte[]> PostOcspAsync(Uri url, byte[] request, bool allowLocalNetwork, CancellationToken ct)
     {
         RevocationSources.RequireAllowed(url);
         using var content = new ByteArrayContent(request);
         content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/ocsp-request");
         using var msg = new HttpRequestMessage(HttpMethod.Post, url) { Content = content };
+        msg.Options.Set(AllowLocalKey, allowLocalNetwork);
         return await SendAsync(msg, ct).ConfigureAwait(false);
     }
 
