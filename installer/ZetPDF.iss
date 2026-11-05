@@ -6,10 +6,10 @@
 
 #define AppName "ZetPDF"
 #ifndef AppVersion
-  #define AppVersion "0.1.0-test"
+  #define AppVersion "0.2.0-test"
 #endif
 #ifndef AppVersionNumeric
-  #define AppVersionNumeric "0.1.0.0"
+  #define AppVersionNumeric "0.2.0.0"
 #endif
 #define AppExe "ZetPDF.exe"
 #define ProgId "ZetPDF.Document"

@@ -295,7 +295,7 @@ public class ShellSmokeTests
         Assert.Contains("Redistribution and use in source and binary forms", pdfium.FullText);
         Assert.Contains("FreeType", pdfium.FullText);
         Assert.All(ThirdPartyLibraries.All, l => Assert.DoesNotContain(".txt", l.FullText.Split('\n').Last()));
-        Assert.Equal("0.1.0-test", ThirdPartyLibraries.AppVersion);
+        Assert.Equal("0.2.0-test", ThirdPartyLibraries.AppVersion);
         Assert.Contains("Apache License", ThirdPartyLibraries.ReadLicense("Apache-2.0.txt"));
     }
 

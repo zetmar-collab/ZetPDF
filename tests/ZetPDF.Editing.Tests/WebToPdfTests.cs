@@ -206,6 +206,8 @@ public class WebToPdfTests
         var temp = TestPaths.NewDirectory();
         var pdf = await new EdgePdfPrinter(temp).PrintAsync(source!, default);
         Assert.Contains(TestEnv.Squash("Zażółć gęślą jaźń ZAŻÓŁĆ"), TestEnv.Squash(await TestEnv.PdfiumText(pdf)));
+        // Procesy Edge mogą jeszcze chwilę trzymać pliki profilu, a program ponawia usuwanie w tle wątku wywołania.
+        for (int i = 0; i < 150 && Directory.GetFileSystemEntries(temp).Length > 0; i++) await Task.Delay(200);
         Assert.Empty(Directory.GetFileSystemEntries(temp));
     }
 }

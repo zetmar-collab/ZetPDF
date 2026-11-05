@@ -1,10 +1,10 @@
-ZetPDF 0.1.0-test
+ZetPDF 0.2.0-test
 =================
 
 [PL]
 
 Co to jest
-  ZetPDF to edytor PDF dla Windows (wersja testowa 0.1.0-test). Jeden plik ZetPDF.exe – bez instalacji
+  ZetPDF to edytor PDF dla Windows (wersja testowa 0.2.0-test). Jeden plik ZetPDF.exe – bez instalacji
   i bez instalowania .NET (środowisko .NET 8, PDFium i Tesseract OCR są w środku).
 
 Wymagania
@@ -68,13 +68,13 @@ Licencje
     https://github.com/bblanchon/pdfium-binaries (wersja 157.0.8100). Noty wymagane przez te licencje są
     w LICENSES\PDFium-ThirdParty.txt i w programie: Pomoc > Licencje bibliotek.
 
-Wersja: 0.1.0-test (wersja do testów, nie do produkcji).
+Wersja: 0.2.0-test (wersja do testów, nie do produkcji).
 
 
 [EN]
 
 What it is
-  ZetPDF is a PDF editor for Windows (test build 0.1.0-test). A single ZetPDF.exe – no installation and no .NET
+  ZetPDF is a PDF editor for Windows (test build 0.2.0-test). A single ZetPDF.exe – no installation and no .NET
   installation required (.NET 8 runtime, PDFium and Tesseract OCR are embedded).
 
 Requirements
@@ -136,4 +136,4 @@ Licenses
     https://github.com/bblanchon/pdfium-binaries (version 157.0.8100). The notices required by these licenses are
     in LICENSES\PDFium-ThirdParty.txt and in the program: Help > Third-party licenses.
 
-Version: 0.1.0-test (test build, not for production use).
+Version: 0.2.0-test (test build, not for production use).

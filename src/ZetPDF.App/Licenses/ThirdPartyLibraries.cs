@@ -92,7 +92,7 @@ public static class ThirdPartyLibraries
         }
     }
 
-    /// <summary>Wersja aplikacji do wyświetlenia ("0.1.0-test").</summary>
+    /// <summary>Wersja aplikacji do wyświetlenia ("0.2.0-test").</summary>
     public static string AppVersion =>
-        typeof(ThirdPartyLibraries).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "0.1.0-test";
+        typeof(ThirdPartyLibraries).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "0.2.0-test";
 }

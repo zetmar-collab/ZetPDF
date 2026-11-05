@@ -1,4 +1,4 @@
-ZetPDF 0.1.0-test – third-party components / komponenty zewnętrzne
+ZetPDF 0.2.0-test – third-party components / komponenty zewnętrzne
 =====================================================================
 
 Component                                   Version      License           License text in this folder

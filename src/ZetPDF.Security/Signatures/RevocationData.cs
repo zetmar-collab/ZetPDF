@@ -73,8 +73,11 @@ public sealed class HttpRevocationTransport : IRevocationTransport, IDisposable
                 if (address.Equals(IPAddress.IPv6Any) || address.Equals(IPAddress.IPv6Loopback)) return true;
                 if (v6[0] == 0xFF) return true; // multicast
                 if (v6[0] == 0xFE && (v6[1] & 0xC0) == 0x80) return true; // fe80::/10
-                bool local = (v6[0] & 0xFE) == 0xFC || (v6[0] == 0xFE && (v6[1] & 0xC0) == 0xC0); // fc00::/7, dawne fec0::/10
-                return local && !allowLocalNetwork;
+                if ((v6[0] & 0xFE) == 0xFC || (v6[0] == 0xFE && (v6[1] & 0xC0) == 0xC0)) return !allowLocalNetwork; // fc00::/7, dawne fec0::/10
+                // Lista dozwolonych: tylko publiczne 2000::/3, bez tuneli i zakresu dokumentacji (Teredo 2001::/32, 2001:db8::/32).
+                if ((v6[0] & 0xE0) != 0x20) return true;
+                return v6[0] == 0x20 && v6[1] == 0x01 && v6[2] == 0x00 && v6[3] == 0x00
+                    || v6[0] == 0x20 && v6[1] == 0x01 && v6[2] == 0x0D && v6[3] == 0xB8;
             }
         }
         if (address.AddressFamily != AddressFamily.InterNetwork) return true;

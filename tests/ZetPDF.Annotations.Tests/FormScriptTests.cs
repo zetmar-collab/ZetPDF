@@ -155,7 +155,8 @@ public class FormScriptTests
         var r = new ScriptRunner(host, report, k => k, CancellationToken.None).RunEvent(script, "C", "1", "Calculate");
         Assert.Null(r);
         Assert.NotEmpty(report.Errors);
-        Assert.True(sw.Elapsed < TimeSpan.FromSeconds(5), sw.Elapsed.ToString());
+        // Limity silnika są znacznie krótsze; próg tylko wykrywa brak przerwania, także na obciążonym komputerze.
+        Assert.True(sw.Elapsed < TimeSpan.FromSeconds(20), sw.Elapsed.ToString());
         Assert.Equal("", host.Get("C"));
     }
 

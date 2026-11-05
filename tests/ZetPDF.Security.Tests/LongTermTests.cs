@@ -642,6 +642,12 @@ public class LongTermTests
     [InlineData("2002:7f00:1::", true, true)]
     [InlineData("2002:c0a8:101::", true, false)]
     [InlineData("::7f00:1", true, true)]
+    [InlineData("2001:0:4136:e378:8000:63bf:3fff:fdd2", true, true)] // Teredo
+    [InlineData("2001:db8::1", true, true)] // dokumentacja
+    [InlineData("64:ff9b:1::1", true, true)] // lokalne tłumaczenie NAT64
+    [InlineData("100::1", true, true)] // zakres odrzucany
+    [InlineData("3fff::1", false, false)]
+    [InlineData("2001:4860:4860::8888", false, false)]
     public void Address_table(string address, bool forbidden, bool forbiddenWithOption)
     {
         var ip = IPAddress.Parse(address);
