@@ -24,8 +24,19 @@
                     <HierarchicalDataTemplate DataType="{x:Type local:BookmarkItem}" ItemsSource="{Binding Children}">
                         <Grid Margin="0,1">
                             <TextBlock Text="{Binding Title}" FontWeight="{Binding Weight}" FontStyle="{Binding Style}" TextTrimming="CharacterEllipsis"
-                                       Foreground="{DynamicResource Brush.Text.Primary}"
-                                       Visibility="{Binding IsEditing, Converter={StaticResource InvBoolToVis}}" />
+                                       Visibility="{Binding IsEditing, Converter={StaticResource InvBoolToVis}}">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+                                        <Style.Triggers>
+                                            <!-- kolor zakładki zapisany w pliku (/C) – treść dokumentu, nie kolor motywu -->
+                                            <DataTrigger Binding="{Binding HasColor}" Value="True">
+                                                <Setter Property="Foreground" Value="{Binding ColorBrush}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
                             <TextBox Text="{Binding EditText, UpdateSourceTrigger=PropertyChanged}" MinWidth="140"
                                      Visibility="{Binding IsEditing, Converter={StaticResource BoolToVis}}"
                                      IsVisibleChanged="OnEditorVisibleChanged" KeyDown="OnEditorKeyDown" LostKeyboardFocus="OnEditorLostFocus" />
@@ -41,6 +52,10 @@
                         <MenuItem x:Name="MenuSetTarget" Header="{loc:Loc Viewer.Bookmarks.SetTarget}" Click="OnSetTarget" />
                         <MenuItem x:Name="MenuRename" Header="{loc:Loc Viewer.Bookmarks.Rename}" InputGestureText="F2" Click="OnRename" />
                         <MenuItem x:Name="MenuDelete" Header="{loc:Loc Viewer.Bookmarks.Delete}" InputGestureText="Del" Click="OnDelete" />
+                        <Separator />
+                        <MenuItem x:Name="MenuBold" Header="{loc:Loc Viewer.Bookmarks.Bold}" Click="OnToggleBold" />
+                        <MenuItem x:Name="MenuItalic" Header="{loc:Loc Viewer.Bookmarks.Italic}" Click="OnToggleItalic" />
+                        <MenuItem x:Name="MenuColor" Header="{loc:Loc Viewer.Bookmarks.Color}" />
                     </ContextMenu>
                 </TreeView.ContextMenu>
             </TreeView>

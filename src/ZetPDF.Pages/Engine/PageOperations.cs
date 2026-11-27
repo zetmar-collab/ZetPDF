@@ -40,11 +40,13 @@ public sealed partial class PageOperations : IPageOperations
             var pages = sourcePages ?? Enumerable.Range(0, src.PageCount).ToArray();
             Validate(pages, src.PageCount, nameof(sourcePages));
             int at = Math.Clamp(insertAt, 0, doc.PageCount);
+            var form = new FormCarry(doc);
             foreach (var p in pages)
             {
                 ct.ThrowIfCancellationRequested();
-                doc.Pages.Insert(at++, src.Pages[p]);
+                form.Import(src, src.Pages[p], page => doc.Pages.Insert(at++, page));
             }
+            form.Complete();
             return PdfIo.Save(doc);
         }, ct);
 
@@ -108,11 +110,13 @@ public sealed partial class PageOperations : IPageOperations
         if (pages.Count == 0) throw new ArgumentException("No pages to extract.", nameof(pages)).WithMessageKey("Pages.Error.NoPagesToExtract");
         using var doc = PdfIo.NewDocument();
         CopyInfo(src, doc);
+        var form = new FormCarry(doc);
         foreach (var p in pages)
         {
             ct.ThrowIfCancellationRequested();
-            doc.AddPage(src.Pages[p]);
+            form.Import(src, src.Pages[p], doc.AddPage);
         }
+        form.Complete();
         return PdfIo.Save(doc);
     }
 
@@ -131,7 +135,9 @@ public sealed partial class PageOperations : IPageOperations
                 n++;
                 using var doc = PdfIo.NewDocument();
                 CopyInfo(src, doc);
-                doc.AddPage(src.Pages[p]);
+                var form = new FormCarry(doc);
+                form.Import(src, src.Pages[p], doc.AddPage);
+                form.Complete();
                 var name = FileNames.Expand(string.IsNullOrWhiteSpace(fileNamePattern) ? "{name}_{page}" : fileNamePattern, baseName, n, p + 1, string.Empty);
                 var path = PdfIo.UniquePath(Path.Combine(outputDirectory, name), taken);
                 PdfIo.WriteFileSafe(path, PdfIo.Save(doc));
@@ -156,15 +162,17 @@ public sealed partial class PageOperations : IPageOperations
         Validate(sourcePages, src.PageCount, nameof(sourcePages));
         if (targetPages.Distinct().Count() != targetPages.Count) throw new ArgumentException("Duplicate target pages.", nameof(targetPages)).WithMessageKey("Pages.Error.DuplicateTargets");
         var old = targetPages.Select(i => doc.Pages[i]).ToArray();
+        var form = new FormCarry(doc);
         // wstaw nowe strony przed zastępowanymi, potem usuń stare (zachowuje pozycje)
         for (int k = 0; k < targetPages.Count; k++)
         {
             ct.ThrowIfCancellationRequested();
             int at = IndexOf(doc, old[k]);
-            var inserted = doc.Pages.Insert(at, src.Pages[sourcePages[k]]);
+            var inserted = form.Import(src, src.Pages[sourcePages[k]], page => doc.Pages.Insert(at, page));
             RedirectPage(doc, old[k], inserted);
         }
         RemovePages(doc, old.Select(p => IndexOf(doc, p)).ToHashSet());
+        form.Complete();
         return PdfIo.Save(doc);
     }
 
@@ -176,11 +184,13 @@ public sealed partial class PageOperations : IPageOperations
             using var doc = PdfIo.OpenModify(pdf);
             using var copy = PdfIo.OpenImport(pdf);
             var set = Distinct(pages, doc.PageCount).OrderByDescending(i => i).ToArray();
+            var form = new FormCarry(doc);
             foreach (var p in set)
             {
                 ct.ThrowIfCancellationRequested();
-                doc.Pages.Insert(p + 1, copy.Pages[p]);
+                form.Import(copy, copy.Pages[p], page => doc.Pages.Insert(p + 1, page));
             }
+            form.Complete();
             return PdfIo.Save(doc);
         }, ct);
 
@@ -236,11 +246,13 @@ public sealed partial class PageOperations : IPageOperations
         using var doc = PdfIo.OpenModify(pdf);
         using var src = PdfIo.OpenImport(second);
         int a = doc.PageCount, b = src.PageCount;
+        var form = new FormCarry(doc);
         for (int i = 0; i < b; i++)
         {
             ct.ThrowIfCancellationRequested();
-            doc.AddPage(src.Pages[reverseSecond ? b - 1 - i : i]);
+            form.Import(src, src.Pages[reverseSecond ? b - 1 - i : i], doc.AddPage);
         }
+        form.Complete();
         var order = new List<int>(a + b);
         for (int i = 0; i < Math.Max(a, b); i++)
         {

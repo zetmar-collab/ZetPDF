@@ -29,7 +29,7 @@ internal sealed class RibbonBuilder
     {
         _registry = registry;
         _loc = loc;
-        _loc.CultureChanged += (_, _) => RefreshTips();
+        _loc.CultureChanged += (_, _) => { RefreshTips(); AssignKeyTips(); };
         _registry.Changed += (_, _) => Application.Current?.Dispatcher.BeginInvoke(() =>
         {
             RefreshTips();
@@ -118,8 +118,32 @@ internal sealed class RibbonBuilder
 
         if (toolBarItem is not null) ribbon.ToolBarItems.Add(toolBarItem);
         RefreshTips();
+        AssignKeyTips();
         RefreshMenuAvailability();
         return ribbon;
+    }
+
+    // Alt+Q to wyszukiwanie poleceń – litera Q nie trafia do kart, żeby nie myliła się ze skrótem.
+    private static readonly string[] ReservedTabKeys = { "Q" };
+
+    /// <summary>
+    /// KeyTips (Alt, potem litery): karta Plik, karty wstążki i przyciski każdej karty. Litery z etykiet w bieżącym języku.
+    /// </summary>
+    private void AssignKeyTips()
+    {
+        var tabs = RibbonCatalog.Tabs.Where(t => TabsById.ContainsKey(t.Id)).ToList();
+        var labels = new List<string> { _loc[RibbonCatalog.FileTabTextKey] };
+        labels.AddRange(tabs.Select(t => _loc[t.TextKey]));
+        var keys = KeyTipAssigner.Assign(labels, ReservedTabKeys);
+        KeyTip.SetKeys(Backstage, keys[0]);
+        for (int i = 0; i < tabs.Count; i++)
+        {
+            var tabItem = TabsById[tabs[i].Id];
+            KeyTip.SetKeys(tabItem, keys[i + 1]);
+            var controls = tabItem.Groups.SelectMany(g => g.Items.OfType<Control>()).Where(c => IdsByElement.ContainsKey(c)).ToList();
+            var controlKeys = KeyTipAssigner.Assign(controls.Select(c => _registry.GetDescriptor(IdsByElement[c]) is { } d ? _loc[d.TextKey] : string.Empty).ToList());
+            for (int k = 0; k < controls.Count; k++) KeyTip.SetKeys(controls[k], controlKeys[k]);
+        }
     }
 
     private void BuildBackstage(FrameworkElement recentContent)

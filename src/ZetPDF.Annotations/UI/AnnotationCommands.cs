@@ -38,6 +38,7 @@ internal sealed partial class AnnotationCommands
     {
         // ---------------------------------------------------------------- wybór
         _select.OpenProperties = sel => AnnotationActions.OpenAsync(_ctx, sel);
+        _select.EditInPlace = (view, sel) => AnnotationActions.EditInPlaceOrOpenAsync(_ctx, view, sel);
         _select.DeleteSelected = sel => AnnotationActions.DeleteAsync(_ctx, sel);
         Tool(_select, DocumentPermissions.None);
 

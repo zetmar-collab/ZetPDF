@@ -122,6 +122,10 @@
                                  AutomationProperties.Name="{loc:Loc Shell.Settings.AutoSaveMinutes}" AutomationProperties.AutomationId="Shell.Settings.AutoSaveMinutes" />
                         <TextBlock Text="{Binding AutoSaveError}" Style="{StaticResource Err}" />
                         <TextBlock Text="{loc:Loc Shell.Settings.AutoSave.Hint}" Style="{StaticResource Hint}" />
+
+                        <CheckBox Content="{loc:Loc Shell.Settings.RestoreSession}" IsChecked="{Binding RestoreSession}" Margin="0,18,0,0"
+                                  AutomationProperties.AutomationId="Shell.Settings.RestoreSession" />
+                        <TextBlock Text="{loc:Loc Shell.Settings.RestoreSession.Hint}" Style="{StaticResource Hint}" />
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>

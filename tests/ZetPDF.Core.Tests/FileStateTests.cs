@@ -79,4 +79,36 @@ public class FileStateTests : IDisposable
             Assert.False(manager.HasSignatures(session));
         }
     }
+
+    [Fact]
+    public async Task Opening_the_same_file_twice_at_once_gives_one_tab()
+    {
+        using var sp = _home.BuildServices();
+        var manager = (DocumentManager)sp.GetRequiredService<IDocumentManager>();
+        var path = Path.Combine(TestPaths.NewDirectory(), "dwa razy ą.pdf");
+        await File.WriteAllBytesAsync(path, SamplePdfFactory.Text(2));
+
+        var first = manager.OpenAsync(path);
+        var second = manager.OpenAsync(path.ToUpperInvariant());
+        var sessions = await Task.WhenAll(first, second);
+
+        Assert.NotNull(sessions[0]);
+        Assert.Same(sessions[0], sessions[1]);
+        Assert.Single(manager.Documents);
+    }
+
+    [Fact]
+    public async Task Second_open_of_a_corrupt_file_in_progress_returns_null_without_second_error()
+    {
+        using var sp = _home.BuildServices();
+        var manager = (DocumentManager)sp.GetRequiredService<IDocumentManager>();
+        var path = Path.Combine(TestPaths.NewDirectory(), "zly.pdf");
+        await File.WriteAllBytesAsync(path, "to nie jest PDF"u8.ToArray());
+
+        var first = manager.OpenAsync(path);
+        var second = manager.OpenAsync(path);
+        await Assert.ThrowsAsync<PdfCorruptException>(() => first);
+        Assert.Null(await second);
+        Assert.Empty(manager.Documents);
+    }
 }

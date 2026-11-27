@@ -28,6 +28,8 @@ internal sealed class SelectAnnotationTool : ToolBase
 
     /// <summary>Akcje zależne od innych części modułu (okna właściwości, usuwanie).</summary>
     public Func<SelectedItem, Task>? OpenProperties { get; set; }
+    /// <summary>Dwuklik: edycja w miejscu (pole tekstowe) albo właściwości.</summary>
+    public Func<IDocumentView, SelectedItem, Task>? EditInPlace { get; set; }
     public Func<SelectedItem, Task>? DeleteSelected { get; set; }
 
     public override void OnDeactivated(IDocumentView view)
@@ -52,7 +54,7 @@ internal sealed class SelectAnnotationTool : ToolBase
         {
             if (e.ClickCount >= 2 && sel.Rect.Inflate(2).Contains(e.PagePoint))
             {
-                _ = OpenProperties?.Invoke(sel);
+                _ = EditInPlace is { } edit ? edit(view, sel) : OpenProperties?.Invoke(sel);
                 return true;
             }
             var hs = Handles(sel.Rect);
@@ -73,7 +75,7 @@ internal sealed class SelectAnnotationTool : ToolBase
         Ctx.Selection = hit;
         if (hit is not null)
         {
-            if (e.ClickCount >= 2) { _ = OpenProperties?.Invoke(hit); return true; }
+            if (e.ClickCount >= 2) { _ = EditInPlace is { } edit ? edit(view, hit) : OpenProperties?.Invoke(hit); return true; }
             Begin(Mode.Move, -1, e.PagePoint, hit.Rect);
         }
         return true;

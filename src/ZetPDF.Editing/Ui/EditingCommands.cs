@@ -522,7 +522,7 @@ internal sealed class EditingCommands
     {
         var svc = _ctx.Get<IRedactionService>();
         var pdf = session.Current.GetSharedBytes();
-        var dlg = new SearchRedactDialog(L, s => svc.FindAsync(pdf, s));
+        var dlg = new SearchRedactDialog(L, s => svc.FindAsync(pdf, s), _ctx.Get<ZetPDF.Core.Services.RedactionProfileStore>());
         if (_ctx.ShowDialog(dlg) != true) return;
         var marks = dlg.Selected.Select(c => new RedactionMark(c.PageIndex, c.Quads)).ToList();
         await _ctx.ExecuteAsync(session, "Edit.Undo.MarkRedaction", (b, _, ct) => svc.MarkAsync(b, marks, ct), DocumentChangeKind.Annotations);

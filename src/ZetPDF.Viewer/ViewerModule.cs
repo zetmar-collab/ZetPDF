@@ -36,6 +36,7 @@ public sealed class ViewerModule : IFeatureModule
         services.AddSingleton<SnapshotTool>();
         services.AddSingleton<IToolService, ToolService>();
         services.AddSingleton<IBookmarkService, BookmarkService>();
+        services.AddSingleton(sp => new ZetPDF.Viewer.View.PageColorService(sp.GetService<ISettingsService>()));
         services.AddSingleton<IPrintService, PrintService>();
         services.AddSingleton(sp => new BatchPrintService(sp.GetRequiredService<IPdfRenderer>()));
         services.AddSingleton<ISpeechEngineFactory, SystemSpeechEngineFactory>();
@@ -146,6 +147,9 @@ internal sealed class ViewerCommands
         // widok równoległy (etap 3)
         RegisterParallel();
 
+        // kolory strony: tryb nocny i sepia (tylko podgląd)
+        RegisterPageColors();
+
         // odświeżanie stanów przełączników
         _tools.ActiveToolChanged += (_, _) => RaiseToggles();
         _viewer.ActiveViewChanged += (_, _) => { Observe(View); RaiseToggles(); };
@@ -241,6 +245,22 @@ internal sealed class ViewerCommands
         _registry.Register(CommandIds.View.ParallelView, view);
         _registry.Register(CommandIds.View.SyncScroll, sync);
         parallel.Changed += (_, _) => RaiseToggles();
+    }
+
+    private void RegisterPageColors()
+    {
+        var colors = _services.GetRequiredService<ZetPDF.Viewer.View.PageColorService>();
+        foreach (var (id, mode, glyph) in new[] { ("View.NightMode", ZetPDF.Viewer.View.PageColorMode.Night, "\uE708"), ("View.Sepia", ZetPDF.Viewer.View.PageColorMode.Sepia, "\uE790") })
+        {
+            var toggle = new ToggleCommand(_ => colors.Toggle(mode), () => colors.Mode == mode);
+            _toggles.Add(toggle);
+            try
+            {
+                _registry.RegisterExtra(new CommandDescriptor(id, FeatureModuleId.Viewer, CommandKind.Toggle, glyph, "", "", "Viewer.Cmd." + id), "View", "View.Mode", toggle);
+            }
+            catch (Exception ex) when (ex is ArgumentException or InvalidOperationException or KeyNotFoundException) { }
+        }
+        colors.Changed += (_, _) => RaiseToggles();
     }
 
     private ReadAloudPanel? _readPanel;

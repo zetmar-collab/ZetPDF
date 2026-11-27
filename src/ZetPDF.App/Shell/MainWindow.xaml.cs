@@ -694,6 +694,8 @@ public partial class MainWindow : RibbonWindow
         }
         try { SavePlacement(); }
         catch (Exception ex) { _log.LogWarning(ex, "Saving window placement failed"); }
+        try { (_services.GetService(typeof(SessionRestore)) as SessionRestore)?.Capture(); }
+        catch (Exception ex) when (ex is not OutOfMemoryException) { _log.LogWarning(ex, "Saving session failed"); }
         base.OnClosing(e);
     }
 }

@@ -4,7 +4,7 @@ Dokument zbiorczy dla użytkownika i testera. Opisuje, czego program nie robi al
 
 ## 0. Ogólne
 
-- **Model pracy na dokumencie.** Cały plik jest trzymany w pamięci, a każda zmiana zapisuje go od nowa (tak działa Cofnij/Ponów). Przy bardzo dużych plikach (setki MB) każda edycja trwa dłużej; pliki powyżej ok. 1 GB nie są obsługiwane. Historia Cofnij ma budżet 256 MB na dokument – starsze kroki trafiają do folderu tymczasowego (dla plików zaszyfrowanych chronione DPAPI).
+- **Model pracy na dokumencie.** Cały plik jest trzymany w pamięci, a każda zmiana zapisuje go od nowa (tak działa Cofnij/Ponów). Przy bardzo dużych plikach (setki MB) każda edycja trwa dłużej; plik większy niż 1 GB jest odrzucany przy otwieraniu z komunikatem (bez wczytywania). Historia Cofnij ma budżet 256 MB na dokument – starsze kroki trafiają do folderu tymczasowego (dla plików zaszyfrowanych chronione DPAPI).
 - **PDFsharp zostaje na wersji 6.2.4** (nowsze mają licencję AGPL), więc poprawki tej biblioteki z nowszych wersji nie trafią do programu.
 - **Program nie łączy się z siecią.** Jedyny wyjątek to znacznik czasu podpisu (TSA) pod adresem wpisanym przez użytkownika – wysyłany jest tylko skrót SHA-256. Łącza w dokumentach otwierają się w przeglądarce systemowej dopiero po potwierdzeniu (tylko http, https, mailto).
 - **Okna wyboru plików i folderów** są systemowe – ich język i motyw zależą od Windows, nie od ustawień ZetPDF.
@@ -24,22 +24,22 @@ Dokument zbiorczy dla użytkownika i testera. Opisuje, czego program nie robi al
 - Miniatury pokazują stronę z obrotem zapisanym w pliku, bez obrotu widoku. Pamiętanych jest ok. 160 obrazów miniatur.
 - Tryb odczytu i pełny ekran ukrywają wstążkę i panele; wyjście klawiszem Esc.
 - Pasek tytułu okien dialogowych przełącza się na ciemny/jasny dopiero po zmianie aktywnego okna, jeśli motyw zmieniono przy otwartym oknie.
-- Brak skrótów Alt+litera dla kart wstążki (KeyTips).
+- Skróty Alt+litera (KeyTips) obejmują kartę Plik, karty wstążki i przyciski kart; litery są przydzielane automatycznie z etykiet w bieżącym języku, więc po zmianie języka mogą być inne. Zwinięte grupy nie mają własnych liter.
 - Nie przeniesiono skrótów z raportu Foxita dla funkcji spoza etapów 1–2 (np. Ctrl+4/5/6, Ctrl+Shift+F, czytanie na głos, e-mail) ani `Alt+3/6/7` (kolidują z wstążką). Skróty jednoliterowe (H, V, T, …) działają dopiero po włączeniu w Ustawieniach i nigdy w polu tekstowym.
 
 ## 3. Wyszukiwanie, zaznaczanie, migawka (etap 1.3)
 
-- Wyrazy przeniesione z dywizem („przeno-szone”) nie są łączone przy wyszukiwaniu.
+- Wyrazy przeniesione z dywizem do następnego wiersza są łączone przy wyszukiwaniu w widoku i w indeksie folderu („przenoszone” znajduje „przeno-/szone”). Dywiz w środku wiersza („biało-czerwony”) zostaje, więc wyraz złożony przeniesiony akurat na dywizie znajduje się tylko bez dywizu.
 - Zaznaczenie tekstu obróconego o kąt inny niż 0/90/180/270° ma prostokąt otaczający; brak zaznaczania kolumnowego.
 - Jeśli schowek Windows jest zajęty przez inny program (lub sesja jest zablokowana), kopiowanie kończy się komunikatem „Schowek jest teraz niedostępny”.
 
 ## 4. Miniatury i zakładki (etap 1.4)
 
-- PDFsharp 6.2.4 nie zapisuje licznika `/Count` zakładek – ZetPDF ustawia go sam. Kolory zakładek nie są obsługiwane; zakładki z celem nazwanym, którego nie da się rozwiązać, nie mają strony; zakładki z akcją inną niż „przejdź do strony” (np. adres URL) tracą akcję po edycji drzewa.
+- PDFsharp 6.2.4 nie zapisuje licznika `/Count` zakładek – ZetPDF ustawia go sam. Kolor (/C), pogrubienie i kursywa zakładek są odczytywane, zapisywane i przenoszone przy scalaniu i dzieleniu; w panelu do wyboru jest 7 kolorów (w ciemnym motywie ciemny kolor zakładki może być słabo czytelny – to kolor z pliku); zakładki z celem nazwanym, którego nie da się rozwiązać, nie mają strony; zakładki z akcją inną niż „przejdź do strony” (np. adres URL) tracą akcję po edycji drzewa.
 
 ## 5. Organizacja stron (etap 1.5)
 
-- Strony wyodrębnione lub scalone z polami formularza mają widoczne pola, ale nowy dokument nie ma formularza AcroForm (pól nie da się wypełnić).
+- Strony wyodrębnione, scalone, wstawione, zastąpione, przeplecione lub zduplikowane zachowują pola formularza: powstaje `/AcroForm` z polami, których widżety leżą na skopiowanych stronach (z `/DA`, `/DR`, `/Q`, `/NeedAppearances`, `/SigFlags`). Pola o nazwie zajętej w dokumencie docelowym dostają przyrostek `_2`, `_3`… (inaczej dzieliłyby wartość). Kolejność obliczeń (`/CO`) i skrypty dokumentu nie są przenoszone.
 - Kadrowanie z opcją „usuń białe marginesy” pomija strony puste.
 - Zmiana rozmiaru stron przelicza położenie komentarzy (prostokąty, linie, rysunki); ramki Trim/Bleed/Art są usuwane.
 - Dzielenie według zakładek: strony przed pierwszą zakładką tworzą osobną część. Dzielenie według rozmiaru mierzy faktyczny zapis; strona większa od limitu tworzy osobny plik.
@@ -56,7 +56,7 @@ Dokument zbiorczy dla użytkownika i testera. Opisuje, czego program nie robi al
 
 - Pokaż/Ukryj komentarze działa tylko w bieżącym widoku (plik się nie zmienia, stan nie jest pamiętany). Miniatury i druk pokazują komentarze niezależnie od przełącznika. W plikach bez formularza AcroForm widżety pól znikają razem z komentarzami.
 - Jedna ikona notatki niezależnie od jej typu w pliku; okienka notatek tworzone zamknięte.
-- Pole tekstowe: pogrubienie i kursywa nieobsługiwane; prostokąt nie dopasowuje się do zmienionej czcionki; brak edycji w miejscu po dwukliku (tylko okno Właściwości).
+- Pole tekstowe: pogrubienie i kursywa nieobsługiwane. Dwuklik narzędziem Wybierz adnotację otwiera edycję tekstu w miejscu (pole tekstowe i maszyna do pisania; objaśnienie – okno Właściwości, Enter – zawsze okno Właściwości). Gdy po zmianie tekstu lub czcionki tekst się nie mieści, ramka rośnie w dół; większa ramka nie jest zmniejszana.
 - Zmiana rozmiaru stempla z obrazu skaluje istniejący wygląd bez ponownego próbkowania obrazu.
 - Stan recenzji: jedna pozycja stanu na autora, bez pełnej historii; model „Marked” nieobsługiwany.
 - XFDF: stemple z obrazu i podpisy odręczne eksportowane bez obrazu (po imporcie stempel tekstowy); załączniki pomijane (są w FDF); tekst sformatowany czytany jako zwykły. FDF: własny parser, bez strumieni obiektów i szyfrowanych FDF.
@@ -292,7 +292,7 @@ Zbiorczo z `docs\ograniczenia\annotations-forms.md` (pkt 17–25), `renderer-vie
 ### 29.1 Rozpoznawanie pól formularza
 - **To heurystyka na obrazie strony.** Okno pokazuje propozycje do sprawdzenia, nic nie powstaje bez zatwierdzenia.
 - **Zmierzona dokładność** na 6 dokumentach wygenerowanych w teście (formularz, ten sam formularz jako skan 200 DPI bez tekstu, tabela z siatką, tabela z liniami, tekst z ozdobnikami, zwykły tekst): 23 poprawne, 0 fałszywych, 0 pominiętych, czyli precyzja i czułość 1,000. **To nie jest wynik na prawdziwych formularzach:** heurystykę strojono na tych samych dokumentach, a prawdziwych skanów nie sprawdzano.
-- **Znane słabości, zmierzone bez progu w teście:** skan przekrzywiony o 0,5° gubi 2 z 11 pól, o 1,5° gubi 6 z 11 (obszary się nie zamykają lub linie przestają spełniać warunek grubości; prostowania nie ma). Formularz w układzie tabeli (etykieta w komórce obok pustej komórki): 0 z 4 pól, bo siatka jest uznawana za tabelę, co jest świadomą ceną braku fałszywych trafień na tabelach.
+- **Znane słabości, zmierzone bez progu w teście:** skan przekrzywiony o 0,5° – 11 z 11 pól, o 1,5° – 10 z 11 (przed prostowaniem: 9 i 5). Przed analizą strona jest prostowana (kąt do ±5°, z profilu rzutu ciemnych pikseli), a prostokąty pól wracają do układu strony jako prostokąty otaczające, więc przy większym kącie są nieco większe od linii. Formularz w układzie tabeli (etykieta w komórce obok pustej komórki): 0 z 4 pól, bo siatka jest uznawana za tabelę, co jest świadomą ceną braku fałszywych trafień na tabelach.
 - Pusty kwadracik jako punktor wyliczenia zostanie uznany za pole wyboru. Kilka kolejnych linii do pisania pod jedną etykietą daje jedno pole (tylko linia z etykietą). Linia bez etykiety na stronie z tekstem jest pomijana. Pola wielowierszowe tylko z prostokątów wyższych niż 30 pt. Wielokropek z odstępami (`. . . .`) nie jest rozpoznawany, a na skanie bez OCR nie ma wielokropków w ogóle. Bez pól opcji, list i przycisków. Linie jaśniejsze niż próg luminancji 170 nie istnieją dla analizy.
 - Okno nie było oglądane na pulpicie; działają testy budowy okna, wyniku `SelectedSpecs` i Cofnij/Ponów na sesji.
 - Strona przekraczająca limity analizy (20 tys. słów, 3000 linii, 5000 obszarów, 2000 surowych propozycji i inne, D-39) jest pomijana i wymieniana w oknie. Zapytanie o etykietę przegląda najwyżej 1024 słowa, więc na stronie ze spreparowanym nakładaniem słów etykieta może nie być znaleziona.
@@ -328,3 +328,15 @@ Zbiorczo z `docs\ograniczenia\annotations-forms.md` (pkt 17–25), `renderer-vie
 - Bez TSA nie ma B-LT, więc opcja wymaga adresu w Ustawieniach. Dane dotyczą łańcucha certyfikatu podpisującego; certyfikat TSA trafia do `/Certs` bez danych unieważnień, a do `/VRI` znacznika czasu dokumentu nic nie jest dopisywane. Po B-LTA nie ma mechanizmu kolejnych znaczników czasu ani przypominania o nich. Zmiany po podpisie są porównywane strukturalnie: tylko dla pierwszych 200 tys. obiektów, a podpis zatwierdzający z ograniczeniem `/DocMDP` nie jest osobno sprawdzany.
 - Bez OCSP nonce (część responderów go nie obsługuje), więc świeżość oceniana jest po czasie odpowiedzi. CRL: bez delt, list częściowych i pośrednich wystawców. Certyfikat z rozszerzeniem `id-pkix-ocsp-nocheck` nie jest obsługiwany. Skróty SHA-1 w odpowiedziach są akceptowane, bo starsze CA ich używają. Algorytmy spoza RSA i ECDSA nie przejdą weryfikacji.
 - Wynik sprawdzania online pokazuje okno i nie zmienia listy w panelu. Okna i przyciski panelu nie były klikane na pulpicie: działają testy budowy okna (opcja domyślnie wyłączona) i usług.
+
+## 30. Poprawki i funkcje z audytu (2026-11-27)
+
+- **Zamknięcie karty w trakcie operacji** nie kończy się już błędem: wynik trwającego polecenia jest odrzucany, a pliki historii Cofnij usuwane po jego zakończeniu.
+- **„Zapisz jako” na ten sam plik** pyta tak samo jak Zapisz (plik zmieniony na dysku, podpisy cyfrowe).
+- **Ten sam plik otwierany dwa razy naraz** (dwuklik dwa razy, przeciągnięcie) daje jedną kartę.
+- **Ustawienia spoza zakresu** w ręcznie zmienionym `settings.json` są sprowadzane do dozwolonych przy wczytaniu.
+- **Łącza z domeną spoza ASCII** pokazują w oknie potwierdzenia także postać punycode (`xn--…`), żeby podróbka znanej domeny była widoczna.
+- **Przywracanie sesji** (Ustawienia, domyślnie wyłączone): pliki, strony i aktywna karta z chwili zamknięcia programu. Hasła nie są zapamiętywane; dokumenty bez pliku i niezapisane zmiany nie są przywracane (od tego jest autozapis). Lista plików leży w `settings.json`.
+- **Tryb nocny i sepia** (karta Widok): tylko podgląd na ekranie – miniatury, druk, migawka, eksport i plik mają oryginalne kolory. Tryb nocny odwraca jasność z zachowaniem odcienia, więc zdjęcia wyglądają nienaturalnie. Ustawienie jest wspólne dla wszystkich kart i zapamiętywane.
+- **Prostowanie przed OCR** (domyślnie włączone, `OcrOptions.Deskew`): kąt do ±5° dla całej strony; OCR zaznaczonego obszaru nie jest prostowany. Pozycje słów warstwy tekstu są przeliczane do układu strony jako prostokąty otaczające. Na prawdziwych skanach nie sprawdzano – tylko na stronach wygenerowanych i obróconych w teście.
+- **Profile redakcji** (okno Szukaj i redaguj, krok Kreatora „Redakcja według profilu”): zapisane w `settings.json` w profilu użytkownika Windows – frazy w profilu mogą same być danymi wrażliwymi. Krok Kreatora od razu stosuje redakcję (trwale), bez podglądu; limit 50 profili.

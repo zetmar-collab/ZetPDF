@@ -6,7 +6,8 @@ namespace ZetPDF.Rendering;
 /// Dopasowanie frazy w tekście strony (bez PDFium – czysta logika, testowana osobno).
 /// Wielkość liter: porównanie porządkowe bez rozróżniania wielkości (mapowanie Unicode – działa dla ą/Ą, ł/Ł…).
 /// Całe słowa: znak przed i po trafieniu nie może być literą ani cyfrą (char.IsLetterOrDigit – uwzględnia diakrytyki).
-/// Białe znaki w tekście i w zapytaniu zwijane są do jednej spacji; wynik to indeksy w ORYGINALNYM tekście.
+/// Białe znaki w tekście i w zapytaniu zwijane są do jednej spacji, wyrazy przeniesione z dywizem są łączone;
+/// wynik to indeksy w ORYGINALNYM tekście (trafienie przez koniec wiersza obejmuje dywiz).
 /// </summary>
 internal static class TextMatcher
 {
@@ -14,7 +15,11 @@ internal static class TextMatcher
     {
         var q = Collapse(query.Trim(), out _);
         if (q.Length == 0 || string.IsNullOrEmpty(text)) return Array.Empty<(int, int)>();
-        var hay = Collapse(text, out var map);
+        // Wyrazy przeniesione z dywizem do następnego wiersza są łączone („przeno-szone” znajduje się jako „przenoszone”).
+        var joined = ZetPDF.Core.Utilities.HyphenJoin.Join(text, out var joinMap);
+        var hay = Collapse(joined, out var collapseMap);
+        var map = new int[collapseMap.Length];
+        for (int k = 0; k < map.Length; k++) map[k] = joinMap[collapseMap[k]];
         var cmp = matchCase ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
         var result = new List<(int, int)>();
         int from = 0;

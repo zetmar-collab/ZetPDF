@@ -200,4 +200,20 @@ public class FullTextIndexTests
         public SyncProgress(Action<Core.Contracts.OperationProgress> a) => _a = a;
         public void Report(Core.Contracts.OperationProgress value) => _a(value);
     }
+
+    [Fact]
+    public void Hyphenated_word_is_found_in_index_pages_and_highlight_span_covers_both_lines()
+    {
+        var pages = new[] { "Pierwsza linia z wyrazem przeno-\r\nszonym do drugiej." };
+        var hits = new List<FullTextHit>();
+        FullTextIndex.SearchPages("a.pdf", "a.pdf", pages, "przeniesionym", new TextSearchOptionsEx(), hits);
+        Assert.Empty(hits);
+        FullTextIndex.SearchPages("a.pdf", "a.pdf", pages, "przenoszonym", new TextSearchOptionsEx(), hits);
+        var hit = Assert.Single(hits);
+        Assert.Equal("przeno-\r\nszonym", pages[0].Substring(hit.CharIndex, hit.Length));
+
+        var span = Assert.Single(FullTextIndex.FindSpans(pages[0], "PRZENOSZONYM", new TextSearchOptionsEx()));
+        Assert.Equal((hit.CharIndex, hit.Length), span);
+        Assert.Equal(new[] { hit.CharIndex }, FullTextIndex.FindAll(pages[0], "przenoszonym", new TextSearchOptionsEx { WholeWords = true }));
+    }
 }

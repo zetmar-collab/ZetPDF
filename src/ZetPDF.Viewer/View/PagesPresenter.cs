@@ -112,8 +112,8 @@ internal sealed class PagesPresenter : FrameworkElement, IScrollInfo
             var r = PageRectInView(page);
             if (!r.IntersectsWith(bounds)) continue;
             if (PageShadowBrush is { } shadow) dc.DrawRectangle(shadow, null, new Rect(r.X + 2, r.Y + 3, r.Width, r.Height));
-            // Białe tło = kolor papieru strony PDF (treść dokumentu, nie kolor interfejsu).
-            dc.DrawRectangle(Brushes.White, null, r);
+            // Tło = kolor papieru strony PDF (treść dokumentu, nie kolor interfejsu); w trybie nocnym i sepii – przeliczony.
+            dc.DrawRectangle(_owner.PaperBrush, null, r);
             _owner.DrawPageBitmaps(dc, page, r);
             if (borderPen is not null) dc.DrawRectangle(null, borderPen, new Rect(r.X - 0.5, r.Y - 0.5, r.Width + 1, r.Height + 1));
         }

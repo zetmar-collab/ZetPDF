@@ -24,6 +24,7 @@ public static class CoreServiceCollectionExtensions
             b.AddProvider(new FileLoggerProvider(paths.LogDirectory));
         });
         services.AddSingleton<ISettingsService, SettingsService>();
+        services.AddSingleton<RedactionProfileStore>();
         services.AddSingleton<IRecentFilesService, RecentFilesService>();
         services.AddSingleton<IFileService, FileService>();
         services.AddSingleton<LocalizationService>(sp => new LocalizationService(

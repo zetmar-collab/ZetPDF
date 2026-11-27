@@ -34,6 +34,8 @@ public sealed class BookmarkItem : INotifyPropertyChanged
     public string Title => Node.Title;
     public FontWeight Weight => Node.Bold ? FontWeights.Bold : FontWeights.Normal;
     public FontStyle Style => Node.Italic ? FontStyles.Italic : FontStyles.Normal;
+    public bool HasColor => Node.Color is not null;
+    public System.Windows.Media.Brush? ColorBrush => Node.Color is { } c ? BookmarkColors.Brush(c) : null;
 
     public bool IsExpanded { get => _isExpanded; set => Set(ref _isExpanded, value); }
     public bool IsSelected { get => _isSelected; set => Set(ref _isSelected, value); }
@@ -322,6 +324,43 @@ public partial class BookmarksPanel : UserControl
         MenuGo.IsEnabled = sel && Selected!.Node.PageIndex >= 0;
         MenuAdd.IsEnabled = _view is not null && edit;
         MenuAddChild.IsEnabled = MenuSetTarget.IsEnabled = MenuRename.IsEnabled = MenuDelete.IsEnabled = sel && edit;
+        MenuBold.IsEnabled = MenuItalic.IsEnabled = MenuColor.IsEnabled = sel && edit;
+        MenuBold.IsChecked = Selected?.Node.Bold == true;
+        MenuItalic.IsChecked = Selected?.Node.Italic == true;
+        BuildColorMenu();
+    }
+
+    // ------------------------------------------------------------------ styl i kolor
+
+    private void BuildColorMenu()
+    {
+        MenuColor.Items.Clear();
+        var current = Selected?.Node.Color;
+        foreach (var (key, color) in BookmarkColors.Palette)
+        {
+            var mi = new MenuItem
+            {
+                Header = _loc[key],
+                IsChecked = Nullable.Equals(current, color),
+                Icon = new System.Windows.Shapes.Rectangle
+                {
+                    Width = 12, Height = 12,
+                    Fill = color is { } c ? BookmarkColors.Brush(c) : null,
+                    Stroke = (System.Windows.Media.Brush)FindResource("Brush.Text.Secondary"),
+                },
+            };
+            mi.Click += async (_, _) => await ChangeStyleAsync(n => n with { Color = color });
+            MenuColor.Items.Add(mi);
+        }
+    }
+
+    private async void OnToggleBold(object sender, RoutedEventArgs e) => await ChangeStyleAsync(n => n with { Bold = !n.Bold });
+    private async void OnToggleItalic(object sender, RoutedEventArgs e) => await ChangeStyleAsync(n => n with { Italic = !n.Italic });
+
+    private async Task ChangeStyleAsync(Func<BookmarkNode, BookmarkNode> change)
+    {
+        if (Selected is not { } item || !CanEdit) return;
+        await CommitAsync(BookmarkTree.Replace(CurrentTree(), item.Path, change), "Viewer.Undo.BookmarkStyle", item.Path);
     }
 
     // ------------------------------------------------------------------ nawigacja

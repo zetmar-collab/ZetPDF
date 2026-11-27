@@ -9,6 +9,21 @@
   <data name="Viewer.Bookmarks.CollapseAll" xml:space="preserve"><value>Collapse All</value></data>
   <data name="Viewer.Bookmarks.DefaultTitle" xml:space="preserve"><value>Page {0}</value></data>
   <data name="Viewer.Bookmarks.Delete" xml:space="preserve"><value>Delete</value></data>
+  <data name="Viewer.Cmd.View.NightMode" xml:space="preserve"><value>Night mode</value></data>
+  <data name="Viewer.Cmd.View.NightMode.Tip" xml:space="preserve"><value>Light text on a dark background – on screen only. The file, printing and thumbnails keep the original colors.</value></data>
+  <data name="Viewer.Cmd.View.Sepia" xml:space="preserve"><value>Sepia</value></data>
+  <data name="Viewer.Cmd.View.Sepia.Tip" xml:space="preserve"><value>Warm, muted page colors for long reading – on screen only.</value></data>
+  <data name="Viewer.Bookmarks.Bold" xml:space="preserve"><value>Bold</value></data>
+  <data name="Viewer.Bookmarks.Italic" xml:space="preserve"><value>Italic</value></data>
+  <data name="Viewer.Bookmarks.Color" xml:space="preserve"><value>Color</value></data>
+  <data name="Viewer.Bookmarks.Color.Default" xml:space="preserve"><value>Default</value></data>
+  <data name="Viewer.Bookmarks.Color.Red" xml:space="preserve"><value>Red</value></data>
+  <data name="Viewer.Bookmarks.Color.Orange" xml:space="preserve"><value>Orange</value></data>
+  <data name="Viewer.Bookmarks.Color.Green" xml:space="preserve"><value>Green</value></data>
+  <data name="Viewer.Bookmarks.Color.Blue" xml:space="preserve"><value>Blue</value></data>
+  <data name="Viewer.Bookmarks.Color.Purple" xml:space="preserve"><value>Purple</value></data>
+  <data name="Viewer.Bookmarks.Color.Gray" xml:space="preserve"><value>Gray</value></data>
+  <data name="Viewer.Undo.BookmarkStyle" xml:space="preserve"><value>Change bookmark style</value></data>
   <data name="Viewer.Bookmarks.Empty" xml:space="preserve"><value>This document has no bookmarks. Press Ctrl+B to add one.</value></data>
   <data name="Viewer.Bookmarks.ExpandAll" xml:space="preserve"><value>Expand All</value></data>
   <data name="Viewer.Bookmarks.Go" xml:space="preserve"><value>Go to Bookmark</value></data>

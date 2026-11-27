@@ -77,7 +77,7 @@ public sealed class HandTool : IViewerTool
         if (!Uri.TryCreate(link.Uri, UriKind.Absolute, out var uri) || uri.Scheme is not ("http" or "https" or "mailto")) return;
         var dialogs = _services.GetService(typeof(IDialogService)) as IDialogService;
         var loc = (ILocalizationService)_services.GetService(typeof(ILocalizationService))!;
-        if (dialogs is null || !dialogs.Confirm(loc.Format("Viewer.Link.OpenConfirm", uri.AbsoluteUri), loc["Viewer.Link.OpenTitle"], MessageSeverity.Warning)) return;
+        if (dialogs is null || !dialogs.Confirm(loc.Format("Viewer.Link.OpenConfirm", ZetPDF.Core.Services.LinkSafety.Describe(uri)), loc["Viewer.Link.OpenTitle"], MessageSeverity.Warning)) return;
         try { Process.Start(new ProcessStartInfo(uri.AbsoluteUri) { UseShellExecute = true }); }
         catch (Exception ex) { dialogs.ShowError(ex); }
     }

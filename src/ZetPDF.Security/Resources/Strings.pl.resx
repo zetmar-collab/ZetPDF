@@ -66,6 +66,10 @@
   <data name="Security.Action.Error.NotAvailable" xml:space="preserve"><value>Ten krok nie jest dostępny w tej wersji ZetPDF (brak modułu).</value></data>
   <data name="Security.Action.Error.NoPassword" xml:space="preserve"><value>Krok „Chroń hasłem” wymaga hasła.</value></data>
   <data name="Security.Action.Error.UnknownStep" xml:space="preserve"><value>Nieznany typ kroku: {0}.</value></data>
+  <data name="Security.Action.Step.Redact" xml:space="preserve"><value>Redakcja według profilu</value></data>
+  <data name="Security.Param.Profile" xml:space="preserve"><value>Profil redakcji</value></data>
+  <data name="Security.Param.Deskew" xml:space="preserve"><value>Prostuj przekrzywione skany</value></data>
+  <data name="Security.Action.Error.NoProfile" xml:space="preserve"><value>Nie ma profilu redakcji „{0}”. Zapisz go w oknie Szukaj i redaguj.</value></data>
   <data name="Security.Compare.Title" xml:space="preserve"><value>Porównaj dokumenty</value></data>
   <data name="Security.Compare.Old" xml:space="preserve"><value>Dokument stary:</value></data>
   <data name="Security.Compare.New" xml:space="preserve"><value>Dokument nowy:</value></data>

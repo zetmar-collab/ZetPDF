@@ -206,6 +206,20 @@ internal static class FieldRecognizer
         if (text.Chars.Count > MaxChars) throw new LimitExceeded(FieldPageSkipReason.TooManyWords);
         var (wordList, leaders) = BuildWords(text, transform, ct);
         if (wordList.Count + leaders.Count > MaxWords) throw new LimitExceeded(FieldPageSkipReason.TooManyWords);
+        // Przekrzywiony skan: analiza na wyprostowanej bitmapie; słowa przechodzą do jej układu, wyniki wracają do układu strony.
+        int width = bitmap.Width, height = bitmap.Height;
+        double angle = ZetPDF.Core.Utilities.Deskew.EstimateAngle(bitmap, ct);
+        if (Math.Abs(angle) >= ZetPDF.Core.Utilities.Deskew.MinAngle)
+        {
+            bitmap = ZetPDF.Core.Utilities.Deskew.Rotate(bitmap, angle);
+            Word Straighten(Word w)
+            {
+                var (l, t, r, b) = ZetPDF.Core.Utilities.Deskew.RectToDeskewed(w.L, w.T, w.R, w.B, width, height, angle);
+                return w with { L = l, T = t, R = r, B = b };
+            }
+            wordList = wordList.Select(Straighten).ToList();
+            leaders = leaders.Select(Straighten).ToList();
+        }
         var words = new WordIndex(wordList, bitmap.Height, s);
         var mask = new WordMask(wordList, bitmap.Width, bitmap.Height);
         ct.ThrowIfCancellationRequested();
@@ -233,7 +247,11 @@ internal static class FieldRecognizer
             ct.ThrowIfCancellationRequested();
             if (!kept.Any(k => OverlapRatio(k, r) > 0.3)) kept.Add(r);
         }
-        return kept.Select(r => new PageFieldCandidate(r.Kind, transform.ToPage(new Rect(r.L, r.T, r.R - r.L, r.B - r.T)), r.Label, r.Source, r.Multiline)).ToList();
+        return kept.Select(r =>
+        {
+            var (l, t, rr, b) = ZetPDF.Core.Utilities.Deskew.RectToSource(r.L, r.T, r.R, r.B, width, height, angle);
+            return new PageFieldCandidate(r.Kind, transform.ToPage(new Rect(l, t, rr - l, b - t)), r.Label, r.Source, r.Multiline);
+        }).ToList();
     }
 
     private static void AddRaw(List<Raw> raws, Raw raw)

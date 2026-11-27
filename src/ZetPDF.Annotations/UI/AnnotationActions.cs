@@ -54,6 +54,37 @@ internal static class AnnotationActions
             DocumentChangeKind.FormFields, DocumentPermissions.ModifyContent, new[] { spec.PageIndex });
     }
 
+    /// <summary>Pole tekstowe i maszyna do pisania: dwuklik otwiera edytor tekstu w miejscu (właściwości – Enter lub menu).</summary>
+    public static bool IsInlineEditable(AnnotationInfo a) =>
+        a.InReplyTo is null && !a.IsLocked && !a.IsHidden && a.Kind is AnnotationKind.FreeText or AnnotationKind.Typewriter;
+
+    /// <summary>Dwuklik na zaznaczonym elemencie: tekst pola tekstowego edytowany w miejscu, inne – okno właściwości.</summary>
+    public static async Task EditInPlaceOrOpenAsync(AnnotContext ctx, IDocumentView view, SelectedItem sel)
+    {
+        if (sel.Annotation is { } id && ReferenceEquals(view.Session, sel.Session))
+        {
+            var a = (await ctx.GetAnnotationsAsync(sel.Session)).FirstOrDefault(x => x.Id == id);
+            if (a is not null && IsInlineEditable(a) && view.GetPageTransform(id.PageIndex) is { } t)
+            {
+                if (!sel.Session.Can(DocumentPermissions.Annotate)) return;
+                var style = await ctx.Annotations.GetTextStyleAsync(sel.Session.Current.GetSharedBytes(), id);
+                var p1 = t.ToView(new PdfPoint(a.Rect.Left, a.Rect.Top));
+                var p2 = t.ToView(new PdfPoint(a.Rect.Right, a.Rect.Bottom));
+                var rect = new System.Windows.Rect(p1, p2);
+                var session = sel.Session;
+                InlineEditor.EditText(view, rect, a.Contents, multiline: true, t.ToViewLength(style?.FontSize ?? 12), (exit, text) =>
+                {
+                    // Pusty tekst nie usuwa komentarza (do tego jest Delete) – zostaje poprzednia treść.
+                    if (exit == EditorExit.Cancel || string.IsNullOrWhiteSpace(text) || text == a.Contents) return;
+                    _ = ctx.RunAsync(session, "Annot.Undo.EditText", (pdf, ct) => ctx.Annotations.UpdateAsync(pdf, id, new AnnotationUpdate { Contents = text }, ct),
+                        pages: new[] { id.PageIndex });
+                });
+                return;
+            }
+        }
+        await OpenAsync(ctx, sel);
+    }
+
     public static async Task OpenAsync(AnnotContext ctx, SelectedItem sel)
     {
         if (sel.FieldName is { } name) { await EditFieldAsync(ctx, sel.Session, name); return; }

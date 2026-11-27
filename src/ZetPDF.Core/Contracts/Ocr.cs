@@ -19,6 +19,8 @@ public sealed record OcrOptions
     public bool SkipPagesWithText { get; init; } = true;
     /// <summary>Próg pewności (0–100) – słowa poniżej to "podejrzane".</summary>
     public int SuspectThreshold { get; init; } = 70;
+    /// <summary>Prostowanie przekrzywionych skanów (do ±5°) przed rozpoznawaniem całej strony. Pozycje słów wracają do układu strony.</summary>
+    public bool Deskew { get; init; } = true;
 }
 
 /// <summary>Rozpoznane słowo: tekst, prostokąt w punktach strony, pewność 0–100.</summary>

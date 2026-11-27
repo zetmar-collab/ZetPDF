@@ -9,6 +9,21 @@
   <data name="Viewer.Bookmarks.CollapseAll" xml:space="preserve"><value>Zwiń wszystkie</value></data>
   <data name="Viewer.Bookmarks.DefaultTitle" xml:space="preserve"><value>Strona {0}</value></data>
   <data name="Viewer.Bookmarks.Delete" xml:space="preserve"><value>Usuń</value></data>
+  <data name="Viewer.Cmd.View.NightMode" xml:space="preserve"><value>Tryb nocny</value></data>
+  <data name="Viewer.Cmd.View.NightMode.Tip" xml:space="preserve"><value>Jasny tekst na ciemnym tle – tylko na ekranie. Plik, druk i miniatury mają oryginalne kolory.</value></data>
+  <data name="Viewer.Cmd.View.Sepia" xml:space="preserve"><value>Sepia</value></data>
+  <data name="Viewer.Cmd.View.Sepia.Tip" xml:space="preserve"><value>Ciepłe, przygaszone kolory strony do długiego czytania – tylko na ekranie.</value></data>
+  <data name="Viewer.Bookmarks.Bold" xml:space="preserve"><value>Pogrubienie</value></data>
+  <data name="Viewer.Bookmarks.Italic" xml:space="preserve"><value>Kursywa</value></data>
+  <data name="Viewer.Bookmarks.Color" xml:space="preserve"><value>Kolor</value></data>
+  <data name="Viewer.Bookmarks.Color.Default" xml:space="preserve"><value>Domyślny</value></data>
+  <data name="Viewer.Bookmarks.Color.Red" xml:space="preserve"><value>Czerwony</value></data>
+  <data name="Viewer.Bookmarks.Color.Orange" xml:space="preserve"><value>Pomarańczowy</value></data>
+  <data name="Viewer.Bookmarks.Color.Green" xml:space="preserve"><value>Zielony</value></data>
+  <data name="Viewer.Bookmarks.Color.Blue" xml:space="preserve"><value>Niebieski</value></data>
+  <data name="Viewer.Bookmarks.Color.Purple" xml:space="preserve"><value>Fioletowy</value></data>
+  <data name="Viewer.Bookmarks.Color.Gray" xml:space="preserve"><value>Szary</value></data>
+  <data name="Viewer.Undo.BookmarkStyle" xml:space="preserve"><value>Zmień styl zakładki</value></data>
   <data name="Viewer.Bookmarks.Empty" xml:space="preserve"><value>Dokument nie ma zakładek. Naciśnij Ctrl+B, aby dodać zakładkę.</value></data>
   <data name="Viewer.Bookmarks.ExpandAll" xml:space="preserve"><value>Rozwiń wszystkie</value></data>
   <data name="Viewer.Bookmarks.Go" xml:space="preserve"><value>Przejdź do zakładki</value></data>

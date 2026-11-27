@@ -165,6 +165,7 @@
   <data name="Annot.Undo.Delete" xml:space="preserve"><value>Usuń</value></data>
   <data name="Annot.Undo.DeleteAll" xml:space="preserve"><value>Usuń wszystkie komentarze</value></data>
   <data name="Annot.Undo.Edit" xml:space="preserve"><value>Zmień komentarz</value></data>
+  <data name="Annot.Undo.EditText" xml:space="preserve"><value>Zmień tekst komentarza</value></data>
   <data name="Annot.Undo.FieldAdd" xml:space="preserve"><value>Dodaj pole formularza</value></data>
   <data name="Annot.Undo.FieldDelete" xml:space="preserve"><value>Usuń pole formularza</value></data>
   <data name="Annot.Undo.FieldEdit" xml:space="preserve"><value>Zmień pole formularza</value></data>

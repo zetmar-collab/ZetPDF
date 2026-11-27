@@ -109,7 +109,8 @@ internal sealed class FakeDialogService : IDialogService
     public string? SelectFolder(string title, string? initialDirectory = null) => FolderToSelect;
     public void ShowMessage(string text, string? title = null, MessageSeverity severity = MessageSeverity.Info) => Messages.Add(text);
     public bool Confirm(string text, string? title = null, MessageSeverity severity = MessageSeverity.Warning) { Confirmations.Add(text); return ConfirmResult; }
-    public YesNoCancel AskYesNoCancel(string text, string? title = null) { Questions.Add(text); return YesNoCancel.No; }
+    public YesNoCancel YesNoCancelResult { get; set; } = YesNoCancel.No;
+    public YesNoCancel AskYesNoCancel(string text, string? title = null) { Questions.Add(text); return YesNoCancelResult; }
     public string? AskPassword(string documentName, bool isRetry) => Passwords.Count > 0 ? Passwords.Dequeue() : null;
 
     public async Task<bool> RunWithProgressAsync(string title, Func<IProgress<OperationProgress>, CancellationToken, Task> work, bool cancellable = true)

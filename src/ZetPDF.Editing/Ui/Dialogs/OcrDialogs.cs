@@ -180,10 +180,15 @@ internal sealed class SearchRedactDialog : DialogBase
     private readonly ListBox _results = new() { Height = 200, Margin = new Thickness(0, 6, 0, 0) };
     private readonly TextBlock _summary = Ui.Text(string.Empty, secondary: true);
     private readonly Button _searchButton;
+    private readonly ZetPDF.Core.Services.RedactionProfileStore? _profiles;
+    private readonly ComboBox _profileList = new() { MinWidth = 200, Margin = new Thickness(0, 0, 6, 0) };
+    private readonly TextBox _profileName = new() { MinWidth = 160, Margin = new Thickness(0, 0, 6, 0) };
 
-    public SearchRedactDialog(ILocalizationService loc, Func<RedactionSearch, Task<IReadOnlyList<RedactionCandidate>>> find) : base(loc, "Edit.Redact.Search.Title", 600)
+    public SearchRedactDialog(ILocalizationService loc, Func<RedactionSearch, Task<IReadOnlyList<RedactionCandidate>>> find,
+        ZetPDF.Core.Services.RedactionProfileStore? profiles = null) : base(loc, "Edit.Redact.Search.Title", 600)
     {
         _find = find;
+        _profiles = profiles;
         System.Windows.Automation.AutomationProperties.SetName(_phrases, loc["Edit.Redact.Search.Phrases"]);
         System.Windows.Automation.AutomationProperties.SetName(_results, loc["Edit.Redact.Search.Results"]);
         var patterns = new WrapPanel();
@@ -213,6 +218,7 @@ internal sealed class SearchRedactDialog : DialogBase
         _summary.Margin = new Thickness(10, 0, 0, 0);
 
         var root = new StackPanel();
+        if (_profiles is not null) root.Children.Add(BuildProfileRow(loc));
         root.Children.Add(Ui.Label(loc, "Edit.Redact.Search.Phrases"));
         root.Children.Add(_phrases);
         root.Children.Add(Ui.Label(loc, "Edit.Redact.Search.Patterns"));
@@ -223,6 +229,82 @@ internal sealed class SearchRedactDialog : DialogBase
         root.Children.Add(sel);
         SetBody(root);
         AddOkCancel("Edit.Redact.Search.Mark");
+    }
+
+    // ------------------------------------------------------------------ profile redakcji
+
+    private FrameworkElement BuildProfileRow(ILocalizationService loc)
+    {
+        System.Windows.Automation.AutomationProperties.SetName(_profileList, loc["Edit.Redact.Profile.List"]);
+        System.Windows.Automation.AutomationProperties.SetName(_profileName, loc["Edit.Redact.Profile.Name"]);
+        RefreshProfiles(null);
+        _profileList.SelectionChanged += (_, _) =>
+        {
+            if (_profileList.SelectedItem is ComboBoxItem { Tag: ZetPDF.Core.Services.RedactionProfile p }) LoadProfile(p);
+        };
+        var save = Ui.Button(loc, "Edit.Redact.Profile.Save", (_, _) => SaveProfile());
+        var delete = Ui.Button(loc, "Edit.Redact.Profile.Delete", (_, _) => DeleteProfile());
+        save.Margin = new Thickness(0, 0, 6, 0);
+        var row = new WrapPanel { Margin = new Thickness(0, 0, 0, 6) };
+        row.Children.Add(_profileList);
+        row.Children.Add(_profileName);
+        row.Children.Add(save);
+        row.Children.Add(delete);
+        var box = new StackPanel();
+        box.Children.Add(Ui.Label(loc, "Edit.Redact.Profile.Title"));
+        box.Children.Add(row);
+        return box;
+    }
+
+    private void RefreshProfiles(string? select)
+    {
+        _profileList.Items.Clear();
+        _profileList.Items.Add(new ComboBoxItem { Content = L["Edit.Redact.Profile.None"] });
+        foreach (var p in _profiles!.All)
+            _profileList.Items.Add(new ComboBoxItem { Content = p.Name, Tag = p });
+        _profileList.SelectedItem = _profileList.Items.OfType<ComboBoxItem>()
+            .FirstOrDefault(i => i.Tag is ZetPDF.Core.Services.RedactionProfile p && string.Equals(p.Name, select, StringComparison.CurrentCultureIgnoreCase))
+            ?? _profileList.Items[0];
+    }
+
+    /// <summary>Wczytuje profil do pól okna (frazy, wzorce, opcje dopasowania).</summary>
+    internal void LoadProfile(ZetPDF.Core.Services.RedactionProfile p)
+    {
+        _phrases.Text = string.Join(Environment.NewLine, p.Phrases);
+        foreach (var (pattern, box) in _patterns) box.IsChecked = p.Patterns.HasFlag(pattern);
+        _case.IsChecked = p.MatchCase;
+        _word.IsChecked = p.WholeWord;
+        _profileName.Text = p.Name;
+    }
+
+    /// <summary>Bieżące pola okna jako profil o podanej nazwie.</summary>
+    internal ZetPDF.Core.Services.RedactionProfile CurrentProfile(string name)
+    {
+        var s = Search;
+        return new ZetPDF.Core.Services.RedactionProfile
+        {
+            Name = name, Phrases = s.Phrases, Patterns = s.Patterns,
+            MatchCase = s.Options.HasFlag(TextSearchOptions.MatchCase), WholeWord = s.Options.HasFlag(TextSearchOptions.WholeWord),
+        };
+    }
+
+    private void SaveProfile()
+    {
+        var name = _profileName.Text.Trim();
+        if (name.Length == 0) { ShowError(L["Edit.Redact.Profile.NoName"]); return; }
+        var profile = CurrentProfile(name);
+        if (profile.Phrases.Count == 0 && profile.Patterns == SensitiveDataPattern.None) { ShowError(L["Edit.Redact.Search.Nothing"]); return; }
+        if (!_profiles!.Save(profile)) { ShowError(L.Format("Edit.Redact.Profile.Limit", ZetPDF.Core.Services.RedactionProfileStore.MaxProfiles)); return; }
+        ShowError(null);
+        RefreshProfiles(name);
+    }
+
+    private void DeleteProfile()
+    {
+        if (_profileList.SelectedItem is not ComboBoxItem { Tag: ZetPDF.Core.Services.RedactionProfile p }) return;
+        _profiles!.Delete(p.Name);
+        _profileName.Text = string.Empty;
+        RefreshProfiles(null);
     }
 
     private void SetAll(bool value)

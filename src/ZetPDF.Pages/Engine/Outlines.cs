@@ -3,7 +3,7 @@ using PdfSharp.Pdf.Advanced;
 
 namespace ZetPDF.Pages.Engine;
 
-internal sealed record OutlineItem(string Title, int PageIndex, bool Open, IReadOnlyList<OutlineItem> Children);
+internal sealed record OutlineItem(string Title, int PageIndex, bool Open, IReadOnlyList<OutlineItem> Children, PdfItem? Color = null, int Flags = 0);
 
 /// <summary>Odczyt drzewa zakładek ze słowników (niezależnie od trybu otwarcia) i zapis do nowego dokumentu.</summary>
 internal static class Outlines
@@ -26,7 +26,10 @@ internal static class Outlines
             int page = ResolvePage(doc, item, pageMap);
             var count = PdfIo.GetNumber(item.Elements["/Count"]) ?? 0;
             var children = ReadLevel(doc, PdfIo.GetDict(item, "/First"), pageMap, visited, depth + 1);
-            list.Add(new OutlineItem(title, page, count > 0, children));
+            // kolor (/C) i styl (/F: 1 kursywa, 2 pogrubienie) przechodzą do nowego dokumentu
+            var color = PdfIo.Resolve(item.Elements["/C"]) is PdfArray { Elements.Count: 3 } c ? c.Clone() : null;
+            int flags = (int)(PdfIo.GetNumber(item.Elements["/F"]) ?? 0) & 3;
+            list.Add(new OutlineItem(title, page, count > 0, children, color, flags));
             item = PdfIo.GetDict(item, "/Next");
         }
         return list;
@@ -93,6 +96,8 @@ internal static class Outlines
                 continue;
             }
             var o = target.Add(string.IsNullOrEmpty(item.Title) ? " " : item.Title, page, item.Open);
+            if (item.Color is { } color) o.Elements["/C"] = color.Clone();
+            if (item.Flags != 0) o.Elements["/F"] = new PdfInteger(item.Flags);
             Write(o.Outlines, item.Children, pageOf);
         }
     }

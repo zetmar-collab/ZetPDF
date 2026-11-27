@@ -13,7 +13,7 @@ namespace ZetPDF.App.Dialogs;
 /// </summary>
 public sealed class SettingsViewModel : ObservableObject
 {
-    public const int MinUndo = 1, MaxUndo = 500, MinRecent = 1, MaxRecent = 50;
+    public const int MinUndo = AppSettings.MinUndoLevels, MaxUndo = AppSettings.MaxUndoLevels, MinRecent = AppSettings.MinRecentFiles, MaxRecent = AppSettings.MaxRecentFilesLimit;
 
     private readonly ISettingsService _settings;
     private readonly ILocalizationService _loc;
@@ -37,6 +37,7 @@ public sealed class SettingsViewModel : ObservableObject
     private string _maxRecent;
     private bool _autoSaveEnabled;
     private string _autoSaveMinutes;
+    private bool _restoreSession;
 
     public SettingsViewModel(ISettingsService settings, ILocalizationService loc, IThemeService theme, IDocumentManager? documents = null)
     {
@@ -60,6 +61,7 @@ public sealed class SettingsViewModel : ObservableObject
         _maxRecent = s.MaxRecentFiles.ToString(CultureInfo.CurrentCulture);
         _autoSaveEnabled = s.AutoSaveEnabled;
         _autoSaveMinutes = s.AutoSaveMinutes.ToString(CultureInfo.CurrentCulture);
+        _restoreSession = s.RestoreSession;
         _loc.CultureChanged += OnCultureChanged;
     }
 
@@ -108,6 +110,7 @@ public sealed class SettingsViewModel : ObservableObject
     public string MaxRecentFiles { get => _maxRecent; set => SetAndValidate(ref _maxRecent, value); }
     public bool AutoSaveEnabled { get => _autoSaveEnabled; set => SetAndValidate(ref _autoSaveEnabled, value); }
     public string AutoSaveMinutes { get => _autoSaveMinutes; set => SetAndValidate(ref _autoSaveMinutes, value); }
+    public bool RestoreSession { get => _restoreSession; set => SetProperty(ref _restoreSession, value); }
 
     // ---------------------------------------------------------------- walidacja (komunikaty w bieżącym języku)
 
@@ -188,6 +191,8 @@ public sealed class SettingsViewModel : ObservableObject
             s.MaxRecentFiles = recent;
             s.AutoSaveEnabled = AutoSaveEnabled;
             s.AutoSaveMinutes = autoSaveMinutes;
+            s.RestoreSession = RestoreSession;
+            if (!RestoreSession) s.LastSession.Clear();
             if (s.RecentFiles.Count > recent) s.RecentFiles.RemoveRange(recent, s.RecentFiles.Count - recent);
         });
         if (_documents is not null)
