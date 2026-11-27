@@ -264,6 +264,43 @@ public sealed class AppSettings
     public bool AutoSaveEnabled { get; set; } = true;
     /// <summary>Interwał autozapisu w minutach.</summary>
     public int AutoSaveMinutes { get; set; } = 5;
+    /// <summary>Przy starcie otwórz pliki, które były otwarte przy ostatnim zamknięciu programu.</summary>
+    public bool RestoreSession { get; set; }
+    /// <summary>Pliki otwarte przy ostatnim zamknięciu (tylko gdy <see cref="RestoreSession"/>).</summary>
+    public List<SessionEntry> LastSession { get; set; } = new();
+
+    public const int MinUndoLevels = 1, MaxUndoLevels = 500, MinRecentFiles = 1, MaxRecentFilesLimit = 50;
+    public const int MinAutoSaveMinutes = 1, MaxAutoSaveMinutes = 120;
+
+    /// <summary>
+    /// Wartości spoza zakresu (np. ręcznie zmieniony plik ustawień) sprowadza do dozwolonych – okno Ustawień pilnuje ich tylko przy edycji.
+    /// </summary>
+    public void Normalize()
+    {
+        UndoLevels = Math.Clamp(UndoLevels, MinUndoLevels, MaxUndoLevels);
+        MaxRecentFiles = Math.Clamp(MaxRecentFiles, MinRecentFiles, MaxRecentFilesLimit);
+        AutoSaveMinutes = Math.Clamp(AutoSaveMinutes, MinAutoSaveMinutes, MaxAutoSaveMinutes);
+        OcrSuspectThreshold = Math.Clamp(OcrSuspectThreshold, 0, 100);
+        if (!double.IsFinite(DefaultZoom) || DefaultZoom <= 0) DefaultZoom = 1.0;
+        AuthorName ??= string.Empty;
+        Organization ??= string.Empty;
+        Email ??= string.Empty;
+        TsaUrl ??= string.Empty;
+        TempFolder ??= string.Empty;
+        RecentFiles = (RecentFiles ?? new()).Where(p => !string.IsNullOrWhiteSpace(p)).Take(MaxRecentFiles).ToList();
+        QuickAccessExtra ??= new();
+        LastSession = (LastSession ?? new()).Where(e => e is not null && !string.IsNullOrWhiteSpace(e.Path)).Take(MaxSessionEntries).ToList();
+    }
+
+    public const int MaxSessionEntries = 50;
+}
+
+/// <summary>Karta z ostatniej sesji: plik, strona (od 0) i czy była aktywna.</summary>
+public sealed class SessionEntry
+{
+    public string Path { get; set; } = string.Empty;
+    public int Page { get; set; }
+    public bool Active { get; set; }
 }
 
 /// <summary>Ostatnie pliki. Implementacja: Core (na bazie ISettingsService).</summary>

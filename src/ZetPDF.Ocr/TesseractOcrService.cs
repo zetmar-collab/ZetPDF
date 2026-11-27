@@ -77,7 +77,15 @@ public sealed class TesseractOcrService : IOcrService
                 ct.ThrowIfCancellationRequested();
                 var info = doc.Pages[pageIndex];
                 var transform = new PageTransform(info.Size, info.CropOrigin, info.Rotation, bitmap.Scale, new Point(0, 0));
-                var (words, mean) = Recognize(engine, bitmap, options.Region, transform, options.SuspectThreshold, (px, py) => transform.ToPage(new Point(px, py)));
+                // Przekrzywiony skan: rozpoznawanie na wyprostowanej bitmapie, pozycje słów przeliczane z powrotem do układu strony.
+                double angle = options.Deskew && options.Region is null ? ZetPDF.Core.Utilities.Deskew.EstimateAngle(bitmap, ct) : 0;
+                var source = ZetPDF.Core.Utilities.Deskew.Rotate(bitmap, angle);
+                int bw = bitmap.Width, bh = bitmap.Height;
+                var (words, mean) = Recognize(engine, source, options.Region, transform, options.SuspectThreshold, (px, py) =>
+                {
+                    var (x, y) = ZetPDF.Core.Utilities.Deskew.ToSource(px, py, bw, bh, angle);
+                    return transform.ToPage(new Point(x, y));
+                });
                 results.Add(new OcrPageResult(pageIndex, words, mean, Skipped: false, RegionOfInterest: options.Region));
             }
             progress?.Report(OperationProgress.Of(pages.Count, pages.Count, Text("Ocr.Progress.Done")));
@@ -181,9 +189,10 @@ public sealed class TesseractOcrService : IOcrService
                 var text = it.GetText(PageIteratorLevel.Word)?.Trim();
                 if (string.IsNullOrEmpty(text)) continue;
                 float conf = it.GetConfidence(PageIteratorLevel.Word);
-                var a = toPage(rc.X1 + offX, rc.Y1 + offY);
-                var b = toPage(rc.X2 + offX, rc.Y2 + offY);
-                words.Add(new OcrWord(text, PdfRect.FromPoints(a, b), conf, Math.Max(0, line), conf < threshold));
+                // cztery rogi: po prostowaniu prostokąt słowa w układzie strony jest lekko obrócony – bierzemy prostokąt otaczający
+                var corners = new[] { toPage(rc.X1 + offX, rc.Y1 + offY), toPage(rc.X2 + offX, rc.Y1 + offY), toPage(rc.X2 + offX, rc.Y2 + offY), toPage(rc.X1 + offX, rc.Y2 + offY) };
+                var box = new PdfRect(corners.Min(p => p.X), corners.Min(p => p.Y), corners.Max(p => p.X), corners.Max(p => p.Y));
+                words.Add(new OcrWord(text, box, conf, Math.Max(0, line), conf < threshold));
             } while (it.Next(PageIteratorLevel.Word));
             return (words, page.GetMeanConfidence() * 100f);
         }

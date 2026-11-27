@@ -424,6 +424,8 @@ Usunąć go z listy ostatnich plików?</value></data>
   <data name="Shell.Settings.AutoSave" xml:space="preserve"><value>Automatycznie zapisuj kopie odzyskiwania zmienionych dokumentów</value></data>
   <data name="Shell.Settings.AutoSaveMinutes" xml:space="preserve"><value>Co ile minut (autozapis)</value></data>
   <data name="Shell.Settings.AutoSave.Hint" xml:space="preserve"><value>Kopie są szyfrowane dla Twojego konta Windows i istnieją tylko do zapisania lub zamknięcia dokumentu. Nie zastępują zapisu.</value></data>
+  <data name="Shell.Settings.RestoreSession" xml:space="preserve"><value>Otwieraj pliki z ostatniej sesji</value></data>
+  <data name="Shell.Settings.RestoreSession.Hint" xml:space="preserve"><value>Przy następnym uruchomieniu otworzą się pliki, które były otwarte przy zamykaniu programu, na tych samych stronach. Hasła nie są zapamiętywane.</value></data>
   <data name="Shell.Recovery.Title" xml:space="preserve"><value>Odzyskiwanie dokumentów</value></data>
   <data name="Shell.Recovery.Intro" xml:space="preserve"><value>ZetPDF nie został ostatnio zamknięty prawidłowo. Znaleziono niezapisane kopie tych dokumentów:</value></data>
   <data name="Shell.Recovery.Recover" xml:space="preserve"><value>Odzyskaj</value></data>

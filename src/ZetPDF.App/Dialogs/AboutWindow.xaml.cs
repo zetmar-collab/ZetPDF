@@ -5,7 +5,7 @@ using ZetPDF.Core.Contracts;
 
 namespace ZetPDF.App.Dialogs;
 
-/// <summary>Okno "O programie": wersja 0.2.0-test, biblioteki open source i licencje, informacja o braku telemetrii.</summary>
+/// <summary>Okno "O programie": wersja 0.3.0-test, biblioteki open source i licencje, informacja o braku telemetrii.</summary>
 public partial class AboutWindow : Window
 {
     private readonly ILocalizationService _loc;

@@ -1,6 +1,6 @@
 # ZetPDF
 
-Edytor PDF dla Windows 10/11 x64 (C# / .NET 8 / WPF). Wersja **0.2.0-test**.
+Edytor PDF dla Windows 10/11 x64 (C# / .NET 8 / WPF). Wersja **0.3.0-test**.
 Interfejs po polsku i angielsku, motyw jasny i ciemny, bez telemetrii. Program sam nie łączy się z siecią; wyjątki działają tylko na wyraźne polecenie użytkownika: znacznik czasu, strona WWW do PDF, dane unieważnień certyfikatów.
 
 ## Pobieranie
@@ -21,6 +21,7 @@ Pliki nie są podpisane cyfrowo, więc Windows SmartScreen może pokazać ostrze
 - PDF/A-2b: własne sprawdzanie reguł i konwersja (bez certyfikowanej walidacji).
 - Rozpoznawanie pól formularza, druk wsadowy i broszury, panel warstw, autozapis z odzyskiwaniem po awarii.
 - Podpisy długoterminowe (dane unieważnień w pliku), opcja domyślnie wyłączona.
+- Przywracanie ostatniej sesji, tryb nocny i sepia, skróty Alt+litera na wstążce, edycja pola tekstowego w miejscu, kolory zakładek, profile redakcji (także w Kreatorze działań), prostowanie skanów przed OCR, formularz zachowany przy scalaniu i wyodrębnianiu stron.
 
 Ograniczenia opisuje [docs/OGRANICZENIA.md](docs/OGRANICZENIA.md), wyniki kontroli [docs/RAPORT_KONTROLI.md](docs/RAPORT_KONTROLI.md).
 

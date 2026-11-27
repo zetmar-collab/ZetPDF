@@ -35,6 +35,18 @@ public sealed class DocumentManager : IDocumentManager
         _recent = recent;
         _log = log;
         Documents = new ReadOnlyObservableCollection<IPdfDocumentSession>(_documents);
+        _settings.Changed += (_, _) => ApplyUndoLimit();
+    }
+
+    /// <summary>Zmiana liczby poziomów Cofnij w Ustawieniach działa też na już otwarte dokumenty.</summary>
+    private void ApplyUndoLimit()
+    {
+        int limit = _settings.Current.UndoLevels;
+        foreach (var d in _documents.ToArray())
+        {
+            try { if (d.History.Limit != limit) d.History.Limit = limit; }
+            catch (ObjectDisposedException) { }
+        }
     }
 
     public ReadOnlyObservableCollection<IPdfDocumentSession> Documents { get; }
@@ -60,6 +72,10 @@ public sealed class DocumentManager : IDocumentManager
     private ISecurityService? Security => _services.GetService<ISecurityService>();
     private IDialogService? Dialogs => _services.GetService<IDialogService>();
 
+    // Otwarcia w toku: drugie otwarcie tej samej ścieżki (dwuklik dwa razy, przeciągnięcie, lista ostatnich) czeka na pierwsze
+    // zamiast tworzyć drugą kartę tego samego pliku. Dostęp tylko z wątku UI, jak cały menedżer.
+    private readonly Dictionary<string, Task<IPdfDocumentSession?>> _opening = new(StringComparer.OrdinalIgnoreCase);
+
     public async Task<IPdfDocumentSession?> OpenAsync(string path, string? password = null, CancellationToken ct = default)
     {
         var full = Path.GetFullPath(path);
@@ -69,8 +85,29 @@ public sealed class DocumentManager : IDocumentManager
             ActiveDocument = existing;
             return existing;
         }
+        if (_opening.TryGetValue(full, out var pending))
+        {
+            IPdfDocumentSession? session;
+            try { session = await pending; }
+            catch (Exception ex) when (ex is not OutOfMemoryException) { return null; } // błąd pokazało pierwsze otwarcie
+            if (session is not null && _documents.Contains(session)) ActiveDocument = session;
+            return session;
+        }
 
+        var task = OpenNewAsync(full, password, ct);
+        _opening[full] = task;
+        try { return await task; }
+        finally { if (_opening.TryGetValue(full, out var t) && ReferenceEquals(t, task)) _opening.Remove(full); }
+    }
+
+    /// <summary>Największy otwierany plik: cały dokument i jego zrzuty są w pamięci (OGRANICZENIA, rozdz. 0).</summary>
+    public const long MaxOpenFileBytes = 1024L * 1024 * 1024;
+
+    private async Task<IPdfDocumentSession?> OpenNewAsync(string full, string? password, CancellationToken ct)
+    {
         var stamp = FileStamp.Of(full);
+        if (stamp.Length > MaxOpenFileBytes)
+            throw new IOException("File is too large.").WithMessageKey("Core.Error.FileTooLarge", Path.GetFileName(full), stamp.Length / (1024 * 1024), MaxOpenFileBytes / (1024 * 1024));
         var original = await File.ReadAllBytesAsync(full, ct);
         var loaded = await LoadAsync(original, Path.GetFileName(full), password, ct);
         if (loaded is null) return null;

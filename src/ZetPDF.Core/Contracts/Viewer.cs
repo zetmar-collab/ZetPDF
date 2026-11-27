@@ -160,7 +160,7 @@ public interface IToolService
 // ------------------------------------------------------------------ zakładki
 
 /// <summary>Węzeł drzewa zakładek. PageIndex = -1, gdy cel nieznany/zewnętrzny.</summary>
-public sealed record BookmarkNode(string Title, int PageIndex, IReadOnlyList<BookmarkNode> Children, PdfPoint? Target = null, bool IsOpen = false, bool Bold = false, bool Italic = false)
+public sealed record BookmarkNode(string Title, int PageIndex, IReadOnlyList<BookmarkNode> Children, PdfPoint? Target = null, bool IsOpen = false, bool Bold = false, bool Italic = false, PdfColor? Color = null)
 {
     public static IReadOnlyList<BookmarkNode> NoChildren { get; } = Array.Empty<BookmarkNode>();
 }

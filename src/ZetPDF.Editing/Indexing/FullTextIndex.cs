@@ -452,28 +452,34 @@ public sealed class FullTextIndex
         for (int p = 0; p < pages.Count && hits.Count < options.MaxHits; p++)
         {
             var text = pages[p];
-            var folded = TextFolding.Fold(text, !options.MatchCase, options.IgnoreDiacritics);
+            // wyrazy przeniesione z dywizem łączone przed normalizacją (ta zamienia końce wierszy na spacje); pozycje w oryginale
+            var folded = TextFolding.Fold(ZetPDF.Core.Utilities.HyphenJoin.Join(text, out var map), !options.MatchCase, options.IgnoreDiacritics);
             int occurrence = 0;
             for (int i = folded.IndexOf(q, StringComparison.Ordinal); i >= 0; i = folded.IndexOf(q, i + 1, StringComparison.Ordinal))
             {
                 if (options.WholeWords && !IsWholeWord(folded, i, q.Length)) continue;
-                int start = Math.Max(0, i - ContextChars), end = Math.Min(text.Length, i + q.Length + ContextChars);
-                hits.Add(new FullTextHit(source, displayName, p, i, q.Length, occurrence++,
-                    OneLine(text[start..i], start > 0, false), OneLine(text.Substring(i, q.Length), false, false), OneLine(text[(i + q.Length)..end], false, end < text.Length)));
+                int at = map[i], len = map[i + q.Length - 1] - at + 1;
+                int start = Math.Max(0, at - ContextChars), end = Math.Min(text.Length, at + len + ContextChars);
+                hits.Add(new FullTextHit(source, displayName, p, at, len, occurrence++,
+                    OneLine(text[start..at], start > 0, false), OneLine(text.Substring(at, len), false, false), OneLine(text[(at + len)..end], false, end < text.Length)));
                 if (hits.Count >= options.MaxHits) return;
             }
         }
     }
 
     /// <summary>Pozycje kolejnych wystąpień frazy w dowolnym tekście (np. tekście strony z PDFium – do podświetlenia).</summary>
-    public static IReadOnlyList<int> FindAll(string text, string query, TextSearchOptionsEx options)
+    public static IReadOnlyList<int> FindAll(string text, string query, TextSearchOptionsEx options) =>
+        FindSpans(text, query, options).Select(s => s.Start).ToList();
+
+    /// <summary>Wystąpienia frazy: początek i długość w oryginalnym tekście (trafienie przez koniec wiersza obejmuje dywiz).</summary>
+    public static IReadOnlyList<(int Start, int Length)> FindSpans(string text, string query, TextSearchOptionsEx options)
     {
         var q = TextFolding.Fold(Collapse(query), !options.MatchCase, options.IgnoreDiacritics);
-        var folded = CollapseFolded(TextFolding.Fold(text, !options.MatchCase, options.IgnoreDiacritics));
-        var list = new List<int>();
+        var folded = CollapseFolded(TextFolding.Fold(ZetPDF.Core.Utilities.HyphenJoin.Join(text, out var map), !options.MatchCase, options.IgnoreDiacritics));
+        var list = new List<(int, int)>();
         if (q.Length == 0) return list;
         for (int i = folded.IndexOf(q, StringComparison.Ordinal); i >= 0; i = folded.IndexOf(q, i + 1, StringComparison.Ordinal))
-            if (!options.WholeWords || IsWholeWord(folded, i, q.Length)) list.Add(i);
+            if (!options.WholeWords || IsWholeWord(folded, i, q.Length)) list.Add((map[i], map[i + q.Length - 1] - map[i] + 1));
         return list;
     }
 

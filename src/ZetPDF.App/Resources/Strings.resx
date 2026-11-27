@@ -424,6 +424,8 @@ Remove it from the recent files list?</value></data>
   <data name="Shell.Settings.AutoSave" xml:space="preserve"><value>Save recovery copies of changed documents automatically</value></data>
   <data name="Shell.Settings.AutoSaveMinutes" xml:space="preserve"><value>Autosave interval (minutes)</value></data>
   <data name="Shell.Settings.AutoSave.Hint" xml:space="preserve"><value>Copies are encrypted for your Windows account and kept only until you save or close the document. They do not replace saving.</value></data>
+  <data name="Shell.Settings.RestoreSession" xml:space="preserve"><value>Reopen files from the last session</value></data>
+  <data name="Shell.Settings.RestoreSession.Hint" xml:space="preserve"><value>Next time the program starts, the files open at closing are reopened on the same pages. Passwords are not remembered.</value></data>
   <data name="Shell.Recovery.Title" xml:space="preserve"><value>Recover documents</value></data>
   <data name="Shell.Recovery.Intro" xml:space="preserve"><value>ZetPDF did not close properly last time. Unsaved copies of these documents were found:</value></data>
   <data name="Shell.Recovery.Recover" xml:space="preserve"><value>Recover</value></data>

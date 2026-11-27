@@ -197,10 +197,9 @@ internal sealed class IndexController
     /// <summary>Prostokąty (wiersze) n-tego wystąpienia frazy w tekście strony z PDFium; gdy brak – pierwszego.</summary>
     internal static IReadOnlyList<PdfRect> HitRects(PageText text, string query, TextSearchOptionsEx options, int occurrence)
     {
-        var positions = FullTextIndex.FindAll(text.Text, query, options);
-        if (positions.Count == 0) return Array.Empty<PdfRect>();
-        int start = positions[Math.Clamp(occurrence, 0, positions.Count - 1)];
-        int len = string.Join(' ', query.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries)).Length;
+        var spans = FullTextIndex.FindSpans(text.Text, query, options);
+        if (spans.Count == 0) return Array.Empty<PdfRect>();
+        var (start, len) = spans[Math.Clamp(occurrence, 0, spans.Count - 1)];
         var result = new List<PdfRect>();
         PdfRect? cur = null;
         for (int i = start; i < Math.Min(text.Chars.Count, start + len); i++)

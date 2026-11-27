@@ -99,6 +99,8 @@ public sealed class DocumentView : IDocumentView
         _renderer = services.GetRequiredService<IPdfRenderer>();
         _loc = services.GetRequiredService<ILocalizationService>();
         _tools = services.GetRequiredService<IToolService>();
+        _pageColors = services.GetService<View.PageColorService>();
+        if (_pageColors is not null) _pageColors.Changed += OnPageColorsChanged;
         _hand = services.GetRequiredService<HandTool>();
         _log = services.GetService<ILoggerFactory>()?.CreateLogger<DocumentView>();
         var settings = services.GetService<ISettingsService>()?.Current;
@@ -234,15 +236,36 @@ public sealed class DocumentView : IDocumentView
             if (_showAnnotations == value) return;
             _showAnnotations = value;
             // bitmapy z poprzednimi flagami są nieaktualne – renderujemy od nowa (plik bez zmian)
-            _renderEpoch++;
-            CancelAllRenders();
-            _hi.Clear();
-            _lo.Clear();
-            _failed.Clear();
-            _presenter.InvalidateVisual();
-            ScheduleRenders();
+            RerenderAll();
             ViewStateChanged?.Invoke(this, EventArgs.Empty);
         }
+    }
+
+    private void RerenderAll()
+    {
+        _renderEpoch++;
+        CancelAllRenders();
+        _hi.Clear();
+        _lo.Clear();
+        _failed.Clear();
+        _presenter.InvalidateVisual();
+        ScheduleRenders();
+    }
+
+    private View.PageColorService? _pageColors;
+
+    /// <summary>Tryb kolorów strony (tryb nocny, sepia) – tylko podgląd.</summary>
+    internal View.PageColorMode PageColorMode => _pageColors?.Mode ?? View.PageColorMode.Normal;
+
+    /// <summary>Kolor papieru pod bitmapą strony w bieżącym trybie kolorów.</summary>
+    internal System.Windows.Media.Brush PaperBrush => _paperBrushes.TryGetValue(PageColorMode, out var b) ? b : System.Windows.Media.Brushes.White;
+
+    private static readonly Dictionary<View.PageColorMode, System.Windows.Media.Brush> _paperBrushes = Enum.GetValues<View.PageColorMode>()
+        .ToDictionary(m => m, m => { var b = new System.Windows.Media.SolidColorBrush(View.PageColorFilter.PaperColor(m)); b.Freeze(); return (System.Windows.Media.Brush)b; });
+
+    private void OnPageColorsChanged(object? sender, EventArgs e)
+    {
+        if (!_disposed) _presenter.Dispatcher.BeginInvoke(() => { if (!_disposed) RerenderAll(); });
     }
 
     /// <summary>Flagi renderu widoku: bez komentarzy (FPDF_ANNOT) przy ukryciu, zawsze z widżetami pól (FPDF_FFLDraw).</summary>
@@ -747,7 +770,8 @@ public sealed class DocumentView : IDocumentView
         {
             var request = new RenderRequest(scale, rotation, region.X == 0 && region.Y == 0 && region.Width >= fullW && region.Height >= fullH ? null : region, flags);
             var bmp = await doc.RenderPageAsync(page, request, cts.Token);
-            var src = await Task.Run(() => Ui.ToBitmapSource(bmp));
+            var mode = PageColorMode;
+            var src = await Task.Run(() => Ui.ToBitmapSource(View.PageColorFilter.Apply(bmp, mode)));
             if (gen != _generation || epoch != _renderEpoch || cts.IsCancellationRequested || _disposed) return;
             var entry = new PageBitmap(page, rotation, scale, new PixelRect(region.X, region.Y, bmp.Width, bmp.Height), fullW, fullH, src);
             (kind == KindLow ? _lo : _hi).Put(page, kind, entry);
@@ -1177,6 +1201,7 @@ public sealed class DocumentView : IDocumentView
         _disposed = true;
         Session.Changed -= OnSessionChanged;
         _tools.ActiveToolChanged -= OnActiveToolChanged;
+        if (_pageColors is not null) _pageColors.Changed -= OnPageColorsChanged;
         _find.Close();
         CancelAllRenders();
         _generation++;

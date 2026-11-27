@@ -142,6 +142,14 @@
   <data name="Edit.Redact.Pattern.Iban" xml:space="preserve"><value>IBAN (PL)</value></data>
   <data name="Edit.Redact.Pattern.Phrase" xml:space="preserve"><value>Phrase</value></data>
   <data name="Edit.Redact.Search.Title" xml:space="preserve"><value>Search &amp; Redact</value></data>
+  <data name="Edit.Redact.Profile.Title" xml:space="preserve"><value>Redaction profile</value></data>
+  <data name="Edit.Redact.Profile.List" xml:space="preserve"><value>Saved profiles</value></data>
+  <data name="Edit.Redact.Profile.None" xml:space="preserve"><value>(no profile)</value></data>
+  <data name="Edit.Redact.Profile.Name" xml:space="preserve"><value>Profile name</value></data>
+  <data name="Edit.Redact.Profile.Save" xml:space="preserve"><value>Save profile</value></data>
+  <data name="Edit.Redact.Profile.Delete" xml:space="preserve"><value>Delete profile</value></data>
+  <data name="Edit.Redact.Profile.NoName" xml:space="preserve"><value>Enter a profile name.</value></data>
+  <data name="Edit.Redact.Profile.Limit" xml:space="preserve"><value>You can save at most {0} profiles. Delete one to add a new one.</value></data>
   <data name="Edit.Redact.Search.Phrases" xml:space="preserve"><value>Phrases (one per line):</value></data>
   <data name="Edit.Redact.Search.Patterns" xml:space="preserve"><value>Patterns (checksums are validated):</value></data>
   <data name="Edit.Redact.Search.Find" xml:space="preserve"><value>Search</value></data>

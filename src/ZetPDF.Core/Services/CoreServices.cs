@@ -203,6 +203,7 @@ public sealed class SettingsService : ISettingsService
             {
                 var root = JsonNode.Parse(File.ReadAllText(_file)) as JsonObject;
                 var general = root?["General"]?.Deserialize<AppSettings>(Json) ?? new AppSettings();
+                general.Normalize();
                 var modules = root?["Modules"] as JsonObject ?? new JsonObject();
                 root?.Remove("Modules");
                 return (general, (JsonObject)(modules.DeepClone()));
@@ -257,14 +258,18 @@ public sealed class RecentFilesService : IRecentFilesService
         {
             s.RecentFiles.RemoveAll(p => string.Equals(p, full, StringComparison.OrdinalIgnoreCase));
             s.RecentFiles.Insert(0, full);
-            if (s.RecentFiles.Count > Math.Max(1, s.MaxRecentFiles)) s.RecentFiles.RemoveRange(s.MaxRecentFiles, s.RecentFiles.Count - s.MaxRecentFiles);
+            int max = Math.Clamp(s.MaxRecentFiles, AppSettings.MinRecentFiles, AppSettings.MaxRecentFilesLimit);
+            if (s.RecentFiles.Count > max) s.RecentFiles.RemoveRange(max, s.RecentFiles.Count - max);
         });
         Changed?.Invoke(this, EventArgs.Empty);
     }
 
     public void Remove(string path)
     {
-        _settings.Update(s => s.RecentFiles.RemoveAll(p => string.Equals(p, path, StringComparison.OrdinalIgnoreCase)));
+        string full;
+        try { full = Path.GetFullPath(path); }
+        catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException) { full = path; }
+        _settings.Update(s => s.RecentFiles.RemoveAll(p => string.Equals(p, path, StringComparison.OrdinalIgnoreCase) || string.Equals(p, full, StringComparison.OrdinalIgnoreCase)));
         Changed?.Invoke(this, EventArgs.Empty);
     }
 

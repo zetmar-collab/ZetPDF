@@ -102,7 +102,9 @@ public sealed partial class PageOperations
         using var doc = PdfIo.NewDocument();
         CopyInfo(src, doc);
         var map = new Dictionary<int, PdfPage>();
-        for (int i = first; i <= last; i++) map[i] = doc.AddPage(src.Pages[i]);
+        var form = new FormCarry(doc);
+        for (int i = first; i <= last; i++) map[i] = form.Import(src, src.Pages[i], doc.AddPage);
+        form.Complete();
         if (outlines is not null) Outlines.Write(doc.Outlines, outlines, i => map.TryGetValue(i, out var p) ? p : null);
         return PdfIo.Save(doc);
     }
@@ -128,6 +130,7 @@ public sealed partial class PageOperations
     internal static byte[] MergeCore(IReadOnlyList<(MergeSource Source, byte[] Data)> sources, MergeOptions options, IProgress<OperationProgress>? progress, CancellationToken ct)
     {
         using var doc = PdfIo.NewDocument();
+        var form = new FormCarry(doc);
         for (int k = 0; k < sources.Count; k++)
         {
             ct.ThrowIfCancellationRequested();
@@ -141,7 +144,7 @@ public sealed partial class PageOperations
             PdfPage? first = null;
             foreach (var p in pages)
             {
-                var added = doc.AddPage(src.Pages[p]);
+                var added = form.Import(src, src.Pages[p], doc.AddPage);
                 first ??= added;
                 map.TryAdd(p, added);
             }
@@ -154,6 +157,8 @@ public sealed partial class PageOperations
             }
             if (options.KeepBookmarks)
                 Outlines.Write(target, Outlines.Read(src), i => map.TryGetValue(i, out var pg) ? pg : null);
+            form.Complete(); // przed zamknięciem źródła; pola kolejnego pliku dostaną nowe nazwy przy kolizji
+            form = new FormCarry(doc);
         }
         progress?.Report(OperationProgress.Of(sources.Count, sources.Count));
         if (doc.PageCount == 0) throw new InvalidOperationException(PagesModule.Text("Pages.Error.NoPages")).WithMessageKey("Pages.Error.NoPages");

@@ -82,7 +82,18 @@ internal sealed class FormFillController
         if (hit is not { } h) return;
         if (!view.Session.Can(DocumentPermissions.FillForms) && !view.Session.Can(DocumentPermissions.Annotate)) return;
         e.Handled = true;
-        _ = ActivateAsync(view, h.Name, h.OnState);
+        _ = ActivateReportingAsync(view, h.Name, h.OnState);
+    }
+
+    /// <summary>Kliknięcie bez czekania na wynik: błąd (np. brak programu dla mailto:) trafia do okna błędu, a nie tylko do dziennika.</summary>
+    private async Task ActivateReportingAsync(IDocumentView view, string name, string? onState)
+    {
+        try { await ActivateAsync(view, name, onState); }
+        catch (OperationCanceledException) { }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            if (_ctx.Dialogs is { } d) d.ShowError(ex); else throw;
+        }
     }
 
     /// <summary>Uaktywnia pole (edytor albo przełączenie).</summary>
@@ -188,7 +199,7 @@ internal sealed class FormFillController
                 await _ctx.RunAsync(session, "Annot.Undo.FormReset", (pdf, ct) => _ctx.Forms.ResetAsync(pdf, null, policy, ct), DocumentChangeKind.FormFields, DocumentPermissions.FillForms, cancellation: AnnotContext.ScriptCommandToken());
                 break;
             case FormButtonAction.OpenUrl when Uri.TryCreate(spec.ButtonUrl, UriKind.Absolute, out var uri) && uri.Scheme is "http" or "https" or "mailto":
-                if (_ctx.Dialogs?.Confirm(_ctx.Loc.Format("Annot.Form.OpenUrlConfirm", uri.AbsoluteUri)) == true)
+                if (_ctx.Dialogs?.Confirm(_ctx.Loc.Format("Annot.Form.OpenUrlConfirm", ZetPDF.Core.Services.LinkSafety.Describe(uri))) == true)
                     System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(uri.AbsoluteUri) { UseShellExecute = true });
                 break;
         }

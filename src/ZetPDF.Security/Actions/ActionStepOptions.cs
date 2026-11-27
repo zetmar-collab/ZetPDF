@@ -34,6 +34,15 @@ public sealed record PdfAStepOptions
     public bool AllowContentRemoval { get; init; }
 }
 
+/// <summary>
+/// Krok „Redakcja według profilu”: wyszukuje frazy i wzorce z profilu zapisanego w oknie „Szukaj i redaguj” i od razu stosuje
+/// redakcję (treść trwale usunięta). Gdy nic nie znaleziono, plik przechodzi dalej bez zmian.
+/// </summary>
+public sealed record RedactStepOptions
+{
+    public string Profile { get; init; } = string.Empty;
+}
+
 /// <summary>Identyfikatory typów kroków (zapisywane w JSON).</summary>
 public static class ActionStepTypes
 {
@@ -47,6 +56,7 @@ public static class ActionStepTypes
     public const string Encrypt = "Encrypt";
     public const string Metadata = "Metadata";
     public const string PdfA = "PdfA";
+    public const string Redact = "Redact";
 
     /// <summary>Typ → klasa opcji.</summary>
     public static readonly IReadOnlyDictionary<string, Type> OptionTypes = new Dictionary<string, Type>
@@ -61,5 +71,6 @@ public static class ActionStepTypes
         [Encrypt] = typeof(EncryptStepOptions),
         [Metadata] = typeof(MetadataStepOptions),
         [PdfA] = typeof(PdfAStepOptions),
+        [Redact] = typeof(RedactStepOptions),
     };
 }

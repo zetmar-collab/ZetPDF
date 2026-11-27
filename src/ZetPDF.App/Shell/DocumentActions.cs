@@ -12,7 +12,7 @@ namespace ZetPDF.App.Shell;
 public sealed class DocumentActions
 {
     private readonly IDocumentManager _documents;
-    private readonly DialogService _dialogs;
+    private readonly IDialogService _dialogs;
     private readonly ILocalizationService _loc;
     private readonly IRecentFilesService _recent;
     private readonly IShellService _shell;
@@ -23,7 +23,7 @@ public sealed class DocumentActions
     {
         _ownerGuard = ownerGuard;
         _documents = documents;
-        _dialogs = (DialogService)dialogs;
+        _dialogs = dialogs;
         _loc = loc;
         _recent = recent;
         _shell = shell;
@@ -80,17 +80,10 @@ public sealed class DocumentActions
     public async Task<bool> SaveAsync(IPdfDocumentSession d)
     {
         if (d.FilePath is null) return await SaveAsAsync(d);
-        if (_documents is Core.Documents.DocumentManager dm)
+        switch (ConfirmOverwriteOwnFile(d))
         {
-            if (dm.HasChangedOnDisk(d) && !_dialogs.Confirm(_loc.Format("Shell.Save.ChangedOnDisk", d.DisplayName))) return false;
-            if (d.IsModified && dm.HasSignatures(d))
-            {
-                switch (_dialogs.AskSaveSigned(d.DisplayName))
-                {
-                    case YesNoCancel.Yes: return await SaveAsAsync(d);
-                    case YesNoCancel.Cancel: return false;
-                }
-            }
+            case OverwriteDecision.Cancel: return false;
+            case OverwriteDecision.SaveCopy: return await SaveAsAsync(d);
         }
         if (!await _ownerGuard.EnsureAsync(d)) return false;
         try
@@ -120,6 +113,15 @@ public sealed class DocumentActions
             _dialogs.ShowMessage(_loc.Format("Shell.SaveAs.AlreadyOpen", Path.GetFileName(full)), null, MessageSeverity.Warning);
             return false;
         }
+        // Wskazanie w oknie „Zapisz jako” tego samego pliku to zwykły zapis – te same ostrzeżenia (zmiana na dysku, podpisy).
+        if (d.FilePath is { } own && string.Equals(Path.GetFullPath(own), full, StringComparison.OrdinalIgnoreCase))
+        {
+            switch (ConfirmOverwriteOwnFile(d))
+            {
+                case OverwriteDecision.Cancel: return false;
+                case OverwriteDecision.SaveCopy: return await SaveAsAsync(d);
+            }
+        }
         if (!await _ownerGuard.EnsureAsync(d)) return false;
         try
         {
@@ -134,6 +136,26 @@ public sealed class DocumentActions
             _dialogs.ShowError(ex, path);
             return false;
         }
+    }
+
+    internal enum OverwriteDecision { Proceed, Cancel, SaveCopy }
+
+    /// <summary>Przed nadpisaniem własnego pliku dokumentu: plik zmieniony na dysku przez inny program i podpisy, które zapis unieważni.</summary>
+    internal OverwriteDecision ConfirmOverwriteOwnFile(IPdfDocumentSession d)
+    {
+        if (_documents is not Core.Documents.DocumentManager dm) return OverwriteDecision.Proceed;
+        if (dm.HasChangedOnDisk(d) && !_dialogs.Confirm(_loc.Format("Shell.Save.ChangedOnDisk", d.DisplayName))) return OverwriteDecision.Cancel;
+        if (d.IsModified && dm.HasSignatures(d))
+        {
+            var answer = _dialogs is DialogService ds ? ds.AskSaveSigned(d.DisplayName) : _dialogs.AskYesNoCancel(_loc.Format("Shell.Save.Signed", d.DisplayName));
+            return answer switch
+            {
+                YesNoCancel.Yes => OverwriteDecision.SaveCopy,
+                YesNoCancel.No => OverwriteDecision.Proceed,
+                _ => OverwriteDecision.Cancel,
+            };
+        }
+        return OverwriteDecision.Proceed;
     }
 
     /// <summary>
@@ -183,7 +205,8 @@ public sealed class DocumentActions
     private async Task<bool> ConfirmDiscardOrSaveAsync(IPdfDocumentSession d)
     {
         if (!d.IsModified) return true;
-        return _dialogs.AskSaveChanges(d.DisplayName) switch
+        var answer = _dialogs is DialogService ds ? ds.AskSaveChanges(d.DisplayName) : _dialogs.AskYesNoCancel(_loc.Format("Shell.Close.SavePrompt", d.DisplayName));
+        return answer switch
         {
             YesNoCancel.Yes => await SaveAsync(d),
             YesNoCancel.No => true,

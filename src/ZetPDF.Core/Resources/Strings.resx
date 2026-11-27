@@ -61,6 +61,7 @@
   <data name="Core.Error.Cryptography" xml:space="preserve"><value>A cryptographic operation failed (certificate, key or signature).</value></data>
   <data name="Core.Error.OutOfMemory" xml:space="preserve"><value>Not enough memory to complete the operation.</value></data>
   <data name="Core.Error.Unexpected" xml:space="preserve"><value>The operation failed because of an unexpected error. Technical details are below and in the log file.</value></data>
+  <data name="Core.Error.FileTooLarge" xml:space="preserve"><value>The file “{0}” is {1} MB. ZetPDF opens files up to {2} MB because the whole document is kept in memory.</value></data>
   <data name="Core.Error.NoFilePath" xml:space="preserve"><value>The document has no file yet – use Save As.</value></data>
   <data name="Core.Error.NeverSaved" xml:space="preserve"><value>The document has never been saved, so there is no version on disk to revert to.</value></data>
   <data name="Core.Error.EncryptionMethod" xml:space="preserve"><value>Encryption method {0} is not supported.</value></data>

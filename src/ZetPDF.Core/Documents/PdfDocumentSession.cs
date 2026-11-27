@@ -16,7 +16,10 @@ public sealed class PdfDocumentSession : IPdfDocumentSession, IDisposable
     private readonly UndoRedoHistory _history;
     private DocumentSnapshot _current;
     private long _savedVersion;
-    private bool _disposed;
+    // Zamknięcie może przyjść w trakcie polecenia (okno postępu pojawia się z opóźnieniem, komentarze idą bez niego):
+    // semafora nie zwalniamy, a historię zwalnia ten, kto ostatni trzyma blokadę edycji.
+    private volatile bool _disposed;
+    private int _released;
 
     public PdfDocumentSession(
         string? filePath,
@@ -62,10 +65,11 @@ public sealed class PdfDocumentSession : IPdfDocumentSession, IDisposable
         await _editLock.WaitAsync(ct);
         try
         {
+            if (_disposed) return false;
             var input = _current;
             var context = new DocumentEditContext(this, input, progress);
             result = await Task.Run(() => command.ExecuteAsync(context, ct), ct);
-            if (result is null) return false;
+            if (result is null || _disposed) return false; // dokument zamknięty w trakcie – wynik odrzucony
             ct.ThrowIfCancellationRequested();
             wasModified = IsModified;
             _history.Push(input, result.Output, command.DescriptionKey, result.Kind, result.AffectedPages);
@@ -73,9 +77,10 @@ public sealed class PdfDocumentSession : IPdfDocumentSession, IDisposable
         }
         finally
         {
-            _editLock.Release();
+            ReleaseEditLock();
         }
 
+        if (_disposed) return false;
         Raise(new DocumentChangedEventArgs(result.Kind, result.AffectedPages, DocumentChangeSource.Command));
         if (wasModified != IsModified) RaiseState();
         return true;
@@ -90,6 +95,7 @@ public sealed class PdfDocumentSession : IPdfDocumentSession, IDisposable
         await _editLock.WaitAsync(ct);
         try
         {
+            if (_disposed) return;
             var r = step();
             if (r is null) return;
             wasModified = IsModified;
@@ -98,8 +104,9 @@ public sealed class PdfDocumentSession : IPdfDocumentSession, IDisposable
         }
         finally
         {
-            _editLock.Release();
+            ReleaseEditLock();
         }
+        if (_disposed) return;
         Raise(new DocumentChangedEventArgs(kind, null, source));
         if (wasModified != IsModified) RaiseState();
     }
@@ -118,9 +125,11 @@ public sealed class PdfDocumentSession : IPdfDocumentSession, IDisposable
     /// <summary>Przywróć / ponowne wczytanie: nowy stan bazowy, czyści historię.</summary>
     internal async Task ResetAsync(DocumentSnapshot snapshot, PdfSecurityInfo info, DocumentPermissions permissions, CancellationToken ct)
     {
+        ObjectDisposedException.ThrowIf(_disposed, this);
         await _editLock.WaitAsync(ct);
         try
         {
+            if (_disposed) return;
             _history.ClearInternal();
             _current = snapshot;
             _savedVersion = snapshot.Version;
@@ -129,8 +138,9 @@ public sealed class PdfDocumentSession : IPdfDocumentSession, IDisposable
         }
         finally
         {
-            _editLock.Release();
+            ReleaseEditLock();
         }
+        if (_disposed) return;
         Raise(new DocumentChangedEventArgs(DocumentChangeKind.All, null, DocumentChangeSource.Revert));
         RaiseState();
     }
@@ -145,11 +155,32 @@ public sealed class PdfDocumentSession : IPdfDocumentSession, IDisposable
         else _ui.Send(_ => a(), null);
     }
 
+    /// <summary>Czy trwa polecenie lub krok historii (blokada edycji zajęta).</summary>
+    internal bool IsBusy => _editLock.CurrentCount == 0;
+
+    /// <summary>
+    /// Zamknięcie. Gdy trwa polecenie, zrzuty zwalnia ono samo po zakończeniu (jego wynik jest odrzucany), więc ani
+    /// semafor, ani historia nie znikają spod działającego kodu.
+    /// </summary>
     public void Dispose()
     {
         if (_disposed) return;
         _disposed = true;
-        _history.ReleaseAll();
-        _editLock.Dispose();
+        if (_editLock.Wait(0)) ReleaseEditLock();
+    }
+
+    private void ReleaseEditLock()
+    {
+        _editLock.Release();
+        if (!_disposed || Volatile.Read(ref _released) != 0) return;
+        if (!_editLock.Wait(0)) return; // inny oczekujący – zwolni po sobie
+        try
+        {
+            if (Interlocked.Exchange(ref _released, 1) == 0) _history.ReleaseAll();
+        }
+        finally
+        {
+            _editLock.Release();
+        }
     }
 }

@@ -59,6 +59,7 @@ public partial class App : Application
         services.AddSingleton<OwnerProtectionGuard>();
         services.AddSingleton<DocumentActions>();
         services.AddSingleton<RecoveryFlow>();
+        services.AddSingleton<SessionRestore>();
         services.AddSingleton<MainWindow>();
         foreach (var m in modules) m.ConfigureServices(services);
         // tryby diagnostyczne (test dymny, zrzuty): czytanie na głos przez prawdziwy System.Speech, ale bez dźwięku
@@ -182,8 +183,15 @@ public partial class App : Application
     private async Task OpenFromCommandLineAsync(string[] args)
     {
         var (files, password) = ParseArgs(args);
-        if (files.Count == 0) return;
-        await Services.GetRequiredService<DocumentActions>().OpenAsync(files, password);
+        var actions = Services.GetRequiredService<DocumentActions>();
+        if (files.Count == 0)
+        {
+            // Bez plików w linii poleceń: ostatnia sesja (opcja w Ustawieniach).
+            try { await Services.GetRequiredService<SessionRestore>().RestoreAsync(paths => actions.OpenAsync(paths)); }
+            catch (Exception ex) when (ex is not OutOfMemoryException) { _log?.LogError(ex, "Session restore failed"); }
+            return;
+        }
+        await actions.OpenAsync(files, password);
     }
 
     protected override void OnExit(ExitEventArgs e)

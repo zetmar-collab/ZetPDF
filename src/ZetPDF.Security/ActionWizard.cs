@@ -309,6 +309,17 @@ public sealed class ActionWizard : IActionWizard
                     };
                     return updated == cur ? pdf : await meta.SetAsync(pdf, updated, ct).ConfigureAwait(false);
                 }
+            case ActionStepTypes.Redact:
+                {
+                    var o = ReadOptions<RedactStepOptions>(step);
+                    var profile = Require<ZetPDF.Core.Services.RedactionProfileStore>().Find(o.Profile)
+                        ?? throw new ActionStepException(string.Format(Culture, Txt("Security.Action.Error.NoProfile"), o.Profile));
+                    var redaction = Require<IRedactionService>();
+                    var found = await redaction.FindAsync(pdf, profile.ToSearch(), null, ct).ConfigureAwait(false);
+                    if (found.Count == 0) return pdf;
+                    var marked = await redaction.MarkAsync(pdf, found.Select(c => new RedactionMark(c.PageIndex, c.Quads)).ToList(), ct).ConfigureAwait(false);
+                    return await redaction.ApplyAsync(marked, new RedactionApplyOptions(), progress, ct).ConfigureAwait(false);
+                }
             default:
                 throw new ActionStepException(string.Format(Culture, Txt("Security.Action.Error.UnknownStep"), step.StepType));
         }

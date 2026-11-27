@@ -119,6 +119,26 @@ public class LogicTests
             Assert.Equal(query.Replace(" ", string.Empty), text.Substring(s, c).Replace("\r\n", string.Empty).Replace(" ", string.Empty), ignoreCase: !matchCase);
     }
 
+    [Theory]
+    [InlineData("tekst przeno-\r\nszone dalej", "przenoszone", 1)]
+    [InlineData("tekst przeno-  \r\n  szone dalej", "przenoszone", 1)]
+    [InlineData("tekst przeno\u0002\r\nszone dalej", "przenoszone", 1)]
+    [InlineData("tekst przeno­szone dalej", "przenoszone", 1)]
+    [InlineData("flaga biało-czerwona", "biało-czerwona", 1)]
+    [InlineData("flaga biało-czerwona", "białoczerwona", 0)]
+    [InlineData("rok 2020-\r\n2021", "20202021", 0)]
+    public void Text_matcher_joins_words_hyphenated_at_line_end(string text, string query, int expected)
+    {
+        var hits = TextMatcher.FindAll(text, query, false, true);
+        Assert.Equal(expected, hits.Count);
+        foreach (var (s, c) in hits)
+        {
+            var span = text.Substring(s, c);
+            Assert.StartsWith(query[..3], span, StringComparison.OrdinalIgnoreCase);
+            Assert.EndsWith(query[^3..], span, StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
     private static readonly IReadOnlyList<BookmarkNode> Sample = new[]
     {
         new BookmarkNode("A", 0, new[] { new BookmarkNode("A1", 1, BookmarkNode.NoChildren), new BookmarkNode("A2", 2, BookmarkNode.NoChildren) }),

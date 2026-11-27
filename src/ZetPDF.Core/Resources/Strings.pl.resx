@@ -61,6 +61,7 @@
   <data name="Core.Error.Cryptography" xml:space="preserve"><value>Operacja kryptograficzna nie powiodła się (certyfikat, klucz lub podpis).</value></data>
   <data name="Core.Error.OutOfMemory" xml:space="preserve"><value>Za mało pamięci, aby wykonać operację.</value></data>
   <data name="Core.Error.Unexpected" xml:space="preserve"><value>Operacja nie powiodła się z powodu nieoczekiwanego błędu. Szczegóły techniczne są poniżej i w pliku dziennika.</value></data>
+  <data name="Core.Error.FileTooLarge" xml:space="preserve"><value>Plik „{0}” ma {1} MB. ZetPDF otwiera pliki do {2} MB, bo cały dokument jest trzymany w pamięci.</value></data>
   <data name="Core.Error.NoFilePath" xml:space="preserve"><value>Dokument nie ma jeszcze pliku – użyj polecenia Zapisz jako.</value></data>
   <data name="Core.Error.NeverSaved" xml:space="preserve"><value>Dokument nie był jeszcze zapisany, więc nie ma wersji na dysku, do której można wrócić.</value></data>
   <data name="Core.Error.EncryptionMethod" xml:space="preserve"><value>Metoda szyfrowania {0} nie jest obsługiwana.</value></data>

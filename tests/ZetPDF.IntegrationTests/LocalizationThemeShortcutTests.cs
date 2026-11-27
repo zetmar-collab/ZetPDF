@@ -240,6 +240,10 @@ public class LocalizationThemeShortcutTests
         ("SignatureAppearanceBuilder.cs", "Brushes.Black", "kontury glifów w wyglądzie podpisu (treść PDF)"),
         ("PrintDialogWindow.cs", "Brushes.White", "papier w podglądzie wydruku"),
         ("PagesPresenter.cs", "Brushes.White", "tło strony PDF przed renderem"),
+        ("DocumentView.cs", "System.Windows.Media.Brushes.White", "papier strony PDF (zwykłe kolory)"),
+        ("PageColors.cs", "Color.FromRgb(", "papier strony w trybie nocnym i sepii (podgląd treści PDF)"),
+        ("PageColors.cs", "Colors.White", "papier strony PDF (zwykłe kolory)"),
+        ("BookmarkColors.cs", "new SolidColorBrush(Color.FromRgb(c.R, c.G, c.B))", "kolor zakładki zapisany w pliku (treść PDF)"),
         ("TextLayerWriter.cs", "XBrushes.Black", "PDFsharp – treść PDF"),
         ("PageOperations.Transform.cs", "XColors.Black", "PDFsharp – treść PDF"),
     };

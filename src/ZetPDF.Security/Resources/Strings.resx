@@ -66,6 +66,10 @@
   <data name="Security.Action.Error.NotAvailable" xml:space="preserve"><value>This step is not available in this version of ZetPDF (module not installed).</value></data>
   <data name="Security.Action.Error.NoPassword" xml:space="preserve"><value>The "Protect with password" step needs a password.</value></data>
   <data name="Security.Action.Error.UnknownStep" xml:space="preserve"><value>Unknown step type: {0}.</value></data>
+  <data name="Security.Action.Step.Redact" xml:space="preserve"><value>Redact using profile</value></data>
+  <data name="Security.Param.Profile" xml:space="preserve"><value>Redaction profile</value></data>
+  <data name="Security.Param.Deskew" xml:space="preserve"><value>Straighten skewed scans</value></data>
+  <data name="Security.Action.Error.NoProfile" xml:space="preserve"><value>There is no redaction profile “{0}”. Save it in the Search and Redact window.</value></data>
   <data name="Security.Compare.Title" xml:space="preserve"><value>Compare documents</value></data>
   <data name="Security.Compare.Old" xml:space="preserve"><value>Old document:</value></data>
   <data name="Security.Compare.New" xml:space="preserve"><value>New document:</value></data>

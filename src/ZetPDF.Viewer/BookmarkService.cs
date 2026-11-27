@@ -79,9 +79,33 @@ public sealed class BookmarkService : IBookmarkService
             bool open = children.Count > 0 && (o.Elements.GetInteger("/Count") > 0 || (o.Opened && !o.Elements.ContainsKey("/Count")));
             list.Add(new BookmarkNode(o.Title ?? string.Empty, pageIndex, children, target, open,
                 o.Style is PdfOutlineStyle.Bold or PdfOutlineStyle.BoldItalic,
-                o.Style is PdfOutlineStyle.Italic or PdfOutlineStyle.BoldItalic));
+                o.Style is PdfOutlineStyle.Italic or PdfOutlineStyle.BoldItalic, ReadColor(o)));
         }
         return list;
+    }
+
+    /// <summary>Kolor tytułu (/C, RGB 0..1). Czarny i brak koloru traktujemy tak samo – bez wpisu.</summary>
+    internal static PdfColor? ReadColor(PdfDictionary outline)
+    {
+        var c = outline.Elements["/C"] is PdfSharp.Pdf.Advanced.PdfReference r ? r.Value : outline.Elements["/C"];
+        if (c is not PdfArray { Elements.Count: 3 } arr) return null;
+        var v = new double[3];
+        for (int i = 0; i < 3; i++)
+        {
+            v[i] = arr.Elements[i] switch { PdfInteger n => n.Value, PdfReal d => d.Value, _ => double.NaN };
+            if (!double.IsFinite(v[i])) return null;
+        }
+        static byte B(double x) => (byte)Math.Round(Math.Clamp(x, 0, 1) * 255);
+        var color = new PdfColor(255, B(v[0]), B(v[1]), B(v[2]));
+        return color == PdfColor.Black ? null : color;
+    }
+
+    internal static void WriteColor(PdfDictionary outline, PdfColor? color)
+    {
+        if (color is not { } c || c == PdfColor.Black) { outline.Elements.Remove("/C"); return; }
+        var arr = new PdfArray();
+        foreach (var b in new[] { c.R, c.G, c.B }) arr.Elements.Add(new PdfReal(Math.Round(b / 255.0, 4)));
+        outline.Elements["/C"] = arr;
     }
 
     private static void Write(PdfDocument doc, PdfOutlineCollection target, IReadOnlyList<BookmarkNode> nodes, int depth)
@@ -107,6 +131,7 @@ public sealed class BookmarkService : IBookmarkService
                 o = new PdfOutline { Title = title, Opened = n.IsOpen && n.Children.Count > 0, Style = style };
                 target.Add(o);
             }
+            WriteColor(o, n.Color);
             if (n.Children.Count > 0)
             {
                 Write(doc, o.Outlines, n.Children, depth + 1);

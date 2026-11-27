@@ -123,6 +123,20 @@ public sealed class AnnotationService : IAnnotationService
             d.Elements["/BS"] = bs;
             style = true;
         }
+        // Pole tekstowe i maszyna do pisania: gdy po zmianie tekstu lub czcionki tekst się nie mieści, ramka rośnie w dół
+        // (szerokość i lewy górny róg zostają; ramki większej niż tekst nie zmniejszamy – rozmiar mógł ustawić użytkownik).
+        // Objaśnienie ma osobny prostokąt tekstu – bez zmian.
+        if (m.Subtype == "/FreeText" && m.Kind != AnnotationKind.Callout && u.Rect is null && (u.Contents is not null || u.TextStyle is not null))
+        {
+            var cur = AnnotModel.Read(d);
+            double lw = cur.HasBorder ? cur.LineWidth : 0;
+            var (_, h) = AppearanceBuilder.MeasureFreeText(cur.Contents, cur.FontFamily, cur.FontSize, lw, cur.Rect.Width);
+            if (h > cur.Rect.Height + 0.5)
+            {
+                d.Elements["/Rect"] = RectArray(doc, new PdfRect(cur.Rect.Left, cur.Rect.Top - h, cur.Rect.Right, cur.Rect.Top));
+                geometry = true;
+            }
+        }
         if (u.IsHidden is { } hidden) AnnotationStore.SetFlag(d, AnnotationStore.FlagHidden, hidden);
         if (u.State is { } state) SetState(doc, found, state, now);
 
